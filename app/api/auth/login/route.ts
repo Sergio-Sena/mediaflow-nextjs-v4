@@ -1,39 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server'
-import jwt from 'jsonwebtoken'
+import { getApiUrl } from '@/lib/aws-config'
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, password } = await request.json()
+    const body = await request.json()
     
-    // Validação simples (baseada na documentação original)
-    if (email === 'sergiosenaadmin@sstech' && password === 'sergiosena') {
-      const token = jwt.sign(
-        { 
-          email, 
-          name: 'Sergio Sena',
-          role: 'admin' 
-        }, 
-        process.env.JWT_SECRET!, 
-        { expiresIn: '24h' }
-      )
-      
-      return NextResponse.json({ 
-        success: true,
-        token, 
-        user: { 
-          email, 
-          name: 'Sergio Sena',
-          role: 'admin' 
-        } 
-      })
-    }
+    // Proxy to AWS Lambda
+    const response = await fetch(getApiUrl('AUTH'), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body)
+    })
     
-    return NextResponse.json(
-      { success: false, error: 'Credenciais inválidas' }, 
-      { status: 401 }
-    )
+    const data = await response.json()
+    
+    return NextResponse.json(data, { status: response.status })
   } catch (error) {
-    console.error('Auth error:', error)
+    console.error('Auth proxy error:', error)
     return NextResponse.json(
       { success: false, error: 'Erro interno do servidor' },
       { status: 500 }

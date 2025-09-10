@@ -1,4 +1,4 @@
-// File: C:\Projetos Git\drive-online-clean-NextJs\app\page.tsx
+// File: c:\Projetos Git\drive-online-clean-NextJs\app\page.tsx
 import * as entry from '../../../app/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 
