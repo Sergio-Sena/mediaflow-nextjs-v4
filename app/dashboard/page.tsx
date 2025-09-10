@@ -2,6 +2,12 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import FileUpload from '@/components/modules/FileUpload'
+import FileList from '@/components/modules/FileList'
+import VideoPlayer from '@/components/modules/VideoPlayer'
+import ImageViewer from '@/components/modules/ImageViewer'
+import PDFViewer from '@/components/modules/PDFViewer'
+import Analytics from '@/components/modules/Analytics'
 
 interface User {
   email: string
@@ -21,9 +27,12 @@ interface FileItem {
 
 export default function DashboardPage() {
   const [user, setUser] = useState<User | null>(null)
-  const [files, setFiles] = useState<FileItem[]>([])
   const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState<'files' | 'upload'>('files')
+  const [activeTab, setActiveTab] = useState<'files' | 'upload' | 'analytics'>('files')
+  const [selectedVideo, setSelectedVideo] = useState<FileItem | null>(null)
+  const [selectedImage, setSelectedImage] = useState<FileItem | null>(null)
+  const [selectedPDF, setSelectedPDF] = useState<FileItem | null>(null)
+  const [refreshTrigger, setRefreshTrigger] = useState(0)
   const router = useRouter()
 
   useEffect(() => {
@@ -37,27 +46,11 @@ export default function DashboardPage() {
     }
 
     setUser(JSON.parse(userData))
-    loadFiles()
+    setLoading(false)
   }, [router])
 
-  const loadFiles = async () => {
-    try {
-      const token = localStorage.getItem('token')
-      const response = await fetch('/api/videos/list', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        setFiles(data.files || [])
-      }
-    } catch (error) {
-      console.error('Erro ao carregar arquivos:', error)
-    } finally {
-      setLoading(false)
-    }
+  const handleRefresh = () => {
+    setRefreshTrigger(prev => prev + 1)
   }
 
   const logout = () => {
@@ -129,8 +122,9 @@ export default function DashboardPage() {
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex space-x-8">
             {[
-              { id: 'files', label: '📁 Arquivos', count: files.length },
+              { id: 'files', label: '📁 Arquivos', count: 0 },
               { id: 'upload', label: '📤 Upload', count: 0 },
+              { id: 'analytics', label: '📊 Analytics', count: 0 },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -156,95 +150,74 @@ export default function DashboardPage() {
       {/* Content */}
       <main className="max-w-7xl mx-auto px-4 py-8">
         {activeTab === 'files' && (
-          <div className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-xl font-semibold text-white">
-                Seus Arquivos ({files.length})
-              </h2>
-              <button
-                onClick={loadFiles}
-                className="btn-secondary px-4 py-2 text-sm"
-              >
-                🔄 Atualizar
-              </button>
-            </div>
-
-            {files.length === 0 ? (
-              <div className="glass-card p-12 text-center">
-                <div className="text-6xl mb-4">📁</div>
-                <h3 className="text-xl font-semibold text-gray-300 mb-2">
-                  Nenhum arquivo encontrado
-                </h3>
-                <p className="text-gray-400 mb-6">
-                  Faça upload de seus primeiros arquivos
-                </p>
-                <button
-                  onClick={() => setActiveTab('upload')}
-                  className="btn-neon"
-                >
-                  📤 Fazer Upload
-                </button>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {files.map((file) => (
-                  <div key={file.key} className="glass-card-hover p-4">
-                    <div className="flex items-center gap-3 mb-3">
-                      <span className="text-2xl">{getFileIcon(file.type)}</span>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-medium text-white truncate">
-                          {file.name}
-                        </h3>
-                        <p className="text-xs text-gray-400">
-                          {formatFileSize(file.size)}
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex gap-2">
-                      {file.type === 'video' && (
-                        <button className="btn-secondary flex-1 py-2 text-xs">
-                          ▶️ Play
-                        </button>
-                      )}
-                      <a
-                        href={file.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="btn-secondary flex-1 py-2 text-xs text-center"
-                      >
-                        📥 Download
-                      </a>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          <FileList 
+            onPlayVideo={setSelectedVideo}
+            onViewImage={setSelectedImage}
+            onViewPDF={setSelectedPDF}
+            refreshTrigger={refreshTrigger}
+          />
         )}
 
         {activeTab === 'upload' && (
           <div className="space-y-6">
-            <h2 className="text-xl font-semibold text-white">Upload de Arquivos</h2>
-            
-            <div className="glass-card p-8 text-center">
-              <div className="text-6xl mb-4">📤</div>
-              <h3 className="text-xl font-semibold text-gray-300 mb-2">
-                Upload em Desenvolvimento
-              </h3>
-              <p className="text-gray-400 mb-6">
-                Funcionalidade será implementada na próxima etapa
-              </p>
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl font-semibold text-white">Upload de Arquivos</h2>
               <button
                 onClick={() => setActiveTab('files')}
-                className="btn-neon"
+                className="btn-secondary px-4 py-2 text-sm"
               >
                 📁 Ver Arquivos
               </button>
             </div>
+            
+            <FileUpload
+              maxFiles={10}
+              maxSize={5120}
+              acceptedTypes={['video/*', 'image/*', 'application/pdf']}
+              onUploadComplete={(uploadedFiles) => {
+                console.log('Upload concluído:', uploadedFiles)
+                handleRefresh() // Trigger refresh
+                setActiveTab('files') // Voltar para aba de arquivos
+              }}
+            />
+          </div>
+        )}
+
+        {activeTab === 'analytics' && (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl font-semibold text-white">Analytics & Relatórios</h2>
+            </div>
+            
+            <Analytics />
           </div>
         )}
       </main>
+
+      {/* Viewers */}
+      {selectedVideo && (
+        <VideoPlayer
+          src={selectedVideo.url}
+          title={selectedVideo.name}
+          onClose={() => setSelectedVideo(null)}
+        />
+      )}
+      
+      {selectedImage && (
+        <ImageViewer
+          src={selectedImage.url}
+          title={selectedImage.name}
+          onClose={() => setSelectedImage(null)}
+        />
+      )}
+      
+      {selectedPDF && (
+        <PDFViewer
+          src={selectedPDF.url}
+          title={selectedPDF.name}
+          onClose={() => setSelectedPDF(null)}
+        />
+      )}
     </div>
   )
 }

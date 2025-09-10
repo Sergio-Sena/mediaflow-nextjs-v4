@@ -1,59 +1,52 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { S3Client, ListObjectsV2Command } from '@aws-sdk/client-s3'
-
-const s3Client = new S3Client({
-  region: process.env.AWS_REGION || 'us-east-1',
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
-  },
-})
+import { getApiUrl } from '@/lib/aws-config'
 
 export async function GET(request: NextRequest) {
   try {
-    // Validar token JWT
-    const authHeader = request.headers.get('authorization')
-    if (!authHeader?.startsWith('Bearer ')) {
-      return NextResponse.json(
-        { error: 'Token não fornecido' },
-        { status: 401 }
-      )
+    // Proxy to AWS Lambda
+    const response = await fetch(getApiUrl('FILES'), {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    })
+    
+    const data = await response.json()
+    
+    if (data.success) {
+      // Transform AWS response to match frontend expectations
+      const files = data.files.map((file: any) => ({
+        key: file.key,
+        name: file.key.split('/').pop() || '',
+        size: file.size,
+        lastModified: file.lastModified,
+        url: file.url || `https://${file.bucket === 'uploads' ? 'mediaflow-uploads-969430605054' : 'mediaflow-processed-969430605054'}.s3.amazonaws.com/${file.key}`,
+        type: getFileType(file.key),
+        folder: getFolder(file.key),
+        bucket: file.bucket
+      }))
+      
+      const folderSet = new Set(files.map((f: any) => f.folder).filter(Boolean))
+      const folders = Array.from(folderSet)
+      
+      return NextResponse.json({
+        success: true,
+        files,
+        folders,
+        total: files.length,
+      })
     }
-
-    const command = new ListObjectsV2Command({
-      Bucket: 'video-streaming-sstech-v3',
-      MaxKeys: 1000,
-    })
-
-    const response = await s3Client.send(command)
     
-    // Processar arquivos
-    const files = response.Contents?.map(file => ({
-      key: file.Key,
-      name: file.Key?.split('/').pop() || '',
-      size: file.Size || 0,
-      lastModified: file.LastModified,
-      url: `https://d2we88koy23cl4.cloudfront.net/${file.Key}`,
-      type: getFileType(file.Key || ''),
-      folder: getFolder(file.Key || ''),
-    })) || []
-
-    // Organizar por pastas
-    const folders = [...new Set(files.map(f => f.folder).filter(Boolean))]
-    
+    return NextResponse.json(data, { status: response.status })
+  } catch (error: any) {
+    console.error('List videos proxy error:', error)
     return NextResponse.json({
-      success: true,
-      files,
-      folders,
-      total: files.length,
-    })
-
-  } catch (error) {
-    console.error('List videos error:', error)
-    return NextResponse.json(
-      { error: 'Erro ao listar vídeos' },
-      { status: 500 }
-    )
+      success: false,
+      error: error?.message || 'Erro ao listar vídeos',
+      files: [],
+      folders: [],
+      total: 0,
+    }, { status: 200 })
   }
 }
 

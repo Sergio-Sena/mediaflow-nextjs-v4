@@ -17,15 +17,9 @@ export default function LoginPage() {
     setError('')
 
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      })
-
-      const data = await response.json()
+      // Use AWS API directly
+      const { mediaflowClient } = await import('@/lib/aws-client')
+      const data = await mediaflowClient.login(email, password)
 
       if (data.success) {
         // Salvar token

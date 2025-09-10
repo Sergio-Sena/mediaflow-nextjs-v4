@@ -1,0 +1,25 @@
+{
+  "account_id": "969430605054",
+  "region": "us-east-1",
+  "buckets": {
+    "frontend": "mediaflow-frontend-969430605054",
+    "uploads": "mediaflow-uploads-969430605054",
+    "processed": "mediaflow-processed-969430605054"
+  },
+  "created_at": "2025-09-10T16:26:35.842151",
+  "lambda_functions": [
+    "mediaflow-auth-handler",
+    "mediaflow-files-handler",
+    "mediaflow-upload-handler",
+    "mediaflow-cleanup-handler",
+    "mediaflow-view-handler",
+    "mediaflow-convert-handler"
+  ],
+  "lambda_role_arn": "arn:aws:iam::969430605054:role/mediaflow-lambda-role",
+  "api_gateway": {
+    "api_id": "gdb962d234",
+    "api_url": "https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod",
+    "stage": "prod"
+  },
+  "frontend_url": "http://mediaflow-frontend-969430605054.s3-website-us-east-1.amazonaws.com"
+}

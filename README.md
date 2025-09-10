@@ -132,16 +132,37 @@ npm run type-check   # Verificar tipos TypeScript
 
 ### **Variáveis de Ambiente**
 ```env
-# AWS Configuration
+# JWT Secret (OBRIGATÓRIO)
+JWT_SECRET=your_super_secret_key
+
+# AWS Configuration (OPCIONAL - para funcionalidades completas)
 AWS_REGION=us-east-1
 AWS_ACCESS_KEY_ID=your_access_key
 AWS_SECRET_ACCESS_KEY=your_secret_key
 
-# JWT Secret
-JWT_SECRET=your_super_secret_key
-
 # Next.js
 NEXT_PUBLIC_APP_URL=https://your-domain.com
+```
+
+### **⚠️ CONFIGURAÇÃO IMPORTANTE - VERCEL PROTECTION**
+
+**PROBLEMA**: Vercel ativa proteção por padrão, bloqueando APIs públicas.
+
+**SOLUÇÃO TEMPORÁRIA** (para demo):
+1. Dashboard Vercel → Settings → **Deployment Protection**
+2. **Disable** "Password Protection"
+3. **Save Changes**
+
+**🔒 REVERTER APÓS PRODUÇÃO**:
+- **Reabilitar** Deployment Protection
+- Configurar **Custom Domain** (remove proteção automática)
+- Usar **Environment-specific** protection
+
+```bash
+# Testar API após desabilitar protection
+curl -X POST https://seu-projeto.vercel.app/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"sergiosenaadmin@sstech","password":"sergiosena"}'
 ```
 
 ---
@@ -205,17 +226,26 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 
 ## 🎯 **Roadmap**
 
+### **v4.0 (Concluído)** ✅
+- [x] Sistema de upload com drag & drop
+- [x] Player de vídeo avançado
+- [x] Dashboard com analytics
+- [x] Deploy Vercel funcional
+- [x] Autenticação JWT
+- [x] Design neon cyberpunk
+
 ### **v4.1 (Próxima)**
-- [ ] Sistema de upload com drag & drop
-- [ ] Player de vídeo avançado
-- [ ] Dashboard com analytics
-- [ ] Testes automatizados
+- [ ] Integração AWS S3 completa
+- [ ] AWS MediaConvert automático
+- [ ] Multipart upload (>100MB)
+- [ ] Auto-clean e sanitização
+- [ ] Domínio customizado
 
 ### **v4.2 (Futuro)**
 - [ ] Sistema de usuários completo
-- [ ] Integração com AWS MediaConvert
 - [ ] PWA (Progressive Web App)
 - [ ] Modo offline
+- [ ] Analytics avançadas
 
 ---
 
@@ -230,9 +260,12 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 ---
 
 **🎬 Mediaflow Next.js v4.0 - Sistema de Streaming Modular**  
-**Versão**: 4.0.0 | **Status**: MVP Funcional | **Deploy**: Vercel Ready
+**Versão**: 4.0.0 | **Status**: ✅ ONLINE | **Deploy**: ✅ SUCESSO
 
-*"A única constante no desenvolvimento é a mudança... e bugs. Sempre bugs." - Persona Produto* 🐛
+**🌐 URL Produção**: https://mediaflow-nextjs-v4-7v9mjtrgc-sergiosenas-projects.vercel.app  
+**🔑 Login**: sergiosenaadmin@sstech / sergiosena
+
+*"MVP deployado com sucesso! Agora é hora das funcionalidades avançadas!" - Persona Produto* 🚀
 
 ---
 
