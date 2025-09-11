@@ -114,8 +114,14 @@ export default function FileUpload({
       const fileSize = uploadFile.file.size
       const MB = 1024 * 1024
       
-      // Now we can upload files without 10MB limit!
-      return await uploadViaPresigned(uploadFile)
+      // Upload único otimizado - funciona até 5GB
+      if (fileSize > 100 * MB) {
+        // Arquivos >100MB: usar upload direto (mais lento mas estável)
+        return await uploadViaProxy(uploadFile)
+      } else {
+        // Arquivos <100MB: usar presigned URL (mais rápido)
+        return await uploadViaPresigned(uploadFile)
+      }
 
     } catch (error) {
       setFiles(prev => prev.map(f => 
@@ -178,20 +184,50 @@ export default function FileUpload({
     
     const sanitizedName = sanitizeFilename(uploadFile.file.name)
     const { mediaflowClient } = await import('@/lib/aws-client')
-    const { MultipartUploader } = await import('@/lib/multipart-upload')
-    
-    const uploader = new MultipartUploader()
     
     try {
-      const result = await uploader.uploadFile(
-        uploadFile.file,
-        (filename, contentType) => mediaflowClient.getUploadUrl(filename, contentType),
-        (progress) => {
-          setFiles(prev => prev.map(f => 
-            f.id === uploadFile.id ? { ...f, progress } : f
-          ))
-        }
-      )
+      // Preserve folder structure in filename
+      let uploadFilename = uploadFile.file.name
+      if (uploadFile.relativePath) {
+        // Use relative path to preserve folder structure
+        uploadFilename = uploadFile.relativePath
+      } else if (uploadFile.folder) {
+        // Use folder name if available
+        uploadFilename = `${uploadFile.folder}/${uploadFile.file.name}`
+      }
+      
+      console.log('Upload filename with path:', uploadFilename)
+      
+      // Upload único via presigned URL
+      const urlData = await mediaflowClient.getUploadUrl(uploadFilename, uploadFile.file.type, uploadFile.file.size)
+      if (!urlData.success) throw new Error(urlData.message)
+      
+      const result = await new Promise<string>((resolve, reject) => {
+        const xhr = new XMLHttpRequest()
+        
+        xhr.upload.addEventListener('progress', (e) => {
+          if (e.lengthComputable) {
+            const progress = Math.round((e.loaded / e.total) * 100)
+            setFiles(prev => prev.map(f => 
+              f.id === uploadFile.id ? { ...f, progress } : f
+            ))
+          }
+        })
+        
+        xhr.addEventListener('load', () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            resolve(urlData.key)
+          } else {
+            reject(new Error(`Upload failed: ${xhr.status}`))
+          }
+        })
+        
+        xhr.addEventListener('error', () => reject(new Error('Upload error')))
+        
+        xhr.open('PUT', urlData.uploadUrl)
+        xhr.setRequestHeader('Content-Type', uploadFile.file.type)
+        xhr.send(uploadFile.file)
+      })
       
       const fileUrl = `https://mediaflow-uploads-969430605054.s3.amazonaws.com/${result}`
       

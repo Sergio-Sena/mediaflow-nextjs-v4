@@ -38,14 +38,30 @@ def list_files():
         try:
             response = s3.list_objects_v2(Bucket=bucket)
             for obj in response.get('Contents', []):
+                # Preserve full path structure
+                key = obj['Key']
+                
+                # Extract folder and filename
+                if '/' in key:
+                    folder_path = '/'.join(key.split('/')[:-1])
+                    filename = key.split('/')[-1]
+                else:
+                    folder_path = 'root'  # Changed from '' to 'root'
+                    filename = key
+                
+                print(f"File: {key} -> folder: '{folder_path}', name: '{filename}'")
+                
                 files.append({
-                    'key': obj['Key'],
+                    'key': key,  # Full path preserved
+                    'name': filename,
+                    'folder': folder_path,
                     'size': obj['Size'],
                     'lastModified': obj['LastModified'].isoformat(),
                     'bucket': bucket_type,
                     'url': f"https://{bucket}.s3.amazonaws.com/{obj['Key']}"
                 })
-        except:
+        except Exception as e:
+            print(f"Error listing bucket {bucket}: {str(e)}")
             pass
     
     return cors_response(200, {'success': True, 'files': files})

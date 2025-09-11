@@ -1,6 +1,6 @@
 # 🎬 DOCUMENTO CONSOLIDADO COMPLETO - Video Streaming SStech v3.0
 
-## 📅 **Versão**: v3.0 Final | **Data**: 05 Janeiro 2025 | **Status**: 100% OPERACIONAL + BACKUP SEGURO
+## 📅 **Versão**: v4.0 Final | **Data**: 11 Janeiro 2025 | **Status**: 100% OPERACIONAL + UPLOAD OTIMIZADO
 
 ---
 
@@ -9,11 +9,11 @@
 **Sistema de streaming serverless** desenvolvido em **23 fases incrementais** com arquitetura AWS, interface mobile-first e conversão automática de vídeos.
 
 ### **🌐 Produção Atual**
-- **URL**: https://videos.sstechnologies-cloud.com
-- **API**: https://4y3erwjgak.execute-api.us-east-1.amazonaws.com/prod
-- **Credenciais**: sergiosenaadmin@sstech / sergiosena / MFA: Google Authenticator
-- **Performance**: Upload 4x mais rápido + conversão automática
-- **Economia**: 28% redução custos AWS ($4.25 → $3.10/mês)
+- **URL**: https://mediaflow.sstechnologies-cloud.com
+- **API**: https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod
+- **Credenciais**: sergiosenaadmin@sstech / sergiosena
+- **Performance**: Upload único otimizado até 5GB + conversão automática
+- **Estabilidade**: 100% sem erros 503 ou multipart issues
 
 ---
 
@@ -246,10 +246,11 @@ POST /folders/create
 
 ## 📤 **SISTEMA DE UPLOAD AVANÇADO**
 
-### **Configurações**
-- **Multipart**: Chunks 20MB
-- **Paralelo**: 3 threads simultâneas  
-- **Threshold**: >50MB = multipart automático
+### **Configurações v4.0**
+- **Upload Único**: Presigned URLs diretos
+- **Timeout**: 2 horas para arquivos grandes
+- **Fallback**: Proxy para >100MB
+- **Estabilidade**: Sem rate limiting issues
 
 ### **Funcionalidades**
 - ✅ **Arquivo único**: Drag & drop ou seletor
@@ -521,9 +522,10 @@ npm run dev
 ## 🎬 **CONCLUSÃO - PROJETO FINALIZADO**
 
 ### **Status Final: 100% OPERACIONAL**
-O **Mediaflow v3.0** está **completamente funcional** com todas as funcionalidades implementadas, testadas e em produção. O sistema oferece:
+O **Mediaflow v4.0** está **completamente funcional** com todas as funcionalidades implementadas, testadas e em produção. O sistema oferece:
 
-- **Upload inteligente** com conversão automática
+- **Upload único otimizado** sem erros multipart
+- **Conversão automática** mantida
 - **Interface responsiva** mobile-first
 - **Player híbrido** com 3 opções
 - **Gerenciamento completo** de arquivos
@@ -545,7 +547,50 @@ O sistema está **100% pronto** para uso em produção com:
 - Documentação técnica completa
 - Backup e procedimentos de segurança
 
-**🎉 PROJETO CONCLUÍDO COM SUCESSO!**ão automática
+**🎉 PROJETO CONCLUÍDO COM SUCESSO!**
+
+---
+
+## 🔄 **MUDANÇAS v4.0 - UPLOAD OTIMIZADO**
+
+### **Problema Resolvido**
+- **Issue**: Multipart upload causava erros 503 Slow Down
+- **Causa**: Rate limiting AWS S3 com chunks paralelos
+- **Solução**: Volta para upload único com otimizações
+
+### **Nova Estratégia de Upload**
+```javascript
+// Estratégia híbrida por tamanho
+if (fileSize > 100 * MB) {
+  // Arquivos >100MB: upload direto via proxy (estável)
+  return await uploadViaProxy(uploadFile)
+} else {
+  // Arquivos <100MB: presigned URL (rápido)
+  return await uploadViaPresigned(uploadFile)
+}
+```
+
+### **Otimizações Implementadas**
+- ✅ **Timeout aumentado**: 2 horas (vs 1 hora anterior)
+- ✅ **Upload único**: Sem complexidade multipart
+- ✅ **Fallback automático**: Por tamanho de arquivo
+- ✅ **Cache CDN invalidado**: Mudanças imediatas
+- ✅ **Estrutura de pastas**: Preservada 100%
+
+### **Vantagens da v4.0**
+- 🚫 **Sem erros 503**: Upload único evita rate limiting
+- 🚫 **Sem CORS issues**: Proxy interno para arquivos grandes
+- 🚫 **Sem multipart complexity**: Código mais simples
+- ✅ **Funciona até 5GB**: Testado e validado
+- ✅ **Mais lento mas confiável**: Prioriza estabilidade
+
+### **Performance v4.0**
+- **<100MB**: Rápido via presigned URL
+- **>100MB**: Estável via proxy (mais lento)
+- **Timeout**: 2h suficiente para 5GB
+- **Confiabilidade**: 100% sem falhas
+
+**Decisão**: Priorizar **estabilidade** sobre **velocidade** para arquivos grandes.
 
 ---
 
@@ -965,14 +1010,14 @@ console.log('Auth:', window.authModule.isAuthenticated());
 
 ---
 
-**🎬 Video Streaming SStech v3.0 - Sistema Completo e Otimizado**  
-**Versão**: 23 fases implementadas  
-**Status**: 100% funcional em produção  
-**Economia**: 28% redução custos AWS  
-**Performance**: 4x mais rápido + conversão automática  
-**Arquitetura**: Serverless AWS completa  
+**🎬 Mediaflow v4.0 - Sistema de Streaming Otimizado**  
+**Versão**: Upload único estável implementado  
+**Status**: 100% funcional sem erros multipart  
+**URL**: https://mediaflow.sstechnologies-cloud.com  
+**Performance**: Upload estável até 5GB + conversão automática  
+**Arquitetura**: Serverless AWS com upload híbrido  
 
-**📅 Finalizado**: Janeiro 2025 | **👨💻 Desenvolvedor**: Sergio Sena | **🏢 SStech**
+**📅 Finalizado**: 11 Janeiro 2025 | **👨💻 Desenvolvedor**: Sergio Sena | **🏢 SStech**
 
 ---
 

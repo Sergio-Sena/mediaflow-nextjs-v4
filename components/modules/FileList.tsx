@@ -42,9 +42,11 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
       if (data.success) {
         // Transform AWS response to match component expectations
         const transformedFiles = data.files.map((file: any) => {
-          const pathParts = file.key.split('/')
-          const fileName = pathParts.pop() || file.key
-          const folderName = pathParts.length > 0 ? pathParts[0] : 'root'
+          // Use folder from backend if available, otherwise extract from key
+          const folderName = file.folder || (
+            file.key.includes('/') ? file.key.split('/').slice(0, -1).join('/') : 'root'
+          )
+          const fileName = file.name || file.key.split('/').pop() || file.key
           const fileType = getFileTypeFromName(file.key)
           
           return {
@@ -61,18 +63,28 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
         
         setFiles(transformedFiles)
         
-        // Extract unique folders (only real folders + root)
-        const realFolders = transformedFiles.map((f: any) => f.folder as string).filter((f: string) => f !== 'root')
-        const uniqueRealFolders = Array.from(new Set(realFolders)) as string[]
+        // Extract unique folders (preserve full folder paths)
+        const allFolderPaths = transformedFiles
+          .map((f: any) => f.folder as string)
+          .filter((f: string) => f && f !== 'root')
+        
+        const uniqueFolderPaths = Array.from(new Set(allFolderPaths)) as string[]
         
         // Check if there are files in root
         const hasRootFiles = transformedFiles.some((f: any) => f.folder === 'root')
         
-        // Build folder list (no virtual type folders)
+        // Build folder list with full paths
         const rootFolder = hasRootFiles ? ['📁 Raiz'] : []
-        const realFoldersWithIcon = uniqueRealFolders.map(f => `📁 ${f}`)
+        const realFoldersWithIcon = uniqueFolderPaths.map(f => `📁 ${f}`)
         
         const allFolders = [...rootFolder, ...realFoldersWithIcon]
+        
+        // Debug: Log folders found
+        console.log('🔍 DEBUG - Folders detected:')
+        console.log('Files:', transformedFiles.length)
+        console.log('Unique folder paths:', uniqueFolderPaths)
+        console.log('Has root files:', hasRootFiles)
+        console.log('Final folders:', allFolders)
         
         setFolders(allFolders)
       } else {
@@ -107,15 +119,15 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
   const filteredFiles = files.filter(file => {
     const matchesSearch = file.name.toLowerCase().includes(searchTerm.toLowerCase())
     
-    // Handle real folders only
+    // Handle folder filtering with full paths
     let matchesFolder = true
     if (selectedFolder !== 'all') {
       if (selectedFolder === '📁 Raiz') {
         matchesFolder = file.folder === 'root'
       } else if (selectedFolder.startsWith('📁 ')) {
-        // Real folder with icon prefix
-        const folderName = selectedFolder.replace('📁 ', '')
-        matchesFolder = file.folder === folderName
+        // Real folder with icon prefix - match full path
+        const folderPath = selectedFolder.replace('📁 ', '')
+        matchesFolder = file.folder === folderPath
       } else {
         matchesFolder = file.folder === selectedFolder
       }
