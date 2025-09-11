@@ -30,6 +30,7 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
   const [selectedType, setSelectedType] = useState<string>('all')
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list')
   const [selectedFiles, setSelectedFiles] = useState<Set<string>>(new Set())
+  const [selectAll, setSelectAll] = useState(false)
 
   const fetchFiles = async () => {
     try {
@@ -215,6 +216,17 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
       newSelected.add(key)
     }
     setSelectedFiles(newSelected)
+    setSelectAll(newSelected.size === filteredFiles.length)
+  }
+
+  const handleSelectAll = () => {
+    if (selectAll) {
+      setSelectedFiles(new Set())
+      setSelectAll(false)
+    } else {
+      setSelectedFiles(new Set(filteredFiles.map(f => f.key)))
+      setSelectAll(true)
+    }
   }
 
   const handleBulkDelete = async () => {
@@ -292,6 +304,14 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
               title={viewMode === 'list' ? 'Visualização em Grade' : 'Visualização em Lista'}
             >
               {viewMode === 'list' ? <Grid className="w-4 h-4" /> : <List className="w-4 h-4" />}
+            </button>
+            
+            <button
+              onClick={handleSelectAll}
+              className={`btn-secondary p-2 ${selectAll ? 'bg-neon-cyan/20 text-neon-cyan' : ''}`}
+              title={selectAll ? 'Desmarcar Todos' : 'Selecionar Todos'}
+            >
+              {selectAll ? '☑️' : '☐'}
             </button>
             
             {selectedFiles.size > 0 && (
