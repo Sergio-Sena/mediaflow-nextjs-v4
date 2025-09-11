@@ -114,13 +114,15 @@ export default function FileUpload({
       const fileSize = uploadFile.file.size
       const MB = 1024 * 1024
       
-      // Upload único otimizado - funciona até 5GB
+      // v4.0: Upload único otimizado (sem multipart)
+      console.log(`Upload mode: ${fileSize > 100 * MB ? 'Presigned' : 'Proxy'} (${Math.round(fileSize / MB)}MB)`)
+      
       if (fileSize > 100 * MB) {
-        // Arquivos >100MB: usar upload direto (mais lento mas estável)
-        return await uploadViaProxy(uploadFile)
-      } else {
-        // Arquivos <100MB: usar presigned URL (mais rápido)
+        // Arquivos >100MB: usar presigned URL (sem limite de tamanho)
         return await uploadViaPresigned(uploadFile)
+      } else {
+        // Arquivos <100MB: usar proxy (mais rápido, mas limitado)
+        return await uploadViaProxy(uploadFile)
       }
 
     } catch (error) {
@@ -339,7 +341,7 @@ export default function FileUpload({
         <p className="text-gray-400 text-xs mt-3 text-center">
           Máximo {maxFiles} arquivos • Até 5GB cada • Vídeos, imagens e PDFs<br/>
           <span className="text-neon-cyan text-xs">
-🚀 Upload inteligente - Multipart automático para arquivos grandes
+🚀 Upload único otimizado - Estável até 5GB sem erros multipart
           </span>
         </p>
       </div>
