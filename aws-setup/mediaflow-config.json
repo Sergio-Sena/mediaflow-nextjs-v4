@@ -21,5 +21,12 @@
     "api_url": "https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod",
     "stage": "prod"
   },
-  "frontend_url": "http://mediaflow-frontend-969430605054.s3-website-us-east-1.amazonaws.com"
+  "frontend_url": "http://mediaflow-frontend-969430605054.s3-website-us-east-1.amazonaws.com",
+  "cloudfront": {
+    "distribution_id": "E2HZKZ9ZJK18IU",
+    "domain_name": "d2x90cv3rb5hoa.cloudfront.net",
+    "custom_domain": "mediaflow.sstechnologies-cloud.com",
+    "ssl_certificate": "arn:aws:acm:us-east-1:969430605054:certificate/5da53d3b-4f07-4aeb-9654-0b1bfea7bc0a"
+  },
+  "production_url": "https://mediaflow.sstechnologies-cloud.com"
 }
