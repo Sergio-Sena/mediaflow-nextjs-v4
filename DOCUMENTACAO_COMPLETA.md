@@ -1,19 +1,38 @@
-# 🎬 Mediaflow v4.0 - Documentação Final Completa
+# 🎬 MEDIAFLOW v4.0 - DOCUMENTAÇÃO COMPLETA
 
-## ✅ **SISTEMA FINALIZADO E EM PRODUÇÃO**
-
-### **🌐 URL de Produção:**
-**https://mediaflow.sstechnologies-cloud.com**
-
-### **🔑 Credenciais:**
-- **Email**: sergiosenaadmin@sstech
-- **Senha**: sergiosena
+## 📋 **ÍNDICE**
+1. [Sistema em Produção](#sistema-em-produção)
+2. [Arquitetura e Infraestrutura](#arquitetura-e-infraestrutura)
+3. [Funcionalidades](#funcionalidades)
+4. [Configuração Técnica](#configuração-técnica)
+5. [Guia de Uso](#guia-de-uso)
+6. [Manutenção](#manutenção)
+7. [Troubleshooting](#troubleshooting)
+8. [Restauração](#restauração)
 
 ---
 
-## 🏗️ **ARQUITETURA FINAL**
+## 🌐 **SISTEMA EM PRODUÇÃO**
 
-### **📦 Infraestrutura AWS:**
+### **URL de Produção:**
+**https://mediaflow.sstechnologies-cloud.com**
+
+### **Credenciais:**
+- **Email**: sergiosenaadmin@sstech
+- **Senha**: sergiosena
+
+### **Status:**
+- ✅ **100% Funcional** e online
+- ✅ **SSL/HTTPS** ativo com certificado wildcard
+- ✅ **CDN Global** CloudFront configurado
+- ✅ **DNS** Route 53 propagado
+- ✅ **Conversão automática** H.264 1080p
+
+---
+
+## 🏗️ **ARQUITETURA E INFRAESTRUTURA**
+
+### **Diagrama da Arquitetura:**
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                    MEDIAFLOW v4.0                          │
@@ -29,51 +48,81 @@
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### **🔄 Fluxo de Dados:**
+### **Fluxo de Dados:**
 ```
 Upload → S3 Uploads → MediaConvert → S3 Processed
    ↓                                      ↓
 Frontend ←─── API Gateway ←─── View Handler (Smart Routing)
 ```
 
+### **Infraestrutura AWS:**
+
+#### **S3 Buckets:**
+- `mediaflow-frontend-969430605054` - Frontend estático
+- `mediaflow-uploads-969430605054` - Arquivos originais
+- `mediaflow-processed-969430605054` - Vídeos convertidos
+
+#### **Lambda Functions:**
+- `mediaflow-auth-handler` - Autenticação JWT
+- `mediaflow-files-handler` - Listagem e gerenciamento
+- `mediaflow-upload-handler` - Upload presigned URLs
+- `mediaflow-view-handler` - Visualização inteligente
+- `mediaflow-convert-handler` - Conversão MediaConvert
+- `mediaflow-cleanup-handler` - Limpeza de órfãos
+
+#### **API Gateway:**
+- **ID**: gdb962d234
+- **URL**: https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod
+
+#### **CloudFront CDN:**
+- **Distribution ID**: E2HZKZ9ZJK18IU
+- **Domain**: d2x90cv3rb5hoa.cloudfront.net
+- **Custom Domain**: mediaflow.sstechnologies-cloud.com
+
+#### **DNS & SSL:**
+- **Domain**: mediaflow.sstechnologies-cloud.com
+- **CNAME**: d2x90cv3rb5hoa.cloudfront.net
+- **SSL**: *.sstechnologies-cloud.com (Wildcard)
+- **TTL**: 300 seconds
+
 ---
 
-## 🎯 **FUNCIONALIDADES IMPLEMENTADAS**
+## 🎯 **FUNCIONALIDADES**
 
-### **✅ 1. Sistema de Upload Inteligente**
+### **1. Sistema de Upload Inteligente**
 - **Capacidade**: Até 5GB por arquivo
 - **Tipos**: Vídeos, imagens, PDFs
 - **Tecnologia**: Multipart upload automático
 - **Progress**: Tracking em tempo real
 - **Validação**: Tipo e tamanho de arquivo
 
-### **✅ 2. Conversão Automática de Vídeos**
+### **2. Conversão Automática de Vídeos**
 - **Engine**: AWS MediaConvert
 - **Formato**: H.264 1080p (universal compatibility)
 - **Otimização**: Inteligente baseada no tamanho do arquivo
 - **Qualidade**: Preserva qualidade, só reduz se >1080p
 - **Suporte**: 15+ formatos de vídeo (.mp4, .avi, .mov, .ts, etc.)
 
-### **✅ 3. Player Híbrido Inteligente**
+### **3. Player Híbrido Inteligente**
 - **Priorização**: Automaticamente usa versão convertida
 - **Fallback**: Volta para original se convertido não existir
 - **Controles**: Play/pause, volume, fullscreen, seek
 - **Responsivo**: Adapta a qualquer tela
 - **Formatos**: Suporte universal
 
-### **✅ 4. Dashboard Analytics**
+### **4. Dashboard Analytics**
 - **Métricas**: Storage usage, file counts, conversions
 - **Tempo Real**: Dados atualizados automaticamente
 - **Visualização**: Gráficos e estatísticas
 - **Performance**: Otimizado para grandes volumes
 
-### **✅ 5. Sistema de Autenticação**
+### **5. Sistema de Autenticação**
 - **JWT**: Tokens seguros com expiração
 - **Sessão**: Persistente no localStorage
 - **Proteção**: Rotas protegidas
 - **Admin**: Controle de acesso
 
-### **✅ 6. Cleanup Inteligente**
+### **6. Cleanup Inteligente**
 - **Manual**: Remoção segura de duplicados
 - **Preservação**: Mantém originais como backup
 - **Órfãos**: Detecta e remove arquivos órfãos
@@ -81,23 +130,23 @@ Frontend ←─── API Gateway ←─── View Handler (Smart Routing)
 
 ---
 
-## 📊 **ESTRATÉGIA DE ARQUIVOS (DECISÃO FINAL)**
+## 📊 **ESTRATÉGIA DE ARQUIVOS**
 
-### **🎯 Abordagem Escolhida: DUAL STORAGE SEGURO**
+### **Abordagem: DUAL STORAGE SEGURO**
 
-#### **📁 Bucket Uploads (Originais):**
+#### **Bucket Uploads (Originais):**
 - ✅ **Preserva originais** como backup
 - ✅ **Zero risco** de perda de dados
 - ✅ **Fallback** se conversão falhar
 - ✅ **Cleanup manual** quando necessário
 
-#### **🎬 Bucket Processed (Convertidos):**
+#### **Bucket Processed (Convertidos):**
 - ✅ **Versões otimizadas** H.264 1080p
 - ✅ **Streaming otimizado** para web
 - ✅ **Menor tamanho** (geralmente)
 - ✅ **Compatibilidade universal**
 
-#### **🧠 View Handler (Roteamento Inteligente):**
+#### **View Handler (Roteamento Inteligente):**
 ```python
 # Lógica de priorização automática:
 1. Procura versão convertida (arquivo_1080p.mp4)
@@ -106,23 +155,17 @@ Frontend ←─── API Gateway ←─── View Handler (Smart Routing)
 4. Usuário nunca percebe a diferença
 ```
 
-### **💡 Por que NÃO Auto-Delete:**
-- ❌ **Risco de perda** irreversível
-- ❌ **Conversão pode falhar** após delete
-- ❌ **Timing issues** em Lambda
-- ✅ **Sistema atual é PERFEITO**
-
 ---
 
 ## 🚀 **PERFORMANCE E OTIMIZAÇÕES**
 
-### **⚡ CloudFront CDN:**
+### **CloudFront CDN:**
 - **Global**: 400+ edge locations
 - **Cache**: Otimizado para streaming
 - **SSL**: HTTPS automático
 - **Compression**: Gzip automático
 
-### **🎥 Conversão Inteligente:**
+### **Conversão Inteligente:**
 ```python
 # Lógica de otimização por tamanho:
 if file_size > 3GB:    # 4K → 1080p (5Mbps)
@@ -130,42 +173,12 @@ elif file_size > 1.5GB: # High quality → 1080p (4Mbps)
 else:                   # Preserva qualidade (3Mbps)
 ```
 
-### **📊 Custos Estimados:**
+### **Custos Estimados:**
 - **S3**: ~$5/mês (100GB)
 - **CloudFront**: ~$10/mês (1TB transfer)
 - **Lambda**: ~$2/mês (1M requests)
 - **MediaConvert**: ~$0.02/min de vídeo
 - **Total**: ~$20/mês para uso moderado
-
----
-
-## 🔧 **CONFIGURAÇÃO TÉCNICA**
-
-### **🌐 DNS & SSL:**
-```
-Domain: mediaflow.sstechnologies-cloud.com
-CNAME: d2x90cv3rb5hoa.cloudfront.net
-SSL: *.sstechnologies-cloud.com (Wildcard)
-TTL: 300 seconds
-```
-
-### **🔗 URLs de Produção:**
-- **Frontend**: https://mediaflow.sstechnologies-cloud.com
-- **API**: https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod
-- **CDN**: https://d2x90cv3rb5hoa.cloudfront.net
-
-### **📦 S3 Buckets:**
-- `mediaflow-frontend-969430605054` - Frontend estático
-- `mediaflow-uploads-969430605054` - Arquivos originais
-- `mediaflow-processed-969430605054` - Vídeos convertidos
-
-### **⚡ Lambda Functions:**
-- `mediaflow-auth-handler` - Autenticação JWT
-- `mediaflow-files-handler` - Listagem e gerenciamento
-- `mediaflow-upload-handler` - Upload presigned URLs
-- `mediaflow-view-handler` - Visualização inteligente
-- `mediaflow-convert-handler` - Conversão MediaConvert
-- `mediaflow-cleanup-handler` - Limpeza de órfãos
 
 ---
 
@@ -199,13 +212,13 @@ TTL: 300 seconds
 
 ## 🛠️ **MANUTENÇÃO E MONITORAMENTO**
 
-### **📊 Monitoramento:**
+### **Monitoramento:**
 - **CloudWatch**: Logs automáticos
 - **API Gateway**: Métricas de requests
 - **S3**: Storage e transfer metrics
 - **Lambda**: Execution metrics
 
-### **🧹 Limpeza Periódica:**
+### **Limpeza Periódica:**
 ```bash
 # Listar arquivos duplicados
 aws s3 ls s3://mediaflow-uploads-969430605054/ --recursive
@@ -217,7 +230,7 @@ aws s3 rm "s3://mediaflow-uploads-969430605054/arquivo.mp4"
 curl -X POST "https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/cleanup"
 ```
 
-### **🔄 Backup Strategy:**
+### **Backup Strategy:**
 - **Originais**: Preservados no bucket uploads
 - **Convertidos**: Podem ser regenerados
 - **Frontend**: Código no Git
@@ -227,7 +240,7 @@ curl -X POST "https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/cleanu
 
 ## 🚨 **TROUBLESHOOTING**
 
-### **❌ Problemas Comuns:**
+### **Problemas Comuns:**
 
 #### **1. Login não funciona:**
 ```bash
@@ -253,6 +266,55 @@ curl -X POST "https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/auth/l
 ```bash
 aws cloudfront create-invalidation --distribution-id E2HZKZ9ZJK18IU --paths "/*"
 ```
+
+---
+
+## 🔄 **GUIA DE RESTAURAÇÃO**
+
+### **1. Clonar Repositório:**
+```bash
+git clone <repository-url>
+cd drive-online-clean-NextJs
+```
+
+### **2. Instalar Dependências:**
+```bash
+npm install
+```
+
+### **3. Configurar Variáveis:**
+```bash
+cp .env.example .env.local
+# Editar .env.local com:
+JWT_SECRET=your_secret_key
+```
+
+### **4. Verificar AWS (se necessário):**
+```bash
+cd aws-setup
+python deploy-lambdas.py
+python upload-frontend.py
+```
+
+### **5. Build e Teste:**
+```bash
+npm run build
+npm run dev
+```
+
+### **Testes de Verificação:**
+
+#### **Frontend:**
+- [ ] Login funciona
+- [ ] Upload de arquivos
+- [ ] Visualização de vídeos
+- [ ] Analytics carregam
+
+#### **Backend:**
+- [ ] API Gateway responde
+- [ ] Lambdas funcionam
+- [ ] MediaConvert converte
+- [ ] Cleanup automático
 
 ---
 
@@ -291,14 +353,9 @@ aws cloudfront create-invalidation --distribution-id E2HZKZ9ZJK18IU --paths "/*"
 - ✅ Cleanup de duplicados
 - ✅ Documentação completa
 
-### **v3.x (Desenvolvimento)**
-- Testes e iterações
-- Configuração AWS
-- Desenvolvimento de componentes
-
 ---
 
-## 👨‍💻 **CRÉDITOS**
+## 👨💻 **CRÉDITOS**
 
 ### **Desenvolvido por:**
 - **Sergio Sena** - Arquitetura e desenvolvimento
@@ -316,7 +373,7 @@ aws cloudfront create-invalidation --distribution-id E2HZKZ9ZJK18IU --paths "/*"
 
 ## 🎉 **CONCLUSÃO**
 
-**🎬 Mediaflow v4.0 é um sistema de streaming profissional completo:**
+**Mediaflow v4.0 é um sistema de streaming profissional completo:**
 
 - ✅ **Produção**: 100% funcional e online
 - ✅ **Escalável**: Suporta milhares de usuários
