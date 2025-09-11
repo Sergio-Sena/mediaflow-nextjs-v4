@@ -32,24 +32,38 @@ def handle_mediaconvert_completion(event):
         detail = event.get('detail', {})
         status = detail.get('status')
         
+        print(f"MediaConvert event: {status}")
+        print(f"Event detail: {json.dumps(detail)}")
+        
         if status == 'COMPLETE':
             # Get original file from UserMetadata
             user_metadata = detail.get('userMetadata', {})
             original_file = user_metadata.get('OriginalFile')
+            output_file = user_metadata.get('OutputFile')
             
-            if original_file:
-                # Delete original file from uploads bucket
-                s3.delete_object(Bucket=UPLOADS_BUCKET, Key=original_file)
-                print(f"Auto-deleted original file: {original_file}")
-                
-                return {
-                    'statusCode': 200, 
-                    'body': json.dumps({
-                        'success': True,
-                        'message': f'Auto-cleaned: {original_file}',
-                        'optimization': user_metadata.get('OptimizationType', 'Standard')
-                    })
-                }
+            print(f"Original file: {original_file}")
+            print(f"Output file: {output_file}")
+            
+            if original_file and output_file:
+                try:
+                    # Check if converted file exists
+                    s3.head_object(Bucket=UPLOADS_BUCKET, Key=output_file)
+                    
+                    # Delete original file
+                    s3.delete_object(Bucket=UPLOADS_BUCKET, Key=original_file)
+                    print(f"SUCCESS: Deleted original {original_file}, kept converted {output_file}")
+                    
+                    return {
+                        'statusCode': 200, 
+                        'body': json.dumps({
+                            'success': True,
+                            'message': f'Replaced {original_file} with {output_file}',
+                            'action': 'file_replaced'
+                        })
+                    }
+                except Exception as e:
+                    print(f"ERROR: Could not replace file: {str(e)}")
+                    return {'statusCode': 500, 'body': f'Replacement failed: {str(e)}'}
         elif status == 'ERROR':
             print(f"MediaConvert job failed: {detail.get('errorMessage', 'Unknown error')}")
             return {'statusCode': 200, 'body': 'Job failed - no cleanup needed'}
