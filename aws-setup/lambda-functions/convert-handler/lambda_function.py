@@ -108,9 +108,14 @@ def start_conversion(file_key):
         input_uri = f"s3://{UPLOADS_BUCKET}/{file_key}"
         output_uri = f"s3://{UPLOADS_BUCKET}/{output_key}"
         
-        # Use output_key as destination without NameModifier
-        destination_path = f"s3://{UPLOADS_BUCKET}/{output_key.rsplit('/', 1)[0]}/" if '/' in output_key else f"s3://{UPLOADS_BUCKET}/"
-        name_modifier = output_key.split('/')[-1].replace('.mp4', '')
+        # Use clean destination and name
+        if '/' in output_key:
+            folder_path = '/'.join(output_key.split('/')[:-1])
+            destination_path = f"s3://{UPLOADS_BUCKET}/{folder_path}/"
+            clean_filename = output_key.split('/')[-1].replace('.mp4', '')
+        else:
+            destination_path = f"s3://{UPLOADS_BUCKET}/"
+            clean_filename = output_key.replace('.mp4', '')
         
         print(f"Input: {input_uri}")
         print(f"Output: {output_uri}")
@@ -135,7 +140,7 @@ def start_conversion(file_key):
                         }
                     },
                     "Outputs": [{
-                        "NameModifier": name_modifier,
+                        "NameModifier": clean_filename,
                         "VideoDescription": {
                             "Width": 1920,
                             "Height": 1080,
