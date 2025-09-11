@@ -2,31 +2,25 @@
   "app\\(auth)\\login\\page.tsx -> @/lib/aws-client": {
     "id": 4331,
     "files": [
-      "static/chunks/331.53813cabdb35700c.js"
+      "static/chunks/331.a7a2015b18ae7d64.js"
     ]
   },
   "components\\modules\\Analytics.tsx -> @/lib/aws-client": {
     "id": 4331,
     "files": [
-      "static/chunks/331.53813cabdb35700c.js"
+      "static/chunks/331.a7a2015b18ae7d64.js"
     ]
   },
   "components\\modules\\FileList.tsx -> @/lib/aws-client": {
     "id": 4331,
     "files": [
-      "static/chunks/331.53813cabdb35700c.js"
+      "static/chunks/331.a7a2015b18ae7d64.js"
     ]
   },
   "components\\modules\\FileUpload.tsx -> @/lib/aws-client": {
     "id": 4331,
     "files": [
-      "static/chunks/331.53813cabdb35700c.js"
-    ]
-  },
-  "components\\modules\\FileUpload.tsx -> @/lib/multipart-upload": {
-    "id": 9414,
-    "files": [
-      "static/chunks/414.62387d6a71c6fc76.js"
+      "static/chunks/331.a7a2015b18ae7d64.js"
     ]
   }
 }

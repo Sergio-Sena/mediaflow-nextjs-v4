@@ -13,15 +13,14 @@ const corsConfiguration = {
   CORSRules: [
     {
       AllowedOrigins: [
-        'https://mediaflow-nextjs-v4-mbjrr44z1-sergiosenas-projects.vercel.app',
-        'https://mediaflow-nextjs-v4.vercel.app',
+        'https://mediaflow.sstechnologies-cloud.com',
         'https://*.vercel.app',
         'http://localhost:3000'
       ],
-      AllowedMethods: ['PUT', 'POST', 'GET'],
+      AllowedMethods: ['PUT', 'POST', 'GET', 'DELETE', 'HEAD'],
       AllowedHeaders: ['*'],
       MaxAgeSeconds: 3600,
-      ExposeHeaders: ['ETag']
+      ExposeHeaders: ['ETag', 'x-amz-version-id']
     }
   ]
 }
@@ -30,10 +29,18 @@ async function configureCORS() {
   try {
     console.log('🔧 Configurando CORS no S3...')
     
-    const command = new PutBucketCorsCommand({
-      Bucket: 'drive-online-frontend',
-      CORSConfiguration: corsConfiguration
-    })
+    // Configurar CORS para ambos os buckets
+    const buckets = ['mediaflow-uploads-969430605054', 'drive-online-frontend']
+    
+    for (const bucket of buckets) {
+      const command = new PutBucketCorsCommand({
+        Bucket: bucket,
+        CORSConfiguration: corsConfiguration
+      })
+      
+      await s3Client.send(command)
+      console.log(`✅ CORS configurado para bucket: ${bucket}`)
+    }
     
     await s3Client.send(command)
     

@@ -38,13 +38,13 @@ export class MediaflowClient {
     return response.json()
   }
   
-  async getUploadUrl(filename: string, contentType: string) {
+  async getUploadUrl(filename: string, contentType: string, fileSize?: number) {
     const response = await fetch(getApiUrl('UPLOAD'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ filename, contentType })
+      body: JSON.stringify({ filename, contentType, fileSize })
     })
     
     return response.json()
