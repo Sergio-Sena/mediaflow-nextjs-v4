@@ -8,6 +8,6 @@
   "/api/videos/convert/route": "app/api/videos/convert/route.js",
   "/api/videos/delete/route": "app/api/videos/delete/route.js",
   "/api/videos/list/route": "app/api/videos/list/route.js",
-  "/page": "app/page.js",
-  "/dashboard/page": "app/dashboard/page.js"
+  "/dashboard/page": "app/dashboard/page.js",
+  "/page": "app/page.js"
 }
