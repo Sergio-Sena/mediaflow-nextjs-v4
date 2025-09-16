@@ -95,7 +95,15 @@ def manual_cleanup():
                 s3.delete_object(Bucket=UPLOADS_BUCKET, Key=chunk_key)
                 cleaned.append(chunk_key)
         
-        # Note: We don't auto-delete old files as this is a backup system
+        # Clean empty folders
+        empty_folders = find_empty_folders()
+        for folder in empty_folders:
+            # S3 doesn't have real folders, just delete the marker if exists
+            try:
+                s3.delete_object(Bucket=UPLOADS_BUCKET, Key=folder)
+                cleaned.append(f"📁 {folder}")
+            except:
+                pass
         
         return {
             'statusCode': 200,
@@ -120,6 +128,39 @@ def manual_cleanup():
             },
             'body': json.dumps({'success': False, 'message': str(e)})
         }
+
+def find_empty_folders():
+    """Find empty folders in S3 bucket"""
+    try:
+        response = s3.list_objects_v2(Bucket=UPLOADS_BUCKET)
+        all_objects = response.get('Contents', [])
+        
+        # Get all folder prefixes
+        folders = set()
+        for obj in all_objects:
+            key = obj['Key']
+            if '/' in key:
+                folder = '/'.join(key.split('/')[:-1]) + '/'
+                folders.add(folder)
+        
+        # Check which folders are empty
+        empty_folders = []
+        for folder in folders:
+            # List objects with this prefix
+            folder_response = s3.list_objects_v2(
+                Bucket=UPLOADS_BUCKET,
+                Prefix=folder,
+                MaxKeys=1
+            )
+            
+            # If no objects found, folder is empty
+            if not folder_response.get('Contents'):
+                empty_folders.append(folder)
+        
+        return empty_folders
+    except Exception as e:
+        print(f"Error finding empty folders: {e}")
+        return []
 
 def scheduled_cleanup():
     """Scheduled cleanup via EventBridge - only orphaned chunks"""

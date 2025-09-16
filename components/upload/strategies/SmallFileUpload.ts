@@ -3,9 +3,9 @@ import { mediaflowClient } from '@/lib/aws-client'
 
 export class SmallFileUpload implements UploadStrategy {
   private config: UploadConfig = {
-    timeout: 30 * 60 * 1000,  // 30 minutos
-    retries: 3,
-    progressInterval: 1000     // 1 segundo
+    timeout: 5 * 60 * 1000,   // 5 minutos (reduzido)
+    retries: 5,               // Aumentado para 5
+    progressInterval: 500     // 500ms (mais responsivo)
   }
 
   async upload(
@@ -14,23 +14,39 @@ export class SmallFileUpload implements UploadStrategy {
     onProgress?: (progress: UploadProgress) => void
   ): Promise<UploadResult> {
     
-    console.log(`SmallFileUpload: ${filename} (${Math.round(file.size / 1024 / 1024)}MB)`)
+    console.log(`🚀 SmallFileUpload SIMPLE: ${filename} (${Math.round(file.size / 1024 / 1024)}MB)`)
     
     try {
-      // Obter presigned URL
-      const urlData = await mediaflowClient.getUploadUrl(filename, file.type, file.size)
-      if (!urlData.success) throw new Error(urlData.message)
+      // Usar AWS API diretamente (funciona local e produção)
+      const urlResponse = await fetch('https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/upload/presigned', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          filename: filename,
+          contentType: file.type,
+          fileSize: file.size
+        })
+      })
+
+      const urlData = await urlResponse.json()
       
-      // Upload com timeout otimizado para arquivos pequenos
-      const result = await this.uploadWithProgress(file, urlData.uploadUrl, onProgress)
+      if (!urlData.success) {
+        throw new Error(urlData.error || 'Falha ao obter URL')
+      }
+
+      console.log(`✅ Got presigned URL: ${filename}`)
+
+      // Upload direto - método que funciona
+      await this.simpleUpload(file, urlData.uploadUrl, onProgress)
       
+      console.log(`✅ SmallFileUpload SUCCESS: ${filename}`)
       return {
         success: true,
         url: `https://mediaflow-uploads-969430605054.s3.amazonaws.com/${urlData.key}`
       }
       
     } catch (error) {
-      console.error('SmallFileUpload error:', error)
+      console.error(`❌ SmallFileUpload failed:`, error)
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Upload failed'
@@ -38,7 +54,9 @@ export class SmallFileUpload implements UploadStrategy {
     }
   }
 
-  private uploadWithProgress(
+
+
+  private simpleUpload(
     file: File, 
     uploadUrl: string, 
     onProgress?: (progress: UploadProgress) => void
@@ -46,9 +64,6 @@ export class SmallFileUpload implements UploadStrategy {
     
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest()
-      
-      // Timeout otimizado para arquivos pequenos
-      xhr.timeout = this.config.timeout
       
       xhr.upload.addEventListener('progress', (e) => {
         if (e.lengthComputable && onProgress) {
@@ -64,12 +79,14 @@ export class SmallFileUpload implements UploadStrategy {
         if (xhr.status >= 200 && xhr.status < 300) {
           resolve()
         } else {
-          reject(new Error(`Upload failed: ${xhr.status}`))
+          console.error(`❌ Upload failed: ${xhr.status} ${xhr.statusText}`)
+          reject(new Error(`HTTP ${xhr.status}: ${xhr.statusText}`))
         }
       })
       
-      xhr.addEventListener('error', () => reject(new Error('Network error')))
-      xhr.addEventListener('timeout', () => reject(new Error('Upload timeout')))
+      xhr.addEventListener('error', () => {
+        reject(new Error('Network error'))
+      })
       
       xhr.open('PUT', uploadUrl)
       xhr.setRequestHeader('Content-Type', file.type)

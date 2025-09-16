@@ -2,12 +2,14 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import FileUpload from '@/components/modules/FileUpload'
+
+import DirectUpload from '@/components/modules/DirectUpload'
 import FileList from '@/components/modules/FileList'
 import VideoPlayer from '@/components/modules/VideoPlayer'
 import ImageViewer from '@/components/modules/ImageViewer'
 import PDFViewer from '@/components/modules/PDFViewer'
 import Analytics from '@/components/modules/Analytics'
+
 
 interface User {
   email: string
@@ -170,14 +172,13 @@ export default function DashboardPage() {
               </button>
             </div>
             
-            <FileUpload
+            <DirectUpload
               maxFiles={100}
               maxSize={5120}
-              acceptedTypes={['video/*', 'image/*', 'application/pdf']}
               onUploadComplete={(uploadedFiles) => {
                 console.log('Upload concluído:', uploadedFiles)
-                handleRefresh() // Trigger refresh
-                setActiveTab('files') // Voltar para aba de arquivos
+                handleRefresh()
+                setActiveTab('files')
               }}
             />
           </div>
