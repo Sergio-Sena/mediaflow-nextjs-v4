@@ -26,7 +26,7 @@ def lambda_handler(event, context):
         return {'statusCode': 500, 'body': json.dumps({'error': str(e)})}
 
 def handle_s3_event(event):
-    """Process S3 ObjectCreated events"""
+    """Process S3 ObjectCreated events - DISABLED for manual conversion"""
     
     results = []
     
@@ -35,25 +35,16 @@ def handle_s3_event(event):
         bucket = record['s3']['bucket']['name']
         key = urllib.parse.unquote_plus(record['s3']['object']['key'])
         
-        print(f"Processing S3 event: {bucket}/{key}")
-        
-        # Check if it's a video file that needs conversion
-        video_extensions = ['.ts', '.avi', '.mov', '.mkv', '.webm', '.flv', '.wmv']
-        
-        if any(key.lower().endswith(ext) for ext in video_extensions):
-            print(f"Video file detected: {key}")
-            result = start_conversion(key)
-            results.append(result)
-        else:
-            print(f"Skipping non-video file: {key}")
-            results.append({'success': True, 'message': f'Skipped {key} (not a video)'})
+        print(f"S3 event received but auto-conversion disabled: {bucket}/{key}")
+        results.append({'success': True, 'message': f'Auto-conversion disabled for {key}'})
     
     return {
         'statusCode': 200,
         'body': json.dumps({
             'success': True,
             'processed': len(results),
-            'results': results
+            'results': results,
+            'message': 'Auto-conversion disabled - use manual conversion'
         })
     }
 
@@ -117,6 +108,9 @@ def start_conversion(file_key):
             destination_path = f"s3://{UPLOADS_BUCKET}/"
             clean_filename = output_key.replace('.mp4', '')
         
+        # Fix: NameModifier cannot be empty, use a valid modifier
+        clean_filename = "_converted"  # Valid non-empty modifier
+        
         print(f"Input: {input_uri}")
         print(f"Output: {output_uri}")
         
@@ -139,33 +133,54 @@ def start_conversion(file_key):
                             "Destination": destination_path
                         }
                     },
-                    "Outputs": [{
-                        "NameModifier": clean_filename,
-                        "VideoDescription": {
-                            "Width": 1920,
-                            "Height": 1080,
-                            "CodecSettings": {
-                                "Codec": "H_264",
-                                "H264Settings": {
-                                    "Bitrate": 4000000,
-                                    "RateControlMode": "CBR",
-                                    "CodecProfile": "HIGH",
-                                    "CodecLevel": "AUTO"
+                    "Outputs": [
+                        # Vídeo MP4
+                        {
+                            "NameModifier": clean_filename,
+                            "VideoDescription": {
+                                "Width": 1280,
+                                "Height": 720,
+                                "CodecSettings": {
+                                    "Codec": "H_264",
+                                    "H264Settings": {
+                                        "Bitrate": 2000000,
+                                        "RateControlMode": "CBR",
+                                        "CodecProfile": "HIGH",
+                                        "CodecLevel": "AUTO"
+                                    }
                                 }
-                            }
+                            },
+                            "AudioDescriptions": [{
+                                "CodecSettings": {
+                                    "Codec": "AAC",
+                                    "AacSettings": {
+                                        "Bitrate": 128000,
+                                        "SampleRate": 48000,
+                                        "CodingMode": "CODING_MODE_2_0"
+                                    }
+                                }
+                            }],
+                            "ContainerSettings": {"Container": "MP4"}
                         },
-                        "AudioDescriptions": [{
-                            "CodecSettings": {
-                                "Codec": "AAC",
-                                "AacSettings": {
-                                    "Bitrate": 128000,
-                                    "SampleRate": 48000,
-                                    "CodingMode": "CODING_MODE_2_0"
+                        # Thumbnail JPG
+                        {
+                            "NameModifier": "_thumb",
+                            "VideoDescription": {
+                                "Width": 320,
+                                "Height": 180,
+                                "CodecSettings": {
+                                    "Codec": "FRAME_CAPTURE",
+                                    "FrameCaptureSettings": {
+                                        "FramerateNumerator": 1,
+                                        "FramerateDenominator": 10,
+                                        "MaxCaptures": 1,
+                                        "Quality": 80
+                                    }
                                 }
-                            }
-                        }],
-                        "ContainerSettings": {"Container": "MP4"}
-                    }]
+                            },
+                            "ContainerSettings": {"Container": "RAW"}
+                        }
+                    ]
                 }]
             },
             "UserMetadata": {
@@ -174,6 +189,10 @@ def start_conversion(file_key):
                 "JobId": job_id
             }
         }
+        
+        # Add metadata for auto-replacement
+        job_settings['UserMetadata']['AutoReplace'] = 'true'
+        job_settings['UserMetadata']['OriginalKey'] = file_key
         
         # Submit job
         response = mc_client.create_job(**job_settings)
@@ -186,7 +205,7 @@ def start_conversion(file_key):
             'status': response['Job']['Status'],
             'originalFile': file_key,
             'outputFile': output_key,
-            'message': f'Conversion started for {file_key}'
+            'message': f'Conversion started for {file_key} - will auto-replace when complete'
         }
         
     except Exception as e:

@@ -27,7 +27,7 @@ def lambda_handler(event, context):
         }
 
 def handle_mediaconvert_completion(event):
-    """Clean original file after successful conversion"""
+    """Log MediaConvert completion - NO AUTO CLEANUP"""
     try:
         detail = event.get('detail', {})
         status = detail.get('status')
@@ -36,71 +36,30 @@ def handle_mediaconvert_completion(event):
         print(f"Event detail: {json.dumps(detail)}")
         
         if status == 'COMPLETE':
-            # Get original file from UserMetadata
             user_metadata = detail.get('userMetadata', {})
             original_file = user_metadata.get('OriginalFile')
             output_file = user_metadata.get('OutputFile')
             
-            print(f"Original file: {original_file}")
-            print(f"Output file: {output_file}")
+            print(f"✅ CONVERSION COMPLETE")
+            print(f"📁 Original file: {original_file}")
+            print(f"🎥 Output file: {output_file}")
+            print(f"💡 Manual cleanup required - both files will remain")
             
-            if original_file and output_file:
-                try:
-                    # Get actual converted file name from MediaConvert output
-                    output_details = detail.get('outputGroupDetails', [{}])[0]
-                    actual_output_paths = output_details.get('outputDetails', [{}])[0].get('outputFilePaths', [])
-                    
-                    if actual_output_paths:
-                        # Extract actual S3 key from full S3 path
-                        actual_s3_path = actual_output_paths[0]
-                        actual_output_key = actual_s3_path.replace(f's3://{UPLOADS_BUCKET}/', '')
-                        
-                        print(f"Actual converted file: {actual_output_key}")
-                        
-                        # Check if converted file exists
-                        s3.head_object(Bucket=UPLOADS_BUCKET, Key=actual_output_key)
-                        
-                        # Generate target key (original file with .mp4 extension)
-                        original_base = original_file.rsplit('.', 1)[0]  # Remove extension
-                        target_key = f"{original_base}.mp4"
-                        
-                        print(f"Moving {actual_output_key} to {target_key}")
-                        
-                        # Copy converted file to original location with .mp4 extension
-                        s3.copy_object(
-                            Bucket=UPLOADS_BUCKET,
-                            CopySource={'Bucket': UPLOADS_BUCKET, 'Key': actual_output_key},
-                            Key=target_key
-                        )
-                        
-                        # Delete original file and temp converted file
-                        s3.delete_object(Bucket=UPLOADS_BUCKET, Key=original_file)
-                        if actual_output_key != target_key:
-                            s3.delete_object(Bucket=UPLOADS_BUCKET, Key=actual_output_key)
-                        
-                        print(f"SUCCESS: Replaced {original_file} with {target_key}")
-                        
-                        return {
-                            'statusCode': 200, 
-                            'body': json.dumps({
-                                'success': True,
-                                'message': f'Replaced {original_file} with {target_key}',
-                                'action': 'file_replaced'
-                            })
-                        }
-                    else:
-                        print("ERROR: No output file paths found in MediaConvert response")
-                        return {'statusCode': 500, 'body': 'No output paths found'}
-                except Exception as e:
-                    print(f"ERROR: Could not replace file: {str(e)}")
-                    return {'statusCode': 500, 'body': f'Replacement failed: {str(e)}'}
+            return {
+                'statusCode': 200, 
+                'body': json.dumps({
+                    'success': True,
+                    'message': f'Conversion complete: {original_file} -> {output_file}',
+                    'action': 'conversion_logged'
+                })
+            }
         elif status == 'ERROR':
-            print(f"MediaConvert job failed: {detail.get('errorMessage', 'Unknown error')}")
-            return {'statusCode': 200, 'body': 'Job failed - no cleanup needed'}
+            print(f"❌ MediaConvert job failed: {detail.get('errorMessage', 'Unknown error')}")
+            return {'statusCode': 200, 'body': 'Job failed - logged'}
         
-        return {'statusCode': 200, 'body': 'No cleanup needed'}
+        return {'statusCode': 200, 'body': 'Event logged'}
     except Exception as e:
-        print(f"Cleanup error: {str(e)}")
+        print(f"Logging error: {str(e)}")
         return {'statusCode': 500, 'body': str(e)}
 
 def manual_cleanup():

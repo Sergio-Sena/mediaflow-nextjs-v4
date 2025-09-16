@@ -1,14 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',
-  trailingSlash: true,
-  skipTrailingSlashRedirect: true,
-  distDir: 'out',
-  images: {
-    unoptimized: true
+  experimental: {
+    serverComponentsExternalPackages: ['@aws-sdk/client-s3']
   },
-  env: {
-    NEXT_PUBLIC_API_URL: 'https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod'
+  api: {
+    bodyParser: {
+      sizeLimit: '100mb'
+    }
   }
 }
 

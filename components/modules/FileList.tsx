@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Play, Download, Trash2, Search, Filter, Grid, List, RefreshCw } from 'lucide-react'
+import { Play, Download, Trash2, Search, Filter, Grid, List, RefreshCw, Settings } from 'lucide-react'
 
 interface S3File {
   key: string
@@ -31,6 +31,7 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list')
   const [selectedFiles, setSelectedFiles] = useState<Set<string>>(new Set())
   const [selectAll, setSelectAll] = useState(false)
+  const [converting, setConverting] = useState<Set<string>>(new Set())
 
   const fetchFiles = async () => {
     try {
@@ -166,10 +167,13 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
     }
   }
 
-  const getConversionStatus = (filename: string) => {
-    if (filename.endsWith('.mp4')) return { icon: '🎯', tooltip: 'Otimizado' }
-    if (filename.endsWith('.ts') || filename.endsWith('.avi')) return { icon: '⏳', tooltip: 'Processando' }
-    return { icon: '🎥', tooltip: 'Original' }
+  const getConversionStatus = (filename: string, key: string) => {
+    if (converting.has(key)) return { icon: '🔄', tooltip: 'Convertendo...', canConvert: false }
+    if (filename.endsWith('.mp4')) return { icon: '🎯', tooltip: 'Otimizado', canConvert: false }
+    if (filename.endsWith('.ts') || filename.endsWith('.avi') || filename.endsWith('.mov') || filename.endsWith('.mkv')) {
+      return { icon: '🎥', tooltip: 'Pode ser convertido', canConvert: true }
+    }
+    return { icon: '📁', tooltip: 'Não conversível', canConvert: false }
   }
 
   const handleDownload = (file: S3File) => {
@@ -254,6 +258,61 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
     }
   }
 
+  const handleConvertFiles = async () => {
+    if (selectedFiles.size === 0) return
+    
+    const convertibleFiles = files.filter(f => {
+      const status = getConversionStatus(f.name, f.key)
+      return selectedFiles.has(f.key) && status.canConvert
+    })
+    
+    if (convertibleFiles.length === 0) {
+      alert('Nenhum arquivo selecionado pode ser convertido')
+      return
+    }
+    
+    if (!confirm(`Converter ${convertibleFiles.length} arquivo(s) para MP4 720p?\n\nCusto estimado: ~$${(convertibleFiles.length * 0.75).toFixed(2)} USD`)) return
+
+    try {
+      const newConverting = new Set(converting)
+      convertibleFiles.forEach(f => newConverting.add(f.key))
+      setConverting(newConverting)
+      
+      // Start conversions using direct Lambda API (same as successful ones)
+      const promises = convertibleFiles.map(file =>
+        fetch('https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/convert', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ key: file.key })
+        })
+      )
+
+      const results = await Promise.all(promises)
+      
+      let successCount = 0
+      for (const result of results) {
+        if (result.ok) successCount++
+      }
+      
+      alert(`${successCount}/${convertibleFiles.length} conversões iniciadas com sucesso!\n\nOs arquivos serão substituídos automaticamente quando a conversão terminar.`)
+      
+      setSelectedFiles(new Set())
+      
+      // Remove from converting state after 2 minutes (conversions should be done)
+      setTimeout(() => {
+        setConverting(new Set())
+        // Don't auto-refresh - let user refresh manually
+      }, 120000)
+      
+    } catch (err) {
+      console.error('Conversion error:', err)
+      alert('Erro ao iniciar conversões')
+      setConverting(new Set())
+    }
+  }
+
   if (loading) {
     return (
       <div className="glass-card p-8 text-center">
@@ -315,13 +374,22 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
             </button>
             
             {selectedFiles.size > 0 && (
-              <button
-                onClick={handleBulkDelete}
-                className="btn-danger p-2"
-                title="Excluir Selecionados"
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
+              <>
+                <button
+                  onClick={handleConvertFiles}
+                  className="btn-neon p-2 icon-centered"
+                  title="Converter Selecionados para MP4 720p"
+                >
+                  <Settings className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={handleBulkDelete}
+                  className="btn-danger p-2"
+                  title="Excluir Selecionados"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </>
             )}
           </div>
         </div>
@@ -332,7 +400,7 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {/* Search */}
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Search className="search-icon text-gray-400 w-4 h-4" />
             <input
               type="text"
               placeholder="Buscar arquivos..."
@@ -390,7 +458,7 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
       ) : (
         <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4' : 'space-y-3'}>
           {filteredFiles.map((file) => {
-            const status = getConversionStatus(file.name)
+            const status = getConversionStatus(file.name, file.key)
             const isSelected = selectedFiles.has(file.key)
             
             return (
@@ -413,15 +481,17 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                       <span className="text-lg">{getFileIcon(file.type)}</span>
-                      <span 
-                        className="text-lg cursor-help" 
-                        title={status.tooltip}
-                      >
-                        {status.icon}
-                      </span>
                       <h3 className="font-medium text-white truncate flex-1">
                         {file.name}
                       </h3>
+                      {status.canConvert && (
+                        <span 
+                          className="text-xs text-yellow-400 cursor-help" 
+                          title={status.tooltip}
+                        >
+                          🔄
+                        </span>
+                      )}
                     </div>
                     
                     <div className="flex items-center gap-4 text-sm text-gray-400">

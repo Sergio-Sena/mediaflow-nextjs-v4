@@ -1,6 +1,6 @@
-# 🎬 Mediaflow v4.0 - Sistema de Streaming Profissional
+# 🎬 Mediaflow v4.1 - Sistema de Streaming Profissional
 
-> **Plataforma completa de streaming com AWS, CDN global e conversão automática**
+> **Plataforma completa de streaming com AWS, CDN global e upload modular inteligente**
 
 [![Next.js](https://img.shields.io/badge/Next.js-14-black?logo=next.js)](https://nextjs.org/)
 [![AWS](https://img.shields.io/badge/AWS-Lambda%20%7C%20S3%20%7C%20CloudFront-orange?logo=amazon-aws)](https://aws.amazon.com/)
@@ -244,8 +244,8 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 
 ## 🎆 **Status Final**
 
-**🎬 Mediaflow v4.0 - Sistema de Streaming Profissional**  
-**Versão**: 4.0.0 | **Status**: ✅ PRODUÇÃO | **CDN**: ✅ ATIVO
+**🎬 Mediaflow v4.1 - Sistema de Streaming Profissional**  
+**Versão**: 4.1.0 | **Status**: ✅ PRODUÇÃO | **CDN**: ✅ ATIVO | **Upload**: ✅ MODULAR
 
 **🌐 URL Produção**: https://mediaflow.sstechnologies-cloud.com  
 **🔑 Login**: sergiosenaadmin@sstech / sergiosena
