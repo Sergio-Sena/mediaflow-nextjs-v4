@@ -3,7 +3,7 @@ import { SmallFileUpload } from './SmallFileUpload'
 import { LargeFileUpload } from './LargeFileUpload'
 
 export class UploadFactory {
-  private static readonly SIZE_THRESHOLD = 100 * 1024 * 1024 // 100MB
+  private static readonly SIZE_THRESHOLD = 5 * 1024 * 1024 // 5MB
 
   static createStrategy(fileSize: number): UploadStrategy {
     if (fileSize > this.SIZE_THRESHOLD) {
@@ -23,8 +23,8 @@ export class UploadFactory {
     } else {
       return {
         type: 'SmallFile',
-        timeout: '30min',
-        retries: 3
+        timeout: '5min',
+        retries: 5
       }
     }
   }

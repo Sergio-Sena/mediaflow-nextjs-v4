@@ -72,6 +72,38 @@ export class MediaflowClient {
     
     return response.json()
   }
+  
+  async uploadThumbnail(key: string, thumbnailBuffer: ArrayBuffer) {
+    try {
+      // Get presigned URL for thumbnail upload
+      const uploadResponse = await this.getUploadUrl(key, 'image/jpeg', thumbnailBuffer.byteLength)
+      
+      if (!uploadResponse.success) {
+        return { success: false, error: uploadResponse.message }
+      }
+      
+      // Upload thumbnail directly to S3
+      const uploadResult = await fetch(uploadResponse.uploadUrl, {
+        method: 'PUT',
+        body: thumbnailBuffer,
+        headers: {
+          'Content-Type': 'image/jpeg'
+        }
+      })
+      
+      if (uploadResult.ok) {
+        return { success: true, url: `https://mediaflow-uploads-969430605054.s3.amazonaws.com/${key}` }
+      } else {
+        return { success: false, error: `Upload failed: ${uploadResult.status}` }
+      }
+      
+    } catch (error) {
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Unknown error' 
+      }
+    }
+  }
 }
 
 export const mediaflowClient = new MediaflowClient()

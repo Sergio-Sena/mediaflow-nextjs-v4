@@ -1,95 +1,61 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
-
-const s3Client = new S3Client({
-  region: process.env.AWS_REGION || 'us-east-1',
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
-  },
-})
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('API Upload Direct - Iniciando...')
-    
-    // Validar configuração AWS
-    if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
-      console.error('AWS credentials not configured')
-      return NextResponse.json(
-        { error: 'AWS credentials not configured' },
-        { status: 500 }
-      )
-    }
-
+    // Aceitar FormData da versão antiga
     const formData = await request.formData()
     const file = formData.get('file') as File
-    const folder = formData.get('folder') as string
-    const relativePath = formData.get('relativePath') as string
-
+    const filename = formData.get('filename') as string || file?.name
+    
     if (!file) {
       return NextResponse.json(
-        { error: 'Nenhum arquivo fornecido' },
+        { success: false, error: 'File required' },
         { status: 400 }
       )
     }
-
-    // Sanitizar nome do arquivo
-    const sanitizedFilename = file.name
-      .replace(/[^a-zA-Z0-9.-]/g, '_')
-      .replace(/_{2,}/g, '_')
-      .replace(/^_|_$/g, '')
-    let key: string
     
-    if (folder && relativePath) {
-      const sanitizedPath = relativePath
-        .replace(/[^a-zA-Z0-9.\/\-_]/g, '_')
-        .replace(/_{2,}/g, '_')
-        .replace(/^_|_$/g, '')
-      key = sanitizedPath
-    } else {
-      key = `${Date.now()}-${sanitizedFilename}`
-    }
-
-    console.log('Uploading to S3:', key)
-
-    // Converter File para Buffer
-    const arrayBuffer = await file.arrayBuffer()
-    const buffer = Buffer.from(arrayBuffer)
-
-    // Upload direto para S3
-    const command = new PutObjectCommand({
-      Bucket: 'mediaflow-uploads-969430605054',
-      Key: key,
-      Body: buffer,
-      ContentType: file.type,
-      Metadata: {
-        'original-filename': file.name,
-        'upload-timestamp': new Date().toISOString(),
-        'folder': folder || 'files',
-        'relative-path': relativePath || file.name,
-      },
+    console.log('🔄 Direct route FormData:', filename, file.size)
+    
+    // 1. Obter URL presigned
+    const urlResponse = await fetch('https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/upload/presigned', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        filename: filename,
+        contentType: file.type,
+        fileSize: file.size
+      })
     })
 
-    await s3Client.send(command)
+    const urlData = await urlResponse.json()
     
-    const fileUrl = `https://mediaflow-uploads-969430605054.s3.amazonaws.com/${key}`
-
-    console.log('Upload successful:', fileUrl)
-
+    if (!urlData.success) {
+      throw new Error(urlData.message || 'Failed to get upload URL')
+    }
+    
+    // 2. Upload file to S3
+    const uploadResponse = await fetch(urlData.uploadUrl, {
+      method: 'PUT',
+      body: file,
+      headers: {
+        'Content-Type': file.type
+      }
+    })
+    
+    if (!uploadResponse.ok) {
+      throw new Error(`Upload failed: ${uploadResponse.status}`)
+    }
+    
     return NextResponse.json({
       success: true,
-      key,
-      fileUrl,
-      bucket: 'mediaflow-uploads-969430605054',
-      size: file.size,
-      contentType: file.type,
+      url: `https://mediaflow-uploads-969430605054.s3.amazonaws.com/${urlData.key}`,
+      key: urlData.key
     })
-
+    
   } catch (error: any) {
-    console.error('Direct upload error:', error)
+    console.error('❌ Direct route error:', error)
     return NextResponse.json(
-      { error: error?.message || 'Erro no upload direto' },
+      { success: false, error: error?.message || 'Direct route failed' },
       { status: 500 }
     )
   }
