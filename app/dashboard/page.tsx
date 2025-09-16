@@ -171,7 +171,7 @@ export default function DashboardPage() {
             </div>
             
             <FileUpload
-              maxFiles={10}
+              maxFiles={100}
               maxSize={5120}
               acceptedTypes={['video/*', 'image/*', 'application/pdf']}
               onUploadComplete={(uploadedFiles) => {

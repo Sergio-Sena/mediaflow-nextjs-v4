@@ -28,6 +28,8 @@ export default function FileUpload({
   acceptedTypes = ['video/*', 'image/*', 'application/pdf']
 }: FileUploadProps) {
   const [files, setFiles] = useState<UploadFile[]>([])
+  const [currentBatch, setCurrentBatch] = useState(0)
+  const [totalBatches, setTotalBatches] = useState(0)
   const [isDragging, setIsDragging] = useState(false)
   const [uploadMode, setUploadMode] = useState<'files' | 'folder'>('files')
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -110,20 +112,8 @@ export default function FileUpload({
         f.id === uploadFile.id ? { ...f, status: 'uploading', progress: 0 } : f
       ))
 
-      // Voltar ao upload via proxy (funciona até 50MB)
-      const fileSize = uploadFile.file.size
-      const MB = 1024 * 1024
-      
-      // v4.0: Upload único otimizado (sem multipart)
-      console.log(`Upload mode: ${fileSize > 100 * MB ? 'Presigned' : 'Proxy'} (${Math.round(fileSize / MB)}MB)`)
-      
-      if (fileSize > 100 * MB) {
-        // Arquivos >100MB: usar presigned URL (sem limite de tamanho)
-        return await uploadViaPresigned(uploadFile)
-      } else {
-        // Arquivos <100MB: usar proxy (mais rápido, mas limitado)
-        return await uploadViaProxy(uploadFile)
-      }
+      // v4.1: Upload modular com estratégias por tamanho
+      return await uploadWithStrategy(uploadFile)
 
     } catch (error) {
       setFiles(prev => prev.map(f => 
@@ -136,122 +126,84 @@ export default function FileUpload({
 
 
 
-  const uploadViaProxy = async (uploadFile: UploadFile) => {
-    // Upload via API proxy (sem CORS, até 50MB)
-    const formData = new FormData()
-    formData.append('file', uploadFile.file)
-    if (uploadFile.folder) formData.append('folder', uploadFile.folder)
-    if (uploadFile.relativePath) formData.append('relativePath', uploadFile.relativePath)
-
-    const xhr = new XMLHttpRequest()
-    
-    return new Promise<void>((resolve, reject) => {
-      xhr.upload.addEventListener('progress', (e) => {
-        if (e.lengthComputable) {
-          const progress = Math.round((e.loaded / e.total) * 100)
-          setFiles(prev => prev.map(f => 
-            f.id === uploadFile.id ? { ...f, progress } : f
-          ))
-        }
-      })
-
-      xhr.addEventListener('load', () => {
-        if (xhr.status >= 200 && xhr.status < 300) {
-          try {
-            const response = JSON.parse(xhr.responseText)
-            setFiles(prev => prev.map(f => 
-              f.id === uploadFile.id 
-                ? { ...f, status: 'success', progress: 100, url: response.fileUrl }
-                : f
-            ))
-            resolve()
-          } catch (e) {
-            reject(new Error('Erro ao processar resposta'))
-          }
-        } else {
-          reject(new Error(`Upload proxy failed: ${xhr.status}`))
-        }
-      })
-
-      xhr.addEventListener('error', () => reject(new Error('Upload proxy error')))
-
-      xhr.open('POST', '/api/upload/direct')
-      xhr.send(formData)
-    })
-  }
-
-  const uploadViaPresigned = async (uploadFile: UploadFile) => {
-    console.log('=== UPLOAD DEBUG ===')
-    console.log('File:', uploadFile.file.name, uploadFile.file.size, uploadFile.file.type)
-    
-    const sanitizedName = sanitizeFilename(uploadFile.file.name)
-    const { mediaflowClient } = await import('@/lib/aws-client')
+  const uploadWithStrategy = async (uploadFile: UploadFile) => {
+    console.log('=== UPLOAD STRATEGY DEBUG ===')
+    console.log('File:', uploadFile.file.name, uploadFile.file.size, 'bytes')
+    console.log('Size MB:', Math.round(uploadFile.file.size / 1024 / 1024))
     
     try {
-      // Preserve folder structure in filename
+      const { UploadFactory } = await import('../upload/strategies/UploadFactory')
+      console.log('UploadFactory imported successfully')
+      
+      // Preparar filename com estrutura de pasta
       let uploadFilename = uploadFile.file.name
       if (uploadFile.relativePath) {
-        // Use relative path to preserve folder structure
         uploadFilename = uploadFile.relativePath
       } else if (uploadFile.folder) {
-        // Use folder name if available
         uploadFilename = `${uploadFile.folder}/${uploadFile.file.name}`
       }
       
       console.log('Upload filename with path:', uploadFilename)
       
-      // Upload único via presigned URL
-      const urlData = await mediaflowClient.getUploadUrl(uploadFilename, uploadFile.file.type, uploadFile.file.size)
-      if (!urlData.success) throw new Error(urlData.message)
+      // Selecionar estratégia baseada no tamanho
+      const strategy = UploadFactory.createStrategy(uploadFile.file.size)
+      const info = UploadFactory.getStrategyInfo(uploadFile.file.size)
       
-      const result = await new Promise<string>((resolve, reject) => {
-        const xhr = new XMLHttpRequest()
-        
-        xhr.upload.addEventListener('progress', (e) => {
-          if (e.lengthComputable) {
-            const progress = Math.round((e.loaded / e.total) * 100)
-            setFiles(prev => prev.map(f => 
-              f.id === uploadFile.id ? { ...f, progress } : f
-            ))
-          }
-        })
-        
-        xhr.addEventListener('load', () => {
-          if (xhr.status >= 200 && xhr.status < 300) {
-            resolve(urlData.key)
-          } else {
-            reject(new Error(`Upload failed: ${xhr.status}`))
-          }
-        })
-        
-        xhr.addEventListener('error', () => reject(new Error('Upload error')))
-        
-        xhr.open('PUT', urlData.uploadUrl)
-        xhr.setRequestHeader('Content-Type', uploadFile.file.type)
-        xhr.send(uploadFile.file)
-      })
+      console.log(`🚀 MODULAR UPLOAD - Strategy: ${info.type} (${info.timeout}, ${info.retries} retries)`)
       
-      const fileUrl = `https://mediaflow-uploads-969430605054.s3.amazonaws.com/${result}`
+      // Upload usando estratégia modular
+      const result = await strategy.upload(
+        uploadFile.file,
+        uploadFilename,
+        (progress) => {
+          setFiles(prev => prev.map(f => 
+            f.id === uploadFile.id ? { ...f, progress: progress.percentage } : f
+          ))
+        }
+      )
       
-      setFiles(prev => prev.map(f => 
-        f.id === uploadFile.id 
-          ? { ...f, status: 'success', progress: 100, url: fileUrl }
-          : f
-      ))
-      
-      console.log('Upload SUCCESS:', result)
+      if (result.success) {
+        setFiles(prev => prev.map(f => 
+          f.id === uploadFile.id 
+            ? { ...f, status: 'success', progress: 100, url: result.url }
+            : f
+        ))
+        console.log('✅ MODULAR UPLOAD SUCCESS:', result.url)
+      } else {
+        console.error('❌ MODULAR UPLOAD FAILED:', result.error)
+        throw new Error(result.error || 'Upload failed')
+      }
     } catch (error) {
-      console.error('Upload FAILED:', error)
+      console.error('❌ STRATEGY IMPORT ERROR:', error)
       throw error
     }
   }
 
+
+
   const uploadAll = async () => {
     const pendingFiles = files.filter(f => f.status === 'pending')
+    const batchSize = 5
+    const batches = []
     
-    for (const file of pendingFiles) {
-      await uploadFile(file)
+    // Dividir em lotes de 5
+    for (let i = 0; i < pendingFiles.length; i += batchSize) {
+      batches.push(pendingFiles.slice(i, i + batchSize))
     }
+    
+    setTotalBatches(batches.length)
+    
+    // Processar lotes sequencialmente
+    for (let i = 0; i < batches.length; i++) {
+      setCurrentBatch(i + 1)
+      const batch = batches[i]
+      
+      // Upload paralelo dentro do lote
+      await Promise.all(batch.map(file => uploadFile(file)))
+    }
+    
+    setCurrentBatch(0)
+    setTotalBatches(0)
     
     const completedFiles = files.filter(f => f.status === 'success')
     onUploadComplete?.(completedFiles)
@@ -341,7 +293,7 @@ export default function FileUpload({
         <p className="text-gray-400 text-xs mt-3 text-center">
           Máximo {maxFiles} arquivos • Até 5GB cada • Vídeos, imagens e PDFs<br/>
           <span className="text-neon-cyan text-xs">
-🚀 Upload único otimizado - Estável até 5GB sem erros multipart
+🚀 Upload em lotes de 5 - Otimizado para pastas grandes
           </span>
         </p>
       </div>
@@ -370,6 +322,11 @@ export default function FileUpload({
           <div className="flex justify-between items-center">
             <h4 className="text-lg font-semibold text-white">
               Arquivos ({files.length})
+              {totalBatches > 0 && (
+                <span className="text-sm text-neon-cyan ml-2">
+                  - Lote {currentBatch}/{totalBatches}
+                </span>
+              )}
             </h4>
             
             <div className="flex gap-2">

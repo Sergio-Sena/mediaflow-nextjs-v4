@@ -17,6 +17,13 @@ export default function VideoPlayer({ src, title, onClose }: VideoPlayerProps) {
   const [volume, setVolume] = useState(1)
   const [isMuted, setIsMuted] = useState(false)
   const [showControls, setShowControls] = useState(true)
+  const [videoError, setVideoError] = useState<string | null>(null)
+
+  // Debug do tipo de arquivo
+  console.log('=== VIDEO PLAYER DEBUG ===')
+  console.log('Source:', src)
+  console.log('Is .ts file:', src.endsWith('.ts'))
+  console.log('Title:', title)
 
   useEffect(() => {
     const video = videoRef.current
@@ -28,6 +35,15 @@ export default function VideoPlayer({ src, title, onClose }: VideoPlayerProps) {
     video.addEventListener('timeupdate', updateTime)
     video.addEventListener('loadedmetadata', updateDuration)
     video.addEventListener('ended', () => setIsPlaying(false))
+    
+    // Debug events
+    video.addEventListener('loadstart', () => console.log('📦 Video load started'))
+    video.addEventListener('canplay', () => console.log('✅ Video can play'))
+    video.addEventListener('error', (e) => {
+      console.error('❌ Video error:', e)
+      setVideoError('Erro ao carregar vídeo')
+    })
+    video.addEventListener('loadeddata', () => console.log('📊 Video data loaded'))
 
     return () => {
       video.removeEventListener('timeupdate', updateTime)
@@ -125,17 +141,38 @@ export default function VideoPlayer({ src, title, onClose }: VideoPlayerProps) {
         >
           <video
             ref={videoRef}
-            src={src}
             className="w-full h-full max-h-[70vh] object-contain"
             onClick={togglePlay}
             crossOrigin="anonymous"
             preload="metadata"
           >
-            <source src={src} type="video/mp4" />
-            <source src={src} type="video/webm" />
-            <source src={src} type="video/ogg" />
-            Seu navegador não suporta o elemento de vídeo.
+            {/* Priorizar .ts nativo primeiro */}
+            {src.endsWith('.ts') ? (
+              <>
+                <source src={src} type="video/mp2t" />
+                <source src={src.replace('.ts', '.mp4')} type="video/mp4" />
+              </>
+            ) : (
+              <>
+                <source src={src} type="video/mp4" />
+                <source src={src} type="video/webm" />
+                <source src={src} type="video/ogg" />
+              </>
+            )}
+            Seu navegador não suporta reprodução de vídeo.
           </video>
+
+          {/* Error Message */}
+          {videoError && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+              <div className="text-center text-white">
+                <p className="text-red-400 mb-2">{videoError}</p>
+                <p className="text-sm text-gray-400">
+                  {src.endsWith('.ts') ? 'Tentando reproduzir arquivo .ts nativamente' : 'Formato de vídeo não suportado'}
+                </p>
+              </div>
+            </div>
+          )}
 
           {/* Play/Pause Overlay */}
           {!isPlaying && (

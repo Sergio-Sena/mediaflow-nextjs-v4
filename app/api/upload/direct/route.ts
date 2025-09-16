@@ -35,14 +35,20 @@ export async function POST(request: NextRequest) {
     }
 
     // Sanitizar nome do arquivo
-    const sanitizedFilename = file.name.replace(/[^a-zA-Z0-9.-]/g, '_')
+    const sanitizedFilename = file.name
+      .replace(/[^a-zA-Z0-9.-]/g, '_')
+      .replace(/_{2,}/g, '_')
+      .replace(/^_|_$/g, '')
     let key: string
     
     if (folder && relativePath) {
-      const sanitizedPath = relativePath.replace(/[^a-zA-Z0-9.\/\-_]/g, '_')
-      key = `uploads/${folder}/${sanitizedPath}`
+      const sanitizedPath = relativePath
+        .replace(/[^a-zA-Z0-9.\/\-_]/g, '_')
+        .replace(/_{2,}/g, '_')
+        .replace(/^_|_$/g, '')
+      key = sanitizedPath
     } else {
-      key = `uploads/files/${Date.now()}-${sanitizedFilename}`
+      key = `${Date.now()}-${sanitizedFilename}`
     }
 
     console.log('Uploading to S3:', key)
@@ -53,7 +59,7 @@ export async function POST(request: NextRequest) {
 
     // Upload direto para S3
     const command = new PutObjectCommand({
-      Bucket: 'drive-online-frontend',
+      Bucket: 'mediaflow-uploads-969430605054',
       Key: key,
       Body: buffer,
       ContentType: file.type,
@@ -67,7 +73,7 @@ export async function POST(request: NextRequest) {
 
     await s3Client.send(command)
     
-    const fileUrl = `https://d1k8z7g2w8j4qr.cloudfront.net/${key}`
+    const fileUrl = `https://mediaflow-uploads-969430605054.s3.amazonaws.com/${key}`
 
     console.log('Upload successful:', fileUrl)
 
@@ -75,7 +81,7 @@ export async function POST(request: NextRequest) {
       success: true,
       key,
       fileUrl,
-      bucket: 'drive-online-frontend',
+      bucket: 'mediaflow-uploads-969430605054',
       size: file.size,
       contentType: file.type,
     })
