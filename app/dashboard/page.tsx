@@ -9,6 +9,7 @@ import VideoPlayer from '@/components/modules/VideoPlayer'
 import ImageViewer from '@/components/modules/ImageViewer'
 import PDFViewer from '@/components/modules/PDFViewer'
 import Analytics from '@/components/modules/Analytics'
+import FolderManager from '@/components/modules/FolderManager'
 
 
 interface User {
@@ -30,13 +31,14 @@ interface FileItem {
 export default function DashboardPage() {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState<'files' | 'upload' | 'analytics'>('files')
+  const [activeTab, setActiveTab] = useState<'files' | 'upload' | 'manager' | 'analytics'>('files')
   const [selectedVideo, setSelectedVideo] = useState<FileItem | null>(null)
   const [selectedImage, setSelectedImage] = useState<FileItem | null>(null)
   const [selectedPDF, setSelectedPDF] = useState<FileItem | null>(null)
   const [refreshTrigger, setRefreshTrigger] = useState(0)
   const [allFiles, setAllFiles] = useState<FileItem[]>([])
   const [videoPlaylist, setVideoPlaylist] = useState<FileItem[]>([])
+  const [currentFolderPath, setCurrentFolderPath] = useState<string>('')
   const router = useRouter()
 
   useEffect(() => {
@@ -98,7 +100,10 @@ export default function DashboardPage() {
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-4">
-              <h1 className="text-2xl font-bold">
+              <h1 
+                className="text-2xl font-bold cursor-pointer hover:scale-105 transition-transform duration-300"
+                onClick={() => window.location.reload()}
+              >
                 🎬 <span className="neon-text">Mediaflow</span>
               </h1>
               <div className="hidden md:block text-sm text-gray-400">
@@ -128,6 +133,7 @@ export default function DashboardPage() {
             {[
               { id: 'files', label: '📁 Arquivos', count: 0 },
               { id: 'upload', label: '📤 Upload', count: 0 },
+              { id: 'manager', label: '🗂️ Gerenciador', count: 0 },
               { id: 'analytics', label: '📊 Analytics', count: 0 },
             ].map((tab) => (
               <button
@@ -167,6 +173,7 @@ export default function DashboardPage() {
             onViewPDF={setSelectedPDF}
             refreshTrigger={refreshTrigger}
             onFilesLoaded={setAllFiles}
+            targetFolder={currentFolderPath}
           />
         )}
 
@@ -194,6 +201,19 @@ export default function DashboardPage() {
           </div>
         )}
 
+        {activeTab === 'manager' && (
+          <div className="space-y-6">
+            <FolderManager 
+              onNavigateToFolder={(folderPath) => {
+                // Switch to files tab and navigate to folder
+                setCurrentFolderPath(folderPath)
+                setActiveTab('files')
+              }}
+              onFilesLoaded={setAllFiles}
+            />
+          </div>
+        )}
+
         {activeTab === 'analytics' && (
           <div className="space-y-6">
             <div className="flex justify-between items-center">
@@ -213,7 +233,19 @@ export default function DashboardPage() {
           currentVideo={selectedVideo}
           playlist={videoPlaylist}
           onClose={() => setSelectedVideo(null)}
-          onVideoChange={(video) => setSelectedVideo(video)}
+          onVideoChange={(video) => {
+            // Convert VideoFile to FileItem
+            const fileItem: FileItem = {
+              key: video.key,
+              name: video.name,
+              url: video.url,
+              folder: video.folder,
+              size: 0, // Will be updated from allFiles if needed
+              lastModified: new Date().toISOString(),
+              type: 'video'
+            }
+            setSelectedVideo(fileItem)
+          }}
         />
       )}
       

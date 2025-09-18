@@ -19,9 +19,10 @@ interface FileListProps {
   onViewPDF?: (file: S3File) => void
   refreshTrigger?: number
   onFilesLoaded?: (files: S3File[]) => void
+  targetFolder?: string
 }
 
-export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshTrigger, onFilesLoaded }: FileListProps) {
+export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshTrigger, onFilesLoaded, targetFolder }: FileListProps) {
   const [files, setFiles] = useState<S3File[]>([])
   const [folders, setFolders] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
@@ -132,6 +133,13 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
   useEffect(() => {
     fetchFiles()
   }, [refreshTrigger])
+
+  useEffect(() => {
+    if (targetFolder !== undefined) {
+      const pathParts = targetFolder ? targetFolder.split('/') : ['']
+      setCurrentPath(['', ...pathParts])
+    }
+  }, [targetFolder])
 
   // Navigation functions
   const navigateToFolder = (folderPath: string) => {
@@ -365,50 +373,8 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
 
   return (
     <div className="space-y-6">
-      {/* Breadcrumb Navigation */}
-      <div className="glass-card p-4">
-        <div className="flex items-center gap-2 text-sm">
-          <button
-            onClick={() => setCurrentPath([''])}
-            className="flex items-center gap-1 px-3 py-1 rounded-lg hover:bg-neon-cyan/20 text-neon-cyan transition-colors"
-          >
-            🏠 Home
-          </button>
-          {currentPath.slice(1).map((folder, index) => (
-            <div key={index} className="flex items-center gap-2">
-              <span className="text-gray-400">&gt;</span>
-              <button
-                onClick={() => navigateUp(index + 1)}
-                className="px-3 py-1 rounded-lg hover:bg-neon-cyan/20 text-white transition-colors"
-              >
-                📁 {folder}
-              </button>
-            </div>
-          ))}
-        </div>
-      </div>
-      
-      {/* Current Folders */}
-      {getCurrentFolders().length > 0 && (
-        <div className="glass-card p-6">
-          <h3 className="text-lg font-semibold text-white mb-4">📁 Pastas</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-            {getCurrentFolders().map(folderPath => {
-              const folderName = folderPath.split('/').pop() || folderPath
-              return (
-                <button
-                  key={folderPath}
-                  onClick={() => navigateToFolder(folderPath)}
-                  className="flex flex-col items-center gap-2 p-4 rounded-lg bg-gray-800/50 hover:bg-neon-cyan/20 transition-colors group"
-                >
-                  <span className="text-2xl group-hover:scale-110 transition-transform">📁</span>
-                  <span className="text-sm text-white truncate w-full text-center">{folderName}</span>
-                </button>
-              )
-            })}
-          </div>
-        </div>
-      )}
+
+
 
       {/* Header */}
       <div className="glass-card p-6">
@@ -421,6 +387,7 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
               {selectedFiles.size > 0 && `${selectedFiles.size} selecionado(s) • `}
               Pasta atual: {getCurrentFolderPath() || 'Raiz'}
             </p>
+
           </div>
           
           <div className="flex gap-2">
@@ -496,6 +463,7 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
             className="px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:border-neon-cyan focus:outline-none"
           >
             <option value="">🚀 Ir para pasta...</option>
+            <option value="📁 Raiz">📁 Raiz</option>
             {folders.map(folder => (
               <option key={folder} value={folder}>{folder}</option>
             ))}

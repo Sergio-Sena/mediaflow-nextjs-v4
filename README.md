@@ -26,6 +26,7 @@
 - ✅ **Conversão H.264** - AWS MediaConvert 1080p automático
 - ✅ **Player Sequencial** - Navegação Previous/Next entre vídeos da pasta
 - ✅ **Navegação por Pastas** - Breadcrumbs e estrutura hierárquica
+- ✅ **Gerenciador Avançado** - Interface dedicada com seleção em lote
 - ✅ **CDN Global** - CloudFront para performance mundial (400+ edge locations)
 - ✅ **SSL/HTTPS** - Certificado wildcard ativo
 - ✅ **Analytics** - Métricas em tempo real
@@ -241,7 +242,16 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 - [x] Build otimizado para produção
 - [x] Performance Lighthouse 95+
 
-### **v4.2 (Próxima)**
+### **v4.2 (EM DESENVOLVIMENTO)** 🚧
+- [x] **Gerenciador de Pastas Avançado** - Interface dedicada para navegação hierárquica
+- [x] **Seleção em Lote** - Checkbox individual e "Selecionar Todos"
+- [x] **Delete em Lote** - Exclusão múltipla com confirmação
+- [x] **Navegação Integrada** - Duplo clique para ir aos arquivos
+- [x] **Interface Limpa** - Remoção de elementos redundantes
+- [x] **Debug de Arquivos** - Console logs para troubleshooting
+- [ ] **Deploy de Produção** - Atualização segura do sistema
+
+### **v4.3 (Próxima)**
 - [ ] Sistema de usuários completo
 - [ ] Thumbnails automáticos
 - [ ] Compressão de imagens

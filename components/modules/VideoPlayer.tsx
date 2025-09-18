@@ -51,6 +51,25 @@ export default function VideoPlayer({ src, title, currentVideo, playlist = [], o
     setCurrentSrc(src)
   }, [src])
 
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose?.()
+      } else if (e.key === 'ArrowLeft') {
+        playPrevious()
+      } else if (e.key === 'ArrowRight') {
+        playNext()
+      } else if (e.key === ' ') {
+        e.preventDefault()
+        togglePlay()
+      }
+    }
+    
+    window.addEventListener('keydown', handleKeyPress)
+    return () => window.removeEventListener('keydown', handleKeyPress)
+  }, [currentIndex, playlist.length])
+  
   // Debug do tipo de arquivo
   console.log('=== VIDEO PLAYER DEBUG ===')
   console.log('Source:', src)
@@ -222,10 +241,10 @@ export default function VideoPlayer({ src, title, currentVideo, playlist = [], o
   }
 
   return (
-    <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4">
       <div className="relative w-full max-w-6xl bg-dark-900 rounded-lg overflow-hidden">
         {/* Header */}
-        <div className="flex justify-between items-center p-4 bg-dark-800/50 border-b border-neon-cyan/20">
+        <div className="flex items-center p-4 bg-dark-800/50 border-b border-neon-cyan/20">
           <div className="flex-1 min-w-0">
             <h3 className="text-lg font-semibold text-white truncate">{title}</h3>
             {playlist.length > 0 && (
@@ -234,12 +253,6 @@ export default function VideoPlayer({ src, title, currentVideo, playlist = [], o
               </p>
             )}
           </div>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-white transition-colors ml-4"
-          >
-            ✕
-          </button>
         </div>
 
         {/* Video Container */}
@@ -248,6 +261,17 @@ export default function VideoPlayer({ src, title, currentVideo, playlist = [], o
           onMouseEnter={() => setShowControls(true)}
           onMouseLeave={() => setShowControls(false)}
         >
+          {/* Close Button - Top Right */}
+          <button
+            onClick={onClose}
+            className={`absolute top-4 right-4 z-20 text-white hover:text-neon-cyan transition-opacity duration-300 p-2 rounded bg-gray-800/50 ${
+              showControls ? 'opacity-100' : 'opacity-0'
+            }`}
+            title="Fechar (ESC)"
+          >
+            ✕
+          </button>
+
           <video
             ref={videoRef}
             className="w-full h-full max-h-[70vh] object-contain"
@@ -389,9 +413,12 @@ export default function VideoPlayer({ src, title, currentVideo, playlist = [], o
               <button
                 onClick={toggleFullscreen}
                 className="text-white hover:text-neon-cyan transition-colors"
+                title="Tela Cheia"
               >
                 <Maximize className="w-5 h-5" />
               </button>
+              
+
             </div>
           </div>
         </div>
