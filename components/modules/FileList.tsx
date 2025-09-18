@@ -18,9 +18,10 @@ interface FileListProps {
   onViewImage?: (file: S3File) => void
   onViewPDF?: (file: S3File) => void
   refreshTrigger?: number
+  onFilesLoaded?: (files: S3File[]) => void
 }
 
-export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshTrigger }: FileListProps) {
+export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshTrigger, onFilesLoaded }: FileListProps) {
   const [files, setFiles] = useState<S3File[]>([])
   const [folders, setFolders] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
@@ -32,6 +33,8 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
   const [selectedFiles, setSelectedFiles] = useState<Set<string>>(new Set())
   const [selectAll, setSelectAll] = useState(false)
   const [converting, setConverting] = useState<Set<string>>(new Set())
+  const [currentPath, setCurrentPath] = useState<string[]>([''])
+  const [folderStructure, setFolderStructure] = useState<{[key: string]: string[]}>({})
 
   const fetchFiles = async () => {
     try {
@@ -64,6 +67,25 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
         })
         
         setFiles(transformedFiles)
+        onFilesLoaded?.(transformedFiles)
+        
+        // Build folder structure for navigation
+        const structure: {[key: string]: string[]} = {}
+        transformedFiles.forEach((file: any) => {
+          if (file.folder && file.folder !== 'root') {
+            const parts = file.folder.split('/')
+            let currentLevel = ''
+            parts.forEach((part, index) => {
+              const parentPath = parts.slice(0, index).join('/')
+              if (!structure[parentPath]) structure[parentPath] = []
+              const fullPath = parts.slice(0, index + 1).join('/')
+              if (!structure[parentPath].includes(fullPath)) {
+                structure[parentPath].push(fullPath)
+              }
+            })
+          }
+        })
+        setFolderStructure(structure)
         
         // Extract unique folders (preserve full folder paths)
         const allFolderPaths = transformedFiles
@@ -80,13 +102,6 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
         const realFoldersWithIcon = uniqueFolderPaths.map(f => `📁 ${f}`)
         
         const allFolders = [...rootFolder, ...realFoldersWithIcon]
-        
-        // Debug: Log folders found
-        console.log('🔍 DEBUG - Folders detected:')
-        console.log('Files:', transformedFiles.length)
-        console.log('Unique folder paths:', uniqueFolderPaths)
-        console.log('Has root files:', hasRootFiles)
-        console.log('Final folders:', allFolders)
         
         setFolders(allFolders)
       } else {
@@ -118,26 +133,41 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
     fetchFiles()
   }, [refreshTrigger])
 
-  const filteredFiles = files.filter(file => {
-    const matchesSearch = file.name.toLowerCase().includes(searchTerm.toLowerCase())
-    
-    // Handle folder filtering with full paths
-    let matchesFolder = true
-    if (selectedFolder !== 'all') {
-      if (selectedFolder === '📁 Raiz') {
-        matchesFolder = file.folder === 'root'
-      } else if (selectedFolder.startsWith('📁 ')) {
-        // Real folder with icon prefix - match full path
-        const folderPath = selectedFolder.replace('📁 ', '')
-        matchesFolder = file.folder === folderPath
-      } else {
-        matchesFolder = file.folder === selectedFolder
+  // Navigation functions
+  const navigateToFolder = (folderPath: string) => {
+    const pathParts = folderPath ? folderPath.split('/') : ['']
+    setCurrentPath(['', ...pathParts])
+  }
+  
+  const navigateUp = (index: number) => {
+    setCurrentPath(currentPath.slice(0, index + 1))
+  }
+  
+  // Get current folder content
+  const getCurrentFolderPath = () => {
+    return currentPath.slice(1).join('/')
+  }
+  
+  const getCurrentFolders = () => {
+    const currentFolderPath = getCurrentFolderPath()
+    return folderStructure[currentFolderPath] || []
+  }
+  
+  const getCurrentFiles = () => {
+    const currentFolderPath = getCurrentFolderPath()
+    return files.filter(file => {
+      if (currentFolderPath === '') {
+        // Root level - show files in root and top-level folders
+        return file.folder === 'root' || !file.folder.includes('/')
       }
-    }
-    
+      return file.folder === currentFolderPath
+    })
+  }
+  
+  const filteredFiles = getCurrentFiles().filter(file => {
+    const matchesSearch = file.name.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesType = selectedType === 'all' || file.type === selectedType
-    
-    return matchesSearch && matchesFolder && matchesType
+    return matchesSearch && matchesType
   })
 
   const formatFileSize = (bytes: number) => {
@@ -335,6 +365,51 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
 
   return (
     <div className="space-y-6">
+      {/* Breadcrumb Navigation */}
+      <div className="glass-card p-4">
+        <div className="flex items-center gap-2 text-sm">
+          <button
+            onClick={() => setCurrentPath([''])}
+            className="flex items-center gap-1 px-3 py-1 rounded-lg hover:bg-neon-cyan/20 text-neon-cyan transition-colors"
+          >
+            🏠 Home
+          </button>
+          {currentPath.slice(1).map((folder, index) => (
+            <div key={index} className="flex items-center gap-2">
+              <span className="text-gray-400">></span>
+              <button
+                onClick={() => navigateUp(index + 1)}
+                className="px-3 py-1 rounded-lg hover:bg-neon-cyan/20 text-white transition-colors"
+              >
+                📁 {folder}
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+      
+      {/* Current Folders */}
+      {getCurrentFolders().length > 0 && (
+        <div className="glass-card p-6">
+          <h3 className="text-lg font-semibold text-white mb-4">📁 Pastas</h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+            {getCurrentFolders().map(folderPath => {
+              const folderName = folderPath.split('/').pop() || folderPath
+              return (
+                <button
+                  key={folderPath}
+                  onClick={() => navigateToFolder(folderPath)}
+                  className="flex flex-col items-center gap-2 p-4 rounded-lg bg-gray-800/50 hover:bg-neon-cyan/20 transition-colors group"
+                >
+                  <span className="text-2xl group-hover:scale-110 transition-transform">📁</span>
+                  <span className="text-sm text-white truncate w-full text-center">{folderName}</span>
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="glass-card p-6">
         <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
@@ -344,7 +419,7 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
             </h2>
             <p className="text-gray-400">
               {selectedFiles.size > 0 && `${selectedFiles.size} selecionado(s) • `}
-              Total: {formatFileSize(files.reduce((acc, f) => acc + f.size, 0))}
+              Pasta atual: {getCurrentFolderPath() || 'Raiz'}
             </p>
           </div>
           
@@ -410,13 +485,17 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
             />
           </div>
 
-          {/* Folder Filter */}
+          {/* Quick Folder Jump */}
           <select
-            value={selectedFolder}
-            onChange={(e) => setSelectedFolder(e.target.value)}
+            value=""
+            onChange={(e) => {
+              if (e.target.value) {
+                navigateToFolder(e.target.value.replace('📁 ', ''))
+              }
+            }}
             className="px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:border-neon-cyan focus:outline-none"
           >
-            <option value="all">📁 Todas as pastas</option>
+            <option value="">🚀 Ir para pasta...</option>
             {folders.map(folder => (
               <option key={folder} value={folder}>{folder}</option>
             ))}
@@ -439,8 +518,8 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
           <button
             onClick={() => {
               setSearchTerm('')
-              setSelectedFolder('all')
               setSelectedType('all')
+              setCurrentPath([''])
             }}
             className="btn-secondary"
           >

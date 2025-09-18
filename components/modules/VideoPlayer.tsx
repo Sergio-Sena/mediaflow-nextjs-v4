@@ -3,13 +3,23 @@
 import { useState, useRef, useEffect } from 'react'
 import { Play, Pause, Volume2, VolumeX, Maximize, SkipBack, SkipForward } from 'lucide-react'
 
+interface VideoFile {
+  key: string
+  name: string
+  url: string
+  folder: string
+}
+
 interface VideoPlayerProps {
   src: string
   title: string
+  currentVideo?: VideoFile
+  playlist?: VideoFile[]
   onClose?: () => void
+  onVideoChange?: (video: VideoFile) => void
 }
 
-export default function VideoPlayer({ src, title, onClose }: VideoPlayerProps) {
+export default function VideoPlayer({ src, title, currentVideo, playlist = [], onClose, onVideoChange }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentTime, setCurrentTime] = useState(0)
@@ -18,12 +28,23 @@ export default function VideoPlayer({ src, title, onClose }: VideoPlayerProps) {
   const [isMuted, setIsMuted] = useState(false)
   const [showControls, setShowControls] = useState(true)
   const [videoError, setVideoError] = useState<string | null>(null)
+  const [currentIndex, setCurrentIndex] = useState(0)
+  
+  // Update current index when currentVideo changes
+  useEffect(() => {
+    if (currentVideo && playlist.length > 0) {
+      const index = playlist.findIndex(v => v.key === currentVideo.key)
+      if (index !== -1) setCurrentIndex(index)
+    }
+  }, [currentVideo, playlist])
 
   // Debug do tipo de arquivo
   console.log('=== VIDEO PLAYER DEBUG ===')
   console.log('Source:', src)
   console.log('Is .ts file:', src.endsWith('.ts'))
   console.log('Title:', title)
+  console.log('Playlist:', playlist.length, 'videos')
+  console.log('Current index:', currentIndex)
 
   useEffect(() => {
     const video = videoRef.current
@@ -34,7 +55,11 @@ export default function VideoPlayer({ src, title, onClose }: VideoPlayerProps) {
 
     video.addEventListener('timeupdate', updateTime)
     video.addEventListener('loadedmetadata', updateDuration)
-    video.addEventListener('ended', () => setIsPlaying(false))
+    video.addEventListener('ended', () => {
+      setIsPlaying(false)
+      // Auto-play next video
+      playNext()
+    })
     
     // Debug events
     video.addEventListener('loadstart', () => console.log('📦 Video load started'))
@@ -101,6 +126,28 @@ export default function VideoPlayer({ src, title, onClose }: VideoPlayerProps) {
 
     video.currentTime = Math.max(0, Math.min(duration, video.currentTime + seconds))
   }
+  
+  const playNext = () => {
+    if (playlist.length === 0) return
+    
+    const nextIndex = currentIndex + 1
+    if (nextIndex < playlist.length) {
+      const nextVideo = playlist[nextIndex]
+      setCurrentIndex(nextIndex)
+      onVideoChange?.(nextVideo)
+    }
+  }
+  
+  const playPrevious = () => {
+    if (playlist.length === 0) return
+    
+    const prevIndex = currentIndex - 1
+    if (prevIndex >= 0) {
+      const prevVideo = playlist[prevIndex]
+      setCurrentIndex(prevIndex)
+      onVideoChange?.(prevVideo)
+    }
+  }
 
   const formatTime = (time: number) => {
     const minutes = Math.floor(time / 60)
@@ -124,10 +171,17 @@ export default function VideoPlayer({ src, title, onClose }: VideoPlayerProps) {
       <div className="relative w-full max-w-6xl bg-dark-900 rounded-lg overflow-hidden">
         {/* Header */}
         <div className="flex justify-between items-center p-4 bg-dark-800/50 border-b border-neon-cyan/20">
-          <h3 className="text-lg font-semibold text-white truncate">{title}</h3>
+          <div className="flex-1 min-w-0">
+            <h3 className="text-lg font-semibold text-white truncate">{title}</h3>
+            {playlist.length > 0 && (
+              <p className="text-sm text-gray-400">
+                {currentIndex + 1} de {playlist.length} • 📁 {currentVideo?.folder || 'Pasta'}
+              </p>
+            )}
+          </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-white transition-colors"
+            className="text-gray-400 hover:text-white transition-colors ml-4"
           >
             ✕
           </button>
@@ -205,9 +259,20 @@ export default function VideoPlayer({ src, title, onClose }: VideoPlayerProps) {
             {/* Control Buttons */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
+                {/* Previous Video */}
+                <button
+                  onClick={playPrevious}
+                  disabled={currentIndex === 0 || playlist.length === 0}
+                  className="text-white hover:text-neon-cyan transition-colors disabled:text-gray-600 disabled:cursor-not-allowed"
+                  title="Vídeo Anterior"
+                >
+                  ⏮️
+                </button>
+                
                 <button
                   onClick={() => skip(-10)}
                   className="text-white hover:text-neon-cyan transition-colors"
+                  title="Voltar 10s"
                 >
                   <SkipBack className="w-5 h-5" />
                 </button>
@@ -226,8 +291,19 @@ export default function VideoPlayer({ src, title, onClose }: VideoPlayerProps) {
                 <button
                   onClick={() => skip(10)}
                   className="text-white hover:text-neon-cyan transition-colors"
+                  title="Avançar 10s"
                 >
                   <SkipForward className="w-5 h-5" />
+                </button>
+                
+                {/* Next Video */}
+                <button
+                  onClick={playNext}
+                  disabled={currentIndex >= playlist.length - 1 || playlist.length === 0}
+                  className="text-white hover:text-neon-cyan transition-colors disabled:text-gray-600 disabled:cursor-not-allowed"
+                  title="Próximo Vídeo"
+                >
+                  ⏭️
                 </button>
 
                 <div className="flex items-center gap-2">
@@ -263,6 +339,35 @@ export default function VideoPlayer({ src, title, onClose }: VideoPlayerProps) {
             </div>
           </div>
         </div>
+        
+        {/* Playlist */}
+        {playlist.length > 1 && (
+          <div className="p-4 bg-dark-800/30 border-t border-neon-cyan/20 max-h-48 overflow-y-auto">
+            <h4 className="text-sm font-semibold text-white mb-3">📋 Playlist ({playlist.length} vídeos)</h4>
+            <div className="space-y-2">
+              {playlist.map((video, index) => (
+                <button
+                  key={video.key}
+                  onClick={() => {
+                    setCurrentIndex(index)
+                    onVideoChange?.(video)
+                  }}
+                  className={`w-full text-left p-2 rounded-lg transition-colors ${
+                    index === currentIndex
+                      ? 'bg-neon-cyan/20 text-neon-cyan'
+                      : 'bg-gray-800/50 text-gray-300 hover:bg-gray-700/50'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs text-gray-400 w-6">{index + 1}</span>
+                    <span className="text-sm truncate flex-1">{video.name}</span>
+                    {index === currentIndex && <span className="text-xs">▶️</span>}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
