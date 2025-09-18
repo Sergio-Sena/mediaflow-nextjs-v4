@@ -24,7 +24,8 @@
 
 - ✅ **Upload até 5GB** - DirectUpload component com drag & drop
 - ✅ **Conversão H.264** - AWS MediaConvert 1080p automático
-- ✅ **Player Inteligente** - Prioriza versões convertidas automaticamente
+- ✅ **Player Sequencial** - Navegação Previous/Next entre vídeos da pasta
+- ✅ **Navegação por Pastas** - Breadcrumbs e estrutura hierárquica
 - ✅ **CDN Global** - CloudFront para performance mundial (400+ edge locations)
 - ✅ **SSL/HTTPS** - Certificado wildcard ativo
 - ✅ **Analytics** - Métricas em tempo real
@@ -139,7 +140,8 @@ npm run type-check   # Verificar tipos TypeScript
 ### **✅ Funcionalidades Ativas:**
 - Upload inteligente até 5GB
 - Conversão automática H.264 1080p
-- Player híbrido com fallback
+- Player sequencial com navegação Previous/Next
+- Navegação hierárquica por pastas
 - Analytics em tempo real
 - Cleanup automático de órfãos
 - CDN global CloudFront
@@ -230,7 +232,8 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 - [x] Domínio customizado com SSL wildcard
 - [x] Conversão automática H.264 1080p
 - [x] Upload até 5GB com DirectUpload component
-- [x] Player inteligente com fallback
+- [x] Player sequencial com navegação Previous/Next
+- [x] Navegação hierárquica por pastas com breadcrumbs
 - [x] Analytics em tempo real
 - [x] Upload direto AWS S3 (bypass Next.js)
 - [x] Progress tracking e drag & drop
@@ -267,7 +270,8 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 - 📱 Responsivo para todos dispositivos
 - 🔒 Seguro com HTTPS e JWT
 - ⚡ Performance Lighthouse 95+
-- 🎥 Streaming profissional H.264 1080p
+- 🎥 Player sequencial com navegação Previous/Next
+- 📁 Navegação hierárquica por pastas
 - 📤 Upload direto S3 até 5GB
 - 📈 Analytics em tempo real
 - 🧠 Cleanup automático inteligente

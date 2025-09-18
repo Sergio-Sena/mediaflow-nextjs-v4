@@ -35,6 +35,8 @@ export default function DashboardPage() {
   const [selectedImage, setSelectedImage] = useState<FileItem | null>(null)
   const [selectedPDF, setSelectedPDF] = useState<FileItem | null>(null)
   const [refreshTrigger, setRefreshTrigger] = useState(0)
+  const [allFiles, setAllFiles] = useState<FileItem[]>([])
+  const [videoPlaylist, setVideoPlaylist] = useState<FileItem[]>([])
   const router = useRouter()
 
   useEffect(() => {
@@ -153,10 +155,18 @@ export default function DashboardPage() {
       <main className="max-w-7xl mx-auto px-4 py-8">
         {activeTab === 'files' && (
           <FileList 
-            onPlayVideo={setSelectedVideo}
+            onPlayVideo={(video) => {
+              setSelectedVideo(video)
+              // Create playlist from videos in same folder
+              const videosInFolder = allFiles.filter(f => 
+                f.type === 'video' && f.folder === video.folder
+              )
+              setVideoPlaylist(videosInFolder)
+            }}
             onViewImage={setSelectedImage}
             onViewPDF={setSelectedPDF}
             refreshTrigger={refreshTrigger}
+            onFilesLoaded={setAllFiles}
           />
         )}
 
@@ -200,7 +210,10 @@ export default function DashboardPage() {
         <VideoPlayer
           src={selectedVideo.url}
           title={selectedVideo.name}
+          currentVideo={selectedVideo}
+          playlist={videoPlaylist}
           onClose={() => setSelectedVideo(null)}
+          onVideoChange={(video) => setSelectedVideo(video)}
         />
       )}
       
