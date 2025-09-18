@@ -75,7 +75,7 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
           if (file.folder && file.folder !== 'root') {
             const parts = file.folder.split('/')
             let currentLevel = ''
-            parts.forEach((part, index) => {
+            parts.forEach((part: string, index: number) => {
               const parentPath = parts.slice(0, index).join('/')
               if (!structure[parentPath]) structure[parentPath] = []
               const fullPath = parts.slice(0, index + 1).join('/')
@@ -376,7 +376,7 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
           </button>
           {currentPath.slice(1).map((folder, index) => (
             <div key={index} className="flex items-center gap-2">
-              <span className="text-gray-400">></span>
+              <span className="text-gray-400">&gt;</span>
               <button
                 onClick={() => navigateUp(index + 1)}
                 className="px-3 py-1 rounded-lg hover:bg-neon-cyan/20 text-white transition-colors"
