@@ -170,7 +170,7 @@ export default function FolderManager({ onNavigateToFolder, onFilesLoaded }: Fol
           </div>
           <button
             onClick={fetchFiles}
-            className="btn-secondary p-2 mt-1"
+            className="btn-refresh mt-1"
             title="Atualizar"
           >
             <RefreshCw className="w-4 h-4" />
