@@ -17,8 +17,8 @@
 **https://mediaflow.sstechnologies-cloud.com**
 
 ### 🔑 **Login:**
-- **Email**: sergiosenaadmin@sstech
-- **Senha**: sergiosena
+- **Email**: [admin-email]
+- **Senha**: [admin-password]
 
 ### 🎯 **Funcionalidades Ativas**
 
@@ -98,7 +98,7 @@ npm run dev
 
 ### **Acesso Local**
 - **Frontend**: http://localhost:3000
-- **Login**: sergiosenaadmin@sstech / sergiosena
+- **Login**: [admin-email] / [admin-password]
 - **API**: Conecta automaticamente à AWS
 
 ---
@@ -219,10 +219,10 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 
 ## 👨‍💻 **Autor**
 
-**Sergio Sena**
-- GitHub: [@Sergio-Sena](https://github.com/Sergio-Sena)
-- LinkedIn: [Sergio Sena](https://linkedin.com/in/sergio-sena)
-- Email: sergiosena@sstech.com
+**[Author Name]**
+- GitHub: [@author-github](https://github.com/author-github)
+- LinkedIn: [Author LinkedIn](https://linkedin.com/in/author-profile)
+- Email: [author-email]
 
 ---
 
@@ -273,7 +273,7 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 **Versão**: 4.2.0 | **Status**: ✅ PRODUÇÃO | **CDN**: ✅ ATIVO | **Upload**: ✅ DIRETO AWS
 
 **🌐 URL Produção**: https://mediaflow.sstechnologies-cloud.com  
-**🔑 Login**: sergiosenaadmin@sstech / sergiosena  
+**🔑 Login**: [admin-email] / [admin-password]  
 **📤 Upload Direto**: https://mediaflow.sstechnologies-cloud.com/upload_direto.html
 
 ### **✅ Sistema 100% Funcional:**
