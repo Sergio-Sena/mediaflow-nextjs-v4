@@ -18,8 +18,8 @@
 **https://mediaflow.sstechnologies-cloud.com**
 
 ### **Credenciais:**
-- **Email**: sergiosenaadmin@sstech
-- **Senha**: sergiosena
+- **Email**: [admin-email]
+- **Senha**: [admin-password]
 
 ### **Status:**
 - ✅ **100% Funcional** e online
@@ -186,7 +186,7 @@ else:                   # Preserva qualidade (3Mbps)
 
 ### **1. Acesso:**
 1. Acesse: https://mediaflow.sstechnologies-cloud.com
-2. Login: sergiosenaadmin@sstech / sergiosena
+2. Login: [admin-email] / [admin-password]
 3. Dashboard carrega automaticamente
 
 ### **2. Upload:**
@@ -247,7 +247,7 @@ curl -X POST "https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/cleanu
 # Testar API diretamente:
 curl -X POST "https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/auth/login" \
   -H "Content-Type: application/json" \
-  -d '{"email":"sergiosenaadmin@sstech","password":"sergiosena"}'
+  -d '{"email":"[admin-email]","password":"[admin-password]"}'
 ```
 
 #### **2. Upload falha:**
