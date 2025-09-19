@@ -229,4 +229,27 @@
   .lucide-settings {
     margin: auto !important;
   }
+
+  /* Botão de atualizar com animação */
+  .btn-refresh {
+    @apply btn-secondary p-2 flex items-center justify-center;
+  }
+
+  .btn-refresh:hover .lucide-refresh-cw {
+    transform: rotate(180deg);
+    transition: transform 0.3s ease;
+  }
+
+  /* Input de busca com ícone centralizado */
+  .search-input {
+    @apply w-full pl-10 pr-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400;
+  }
+
+  .search-input:focus {
+    @apply border-neon-cyan outline-none;
+  }
+
+  .search-input-icon {
+    @apply absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 pointer-events-none;
+  }
 }
