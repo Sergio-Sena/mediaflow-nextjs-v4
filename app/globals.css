@@ -252,4 +252,16 @@
   .search-input-icon {
     @apply absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 pointer-events-none;
   }
+
+  /* Botão de alternar visualização (grade/lista) */
+  .btn-view-toggle {
+    @apply btn-secondary p-2 flex items-center justify-center;
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .btn-view-toggle .lucide {
+    margin: 0 auto;
+    display: block;
+  }
 }

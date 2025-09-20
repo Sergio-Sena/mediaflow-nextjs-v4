@@ -49,9 +49,18 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
         // Transform AWS response to match component expectations
         const transformedFiles = data.files.map((file: any) => {
           // Use folder from backend if available, otherwise extract from key
-          const folderName = file.folder || (
-            file.key.includes('/') ? file.key.split('/').slice(0, -1).join('/') : 'root'
-          )
+          let folderName = file.folder
+          if (!folderName) {
+            if (file.key.includes('/')) {
+              folderName = file.key.split('/').slice(0, -1).join('/')
+            } else {
+              folderName = 'root'
+            }
+          }
+          // Normalize: empty string or null should be 'root'
+          if (!folderName || folderName === '') {
+            folderName = 'root'
+          }
           const fileName = file.name || file.key.split('/').pop() || file.key
           const fileType = getFileTypeFromName(file.key)
           
@@ -98,11 +107,15 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
         // Check if there are files in root
         const hasRootFiles = transformedFiles.some((f: any) => f.folder === 'root')
         
-        // Build folder list with full paths
-        const rootFolder = hasRootFiles ? ['📁 Raiz'] : []
-        const realFoldersWithIcon = uniqueFolderPaths.map(f => `📁 ${f}`)
-        
-        const allFolders = [...rootFolder, ...realFoldersWithIcon]
+        // Build folder list - ALWAYS include root if there are root files
+        const allFolders = []
+        if (hasRootFiles) {
+          allFolders.push('📁 Raiz')
+        }
+        // Add other folders
+        uniqueFolderPaths.forEach(f => {
+          allFolders.push(`📁 ${f}`)
+        })
         
         setFolders(allFolders)
       } else {
@@ -164,15 +177,15 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
   const getCurrentFiles = () => {
     const currentFolderPath = getCurrentFolderPath()
     return files.filter(file => {
-      if (currentFolderPath === '') {
-        // Root level - show files in root and top-level folders
-        return file.folder === 'root' || !file.folder.includes('/')
+      if (currentFolderPath === '' || currentFolderPath === 'Raiz') {
+        // Root level - show ALL files when no specific folder is selected
+        return true
       }
       return file.folder === currentFolderPath
     })
   }
   
-  const filteredFiles = getCurrentFiles().filter(file => {
+  const filteredFiles = (searchTerm ? files : getCurrentFiles()).filter(file => {
     const matchesSearch = file.name.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesType = selectedType === 'all' || file.type === selectedType
     return matchesSearch && matchesType
@@ -401,7 +414,7 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
             
             <button
               onClick={() => setViewMode(viewMode === 'list' ? 'grid' : 'list')}
-              className="btn-secondary p-2"
+              className="btn-view-toggle"
               title={viewMode === 'list' ? 'Visualização em Grade' : 'Visualização em Lista'}
             >
               {viewMode === 'list' ? <Grid className="w-4 h-4" /> : <List className="w-4 h-4" />}
@@ -459,13 +472,17 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
             value=""
             onChange={(e) => {
               if (e.target.value) {
-                navigateToFolder(e.target.value.replace('📁 ', ''))
+                const folderName = e.target.value.replace('📁 ', '')
+                if (folderName === 'Raiz') {
+                  navigateToFolder('')  // Navigate to root
+                } else {
+                  navigateToFolder(folderName)
+                }
               }
             }}
             className="px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:border-neon-cyan focus:outline-none"
           >
             <option value="">🚀 Ir para pasta...</option>
-            <option value="📁 Raiz">📁 Raiz</option>
             {folders.map(folder => (
               <option key={folder} value={folder}>{folder}</option>
             ))}
@@ -489,7 +506,10 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
             onClick={() => {
               setSearchTerm('')
               setSelectedType('all')
+              setSelectedFolder('all')
               setCurrentPath([''])
+              setSelectedFiles(new Set())
+              setSelectAll(false)
             }}
             className="btn-secondary"
           >
