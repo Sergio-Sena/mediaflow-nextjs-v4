@@ -1,34 +1,179 @@
 'use client'
 
-import { useState } from 'react'
-import { X, Download, ZoomIn, ZoomOut, RotateCw } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { X, Download, ZoomIn, ZoomOut, RotateCw, ChevronLeft, ChevronRight } from 'lucide-react'
+
+interface ImageFile {
+  key: string
+  name: string
+  url: string
+  folder: string
+}
 
 interface ImageViewerProps {
   src: string
   title: string
+  currentImage?: ImageFile
+  playlist?: ImageFile[]
   onClose?: () => void
+  onImageChange?: (image: ImageFile) => void
 }
 
-export default function ImageViewer({ src, title, onClose }: ImageViewerProps) {
+export default function ImageViewer({ src, title, currentImage, playlist = [], onClose, onImageChange }: ImageViewerProps) {
   const [zoom, setZoom] = useState(1)
   const [rotation, setRotation] = useState(0)
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const [currentSrc, setCurrentSrc] = useState(src)
+  const [touchStart, setTouchStart] = useState<number | null>(null)
+  const [touchEnd, setTouchEnd] = useState<number | null>(null)
+  
+  // Update current index and source when currentImage changes
+  useEffect(() => {
+    if (currentImage && playlist.length > 0) {
+      const index = playlist.findIndex(img => img.key === currentImage.key)
+      if (index !== -1) {
+        setCurrentIndex(index)
+        setCurrentSrc(currentImage.url)
+        // Reset zoom and rotation when changing images
+        setZoom(1)
+        setRotation(0)
+      }
+    }
+  }, [currentImage, playlist])
+  
+  // Update source when src prop changes
+  useEffect(() => {
+    setCurrentSrc(src)
+  }, [src])
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose?.()
+      } else if (e.key === 'ArrowLeft') {
+        goToPrevious()
+      } else if (e.key === 'ArrowRight') {
+        goToNext()
+      }
+    }
+    
+    window.addEventListener('keydown', handleKeyPress)
+    return () => window.removeEventListener('keydown', handleKeyPress)
+  }, [currentIndex, playlist.length])
+
+  // Touch/Swipe support
+  const minSwipeDistance = 50
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null)
+    setTouchStart(e.targetTouches[0].clientX)
+  }
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX)
+  }
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return
+    
+    const distance = touchStart - touchEnd
+    const isLeftSwipe = distance > minSwipeDistance
+    const isRightSwipe = distance < -minSwipeDistance
+
+    if (isLeftSwipe && playlist.length > 1) {
+      goToNext()
+    }
+    if (isRightSwipe && playlist.length > 1) {
+      goToPrevious()
+    }
+  }
 
   const handleZoomIn = () => setZoom(prev => Math.min(prev + 0.25, 3))
   const handleZoomOut = () => setZoom(prev => Math.max(prev - 0.25, 0.25))
   const handleRotate = () => setRotation(prev => (prev + 90) % 360)
   const handleDownload = () => {
     const link = document.createElement('a')
-    link.href = src
+    link.href = currentSrc
     link.download = title
     link.click()
   }
+  
+  const goToNext = async () => {
+    if (playlist.length === 0) return
+    
+    const nextIndex = currentIndex + 1
+    if (nextIndex < playlist.length) {
+      const nextImage = playlist[nextIndex]
+      setCurrentIndex(nextIndex)
+      
+      // Get presigned URL for next image
+      try {
+        const response = await fetch(`https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/view/${encodeURIComponent(nextImage.key)}`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' }
+        })
+        
+        if (response.ok) {
+          const data = await response.json()
+          if (data.success) {
+            onImageChange?.({ ...nextImage, url: data.viewUrl })
+            return
+          }
+        }
+      } catch (error) {
+        console.error('Error getting presigned URL:', error)
+      }
+      
+      // Fallback to original URL
+      onImageChange?.(nextImage)
+    }
+  }
+  
+  const goToPrevious = async () => {
+    if (playlist.length === 0) return
+    
+    const prevIndex = currentIndex - 1
+    if (prevIndex >= 0) {
+      const prevImage = playlist[prevIndex]
+      setCurrentIndex(prevIndex)
+      
+      // Get presigned URL for previous image
+      try {
+        const response = await fetch(`https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/view/${encodeURIComponent(prevImage.key)}`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' }
+        })
+        
+        if (response.ok) {
+          const data = await response.json()
+          if (data.success) {
+            onImageChange?.({ ...prevImage, url: data.viewUrl })
+            return
+          }
+        }
+      } catch (error) {
+        console.error('Error getting presigned URL:', error)
+      }
+      
+      // Fallback to original URL
+      onImageChange?.(prevImage)
+    }
+  }
 
   return (
-    <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4">
       <div className="relative w-full max-w-6xl bg-dark-900 rounded-lg overflow-hidden">
         {/* Header */}
-        <div className="flex justify-between items-center p-4 bg-dark-800/50 border-b border-neon-cyan/20">
-          <h3 className="text-lg font-semibold text-white truncate">{title}</h3>
+        <div className="flex justify-between items-center p-2 sm:p-4 bg-dark-800/50 border-b border-neon-cyan/20">
+          <div className="flex-1 min-w-0">
+            <h3 className="text-sm sm:text-lg font-semibold text-white truncate">{title}</h3>
+            {playlist.length > 0 && (
+              <p className="text-sm text-gray-400">
+                {currentIndex + 1} de {playlist.length} • 📁 {currentImage?.folder || 'Pasta'}
+              </p>
+            )}
+          </div>
           <div className="flex gap-2">
             <button onClick={handleZoomOut} className="p-2 text-gray-400 hover:text-white">
               <ZoomOut className="w-4 h-4" />
@@ -50,9 +195,36 @@ export default function ImageViewer({ src, title, onClose }: ImageViewerProps) {
         </div>
 
         {/* Image Container */}
-        <div className="relative bg-black overflow-auto max-h-[80vh] flex items-center justify-center">
+        <div 
+          className="relative bg-black overflow-auto max-h-[70vh] sm:max-h-[80vh] flex items-center justify-center group"
+          onTouchStart={onTouchStart}
+          onTouchMove={onTouchMove}
+          onTouchEnd={onTouchEnd}
+        >
+          {/* Previous Button - Left Side */}
+          {playlist.length > 1 && currentIndex > 0 && (
+            <button
+              onClick={goToPrevious}
+              className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-10 bg-black/60 hover:bg-black/80 text-white p-2 sm:p-4 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110 border border-white/20"
+              title="Imagem Anterior (←)"
+            >
+              <ChevronLeft className="w-4 h-4 sm:w-6 sm:h-6" />
+            </button>
+          )}
+          
+          {/* Next Button - Right Side */}
+          {playlist.length > 1 && currentIndex < playlist.length - 1 && (
+            <button
+              onClick={goToNext}
+              className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-10 bg-black/60 hover:bg-black/80 text-white p-2 sm:p-4 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110 border border-white/20"
+              title="Próxima Imagem (→)"
+            >
+              <ChevronRight className="w-4 h-4 sm:w-6 sm:h-6" />
+            </button>
+          )}
+          
           <img
-            src={src}
+            src={currentSrc}
             alt={title}
             className="max-w-none transition-transform duration-200"
             style={{
@@ -60,8 +232,48 @@ export default function ImageViewer({ src, title, onClose }: ImageViewerProps) {
               maxHeight: zoom === 1 ? '80vh' : 'none',
               maxWidth: zoom === 1 ? '100%' : 'none'
             }}
+            key={currentSrc}
           />
         </div>
+        
+        {/* Image Playlist */}
+        {playlist.length > 1 && (
+          <div className="p-2 sm:p-4 bg-dark-800/30 border-t border-neon-cyan/20 max-h-32 sm:max-h-48 overflow-y-auto">
+            <h4 className="text-sm font-semibold text-white mb-3">📸 Galeria ({playlist.length} imagens)</h4>
+            <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-1 sm:gap-2">
+              {playlist.map((image, index) => (
+                <button
+                  key={image.key}
+                  onClick={() => {
+                    setCurrentIndex(index)
+                    onImageChange?.(image)
+                  }}
+                  className={`relative aspect-square rounded-lg overflow-hidden transition-all duration-200 ${
+                    index === currentIndex
+                      ? 'ring-2 ring-neon-cyan scale-105'
+                      : 'hover:scale-105 opacity-70 hover:opacity-100'
+                  }`}
+                  title={image.name}
+                >
+                  <img
+                    src={image.url}
+                    alt={image.name}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                  {index === currentIndex && (
+                    <div className="absolute inset-0 bg-neon-cyan/20 flex items-center justify-center">
+                      <span className="text-white text-xs font-bold">▶️</span>
+                    </div>
+                  )}
+                  <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs p-1 truncate">
+                    {index + 1}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

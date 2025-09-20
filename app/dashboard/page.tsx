@@ -38,6 +38,7 @@ export default function DashboardPage() {
   const [refreshTrigger, setRefreshTrigger] = useState(0)
   const [allFiles, setAllFiles] = useState<FileItem[]>([])
   const [videoPlaylist, setVideoPlaylist] = useState<FileItem[]>([])
+  const [imagePlaylist, setImagePlaylist] = useState<FileItem[]>([])
   const [currentFolderPath, setCurrentFolderPath] = useState<string>('')
   const router = useRouter()
 
@@ -169,7 +170,14 @@ export default function DashboardPage() {
               )
               setVideoPlaylist(videosInFolder)
             }}
-            onViewImage={setSelectedImage}
+            onViewImage={(image) => {
+              setSelectedImage(image)
+              // Create playlist from images in same folder
+              const imagesInFolder = allFiles.filter(f => 
+                f.type === 'image' && f.folder === image.folder
+              )
+              setImagePlaylist(imagesInFolder)
+            }}
             onViewPDF={setSelectedPDF}
             refreshTrigger={refreshTrigger}
             onFilesLoaded={setAllFiles}
@@ -253,7 +261,22 @@ export default function DashboardPage() {
         <ImageViewer
           src={selectedImage.url}
           title={selectedImage.name}
+          currentImage={selectedImage}
+          playlist={imagePlaylist}
           onClose={() => setSelectedImage(null)}
+          onImageChange={(image) => {
+            // Convert ImageFile to FileItem
+            const fileItem: FileItem = {
+              key: image.key,
+              name: image.name,
+              url: image.url,
+              folder: image.folder,
+              size: 0, // Will be updated from allFiles if needed
+              lastModified: new Date().toISOString(),
+              type: 'image'
+            }
+            setSelectedImage(fileItem)
+          }}
         />
       )}
       

@@ -34,6 +34,9 @@
 - ✅ **Upload Direto** - Bypass Next.js para arquivos grandes
 - ✅ **Progress Tracking** - Acompanhamento em tempo real
 - ✅ **Cleanup Automático** - Remoção de arquivos órfãos
+- ✅ **Busca Global** - Procura em todas as pastas simultaneamente
+- ✅ **Contagem Inteligente** - Subpastas e arquivos totais visíveis
+- ✅ **Organização S3** - Estrutura otimizada com movimentação de pastas
 
 ---
 
@@ -252,6 +255,11 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 - [x] **Botões Centralizados** - Ícones perfeitamente alinhados
 - [x] **Animações Suaves** - Hover effects nos botões
 - [x] **Deploy de Produção** - Sistema atualizado com segurança
+- [x] **Organização S3** - Pastas reorganizadas (Mini_skirt, ShyBlanche, etc. → Star)
+- [x] **Busca Global** - Procura em todas as pastas, não apenas na atual
+- [x] **Contagem Inteligente** - Subpastas e arquivos totais no gerenciador
+- [x] **Filtros Corrigidos** - Botão "Limpar Filtros" funcional
+- [x] **Layout Otimizado** - Cards centralizados e botões alinhados
 
 ### **v4.3 (Próxima)**
 - [ ] Sistema de usuários completo

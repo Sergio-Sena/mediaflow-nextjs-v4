@@ -342,33 +342,36 @@ export default function FolderManager({ onNavigateToFolder, onFilesLoaded }: Fol
             </div>
           )
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 justify-items-center">
             {getCurrentFolders().map(folderPath => {
               const folderName = folderPath.split('/').pop() || folderPath
-              const fileCount = files.filter(f => f.folder === folderPath).length
+              
+              // Contar arquivos diretos na pasta
+              const directFileCount = files.filter(f => f.folder === folderPath).length
+              
+              // Contar subpastas
+              const subFolderCount = folderStructure[folderPath]?.length || 0
+              
+              // Contar total de arquivos (incluindo subpastas)
+              const totalFileCount = files.filter(f => f.folder.startsWith(folderPath + '/') || f.folder === folderPath).length
               
               return (
-                <div key={folderPath} className="space-y-2">
-                  <button
-                    onClick={() => navigateToFolder(folderPath)}
-                    className="w-full flex flex-col items-center gap-2 p-4 rounded-lg bg-gray-800/50 hover:bg-neon-cyan/20 transition-colors group"
-                  >
-                    <span className="text-3xl group-hover:scale-110 transition-transform">📁</span>
-                    <span className="text-sm text-white truncate w-full text-center font-medium">
-                      {folderName}
-                    </span>
-                    <span className="text-xs text-gray-400">
-                      {fileCount} arquivo{fileCount !== 1 ? 's' : ''}
-                    </span>
-                  </button>
-                  
-                  <button
-                    onClick={() => handleFolderClick(folderPath)}
-                    className="w-full btn-secondary text-xs py-1"
-                  >
-                    Ir para Pasta
-                  </button>
-                </div>
+                <button
+                  key={folderPath}
+                  onClick={() => navigateToFolder(folderPath)}
+                  className="w-full flex flex-col items-center gap-2 p-4 rounded-lg bg-gray-800/50 hover:bg-neon-cyan/20 transition-colors group"
+                >
+                  <span className="text-3xl group-hover:scale-110 transition-transform">📁</span>
+                  <span className="text-sm text-white truncate w-full text-center font-medium">
+                    {folderName}
+                  </span>
+                  <div className="text-xs text-gray-400 text-center">
+                    {subFolderCount > 0 && (
+                      <div>📁 {subFolderCount} pasta{subFolderCount !== 1 ? 's' : ''}</div>
+                    )}
+                    <div>📄 {totalFileCount} arquivo{totalFileCount !== 1 ? 's' : ''}</div>
+                  </div>
+                </button>
               )
             })}
           </div>
