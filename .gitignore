@@ -34,6 +34,12 @@ next-env.d.ts
 
 # AWS
 aws-exports.js
+*.pem
+*.key
+
+# Sensitive files
+mediaflow-config.json
+aws-setup/mediaflow-config.json
 
 # Temporary files
 temp_*.json
@@ -41,9 +47,13 @@ temp_*.html
 *_temp.*
 debug_*.py
 test_*.js
+check_*.py
+fix_*.py
 cdn_config.json
+new-cdn-config.json
 disable_config.json
 dns_update.json
+response.json
 
 # IDE
 .vscode/
