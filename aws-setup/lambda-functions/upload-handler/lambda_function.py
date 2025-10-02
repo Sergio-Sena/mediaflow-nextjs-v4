@@ -22,6 +22,13 @@ def lambda_handler(event, context):
         
         # Sanitize filename and detect conversion need
         sanitized_name = sanitize_filename(filename)
+
+        # --- NEW LOGIC TO REDIRECT ROOT FILES TO 'raiz/' ---
+        # If the sanitized_name does not contain a path (i.e., it's meant for the root)
+        if '/' not in sanitized_name:
+            sanitized_name = f'raiz/{sanitized_name}'
+        # --- END NEW LOGIC ---
+
         needs_conversion = should_convert(sanitized_name, file_size)
         
         # Metadata for conversion logic (ASCII only)

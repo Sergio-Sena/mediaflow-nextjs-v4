@@ -49,7 +49,9 @@ def main():
     print("Deploying Mediaflow Lambda Functions...")
     
     # Load config
-    with open('mediaflow-config.json', 'r') as f:
+    script_dir = os.path.dirname(__file__)
+    config_path = os.path.join(script_dir, 'mediaflow-config.json')
+    with open(config_path, 'r') as f:
         config = json.load(f)
     
     lambda_client = boto3.client('lambda')
