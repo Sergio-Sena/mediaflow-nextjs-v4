@@ -230,7 +230,7 @@ export default function FolderManager({ onNavigateToFolder, onFilesLoaded }: Fol
                       alert('Erro ao excluir arquivos')
                     }
                   }}
-                  className="btn-danger p-2"
+                  className="p-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg transition-colors font-bold"
                   title="Excluir Selecionados"
                 >
                   🗑️

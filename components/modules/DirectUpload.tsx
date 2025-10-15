@@ -111,7 +111,7 @@ export default function DirectUpload({
     }
   }
 
-  const handleFileSelect = (selectedFiles: FileList) => {
+  const handleFileSelect = async (selectedFiles: FileList) => {
     const validFiles = Array.from(selectedFiles).filter(file => {
       if (file.size > maxSize * 1024 * 1024) {
         alert(`${file.name} é muito grande. Máximo: ${maxSize}MB`)
@@ -120,7 +120,36 @@ export default function DirectUpload({
       return true
     }).slice(0, maxFiles)
 
-    setFiles(validFiles)
+    // Check which files already exist
+    try {
+      const filenames = validFiles.map(f => (f as any).webkitRelativePath || f.name)
+      const checkResponse = await fetch('https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/upload/check', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ filenames })
+      })
+      
+      const checkData = await checkResponse.json()
+      
+      if (checkData.success) {
+        const existingFiles = checkData.files.filter((f: any) => f.exists)
+        const newFiles = validFiles.filter((file, index) => !checkData.files[index].exists)
+        
+        if (existingFiles.length > 0) {
+          const existingNames = existingFiles.map((f: any) => `• ${f.original}`).join('\n')
+          const message = `⚠️ ARQUIVOS JÁ EXISTENTES\n\n${existingFiles.length} arquivo(s) já existe(m) no destino e foram removidos da lista:\n\n${existingNames}\n\n✅ ${newFiles.length} arquivo(s) novo(s) serão enviados.`
+          alert(message)
+        }
+        
+        setFiles(newFiles)
+      } else {
+        setFiles(validFiles)
+      }
+    } catch (error) {
+      console.error('Error checking files:', error)
+      setFiles(validFiles)
+    }
+
     setProgress({})
     setResults({})
   }
