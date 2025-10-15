@@ -39,16 +39,8 @@ def lambda_handler(event, context):
             return cors_response(400, {'success': False, 'message': 'Filename required'})
         
         sanitized_name = sanitize_filename(filename)
-        
-        # Organizar por tipo se arquivo solto (sem pasta)
         if '/' not in sanitized_name:
-            file_type = get_file_type(sanitized_name)
-            if file_type == 'image':
-                sanitized_name = f'Fotos/{sanitized_name}'
-            elif file_type == 'document':
-                sanitized_name = f'Documentos/{sanitized_name}'
-            else:  # video e outros
-                sanitized_name = f'raiz/{sanitized_name}'
+            sanitized_name = f'raiz/{sanitized_name}'
 
         needs_conversion = should_convert(sanitized_name, file_size)
         
@@ -139,8 +131,8 @@ def get_file_type(filename):
     ext = filename.lower().split('.')[-1] if '.' in filename else ''
     
     video_exts = ['mp4', 'avi', 'mov', 'mkv', 'webm', 'ts', 'flv', 'wmv', 'm4v', '3gp']
-    image_exts = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg', 'ico', 'tiff', 'tif']
-    doc_exts = ['pdf', 'doc', 'docx', 'txt', 'rtf', 'xls', 'xlsx', 'ppt', 'pptx', 'odt', 'ods', 'odp', 'csv']
+    image_exts = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp']
+    doc_exts = ['pdf', 'doc', 'docx', 'txt', 'rtf']
     
     if ext in video_exts:
         return 'video'
