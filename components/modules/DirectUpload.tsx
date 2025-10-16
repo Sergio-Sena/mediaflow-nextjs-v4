@@ -244,11 +244,11 @@ export default function DirectUpload({
             {files.map((file, index) => (
               <div key={index} className="flex items-center gap-4 p-3 bg-gray-800/50 rounded-lg">
                 <div className="flex-1 min-w-0">
-                  <div className="flex justify-between items-center mb-1">
-                    <span className="font-medium text-white truncate">
+                  <div className="flex justify-between items-center mb-1 gap-2">
+                    <span className="font-medium text-white truncate flex-1 min-w-0" title={(file as any).webkitRelativePath || file.name}>
                       {(file as any).webkitRelativePath || file.name}
                     </span>
-                    <span className="text-sm text-gray-400">
+                    <span className="text-sm text-gray-400 flex-shrink-0">
                       {formatFileSize(file.size)}
                     </span>
                   </div>

@@ -2,10 +2,12 @@ import json
 import boto3
 import os
 import re
+import jwt
 from datetime import datetime
 
 s3 = boto3.client('s3')
 UPLOADS_BUCKET = os.environ.get('UPLOADS_BUCKET', 'mediaflow-uploads-969430605054')
+SECRET_KEY = 'your-secret-key-here-change-in-production'
 
 def lambda_handler(event, context):
     try:
@@ -38,17 +40,31 @@ def lambda_handler(event, context):
         if not filename:
             return cors_response(400, {'success': False, 'message': 'Filename required'})
         
+        # Extrair prefix do usuário do JWT
+        user_prefix = ''
+        auth_header = event.get('headers', {}).get('Authorization', '')
+        if auth_header:
+            try:
+                token = auth_header.replace('Bearer ', '')
+                decoded = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+                user_prefix = decoded.get('s3_prefix', '')
+            except:
+                pass  # Se falhar, usa comportamento antigo
+        
         sanitized_name = sanitize_filename(filename)
         
         # Organizar por tipo se arquivo solto (sem pasta)
         if '/' not in sanitized_name:
             file_type = get_file_type(sanitized_name)
             if file_type == 'image':
-                sanitized_name = f'Fotos/{sanitized_name}'
+                sanitized_name = f'{user_prefix}Fotos/{sanitized_name}' if user_prefix else f'Fotos/{sanitized_name}'
             elif file_type == 'document':
-                sanitized_name = f'Documentos/{sanitized_name}'
+                sanitized_name = f'{user_prefix}Documentos/{sanitized_name}' if user_prefix else f'Documentos/{sanitized_name}'
             else:  # video e outros
-                sanitized_name = f'raiz/{sanitized_name}'
+                sanitized_name = f'{user_prefix}Videos/{sanitized_name}' if user_prefix else f'raiz/{sanitized_name}'
+        else:
+            # Pasta: adicionar prefix do usuário
+            sanitized_name = f'{user_prefix}{sanitized_name}' if user_prefix else sanitized_name
 
         needs_conversion = should_convert(sanitized_name, file_size)
         

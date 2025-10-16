@@ -60,12 +60,34 @@ export default function MobileVideoPlayer({ src, title, currentVideo, playlist =
     }
     
     setShowControls(true)
-    controlsTimeoutRef.current = setTimeout(() => {
-      if (isPlaying) {
+    
+    if (isPlaying) {
+      controlsTimeoutRef.current = setTimeout(() => {
         setShowControls(false)
-      }
-    }, 3000)
+      }, 3000)
+    }
   }
+  
+  // Auto-hide when playing starts
+  useEffect(() => {
+    if (isPlaying) {
+      resetControlsTimer()
+    } else {
+      setShowControls(true)
+      if (controlsTimeoutRef.current) {
+        clearTimeout(controlsTimeoutRef.current)
+      }
+    }
+  }, [isPlaying])
+  
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (controlsTimeoutRef.current) {
+        clearTimeout(controlsTimeoutRef.current)
+      }
+    }
+  }, [])
   
   // Touch gesture handling
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -235,10 +257,10 @@ export default function MobileVideoPlayer({ src, title, currentVideo, playlist =
   }
 
   return (
-    <div className="fixed inset-0 bg-black z-50 flex flex-col">
+    <div className="fixed inset-0 bg-black z-50 flex flex-col overflow-hidden">
       {/* Video Container */}
       <div 
-        className="relative flex-1 bg-black"
+        className="relative w-full h-full bg-black flex items-center justify-center"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
@@ -269,7 +291,7 @@ export default function MobileVideoPlayer({ src, title, currentVideo, playlist =
         {/* Video Element */}
         <video
           ref={videoRef}
-          className="w-full h-full object-contain"
+          className="absolute inset-0 w-full h-full object-contain"
           onClick={resetControlsTimer}
           crossOrigin="anonymous"
           preload="metadata"
@@ -289,43 +311,14 @@ export default function MobileVideoPlayer({ src, title, currentVideo, playlist =
           )}
         </video>
 
-        {/* Play/Pause Overlay */}
-        {!isPlaying && showControls && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <button
-              onClick={togglePlay}
-              className="bg-neon-cyan/20 hover:bg-neon-cyan/30 rounded-full p-8 transition-all duration-300"
-            >
-              <Play className="w-16 h-16 text-neon-cyan ml-2" />
-            </button>
-          </div>
-        )}
 
-        {/* Gesture Hints */}
-        {showControls && (
-          <>
-            <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white/30 pointer-events-none">
-              <div className="flex flex-col items-center">
-                <ChevronLeft className="w-12 h-12" />
-                <span className="text-xs mt-1">Anterior</span>
-              </div>
-            </div>
-            
-            <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white/30 pointer-events-none">
-              <div className="flex flex-col items-center">
-                <ChevronRight className="w-12 h-12" />
-                <span className="text-xs mt-1">Próximo</span>
-              </div>
-            </div>
-          </>
-        )}
 
-        {/* Bottom Controls */}
-        <div className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-4 transition-opacity duration-300 ${
-          showControls ? 'opacity-100' : 'opacity-0'
+        {/* Bottom Controls - Fixed Footer */}
+        <div className={`fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-t from-black via-black/95 to-transparent transition-all duration-300 ${
+          showControls ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-full pointer-events-none'
         }`}>
           {/* Progress Bar */}
-          <div className="mb-6">
+          <div className="px-4 pt-4 pb-3">
             <input
               type="range"
               min="0"
@@ -340,58 +333,58 @@ export default function MobileVideoPlayer({ src, title, currentVideo, playlist =
             </div>
           </div>
 
-          {/* Main Controls */}
-          <div className="flex items-center justify-center gap-8 mb-4">
+          {/* Main Controls - Centered at bottom */}
+          <div className="flex items-center justify-center gap-3 px-4 pb-2">
             <button
               onClick={playPrevious}
               disabled={currentIndex === 0 || playlist.length === 0}
-              className="text-white hover:text-neon-cyan transition-colors disabled:text-gray-500 p-3 rounded-full bg-gray-800/50 min-h-[56px] min-w-[56px] touch-feedback"
+              className="text-white hover:text-neon-cyan transition-colors disabled:text-gray-500 p-2 rounded-full bg-gray-800/50 min-h-[48px] min-w-[48px] touch-feedback"
             >
-              <ChevronLeft className="w-8 h-8" />
+              <ChevronLeft className="w-6 h-6" />
             </button>
             
             <button
               onClick={() => skip(-10)}
-              className="text-white hover:text-neon-cyan transition-colors p-3 rounded-full bg-gray-800/30 min-h-[56px] min-w-[56px] touch-feedback"
+              className="text-white hover:text-neon-cyan transition-colors p-2 rounded-full bg-gray-800/30 min-h-[48px] min-w-[48px] touch-feedback"
             >
-              <SkipBack className="w-8 h-8" />
+              <SkipBack className="w-6 h-6" />
             </button>
 
             <button
               onClick={togglePlay}
-              className="bg-neon-cyan hover:bg-neon-cyan/80 rounded-full p-4 transition-colors min-h-[72px] min-w-[72px] touch-feedback"
+              className="bg-neon-cyan hover:bg-neon-cyan/80 rounded-full p-3 transition-colors min-h-[64px] min-w-[64px] touch-feedback"
             >
               {isPlaying ? (
-                <Pause className="w-10 h-10 text-black" />
+                <Pause className="w-8 h-8 text-black" />
               ) : (
-                <Play className="w-10 h-10 text-black ml-1" />
+                <Play className="w-8 h-8 text-black ml-1" />
               )}
             </button>
 
             <button
               onClick={() => skip(10)}
-              className="text-white hover:text-neon-cyan transition-colors p-3 rounded-full bg-gray-800/30 min-h-[56px] min-w-[56px] touch-feedback"
+              className="text-white hover:text-neon-cyan transition-colors p-2 rounded-full bg-gray-800/30 min-h-[48px] min-w-[48px] touch-feedback"
             >
-              <SkipForward className="w-8 h-8" />
+              <SkipForward className="w-6 h-6" />
             </button>
             
             <button
               onClick={playNext}
               disabled={currentIndex >= playlist.length - 1 || playlist.length === 0}
-              className="text-white hover:text-neon-cyan transition-colors disabled:text-gray-500 p-3 rounded-full bg-gray-800/50 min-h-[56px] min-w-[56px] touch-feedback"
+              className="text-white hover:text-neon-cyan transition-colors disabled:text-gray-500 p-2 rounded-full bg-gray-800/50 min-h-[48px] min-w-[48px] touch-feedback"
             >
-              <ChevronRight className="w-8 h-8" />
+              <ChevronRight className="w-6 h-6" />
             </button>
           </div>
 
           {/* Secondary Controls */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4 flex-1">
+          <div className="flex items-center justify-between px-4 pb-3">
+            <div className="flex items-center gap-3 flex-1">
               <button
                 onClick={toggleMute}
-                className="text-white hover:text-neon-cyan transition-colors p-3 rounded-full bg-gray-800/50 min-h-[48px] min-w-[48px] touch-feedback"
+                className="text-white hover:text-neon-cyan transition-colors p-2 rounded-full bg-gray-800/50 min-h-[44px] min-w-[44px] touch-feedback"
               >
-                {isMuted ? <VolumeX className="w-6 h-6" /> : <Volume2 className="w-6 h-6" />}
+                {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
               </button>
               
               <input
@@ -407,9 +400,9 @@ export default function MobileVideoPlayer({ src, title, currentVideo, playlist =
 
             <button
               onClick={toggleFullscreen}
-              className="text-white hover:text-neon-cyan transition-colors p-3 rounded-full bg-gray-800/50 min-h-[48px] min-w-[48px] ml-4 touch-feedback"
+              className="text-white hover:text-neon-cyan transition-colors p-2 rounded-full bg-gray-800/50 min-h-[44px] min-w-[44px] ml-3 touch-feedback"
             >
-              <Maximize className="w-6 h-6" />
+              <Maximize className="w-5 h-5" />
             </button>
           </div>
         </div>
@@ -417,7 +410,7 @@ export default function MobileVideoPlayer({ src, title, currentVideo, playlist =
 
       {/* Playlist - Only show when not fullscreen */}
       {!isFullscreen && playlist.length > 1 && (
-        <div className="bg-dark-800/90 backdrop-blur-sm border-t border-neon-cyan/20 max-h-48 overflow-y-auto">
+        <div className="fixed bottom-0 left-0 right-0 bg-dark-800/95 backdrop-blur-sm border-t border-neon-cyan/20 max-h-48 overflow-y-auto z-40" style={{ paddingBottom: '180px' }}>
           <div className="p-4">
             <h4 className="text-sm font-semibold text-white mb-3">📋 Playlist ({playlist.length} vídeos)</h4>
             <div className="space-y-1">

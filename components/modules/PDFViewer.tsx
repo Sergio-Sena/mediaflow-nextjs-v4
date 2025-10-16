@@ -25,8 +25,8 @@ export default function PDFViewer({ src, title, onClose }: PDFViewerProps) {
       <div className="relative w-full max-w-6xl h-[90vh] bg-dark-900 rounded-lg overflow-hidden">
         {/* Header */}
         <div className="flex justify-between items-center p-4 bg-dark-800/50 border-b border-neon-cyan/20">
-          <h3 className="text-lg font-semibold text-white truncate">{title}</h3>
-          <div className="flex gap-2">
+          <h3 className="text-lg font-semibold text-white truncate flex-1 min-w-0 mr-4" title={title}>{title}</h3>
+          <div className="flex gap-2 flex-shrink-0">
             <button onClick={handleOpenNew} className="p-2 text-gray-400 hover:text-white" title="Abrir em nova aba">
               <ExternalLink className="w-4 h-4" />
             </button>

@@ -1,11 +1,13 @@
 import json
 import boto3
 import os
+import jwt
 from urllib.parse import unquote
 
 s3 = boto3.client('s3')
 UPLOADS_BUCKET = os.environ.get('UPLOADS_BUCKET', 'mediaflow-uploads-969430605054')
 PROCESSED_BUCKET = os.environ.get('PROCESSED_BUCKET', 'mediaflow-processed-969430605054')
+SECRET_KEY = 'your-secret-key-here-change-in-production'
 
 def lambda_handler(event, context):
     try:
@@ -15,7 +17,18 @@ def lambda_handler(event, context):
         if method == 'OPTIONS':
             return cors_response(200, {})
         elif method == 'GET':
-            return list_files()
+            # Extrair e validar JWT para filtro por usuário
+            user_prefix = ''
+            auth_header = event.get('headers', {}).get('Authorization', '')
+            if auth_header:
+                try:
+                    token = auth_header.replace('Bearer ', '')
+                    decoded = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+                    user_prefix = decoded.get('s3_prefix', '')
+                except:
+                    pass  # Se falhar, lista tudo (compatibilidade)
+            
+            return list_files(user_prefix)
         elif method == 'DELETE' and 'bulk-delete' not in path:
             # Try pathParameters first, then body
             if event.get('pathParameters') and event['pathParameters'].get('key'):
@@ -31,12 +44,16 @@ def lambda_handler(event, context):
     except Exception as e:
         return cors_response(500, {'success': False, 'message': str(e)})
 
-def list_files():
+def list_files(user_prefix=''):
     files = []
     
     for bucket, bucket_type in [(UPLOADS_BUCKET, 'uploads'), (PROCESSED_BUCKET, 'processed')]:
         try:
-            response = s3.list_objects_v2(Bucket=bucket)
+            # Aplicar filtro de usuário se existir
+            if user_prefix:
+                response = s3.list_objects_v2(Bucket=bucket, Prefix=user_prefix)
+            else:
+                response = s3.list_objects_v2(Bucket=bucket)
             for obj in response.get('Contents', []):
                 # Preserve full path structure
                 key = obj['Key']
