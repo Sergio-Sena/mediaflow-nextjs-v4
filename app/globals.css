@@ -502,6 +502,21 @@
     animation: pulse-text 2s ease-in-out infinite;
   }
 
+  @keyframes neon-pulse {
+    0%, 100% {
+      border-color: #00FFFF;
+      box-shadow: 0 0 10px #00FFFF, 0 0 20px #FF00FF, inset 0 0 10px rgba(0,255,255,0.1);
+    }
+    50% {
+      border-color: #FF00FF;
+      box-shadow: 0 0 15px #FF00FF, 0 0 25px #00FFFF, inset 0 0 15px rgba(255,0,255,0.2);
+    }
+  }
+
+  .animate-neon-pulse {
+    animation: neon-pulse 3s ease-in-out infinite;
+  }
+
   /* Neon glow effects */
   .neon-glow-cyan {
     text-shadow: 0 0 10px rgba(0, 255, 255, 0.5),
