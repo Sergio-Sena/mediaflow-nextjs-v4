@@ -467,6 +467,41 @@
     animation: pulse-slow 4s ease-in-out infinite;
   }
 
+  @keyframes moveDown {
+    0% {
+      transform: translateY(-100%);
+    }
+    100% {
+      transform: translateY(100vh);
+    }
+  }
+
+  @keyframes spin-slow {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes pulse-text {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.8;
+    }
+  }
+
+  .animate-spin-slow {
+    animation: spin-slow 8s linear infinite;
+  }
+
+  .animate-pulse-text {
+    animation: pulse-text 2s ease-in-out infinite;
+  }
+
   /* Neon glow effects */
   .neon-glow-cyan {
     text-shadow: 0 0 10px rgba(0, 255, 255, 0.5),
