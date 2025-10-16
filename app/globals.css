@@ -398,4 +398,45 @@
       padding-bottom: calc(16px + env(safe-area-inset-bottom)) !important;
     }
   }
+
+  /* Mobile-first utilities */
+  .touch-manipulation {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Responsive text sizes */
+  @media (max-width: 640px) {
+    .glass-card {
+      padding: 1rem;
+    }
+
+    .btn-neon, .btn-secondary {
+      min-height: 48px;
+      font-size: 0.875rem;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+    }
+
+    h2 {
+      font-size: 1.25rem;
+    }
+  }
+
+  /* Horizontal scroll for tabs */
+  .overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .overflow-x-auto::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Active state for mobile */
+  .active\:scale-95:active {
+    transform: scale(0.95);
+  }
 }
