@@ -98,59 +98,98 @@ export default function UsersPage() {
             <div
               key={user.user_id}
               onClick={() => handleSelectUser(user.user_id)}
-              className="group relative p-6 sm:p-8 text-center cursor-pointer transition-all duration-500 touch-manipulation"
+              className="group relative p-6 sm:p-8 text-center cursor-pointer transition-all duration-500 touch-manipulation rounded-xl"
             >
-              {/* Neon Border */}
-              <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-cyan-500/20 via-purple-500/20 to-pink-500/20 opacity-50 group-hover:opacity-100 transition-opacity duration-500 animate-pulse-slow"></div>
-              <div className="absolute inset-0 rounded-2xl border border-cyan-500/30 group-hover:border-cyan-400/60 group-hover:shadow-[0_0_30px_rgba(0,255,255,0.3)] transition-all duration-500"></div>
+              {/* Card Background - Dark with Transparency */}
+              <div className="absolute inset-0 rounded-xl bg-[#0A0A1F] opacity-80 backdrop-blur-[5px]"></div>
               
-              {/* Glass Effect */}
-              <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-gray-900/40 via-purple-900/20 to-gray-900/40 backdrop-blur-xl"></div>
+              {/* Neon Border - Pulsing Cyan/Magenta */}
+              <div 
+                className="absolute inset-0 rounded-xl border-2 animate-neon-pulse"
+                style={{
+                  borderColor: '#00FFFF',
+                  boxShadow: '0 0 10px #00FFFF, 0 0 20px #FF00FF, inset 0 0 10px rgba(0,255,255,0.1)'
+                }}
+              ></div>
               
               {/* Content */}
               <div className="relative z-10">
-                {/* 3D Abstract Avatar */}
+                {/* 3D Abstract Avatar Icons */}
                 <div className="mb-6 relative group-hover:scale-110 transition-transform duration-500">
                   {user.avatar_url ? (
-                    <div className="relative inline-block">
-                      <div className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-500 to-purple-500 blur-2xl opacity-60 group-hover:opacity-100 transition-opacity duration-500 animate-pulse"></div>
-                      <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden border-2 border-cyan-400/50 shadow-[0_0_30px_rgba(0,255,255,0.5)]" style={{
-                        background: 'linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(139, 92, 246, 0.2))',
-                        backdropFilter: 'blur(10px)'
+                    <div className="relative inline-block w-28 h-28 sm:w-32 sm:h-32">
+                      <div className="absolute inset-0 rounded-full blur-xl opacity-70 animate-pulse" style={{
+                        background: 'radial-gradient(circle, #FF66CC, #8B5CF6)'
+                      }}></div>
+                      <div className="relative w-full h-full rounded-full overflow-hidden" style={{
+                        background: 'linear-gradient(135deg, rgba(255, 102, 204, 0.3), rgba(139, 92, 246, 0.3))',
+                        boxShadow: 'inset 0 0 20px rgba(255, 102, 204, 0.5), 0 0 30px rgba(255, 102, 204, 0.3)'
                       }}>
                         <img 
                           src={user.avatar_url} 
                           alt={user.name}
-                          className="w-full h-full object-cover opacity-80 mix-blend-luminosity"
+                          className="w-full h-full object-cover opacity-90"
+                          style={{ filter: 'brightness(1.1) contrast(1.1)' }}
                         />
                       </div>
                     </div>
                   ) : (
                     user.user_id === 'admin' ? (
-                      // Geometric Abstract Icon for Admin
-                      <div className="relative inline-block w-24 h-24 sm:w-28 sm:h-28">
-                        <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-magenta-500 blur-2xl opacity-60 group-hover:opacity-100 transition-opacity duration-500 animate-pulse"></div>
+                      // Admin: Geometric Complex Structure (Cyan Electric)
+                      <div className="relative inline-block w-28 h-28 sm:w-32 sm:h-32">
+                        <div className="absolute inset-0 blur-2xl opacity-70 animate-pulse" style={{
+                          background: 'radial-gradient(circle, #00FFFF, #00CCCC)'
+                        }}></div>
                         <div className="relative w-full h-full animate-spin-slow">
-                          <div className="absolute inset-0 border-4 border-cyan-400/50 rotate-45" style={{
-                            clipPath: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)'
+                          {/* Outer Hexagon */}
+                          <div className="absolute inset-0" style={{
+                            clipPath: 'polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%)',
+                            border: '3px solid #00FFFF',
+                            boxShadow: '0 0 15px #00FFFF, inset 0 0 15px rgba(0,255,255,0.3)'
                           }}></div>
-                          <div className="absolute inset-2 border-4 border-magenta-400/50 -rotate-45" style={{
-                            clipPath: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)'
+                          {/* Inner Diamond */}
+                          <div className="absolute inset-4 rotate-45" style={{
+                            border: '2px solid #FF00FF',
+                            boxShadow: '0 0 10px #FF00FF, inset 0 0 10px rgba(255,0,255,0.3)'
                           }}></div>
-                          <div className="absolute inset-4 bg-gradient-to-br from-cyan-500/30 to-magenta-500/30 backdrop-blur-sm"></div>
+                          {/* Center Glow */}
+                          <div className="absolute inset-8 rounded-full" style={{
+                            background: 'radial-gradient(circle, rgba(0,255,255,0.4), rgba(255,0,255,0.4))'
+                          }}></div>
                         </div>
                       </div>
                     ) : (
-                      // Abstract Human Silhouette for Users
-                      <div className="relative inline-block">
-                        <div className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 blur-2xl opacity-60 group-hover:opacity-100 transition-opacity duration-500 animate-pulse"></div>
-                        <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-full border-2 border-purple-400/50 shadow-[0_0_30px_rgba(168,85,247,0.5)]" style={{
-                          background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.3), rgba(236, 72, 153, 0.3))',
-                          backdropFilter: 'blur(10px)'
+                      // Maria Santos / João Silva: Abstract Human Silhouette
+                      <div className="relative inline-block w-28 h-28 sm:w-32 sm:h-32">
+                        <div className="absolute inset-0 rounded-full blur-xl opacity-70 animate-pulse" style={{
+                          background: user.name.includes('Maria') 
+                            ? 'radial-gradient(circle, #FF66CC, #FF1493)'
+                            : 'radial-gradient(circle, #FFD700, #FFA500)'
+                        }}></div>
+                        <div className="relative w-full h-full rounded-full" style={{
+                          background: user.name.includes('Maria')
+                            ? 'linear-gradient(135deg, rgba(255, 102, 204, 0.4), rgba(255, 20, 147, 0.4))'
+                            : 'linear-gradient(135deg, rgba(255, 215, 0, 0.4), rgba(255, 165, 0, 0.4))',
+                          boxShadow: user.name.includes('Maria')
+                            ? 'inset 0 0 20px rgba(255, 102, 204, 0.5), 0 0 30px rgba(255, 102, 204, 0.4)'
+                            : 'inset 0 0 20px rgba(255, 215, 0, 0.5), 0 0 30px rgba(255, 215, 0, 0.4)'
                         }}>
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 opacity-80"></div>
-                            <div className="absolute bottom-4 w-16 h-12 rounded-t-full bg-gradient-to-br from-purple-400 to-pink-400 opacity-80"></div>
+                          {/* Abstract Human Shape */}
+                          <div className="absolute inset-0 flex flex-col items-center justify-center">
+                            {/* Head */}
+                            <div className="w-10 h-10 rounded-full mb-1" style={{
+                              background: user.name.includes('Maria')
+                                ? 'linear-gradient(135deg, #FF66CC, #FF1493)'
+                                : 'linear-gradient(135deg, #FFD700, #FFA500)',
+                              opacity: 0.9
+                            }}></div>
+                            {/* Body */}
+                            <div className="w-16 h-14 rounded-t-full" style={{
+                              background: user.name.includes('Maria')
+                                ? 'linear-gradient(180deg, #FF66CC, #FF1493)'
+                                : 'linear-gradient(180deg, #FFD700, #FFA500)',
+                              opacity: 0.9
+                            }}></div>
                           </div>
                         </div>
                       </div>
@@ -158,22 +197,51 @@ export default function UsersPage() {
                   )}
                 </div>
                 
-                {/* Name with Glow */}
-                <h3 className="text-xl sm:text-2xl font-bold mb-3 truncate bg-gradient-to-r from-cyan-300 to-purple-300 bg-clip-text text-transparent drop-shadow-[0_0_10px_rgba(0,255,255,0.3)]">
+                {/* User Name - Bold Sans-serif with Blue/Purple Glow */}
+                <h3 
+                  className="text-xl sm:text-2xl font-bold mb-3 truncate"
+                  style={{
+                    fontFamily: 'Inter, Montserrat, sans-serif',
+                    color: '#FFFFFF',
+                    textShadow: '0 0 10px rgba(0, 255, 255, 0.6), 0 0 20px rgba(139, 92, 246, 0.4)'
+                  }}
+                >
                   {user.name}
                 </h3>
                 
-                {/* Action Text */}
-                <p className="text-sm text-cyan-400/70 mb-4 group-hover:text-cyan-300 transition-colors duration-300">
+                {/* Action Text - Regular Sans-serif, Neutral White */}
+                <p 
+                  className="text-sm mb-4"
+                  style={{
+                    fontFamily: 'Inter, sans-serif',
+                    color: '#FFFFFF'
+                  }}
+                >
                   Clique para acessar
                 </p>
                 
-                {/* 2FA Badge */}
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-500/10 border border-purple-500/30 group-hover:border-purple-400/50 transition-all duration-300">
-                  <div className="w-4 h-4 rounded-full bg-gradient-to-r from-cyan-400 to-purple-400 flex items-center justify-center shadow-[0_0_10px_rgba(0,255,255,0.5)]">
-                    <span className="text-[10px]">🔒</span>
+                {/* 2FA Security Indicator */}
+                <div className="inline-flex items-center gap-2 px-3 py-1.5">
+                  {/* Lock Icon with Yellow Neon Glow */}
+                  <div 
+                    className="text-sm"
+                    style={{
+                      filter: 'drop-shadow(0 0 8px #FFD700) drop-shadow(0 0 12px #FFA500)'
+                    }}
+                  >
+                    🔒
                   </div>
-                  <span className="text-xs text-purple-300">Requer 2FA</span>
+                  {/* Text with Yellow Glow */}
+                  <span 
+                    className="text-xs"
+                    style={{
+                      fontFamily: 'Inter, sans-serif',
+                      color: '#FFFACD',
+                      textShadow: '0 0 8px rgba(255, 215, 0, 0.8), 0 0 12px rgba(255, 165, 0, 0.6)'
+                    }}
+                  >
+                    Requer 2FA
+                  </span>
                 </div>
               </div>
               
@@ -184,15 +252,25 @@ export default function UsersPage() {
           ))}
         </div>
         
-        {/* Back Button */}
+        {/* Back Button - Purple to Cyan Gradient with Neon Glow */}
         <div className="mt-8 sm:mt-12 text-center">
           <button
             onClick={() => router.push('/login')}
-            className="group relative px-8 py-4 w-full sm:w-auto overflow-hidden rounded-xl transition-all duration-300 hover:scale-105"
+            className="group relative px-8 py-4 w-full sm:w-auto rounded-xl transition-all duration-300 hover:scale-105"
+            style={{
+              background: 'linear-gradient(90deg, #8B5CF6 0%, #00FFFF 100%)',
+              boxShadow: '0 0 20px rgba(139, 92, 246, 0.5), 0 0 30px rgba(0, 255, 255, 0.3)',
+              border: 'none'
+            }}
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-cyan-600 to-purple-600 opacity-80 group-hover:opacity-100 transition-opacity duration-300"></div>
-            <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-purple-500 blur-xl opacity-50 group-hover:opacity-75 transition-opacity duration-300"></div>
-            <span className="relative flex items-center justify-center gap-2 text-white font-semibold">
+            <span 
+              className="relative flex items-center justify-center gap-2 font-semibold"
+              style={{
+                fontFamily: 'Inter, sans-serif',
+                color: '#FFFFFF',
+                fontSize: '1rem'
+              }}
+            >
               <span className="text-lg">←</span>
               <span>Voltar ao Login</span>
             </span>
