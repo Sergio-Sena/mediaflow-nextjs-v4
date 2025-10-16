@@ -292,9 +292,9 @@ export default function VideoPlayer({ src, title, currentVideo, playlist = [], o
         {/* Header */}
         <div className="flex items-center p-4 bg-dark-800/50 border-b border-neon-cyan/20">
           <div className="flex-1 min-w-0">
-            <h3 className="text-lg font-semibold text-white truncate">{title}</h3>
+            <h3 className="text-lg font-semibold text-white truncate" title={title}>{title}</h3>
             {playlist.length > 0 && (
-              <p className="text-sm text-gray-400">
+              <p className="text-sm text-gray-400 truncate" title={currentVideo?.folder}>
                 {currentIndex + 1} de {playlist.length} • 📁 {currentVideo?.folder || 'Pasta'}
               </p>
             )}
@@ -365,17 +365,7 @@ export default function VideoPlayer({ src, title, currentVideo, playlist = [], o
             </div>
           )}
 
-          {/* Play/Pause Overlay */}
-          {!isPlaying && (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <button
-                onClick={togglePlay}
-                className="bg-neon-cyan/20 hover:bg-neon-cyan/30 rounded-full p-6 transition-all duration-300 hover:scale-110"
-              >
-                <Play className="w-12 h-12 text-neon-cyan ml-1" />
-              </button>
-            </div>
-          )}
+
 
           {/* Controls */}
           <div className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent transition-opacity duration-300 ${
@@ -561,13 +551,13 @@ export default function VideoPlayer({ src, title, currentVideo, playlist = [], o
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <span className={`text-gray-400 w-6 ${
+                    <span className={`text-gray-400 w-6 flex-shrink-0 ${
                       isMobile ? 'text-sm' : 'text-xs'
                     }`}>{index + 1}</span>
-                    <span className={`truncate flex-1 ${
+                    <span className={`truncate flex-1 min-w-0 ${
                       isMobile ? 'text-base' : 'text-sm'
-                    }`}>{video.name}</span>
-                    {index === currentIndex && <span className="text-xs">▶️</span>}
+                    }`} title={video.name}>{video.name}</span>
+                    {index === currentIndex && <span className="text-xs flex-shrink-0">▶️</span>}
                   </div>
                 </button>
               ))}

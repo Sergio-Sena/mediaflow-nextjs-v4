@@ -549,8 +549,8 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
                   {/* File Info */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="text-lg">{getFileIcon(file.type)}</span>
-                      <h3 className="font-medium text-white truncate flex-1">
+                      <span className="text-lg flex-shrink-0">{getFileIcon(file.type)}</span>
+                      <h3 className="font-medium text-white truncate flex-1 min-w-0" title={file.name}>
                         {file.name}
                       </h3>
                       {status.canConvert && (
@@ -563,11 +563,11 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
                       )}
                     </div>
                     
-                    <div className="flex items-center gap-4 text-sm text-gray-400">
-                      <span>{formatFileSize(file.size)}</span>
-                      <span>{formatDate(file.lastModified)}</span>
+                    <div className="flex items-center gap-4 text-sm text-gray-400 flex-wrap">
+                      <span className="flex-shrink-0">{formatFileSize(file.size)}</span>
+                      <span className="flex-shrink-0">{formatDate(file.lastModified)}</span>
                       {file.folder !== 'root' && (
-                        <span className="text-neon-cyan">📁 {file.folder}</span>
+                        <span className="text-neon-cyan truncate max-w-[200px]" title={file.folder}>📁 {file.folder}</span>
                       )}
                     </div>
                   </div>

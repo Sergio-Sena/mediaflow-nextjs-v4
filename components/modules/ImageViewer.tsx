@@ -167,9 +167,9 @@ export default function ImageViewer({ src, title, currentImage, playlist = [], o
         {/* Header */}
         <div className="flex justify-between items-center p-2 sm:p-4 bg-dark-800/50 border-b border-neon-cyan/20">
           <div className="flex-1 min-w-0">
-            <h3 className="text-sm sm:text-lg font-semibold text-white truncate">{title}</h3>
+            <h3 className="text-sm sm:text-lg font-semibold text-white truncate" title={title}>{title}</h3>
             {playlist.length > 0 && (
-              <p className="text-sm text-gray-400">
+              <p className="text-sm text-gray-400 truncate" title={currentImage?.folder}>
                 {currentIndex + 1} de {playlist.length} • 📁 {currentImage?.folder || 'Pasta'}
               </p>
             )}

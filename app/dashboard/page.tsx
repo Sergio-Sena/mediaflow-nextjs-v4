@@ -42,17 +42,28 @@ export default function DashboardPage() {
   const [currentFolderPath, setCurrentFolderPath] = useState<string>('')
   const router = useRouter()
 
+  const [currentUser, setCurrentUser] = useState<any>(null)
+
   useEffect(() => {
     // Verificar autenticação
     const token = localStorage.getItem('token')
     const userData = localStorage.getItem('user')
+    const currentUserData = localStorage.getItem('current_user')
     
-    if (!token || !userData) {
+    if (!token) {
       router.push('/login')
       return
     }
 
-    setUser(JSON.parse(userData))
+    // Priorizar current_user (multi-usuário) sobre user (legado)
+    if (currentUserData) {
+      setCurrentUser(JSON.parse(currentUserData))
+    }
+    
+    if (userData) {
+      setUser(JSON.parse(userData))
+    }
+    
     setLoading(false)
   }, [router])
 
@@ -113,9 +124,48 @@ export default function DashboardPage() {
             </div>
             
             <div className="flex items-center gap-4">
-              <div className="text-sm text-gray-300">
-                Olá, <span className="text-neon-cyan">{user?.name}</span>
-              </div>
+              {currentUser && (
+                <div className="flex items-center gap-2 glass-card px-4 py-2">
+                  {currentUser.avatar_url ? (
+                    <img 
+                      src={currentUser.avatar_url} 
+                      alt={currentUser.name}
+                      className="w-10 h-10 rounded-full object-cover border-2 border-neon-cyan"
+                    />
+                  ) : (
+                    <span className="text-2xl">{currentUser.avatar || '👤'}</span>
+                  )}
+                  <div className="text-sm">
+                    <div className="text-neon-cyan font-semibold">{currentUser.name}</div>
+                    <div className="text-xs text-gray-400">🔒 2FA Ativo</div>
+                  </div>
+                </div>
+              )}
+              {!currentUser && user && (
+                <div className="text-sm text-gray-300">
+                  Olá, <span className="text-neon-cyan">{user?.name}</span>
+                </div>
+              )}
+              {currentUser && (
+                <button
+                  onClick={() => {
+                    localStorage.removeItem('token')
+                    localStorage.removeItem('current_user')
+                    router.push('/users')
+                  }}
+                  className="btn-secondary px-4 py-2 text-sm"
+                >
+                  🔄 Trocar Perfil
+                </button>
+              )}
+              {currentUser?.user_id === 'admin' && (
+                <button
+                  onClick={() => router.push('/admin')}
+                  className="btn-neon px-4 py-2 text-sm"
+                >
+                  👥 Admin
+                </button>
+              )}
               <button
                 onClick={logout}
                 className="btn-secondary px-4 py-2 text-sm"

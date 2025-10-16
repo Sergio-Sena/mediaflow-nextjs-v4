@@ -300,10 +300,10 @@ export default function FolderManager({ onNavigateToFolder, onFilesLoaded }: Fol
                       onClick={(e) => e.stopPropagation()}
                       className="w-4 h-4 text-neon-cyan bg-gray-800 border-gray-600 rounded focus:ring-neon-cyan"
                     />
-                    <span className="text-2xl">{getFileIcon(file.type)}</span>
+                    <span className="text-2xl flex-shrink-0">{getFileIcon(file.type)}</span>
                     <div className="flex-1 min-w-0">
-                      <p className="text-white text-sm font-medium truncate">{file.name}</p>
-                      <p className="text-gray-400 text-xs">{formatFileSize(file.size)}</p>
+                      <p className="text-white text-sm font-medium truncate" title={file.name}>{file.name}</p>
+                      <p className="text-gray-400 text-xs flex-shrink-0">{formatFileSize(file.size)}</p>
                     </div>
                     <button
                       onClick={async () => {
@@ -361,8 +361,8 @@ export default function FolderManager({ onNavigateToFolder, onFilesLoaded }: Fol
                   onClick={() => navigateToFolder(folderPath)}
                   className="w-full flex flex-col items-center gap-2 p-4 rounded-lg bg-gray-800/50 hover:bg-neon-cyan/20 transition-colors group"
                 >
-                  <span className="text-3xl group-hover:scale-110 transition-transform">📁</span>
-                  <span className="text-sm text-white truncate w-full text-center font-medium">
+                  <span className="text-3xl group-hover:scale-110 transition-transform flex-shrink-0">📁</span>
+                  <span className="text-sm text-white truncate w-full text-center font-medium px-1" title={folderName}>
                     {folderName}
                   </span>
                   <div className="text-xs text-gray-400 text-center">

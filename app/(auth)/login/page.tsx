@@ -22,12 +22,8 @@ export default function LoginPage() {
       const data = await mediaflowClient.login(email, password)
 
       if (data.success) {
-        // Salvar token
-        localStorage.setItem('token', data.token)
-        localStorage.setItem('user', JSON.stringify(data.user))
-        
-        // Redirecionar para dashboard
-        router.push('/dashboard')
+        // Login OK → redireciona para seleção de usuários
+        router.push('/users')
       } else {
         setError(data.error || 'Erro ao fazer login')
       }
