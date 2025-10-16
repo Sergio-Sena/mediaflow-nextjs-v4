@@ -109,35 +109,35 @@ export default function DashboardPage() {
     <div className="min-h-screen">
       {/* Header */}
       <header className="bg-dark-900/50 backdrop-blur-md border-b border-neon-cyan/20 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 py-4">
+        <div className="max-w-7xl mx-auto px-2 sm:px-4 py-3 sm:py-4">
           <div className="flex justify-between items-center">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4">
               <h1 
-                className="text-2xl font-bold cursor-pointer hover:scale-105 transition-transform duration-300"
+                className="text-lg sm:text-2xl font-bold cursor-pointer hover:scale-105 transition-transform duration-300"
                 onClick={() => window.location.reload()}
               >
                 🎬 <span className="neon-text">Mediaflow</span>
               </h1>
               <div className="hidden md:block text-sm text-gray-400">
-                Dashboard v4.0
+                Dashboard v4.3
               </div>
             </div>
             
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-1 sm:gap-2 md:gap-4">
               {currentUser && (
-                <div className="flex items-center gap-2 glass-card px-4 py-2">
+                <div className="flex items-center gap-2 glass-card px-2 sm:px-4 py-2">
                   {currentUser.avatar_url ? (
                     <img 
                       src={currentUser.avatar_url} 
                       alt={currentUser.name}
-                      className="w-10 h-10 rounded-full object-cover border-2 border-neon-cyan"
+                      className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border-2 border-neon-cyan"
                     />
                   ) : (
-                    <span className="text-2xl">{currentUser.avatar || '👤'}</span>
+                    <span className="text-xl sm:text-2xl">{currentUser.avatar || '👤'}</span>
                   )}
-                  <div className="text-sm">
-                    <div className="text-neon-cyan font-semibold">{currentUser.name}</div>
-                    <div className="text-xs text-gray-400">🔒 2FA Ativo</div>
+                  <div className="text-xs sm:text-sm hidden sm:block">
+                    <div className="text-neon-cyan font-semibold truncate max-w-[100px]">{currentUser.name}</div>
+                    <div className="text-xs text-gray-400">🔒 2FA</div>
                   </div>
                 </div>
               )}
@@ -153,24 +153,26 @@ export default function DashboardPage() {
                     localStorage.removeItem('current_user')
                     router.push('/users')
                   }}
-                  className="btn-secondary px-4 py-2 text-sm"
+                  className="btn-secondary px-2 sm:px-4 py-2 text-xs sm:text-sm hidden sm:inline-block"
                 >
-                  🔄 Trocar Perfil
+                  🔄 Trocar
                 </button>
               )}
               {currentUser?.user_id === 'admin' && (
                 <button
                   onClick={() => router.push('/admin')}
-                  className="btn-neon px-4 py-2 text-sm"
+                  className="btn-neon px-2 sm:px-4 py-2 text-xs sm:text-sm"
                 >
-                  👥 Admin
+                  <span className="hidden sm:inline">👥 Admin</span>
+                  <span className="sm:hidden">👥</span>
                 </button>
               )}
               <button
                 onClick={logout}
-                className="btn-secondary px-4 py-2 text-sm"
+                className="btn-secondary px-2 sm:px-4 py-2 text-xs sm:text-sm"
               >
-                Sair
+                <span className="hidden sm:inline">Sair</span>
+                <span className="sm:hidden">🚪</span>
               </button>
             </div>
           </div>
@@ -178,9 +180,9 @@ export default function DashboardPage() {
       </header>
 
       {/* Navigation */}
-      <nav className="bg-dark-800/30 backdrop-blur-sm border-b border-neon-cyan/10">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex space-x-8">
+      <nav className="bg-dark-800/30 backdrop-blur-sm border-b border-neon-cyan/10 overflow-x-auto">
+        <div className="max-w-7xl mx-auto px-2 sm:px-4">
+          <div className="flex space-x-2 sm:space-x-4 md:space-x-8 min-w-max">
             {[
               { id: 'files', label: '📁 Arquivos', count: 0 },
               { id: 'upload', label: '📤 Upload', count: 0 },
@@ -190,7 +192,7 @@ export default function DashboardPage() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`py-4 px-2 border-b-2 font-medium text-sm transition-all duration-300 ${
+                className={`py-3 sm:py-4 px-2 sm:px-3 border-b-2 font-medium text-xs sm:text-sm whitespace-nowrap transition-all duration-300 ${
                   activeTab === tab.id
                     ? 'border-neon-cyan text-neon-cyan'
                     : 'border-transparent text-gray-400 hover:text-gray-300 hover:border-neon-cyan/30'
@@ -209,7 +211,7 @@ export default function DashboardPage() {
       </nav>
 
       {/* Content */}
-      <main className="max-w-7xl mx-auto px-4 py-8">
+      <main className="max-w-7xl mx-auto px-2 sm:px-4 py-4 sm:py-8">
         {activeTab === 'files' && (
           <FileList 
             onPlayVideo={(video) => {

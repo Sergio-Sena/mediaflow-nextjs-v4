@@ -49,32 +49,32 @@ export default function UsersPage() {
   }
   
   return (
-    <div className="min-h-screen bg-gradient-to-br from-dark-900 to-dark-800 p-8">
+    <div className="min-h-screen bg-gradient-to-br from-dark-900 to-dark-800 p-4 sm:p-8">
       <div className="max-w-6xl mx-auto">
-        <h1 className="text-4xl font-bold neon-text mb-2 text-center">
+        <h1 className="text-2xl sm:text-4xl font-bold neon-text mb-2 text-center">
           👥 Selecione um Perfil
         </h1>
-        <p className="text-gray-400 text-center mb-8">
+        <p className="text-sm sm:text-base text-gray-400 text-center mb-6 sm:mb-8">
           Escolha o perfil que deseja acessar
         </p>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {users.map(user => (
             <div
               key={user.user_id}
               onClick={() => handleSelectUser(user.user_id)}
-              className="glass-card p-8 text-center cursor-pointer hover:scale-105 hover:border-neon-cyan transition-all duration-300"
+              className="glass-card p-6 sm:p-8 text-center cursor-pointer hover:scale-105 hover:border-neon-cyan transition-all duration-300 touch-manipulation active:scale-95"
             >
               {user.avatar_url ? (
                 <img 
                   src={user.avatar_url} 
                   alt={user.name}
-                  className="w-24 h-24 rounded-full object-cover border-4 border-neon-cyan mx-auto mb-4"
+                  className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border-4 border-neon-cyan mx-auto mb-4"
                 />
               ) : (
-                <div className="text-7xl mb-4">{user.avatar || '👤'}</div>
+                <div className="text-5xl sm:text-7xl mb-4">{user.avatar || '👤'}</div>
               )}
-              <h3 className="text-2xl font-semibold text-white mb-2">{user.name}</h3>
+              <h3 className="text-xl sm:text-2xl font-semibold text-white mb-2 truncate">{user.name}</h3>
               <p className="text-sm text-gray-400">Clique para acessar</p>
               <div className="mt-4 text-xs text-gray-500">
                 🔐 Requer 2FA
@@ -83,10 +83,10 @@ export default function UsersPage() {
           ))}
         </div>
         
-        <div className="mt-8 text-center">
+        <div className="mt-6 sm:mt-8 text-center">
           <button
             onClick={() => router.push('/login')}
-            className="btn-secondary px-6 py-3"
+            className="btn-secondary px-6 py-3 w-full sm:w-auto"
           >
             ← Voltar ao Login
           </button>

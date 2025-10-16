@@ -123,21 +123,23 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-dark-900 to-dark-800 p-8">
+    <div className="min-h-screen bg-gradient-to-br from-dark-900 to-dark-800 p-4 sm:p-8">
       <div className="max-w-6xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-bold neon-text">👥 Gerenciar Usuários</h1>
-          <div className="flex gap-4">
-            <button onClick={() => setShowCreateModal(true)} className="btn-neon px-6 py-3">
-              ➕ Novo Usuário
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-4xl font-bold neon-text">👥 Gerenciar Usuários</h1>
+          <div className="flex gap-2 sm:gap-4 w-full sm:w-auto">
+            <button onClick={() => setShowCreateModal(true)} className="btn-neon px-4 sm:px-6 py-3 flex-1 sm:flex-none">
+              <span className="hidden sm:inline">➕ Novo Usuário</span>
+              <span className="sm:hidden">➕ Novo</span>
             </button>
-            <button onClick={() => router.push('/dashboard')} className="btn-secondary px-6 py-3">
-              ← Dashboard
+            <button onClick={() => router.push('/dashboard')} className="btn-secondary px-4 sm:px-6 py-3 flex-1 sm:flex-none">
+              <span className="hidden sm:inline">← Dashboard</span>
+              <span className="sm:hidden">←</span>
             </button>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {users.map(user => (
             <div key={user.user_id} className="glass-card p-6">
               <div className="flex justify-between items-start mb-4">
@@ -171,8 +173,8 @@ export default function AdminPage() {
 
         {/* Modal Criar Usuário */}
         {showCreateModal && (
-          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="glass-card p-8 max-w-md w-full">
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+            <div className="glass-card p-4 sm:p-8 max-w-md w-full my-auto">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-bold text-white">Novo Usuário</h2>
                 <button onClick={() => {
@@ -212,7 +214,7 @@ export default function AdminPage() {
                     />
                     <div 
                       onClick={() => fileInputRef.current?.click()}
-                      className="w-24 h-24 mx-auto rounded-full bg-gray-700 flex items-center justify-center cursor-pointer hover:bg-gray-600 transition-colors border-2 border-dashed border-gray-500 overflow-hidden"
+                      className="w-20 h-20 sm:w-24 sm:h-24 mx-auto rounded-full bg-gray-700 flex items-center justify-center cursor-pointer hover:bg-gray-600 transition-colors border-2 border-dashed border-gray-500 overflow-hidden touch-manipulation"
                     >
                       {avatarPreview ? (
                         <img src={avatarPreview} alt="Preview" className="w-full h-full object-cover" />
