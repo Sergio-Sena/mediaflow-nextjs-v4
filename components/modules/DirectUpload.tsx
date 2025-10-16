@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Upload, X, CheckCircle, AlertCircle } from 'lucide-react'
 
 interface DirectUploadProps {
@@ -18,8 +18,33 @@ export default function DirectUpload({
   const [uploading, setUploading] = useState(false)
   const [progress, setProgress] = useState<{[key: string]: number}>({})
   const [results, setResults] = useState<{[key: string]: 'success' | 'error'}>({})
+  const [destination, setDestination] = useState('')
+  const [users, setUsers] = useState<any[]>([])
+  const [currentUser, setCurrentUser] = useState<any>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const folderInputRef = useRef<HTMLInputElement>(null)
+
+  // Fetch users for destination selector
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const res = await fetch('https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/users')
+        const data = await res.json()
+        if (data.success) {
+          setUsers(data.users)
+        }
+      } catch (error) {
+        console.error('Error fetching users:', error)
+      }
+    }
+    
+    const userData = localStorage.getItem('current_user')
+    if (userData) {
+      setCurrentUser(JSON.parse(userData))
+    }
+    
+    fetchUsers()
+  }, [])
 
   const formatFileSize = (bytes: number) => {
     if (bytes === 0) return '0 B'
@@ -32,7 +57,12 @@ export default function DirectUpload({
   const uploadFile = async (file: File) => {
     try {
       // Usar webkitRelativePath se disponível (para pastas)
-      const filename = (file as any).webkitRelativePath || file.name
+      let filename = (file as any).webkitRelativePath || file.name
+      
+      // Adicionar prefixo de destino se selecionado
+      if (destination) {
+        filename = destination + filename
+      }
       
       // 1. Obter URL presigned diretamente da AWS API
       const urlResponse = await fetch('https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/upload/presigned', {
@@ -173,6 +203,26 @@ export default function DirectUpload({
         <p className="text-gray-400 mb-4">
           Arraste arquivos aqui ou clique para selecionar
         </p>
+        
+        {/* Destination Selector - Only for Admin */}
+        {currentUser?.user_id === 'admin' && (
+          <div className="mb-4">
+            <label className="block text-sm text-gray-400 mb-2">📁 Pasta de Destino:</label>
+            <select
+              value={destination}
+              onChange={(e) => setDestination(e.target.value)}
+              className="px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:border-neon-cyan focus:outline-none"
+            >
+              <option value="">Minha pasta (raiz)</option>
+              {users.map(user => (
+                <option key={user.user_id} value={`${user.s3_prefix}`}>
+                  📁 {user.name} ({user.user_id})
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+        
         <div className="flex gap-4 justify-center mt-4">
           <button
             onClick={(e) => {
@@ -195,6 +245,11 @@ export default function DirectUpload({
         </div>
         <p className="text-sm text-gray-500 mt-2">
           Máximo: {maxFiles} arquivos, {maxSize}MB cada
+          {destination && (
+            <span className="block text-neon-cyan mt-1">
+              📍 Destino: {destination || 'raiz'}
+            </span>
+          )}
         </p>
       </div>
 
