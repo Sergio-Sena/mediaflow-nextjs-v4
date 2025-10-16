@@ -517,6 +517,15 @@
     animation: neon-pulse 3s ease-in-out infinite;
   }
 
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%) rotate(45deg);
+    }
+    100% {
+      transform: translateX(200%) rotate(45deg);
+    }
+  }
+
   /* Neon glow effects */
   .neon-glow-cyan {
     text-shadow: 0 0 10px rgba(0, 255, 255, 0.5),
