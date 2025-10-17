@@ -20,6 +20,9 @@ export default function AdminPage() {
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
   const [qrCodeUri, setQrCodeUri] = useState<string | null>(null)
+  const [show2FAModal, setShow2FAModal] = useState(false)
+  const [twoFACode, setTwoFACode] = useState('')
+  const [twoFAError, setTwoFAError] = useState('')
   const fileInputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
 
@@ -29,6 +32,14 @@ export default function AdminPage() {
       router.push('/login')
       return
     }
+    
+    // Verificar sessão 2FA (30 minutos = 1800000ms)
+    const session = localStorage.getItem('2fa_session')
+    if (!session || (Date.now() - parseInt(session)) > 1800000) {
+      setShow2FAModal(true)
+      return
+    }
+    
     fetchUsers()
   }, [])
 
@@ -114,6 +125,35 @@ export default function AdminPage() {
     }
   }
 
+  const handle2FAVerify = async () => {
+    if (twoFACode.length !== 6) {
+      setTwoFAError('Código deve ter 6 dígitos')
+      return
+    }
+
+    try {
+      const currentUser = JSON.parse(localStorage.getItem('current_user') || '{}')
+      const res = await fetch('https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/users/verify-2fa', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: currentUser.user_id, code: twoFACode })
+      })
+
+      const data = await res.json()
+      if (data.success) {
+        localStorage.setItem('2fa_session', Date.now().toString())
+        setShow2FAModal(false)
+        setTwoFACode('')
+        setTwoFAError('')
+        fetchUsers()
+      } else {
+        setTwoFAError(data.message || 'Código inválido')
+      }
+    } catch (error) {
+      setTwoFAError('Erro ao verificar código')
+    }
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -128,6 +168,18 @@ export default function AdminPage() {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
           <h1 className="text-2xl sm:text-4xl font-bold neon-text">👥 Gerenciar Usuários</h1>
           <div className="flex gap-2 sm:gap-4 w-full sm:w-auto">
+            <button
+              onClick={() => {
+                localStorage.removeItem('token')
+                localStorage.removeItem('current_user')
+                localStorage.removeItem('2fa_session')
+                router.push('/users')
+              }}
+              className="btn-secondary px-4 sm:px-6 py-3 flex-1 sm:flex-none"
+            >
+              <span className="hidden sm:inline">🔄 Trocar</span>
+              <span className="sm:hidden">🔄</span>
+            </button>
             <button onClick={() => setShowCreateModal(true)} className="btn-neon px-4 sm:px-6 py-3 flex-1 sm:flex-none">
               <span className="hidden sm:inline">➕ Novo Usuário</span>
               <span className="sm:hidden">➕ Novo</span>
@@ -170,6 +222,50 @@ export default function AdminPage() {
             </div>
           ))}
         </div>
+
+        {/* Modal 2FA */}
+        {show2FAModal && (
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="glass-card p-8 max-w-md w-full">
+              <div className="text-center mb-6">
+                <h2 className="text-2xl font-bold neon-text mb-2">🔐 Verificação 2FA</h2>
+                <p className="text-gray-400">Insira o código do Google Authenticator</p>
+              </div>
+              
+              <div className="mb-6">
+                <input
+                  type="text"
+                  maxLength={6}
+                  value={twoFACode}
+                  onChange={(e) => setTwoFACode(e.target.value.replace(/\D/g, ''))}
+                  onKeyPress={(e) => e.key === 'Enter' && twoFACode.length === 6 && handle2FAVerify()}
+                  placeholder="000000"
+                  className="w-full px-4 py-4 bg-dark-800 border border-gray-700 rounded-lg text-center text-2xl tracking-widest text-white focus:border-neon-cyan focus:outline-none"
+                  autoFocus
+                />
+                
+                {twoFAError && (
+                  <p className="text-red-400 text-sm mt-3 text-center">{twoFAError}</p>
+                )}
+              </div>
+              
+              <button 
+                onClick={handle2FAVerify}
+                className="btn-neon w-full mb-3"
+                disabled={twoFACode.length !== 6}
+              >
+                Verificar Código
+              </button>
+              
+              <button 
+                onClick={() => router.push('/users')}
+                className="btn-secondary w-full"
+              >
+                ← Voltar aos Perfis
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Modal Criar Usuário */}
         {showCreateModal && (

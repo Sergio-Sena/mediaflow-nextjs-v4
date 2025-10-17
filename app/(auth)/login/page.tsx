@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
@@ -9,7 +9,13 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+  const [selectedUser, setSelectedUser] = useState<string | null>(null)
   const router = useRouter()
+
+  useEffect(() => {
+    const userId = localStorage.getItem('selected_user')
+    setSelectedUser(userId)
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -22,8 +28,8 @@ export default function LoginPage() {
       const data = await mediaflowClient.login(email, password)
 
       if (data.success) {
-        // Login OK → redireciona para seleção de usuários
-        router.push('/users')
+        // Login OK → redireciona para 2FA
+        router.push('/2fa')
       } else {
         setError(data.error || 'Erro ao fazer login')
       }
@@ -43,6 +49,9 @@ export default function LoginPage() {
             <span className="neon-text-large">Mediaflow</span>
           </h1>
           <p className="text-gray-400">Sistema de Streaming Modular</p>
+          {selectedUser && (
+            <p className="text-sm text-neon-cyan mt-2">Usuário: {selectedUser}</p>
+          )}
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -102,10 +111,10 @@ export default function LoginPage() {
 
         <div className="mt-8 text-center">
           <Link 
-            href="/" 
+            href="/users" 
             className="text-sm text-gray-400 hover:text-neon-cyan transition-colors"
           >
-            ← Voltar ao início
+            ← Escolher outro usuário
           </Link>
         </div>
 

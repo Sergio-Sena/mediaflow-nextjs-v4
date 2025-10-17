@@ -10,6 +10,7 @@ import ImageViewer from '@/components/modules/ImageViewer'
 import PDFViewer from '@/components/modules/PDFViewer'
 import Analytics from '@/components/modules/Analytics'
 import FolderManager from '@/components/modules/FolderManager'
+import AvatarUpload from '@/components/AvatarUpload'
 
 
 interface User {
@@ -55,9 +56,19 @@ export default function DashboardPage() {
       return
     }
 
+    // Verificar sessão 2FA (30 minutos = 1800000ms)
+    const session = localStorage.getItem('2fa_session')
+    if (!session || (Date.now() - parseInt(session)) > 1800000) {
+      router.push('/2fa')
+      return
+    }
+
     // Priorizar current_user (multi-usuário) sobre user (legado)
     if (currentUserData) {
-      setCurrentUser(JSON.parse(currentUserData))
+      const user = JSON.parse(currentUserData)
+      setCurrentUser(user)
+      // Recarregar dados do usuário para pegar avatar atualizado
+      fetchUserData(user.user_id || user.id)
     }
     
     if (userData) {
@@ -66,6 +77,23 @@ export default function DashboardPage() {
     
     setLoading(false)
   }, [router])
+
+  const fetchUserData = async (userId: string) => {
+    try {
+      const res = await fetch('https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/users')
+      const data = await res.json()
+      if (data.success) {
+        const updatedUser = data.users.find((u: any) => u.user_id === userId)
+        if (updatedUser) {
+          console.log('User data loaded:', updatedUser)
+          setCurrentUser(updatedUser)
+          localStorage.setItem('current_user', JSON.stringify(updatedUser))
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching user data:', error)
+    }
+  }
 
   const handleRefresh = () => {
     setRefreshTrigger(prev => prev + 1)
@@ -126,15 +154,17 @@ export default function DashboardPage() {
             <div className="flex items-center gap-1 sm:gap-2 md:gap-4">
               {currentUser && (
                 <div className="flex items-center gap-2 glass-card px-2 sm:px-4 py-2">
-                  {currentUser.avatar_url ? (
-                    <img 
-                      src={currentUser.avatar_url} 
-                      alt={currentUser.name}
-                      className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border-2 border-neon-cyan"
-                    />
-                  ) : (
-                    <span className="text-xl sm:text-2xl">{currentUser.avatar || '👤'}</span>
-                  )}
+                  <AvatarUpload
+                    userId={currentUser.user_id || currentUser.id}
+                    currentAvatar={currentUser.avatar_url}
+                    size="sm"
+                    className="flex-shrink-0"
+                    onAvatarUpdate={(avatarUrl) => {
+                      const updated = { ...currentUser, avatar_url: avatarUrl }
+                      setCurrentUser(updated)
+                      localStorage.setItem('current_user', JSON.stringify(updated))
+                    }}
+                  />
                   <div className="text-xs sm:text-sm hidden sm:block">
                     <div className="text-neon-cyan font-semibold truncate max-w-[100px]">{currentUser.name}</div>
                     <div className="text-xs text-gray-400">🔒 2FA</div>
@@ -146,19 +176,7 @@ export default function DashboardPage() {
                   Olá, <span className="text-neon-cyan">{user?.name}</span>
                 </div>
               )}
-              {currentUser && (
-                <button
-                  onClick={() => {
-                    localStorage.removeItem('token')
-                    localStorage.removeItem('current_user')
-                    router.push('/users')
-                  }}
-                  className="btn-secondary px-2 sm:px-4 py-2 text-xs sm:text-sm hidden sm:inline-block"
-                >
-                  🔄 Trocar
-                </button>
-              )}
-              {currentUser?.user_id === 'admin' && (
+              {(currentUser?.user_id === 'admin' || currentUser?.user_id === 'user_admin' || currentUser?.id === 'user_admin') && (
                 <button
                   onClick={() => router.push('/admin')}
                   className="btn-neon px-2 sm:px-4 py-2 text-xs sm:text-sm"
@@ -251,7 +269,7 @@ export default function DashboardPage() {
             
             <DirectUpload
               maxFiles={100}
-              maxSize={5120}
+              maxSize={10240}
               onUploadComplete={(uploadedFiles) => {
                 console.log('Upload concluído:', uploadedFiles)
                 handleRefresh()

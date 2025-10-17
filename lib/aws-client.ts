@@ -17,11 +17,18 @@ export class MediaflowClient {
   }
   
   async getFiles() {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    }
+    
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`
+    }
+    
     const response = await fetch(getApiUrl('FILES'), {
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      }
+      headers
     })
     
     return response.json()

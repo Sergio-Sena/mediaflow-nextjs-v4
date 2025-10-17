@@ -2,10 +2,16 @@ import json
 import hashlib
 import hmac
 import base64
+import boto3
 from datetime import datetime, timedelta
 
 JWT_SECRET = "mediaflow_super_secret_key_2025"
-ADMIN_USER = {"email": "sergiosenaadmin@sstech", "password": "sergiosena"}
+
+dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
+table = dynamodb.Table('mediaflow-users')
+
+def hash_password(password):
+    return hashlib.sha256(password.encode()).hexdigest()
 
 def create_jwt(payload, secret):
     """Simple JWT creation without external libraries"""
@@ -31,26 +37,34 @@ def lambda_handler(event, context):
         email = body.get('email')
         password = body.get('password')
         
-        if email == ADMIN_USER['email'] and password == ADMIN_USER['password']:
-            # Create JWT payload
-            payload = {
-                'email': email,
-                'exp': int((datetime.utcnow() + timedelta(hours=24)).timestamp())
-            }
-            
-            token = create_jwt(payload, JWT_SECRET)
-            
-            return cors_response(200, {
-                'success': True,
-                'token': token,
-                'user': {
+        # Check DynamoDB users
+        response = table.scan()
+        users = response.get('Items', [])
+        
+        for user in users:
+            if user.get('email') == email and user.get('password') == hash_password(password):
+                s3_prefix = user.get('s3_prefix', '')
+                role = user.get('role', 'user')
+                payload = {
                     'email': email,
-                    'name': 'Sergio Sena',
-                    'role': 'admin'
+                    'user_id': user['user_id'],
+                    's3_prefix': s3_prefix,
+                    'role': role,
+                    'exp': int((datetime.utcnow() + timedelta(hours=24)).timestamp())
                 }
-            })
-        else:
-            return cors_response(401, {'success': False, 'message': 'Invalid credentials'})
+                token = create_jwt(payload, JWT_SECRET)
+                return cors_response(200, {
+                    'success': True,
+                    'token': token,
+                    'user_id': user['user_id'],
+                    'user': {
+                        'email': email,
+                        'name': user.get('name', email),
+                        'role': role
+                    }
+                })
+        
+        return cors_response(401, {'success': False, 'error': 'Invalid credentials'})
             
     except Exception as e:
         return cors_response(500, {'success': False, 'message': str(e)})

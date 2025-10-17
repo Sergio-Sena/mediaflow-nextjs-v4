@@ -7,7 +7,7 @@ from urllib.parse import unquote
 s3 = boto3.client('s3')
 UPLOADS_BUCKET = os.environ.get('UPLOADS_BUCKET', 'mediaflow-uploads-969430605054')
 PROCESSED_BUCKET = os.environ.get('PROCESSED_BUCKET', 'mediaflow-processed-969430605054')
-SECRET_KEY = 'your-secret-key-here-change-in-production'
+SECRET_KEY = 'mediaflow_super_secret_key_2025'
 
 def lambda_handler(event, context):
     try:
@@ -19,14 +19,25 @@ def lambda_handler(event, context):
         elif method == 'GET':
             # Extrair e validar JWT para filtro por usuário
             user_prefix = ''
-            auth_header = event.get('headers', {}).get('Authorization', '')
+            user_role = 'user'
+            auth_header = event.get('headers', {}).get('Authorization', '') or event.get('headers', {}).get('authorization', '')
+            
+            print(f"Auth header: {auth_header}")
+            
             if auth_header:
                 try:
                     token = auth_header.replace('Bearer ', '')
                     decoded = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
                     user_prefix = decoded.get('s3_prefix', '')
-                except:
-                    pass  # Se falhar, lista tudo (compatibilidade)
+                    user_role = decoded.get('role', 'user')
+                    print(f"Decoded JWT - s3_prefix: '{user_prefix}', role: '{user_role}'")
+                except Exception as e:
+                    print(f"JWT decode error: {str(e)}")
+                    pass
+            
+            # Admin vê tudo (sem filtro)
+            if user_role == 'admin':
+                user_prefix = ''
             
             return list_files(user_prefix)
         elif method == 'DELETE' and 'bulk-delete' not in path:
@@ -46,13 +57,16 @@ def lambda_handler(event, context):
 
 def list_files(user_prefix=''):
     files = []
+    print(f"Listing files with prefix: '{user_prefix}'")
     
     for bucket, bucket_type in [(UPLOADS_BUCKET, 'uploads'), (PROCESSED_BUCKET, 'processed')]:
         try:
             # Aplicar filtro de usuário se existir
             if user_prefix:
+                print(f"Filtering bucket {bucket} with prefix: {user_prefix}")
                 response = s3.list_objects_v2(Bucket=bucket, Prefix=user_prefix)
             else:
+                print(f"Listing all files in bucket {bucket}")
                 response = s3.list_objects_v2(Bucket=bucket)
             for obj in response.get('Contents', []):
                 # Preserve full path structure
