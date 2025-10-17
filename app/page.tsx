@@ -110,7 +110,7 @@ export default function HomePage() {
           <div className="space-y-6">
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Link 
-                href="/login" 
+                href="/users" 
                 className="btn-neon text-lg px-8 py-4 no-underline inline-flex items-center gap-2 group"
               >
                 <span className="group-hover:animate-pulse-neon-fast">🚀</span>

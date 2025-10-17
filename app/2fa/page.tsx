@@ -42,6 +42,7 @@ export default function TwoFactorPage() {
       if (data.success) {
         localStorage.setItem('token', data.token)
         localStorage.setItem('current_user', JSON.stringify(data.user))
+        localStorage.setItem('2fa_session', Date.now().toString())
         localStorage.removeItem('selected_user')
         router.push('/dashboard')
       } else {
@@ -63,8 +64,8 @@ export default function TwoFactorPage() {
   const getSecretForUser = (userId: string) => {
     const secrets: {[key: string]: string} = {
       'user_admin': 'JBSWY3DPEHPK3PXP',
-      'user_joao': 'KBSWY3DPEHPK3PXQ',
-      'user_maria': 'LBSWY3DPEHPK3PXR'
+      'sergio_sena': 'KBSWY3DPEHPK3PXQ',
+      'lid': 'LBSWY3DPEHPK3PXR'
     }
     return secrets[userId] || 'JBSWY3DPEHPK3PXP'
   }

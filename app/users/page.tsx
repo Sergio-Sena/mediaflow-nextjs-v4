@@ -1,7 +1,8 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
+import AvatarUpload from '../../components/AvatarUpload'
 
 interface User {
   user_id: string
@@ -37,7 +38,7 @@ export default function UsersPage() {
   
   const handleSelectUser = (userId: string) => {
     localStorage.setItem('selected_user', userId)
-    router.push('/2fa')
+    router.push('/login')
   }
   
   if (loading) {
@@ -114,144 +115,22 @@ export default function UsersPage() {
               
               {/* Content */}
               <div className="relative z-10">
-                {/* 3D Abstract Avatar Icons - Exact Prompt Implementation */}
-                <div className="mb-6 relative group-hover:scale-110 transition-transform duration-500">
-                  {user.avatar_url ? (
-                    // Custom Avatar with Opalescent Glass Effect
-                    <div className="relative inline-block w-28 h-28 sm:w-32 sm:h-32">
-                      <div className="absolute inset-0 rounded-full blur-xl opacity-70 animate-pulse" style={{
-                        background: user.name.includes('Maria') 
-                          ? 'radial-gradient(circle, #FF66CC 0%, #FF1493 50%, #8B5CF6 100%)'
-                          : 'radial-gradient(circle, #FFD700 0%, #FFA500 50%, #FF8C00 100%)'
-                      }}></div>
-                      <div className="relative w-full h-full rounded-full overflow-hidden" style={{
-                        background: user.name.includes('Maria')
-                          ? 'linear-gradient(135deg, rgba(255, 102, 204, 0.6), rgba(255, 20, 147, 0.4), rgba(139, 92, 246, 0.3))'
-                          : 'linear-gradient(135deg, rgba(255, 215, 0, 0.6), rgba(255, 165, 0, 0.4), rgba(255, 140, 0, 0.3))',
-                        backdropFilter: 'blur(8px)',
-                        border: '2px solid rgba(255, 255, 255, 0.1)',
-                        boxShadow: user.name.includes('Maria')
-                          ? 'inset 0 0 30px rgba(255, 102, 204, 0.4), 0 0 40px rgba(255, 102, 204, 0.6), 0 0 60px rgba(255, 102, 204, 0.3)'
-                          : 'inset 0 0 30px rgba(255, 215, 0, 0.4), 0 0 40px rgba(255, 215, 0, 0.6), 0 0 60px rgba(255, 215, 0, 0.3)'
-                      }}>
-                        <img 
-                          src={user.avatar_url} 
-                          alt={user.name}
-                          className="w-full h-full object-cover opacity-80"
-                          style={{ 
-                            filter: 'brightness(1.2) contrast(1.1) saturate(1.3)',
-                            mixBlendMode: 'luminosity'
-                          }}
-                        />
-                        {/* Opalescent Overlay */}
-                        <div className="absolute inset-0 opacity-30" style={{
-                          background: 'linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.2) 50%, transparent 70%)',
-                          animation: 'shimmer 3s ease-in-out infinite'
-                        }}></div>
-                      </div>
-                    </div>
-                  ) : (
-                    user.user_id === 'admin' ? (
-                      // Admin: Complex Geometric 3D Structure (Data Core)
-                      <div className="relative inline-block w-28 h-28 sm:w-32 sm:h-32">
-                        {/* Intense Cyan Glow */}
-                        <div className="absolute inset-0 blur-2xl opacity-80 animate-pulse" style={{
-                          background: 'radial-gradient(circle, #00FFFF 0%, #00CCCC 40%, #0099CC 100%)'
-                        }}></div>
-                        
-                        {/* Rotating Data Core Structure */}
-                        <div className="relative w-full h-full animate-spin-slow">
-                          {/* Outer Network Ring */}
-                          <div className="absolute inset-0" style={{
-                            clipPath: 'polygon(50% 0%, 90% 20%, 100% 50%, 90% 80%, 50% 100%, 10% 80%, 0% 50%, 10% 20%)',
-                            border: '3px solid #00FFFF',
-                            boxShadow: '0 0 20px #00FFFF, inset 0 0 20px rgba(0,255,255,0.4)'
-                          }}></div>
-                          
-                          {/* Middle Processing Layer */}
-                          <div className="absolute inset-3 rotate-45" style={{
-                            clipPath: 'polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%)',
-                            border: '2px solid #FF00FF',
-                            boxShadow: '0 0 15px #FF00FF, inset 0 0 15px rgba(255,0,255,0.4)'
-                          }}></div>
-                          
-                          {/* Inner Core */}
-                          <div className="absolute inset-6 rounded-full" style={{
-                            background: 'radial-gradient(circle, rgba(0,255,255,0.6) 0%, rgba(255,0,255,0.4) 50%, rgba(0,255,255,0.2) 100%)',
-                            border: '1px solid rgba(0,255,255,0.8)',
-                            boxShadow: '0 0 25px rgba(0,255,255,0.8), inset 0 0 25px rgba(0,255,255,0.3)'
-                          }}></div>
-                          
-                          {/* Data Streams */}
-                          <div className="absolute inset-2 opacity-60">
-                            <div className="absolute top-0 left-1/2 w-0.5 h-4 bg-cyan-400 animate-pulse" style={{animationDelay: '0s'}}></div>
-                            <div className="absolute bottom-0 left-1/2 w-0.5 h-4 bg-cyan-400 animate-pulse" style={{animationDelay: '0.5s'}}></div>
-                            <div className="absolute left-0 top-1/2 h-0.5 w-4 bg-cyan-400 animate-pulse" style={{animationDelay: '1s'}}></div>
-                            <div className="absolute right-0 top-1/2 h-0.5 w-4 bg-cyan-400 animate-pulse" style={{animationDelay: '1.5s'}}></div>
-                          </div>
-                        </div>
-                      </div>
-                    ) : (
-                      // Maria Santos / João Silva: 3D Opalescent Glass Silhouettes
-                      <div className="relative inline-block w-28 h-28 sm:w-32 sm:h-32">
-                        {/* Ethereal Glow */}
-                        <div className="absolute inset-0 rounded-full blur-xl opacity-80 animate-pulse" style={{
-                          background: user.name.includes('Maria') 
-                            ? 'radial-gradient(circle, #FF66CC 0%, #FF1493 50%, #8B5CF6 100%)'
-                            : 'radial-gradient(circle, #FFD700 0%, #FFA500 50%, #FF8C00 100%)'
-                        }}></div>
-                        
-                        {/* Opalescent Glass Container */}
-                        <div className="relative w-full h-full rounded-full" style={{
-                          background: user.name.includes('Maria')
-                            ? 'linear-gradient(135deg, rgba(255, 102, 204, 0.4), rgba(255, 20, 147, 0.3), rgba(139, 92, 246, 0.2))'
-                            : 'linear-gradient(135deg, rgba(255, 215, 0, 0.4), rgba(255, 165, 0, 0.3), rgba(255, 140, 0, 0.2))',
-                          backdropFilter: 'blur(10px)',
-                          border: '2px solid rgba(255, 255, 255, 0.2)',
-                          boxShadow: user.name.includes('Maria')
-                            ? 'inset 0 0 30px rgba(255, 102, 204, 0.5), 0 0 40px rgba(255, 102, 204, 0.7)'
-                            : 'inset 0 0 30px rgba(255, 215, 0, 0.5), 0 0 40px rgba(255, 215, 0, 0.7)'
-                        }}>
-                          {/* 3D Human Silhouette */}
-                          <div className="absolute inset-0 flex flex-col items-center justify-center">
-                            {/* Head with Glass Effect */}
-                            <div className="w-10 h-10 rounded-full mb-2 relative" style={{
-                              background: user.name.includes('Maria')
-                                ? 'linear-gradient(135deg, #FF66CC, #FF1493, #8B5CF6)'
-                                : 'linear-gradient(135deg, #FFD700, #FFA500, #FF8C00)',
-                              boxShadow: user.name.includes('Maria')
-                                ? '0 0 15px rgba(255, 102, 204, 0.8), inset 0 0 10px rgba(255, 255, 255, 0.3)'
-                                : '0 0 15px rgba(255, 215, 0, 0.8), inset 0 0 10px rgba(255, 255, 255, 0.3)'
-                            }}>
-                              <div className="absolute inset-1 rounded-full opacity-40" style={{
-                                background: 'linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.6) 50%, transparent 70%)'
-                              }}></div>
-                            </div>
-                            
-                            {/* Body with Glass Effect */}
-                            <div className="w-16 h-16 rounded-t-full relative" style={{
-                              background: user.name.includes('Maria')
-                                ? 'linear-gradient(180deg, #FF66CC, #FF1493, #8B5CF6)'
-                                : 'linear-gradient(180deg, #FFD700, #FFA500, #FF8C00)',
-                              boxShadow: user.name.includes('Maria')
-                                ? '0 0 20px rgba(255, 102, 204, 0.8), inset 0 0 15px rgba(255, 255, 255, 0.2)'
-                                : '0 0 20px rgba(255, 215, 0, 0.8), inset 0 0 15px rgba(255, 255, 255, 0.2)'
-                            }}>
-                              <div className="absolute inset-1 rounded-t-full opacity-30" style={{
-                                background: 'linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.5) 50%, transparent 70%)'
-                              }}></div>
-                            </div>
-                          </div>
-                          
-                          {/* Opalescent Shimmer */}
-                          <div className="absolute inset-0 rounded-full opacity-40" style={{
-                            background: 'linear-gradient(45deg, transparent 20%, rgba(255,255,255,0.3) 50%, transparent 80%)',
-                            animation: 'shimmer 4s ease-in-out infinite'
-                          }}></div>
-                        </div>
-                      </div>
-                    )
-                  )}
+                {/* Avatar Upload */}
+                <div className="mb-6 flex justify-center">
+                  <AvatarUpload
+                    userId={user.user_id}
+                    currentAvatar={user.avatar_url}
+                    size="lg"
+                    className="group-hover:scale-110 transition-transform duration-500"
+                    onAvatarUpdate={(avatarUrl) => {
+                      // Atualizar estado local
+                      setUsers(users.map(u => 
+                        u.user_id === user.user_id 
+                          ? { ...u, avatar_url: avatarUrl }
+                          : u
+                      ))
+                    }}
+                  />
                 </div>
                 
                 {/* User Name - Bold Sans-serif with Blue/Purple Glow */}

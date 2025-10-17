@@ -12,7 +12,7 @@ interface DirectUploadProps {
 export default function DirectUpload({ 
   onUploadComplete, 
   maxFiles = 50, 
-  maxSize = 5120
+  maxSize = 10240
 }: DirectUploadProps) {
   const [files, setFiles] = useState<File[]>([])
   const [uploading, setUploading] = useState(false)
@@ -188,13 +188,12 @@ export default function DirectUpload({
     <div className="space-y-6">
       {/* Drop Zone */}
       <div
-        onClick={() => fileInputRef.current?.click()}
         onDrop={(e) => {
           e.preventDefault()
           if (e.dataTransfer.files) handleFileSelect(e.dataTransfer.files)
         }}
         onDragOver={(e) => e.preventDefault()}
-        className="glass-card p-8 text-center border-2 border-dashed border-gray-600 hover:border-neon-cyan cursor-pointer transition-colors"
+        className="glass-card p-8 text-center border-2 border-dashed border-gray-600 hover:border-neon-cyan transition-colors"
       >
         <Upload className="w-12 h-12 mx-auto mb-4 text-gray-400" />
         <h3 className="text-xl font-semibold text-white mb-2">
@@ -205,7 +204,7 @@ export default function DirectUpload({
         </p>
         
         {/* Destination Selector - Only for Admin */}
-        {currentUser?.user_id === 'admin' && (
+        {(currentUser?.user_id === 'admin' || currentUser?.id === 'user_admin') && (
           <div className="mb-4">
             <label className="block text-sm text-gray-400 mb-2">📁 Pasta de Destino:</label>
             <select
@@ -225,19 +224,13 @@ export default function DirectUpload({
         
         <div className="flex gap-4 justify-center mt-4">
           <button
-            onClick={(e) => {
-              e.stopPropagation()
-              fileInputRef.current?.click()
-            }}
+            onClick={() => fileInputRef.current?.click()}
             className="btn-secondary px-4 py-2 text-sm"
           >
             📄 Selecionar Arquivos
           </button>
           <button
-            onClick={(e) => {
-              e.stopPropagation()
-              folderInputRef.current?.click()
-            }}
+            onClick={() => folderInputRef.current?.click()}
             className="btn-secondary px-4 py-2 text-sm"
           >
             📁 Selecionar Pasta
