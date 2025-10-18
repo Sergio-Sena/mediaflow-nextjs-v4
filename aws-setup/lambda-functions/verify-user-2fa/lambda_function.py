@@ -4,7 +4,7 @@ import pyotp
 import boto3
 from datetime import datetime, timedelta
 
-SECRET_KEY = 'your-secret-key-here-change-in-production'
+SECRET_KEY = 'mediaflow_super_secret_key_2025'
 dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table('mediaflow-users')
 
