@@ -12,8 +12,8 @@ interface DirectUploadProps {
 
 export default function DirectUpload({ 
   onUploadComplete, 
-  maxFiles = 50, 
-  maxSize = 10240
+  maxFiles = 100, 
+  maxSize = 5120
 }: DirectUploadProps) {
   const [files, setFiles] = useState<File[]>([])
   const [uploading, setUploading] = useState(false)
@@ -205,7 +205,7 @@ export default function DirectUpload({
         </p>
         
         {/* Destination Selector - Only for Admin */}
-        {(currentUser?.user_id === 'admin' || currentUser?.id === 'user_admin') && (
+        {(currentUser?.user_id === 'user_admin' || currentUser?.user_id === 'admin' || currentUser?.id === 'user_admin' || currentUser?.role === 'admin') && (
           <div className="mb-4">
             <label className="block text-sm text-gray-400 mb-2">📁 Pasta de Destino:</label>
             <select

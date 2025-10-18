@@ -178,9 +178,10 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
     const currentFolderPath = getCurrentFolderPath()
     return files.filter(file => {
       if (currentFolderPath === '' || currentFolderPath === 'Raiz') {
-        // Root level - show ALL files when no specific folder is selected
-        return true
+        // Root level - show files in root only (not in subfolders)
+        return file.folder === 'root' || file.folder === ''
       }
+      // Show files that are EXACTLY in this folder (not in subfolders)
       return file.folder === currentFolderPath
     })
   }

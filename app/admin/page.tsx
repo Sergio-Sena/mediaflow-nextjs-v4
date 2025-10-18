@@ -2,11 +2,13 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { Upload, Trash2, X } from 'lucide-react'
+import { Upload, Trash2, X, Edit } from 'lucide-react'
 
 interface User {
   user_id: string
   name: string
+  email?: string
+  role?: string
   avatar_url?: string
   s3_prefix: string
   created_at?: string
@@ -16,18 +18,22 @@ export default function AdminPage() {
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
   const [showCreateModal, setShowCreateModal] = useState(false)
-  const [newUser, setNewUser] = useState({ user_id: '', email: '', password: '', confirmPassword: '', name: '', s3_prefix: '' })
+  const [showEditModal, setShowEditModal] = useState(false)
+  const [newUser, setNewUser] = useState({ user_id: '', email: '', password: '', confirmPassword: '', name: '', s3_prefix: '', role: 'user' })
+  const [editUser, setEditUser] = useState({ user_id: '', email: '', password: '', confirmPassword: '', role: 'user' })
   const [createLoading, setCreateLoading] = useState(false)
+  const [editLoading, setEditLoading] = useState(false)
   const [createError, setCreateError] = useState('')
+  const [editError, setEditError] = useState('')
 
   const generateUserId = (name: string) => {
     return name
       .toLowerCase()
       .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '') // Remove acentos
-      .replace(/[^a-z0-9\s]/g, '') // Remove caracteres especiais
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9\s]/g, '')
       .trim()
-      .replace(/\s+/g, '_') // Substitui espaços por _
+      .replace(/\s+/g, '_')
   }
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
@@ -45,7 +51,6 @@ export default function AdminPage() {
       return
     }
     
-    // Verificar sessão 2FA (30 minutos = 1800000ms)
     const session = localStorage.getItem('2fa_session')
     if (!session || (Date.now() - parseInt(session)) > 1800000) {
       setShow2FAModal(true)
@@ -114,6 +119,7 @@ export default function AdminPage() {
         email: newUser.email,
         password: newUser.password,
         name: newUser.name,
+        role: newUser.role,
         s3_prefix: `${userId}/`
       }
 
@@ -132,7 +138,7 @@ export default function AdminPage() {
       if (data.success) {
         setQrCodeUri(data.user.totp_uri)
         fetchUsers()
-        setNewUser({ user_id: '', email: '', password: '', confirmPassword: '', name: '', s3_prefix: '' })
+        setNewUser({ user_id: '', email: '', password: '', confirmPassword: '', name: '', s3_prefix: '', role: 'user' })
         setAvatarFile(null)
         setAvatarPreview(null)
       } else {
@@ -142,6 +148,64 @@ export default function AdminPage() {
       setCreateError('Erro ao criar usuário')
     } finally {
       setCreateLoading(false)
+    }
+  }
+
+  const handleEditUser = async () => {
+    setEditError('')
+
+    if (!editUser.email) {
+      setEditError('Email obrigatório')
+      return
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(editUser.email)) {
+      setEditError('Email inválido')
+      return
+    }
+
+    if (editUser.password && editUser.password.length < 6) {
+      setEditError('Senha deve ter no mínimo 6 caracteres')
+      return
+    }
+
+    if (editUser.password && editUser.password !== editUser.confirmPassword) {
+      setEditError('As senhas não coincidem')
+      return
+    }
+
+    setEditLoading(true)
+    try {
+      const body: any = {
+        user_id: editUser.user_id,
+        email: editUser.email,
+        role: editUser.role
+      }
+
+      if (editUser.password) {
+        body.password = editUser.password
+      }
+
+      const res = await fetch('https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/users/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      })
+
+      const data = await res.json()
+      
+      if (data.success) {
+        fetchUsers()
+        setShowEditModal(false)
+        setEditUser({ user_id: '', email: '', password: '', confirmPassword: '', role: 'user' })
+      } else {
+        setEditError(data.message || 'Erro ao atualizar usuário')
+      }
+    } catch (error) {
+      setEditError('Erro ao atualizar usuário')
+    } finally {
+      setEditLoading(false)
     }
   }
 
@@ -243,15 +307,34 @@ export default function AdminPage() {
                     👤
                   </div>
                 )}
-                <button
-                  onClick={() => handleDeleteUser(user.user_id)}
-                  className="p-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg transition-colors"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => {
+                      setEditUser({ 
+                        user_id: user.user_id, 
+                        email: user.email || '', 
+                        password: '', 
+                        confirmPassword: '', 
+                        role: user.role || 'user' 
+                      })
+                      setShowEditModal(true)
+                    }}
+                    className="p-2 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 rounded-lg transition-colors"
+                  >
+                    <Edit className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => handleDeleteUser(user.user_id)}
+                    className="p-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg transition-colors"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
               <h3 className="text-xl font-semibold text-white mb-2">{user.name}</h3>
               <p className="text-sm text-gray-400 mb-1">ID: {user.user_id}</p>
+              <p className="text-sm text-gray-400 mb-1">Email: {user.email || 'N/A'}</p>
+              <p className="text-sm text-gray-400 mb-1">Role: {user.role === 'admin' ? '👑 Admin' : '👤 User'}</p>
               <p className="text-sm text-gray-400 mb-1">Pasta: {user.s3_prefix || 'Todas'}</p>
               {user.created_at && (
                 <p className="text-xs text-gray-500">Criado: {new Date(user.created_at).toLocaleDateString('pt-BR')}</p>
@@ -304,6 +387,116 @@ export default function AdminPage() {
           </div>
         )}
 
+        {/* Modal Editar Usuário */}
+        {showEditModal && (
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+            <div className="glass-card p-4 sm:p-8 max-w-md w-full my-auto">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-white">Editar Usuário</h2>
+                <button onClick={() => {
+                  setShowEditModal(false)
+                  setEditError('')
+                }} className="text-gray-400 hover:text-white">
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                {editError && (
+                  <div className="p-3 bg-red-500/20 border border-red-500/50 rounded-lg">
+                    <p className="text-red-400 text-sm text-center">{editError}</p>
+                  </div>
+                )}
+
+                <div>
+                  <label className="block text-sm text-gray-400 mb-2">User ID (não editável)</label>
+                  <input
+                    type="text"
+                    value={editUser.user_id}
+                    className="input-neon bg-gray-800 cursor-not-allowed text-gray-400"
+                    disabled
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm text-gray-400 mb-2">Email *</label>
+                  <input
+                    type="email"
+                    value={editUser.email}
+                    onChange={(e) => setEditUser({...editUser, email: e.target.value})}
+                    className="input-neon"
+                    placeholder="usuario@email.com"
+                    disabled={editLoading}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm text-gray-400 mb-2">Role *</label>
+                  <select
+                    value={editUser.role}
+                    onChange={(e) => setEditUser({...editUser, role: e.target.value})}
+                    className="input-neon"
+                    disabled={editLoading}
+                  >
+                    <option value="user">👤 User (vê apenas sua pasta)</option>
+                    <option value="admin">👑 Admin (vê tudo)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm text-gray-400 mb-2">Nova Senha (deixe vazio para não alterar)</label>
+                  <input
+                    type="password"
+                    value={editUser.password}
+                    onChange={(e) => setEditUser({...editUser, password: e.target.value})}
+                    className="input-neon"
+                    placeholder="••••••••"
+                    disabled={editLoading}
+                  />
+                  {editUser.password && editUser.password.length < 6 && (
+                    <p className="text-xs text-yellow-400 mt-1">⚠️ Senha muito curta</p>
+                  )}
+                </div>
+
+                {editUser.password && (
+                  <div>
+                    <label className="block text-sm text-gray-400 mb-2">Confirmar Nova Senha</label>
+                    <input
+                      type="password"
+                      value={editUser.confirmPassword}
+                      onChange={(e) => setEditUser({...editUser, confirmPassword: e.target.value})}
+                      className="input-neon"
+                      placeholder="••••••••"
+                      disabled={editLoading}
+                    />
+                    {editUser.confirmPassword && editUser.password !== editUser.confirmPassword && (
+                      <p className="text-xs text-red-400 mt-1">❌ Senhas não coincidem</p>
+                    )}
+                    {editUser.confirmPassword && editUser.password === editUser.confirmPassword && editUser.password.length >= 6 && (
+                      <p className="text-xs text-green-400 mt-1">✅ Senhas coincidem</p>
+                    )}
+                  </div>
+                )}
+
+                <button 
+                  onClick={handleEditUser} 
+                  className="btn-neon w-full"
+                  disabled={editLoading || !editUser.email}
+                >
+                  {editLoading ? (
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="w-4 h-4 border-2 border-dark-900 border-t-transparent rounded-full animate-spin"></div>
+                      Atualizando...
+                    </div>
+                  ) : (
+                    'Atualizar Usuário'
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Modal Criar Usuário */}
         {showCreateModal && (
           <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
@@ -345,7 +538,6 @@ export default function AdminPage() {
                     </div>
                   )}
 
-                  {/* Avatar Upload */}
                   <div className="text-center">
                     <input
                       ref={fileInputRef}
@@ -443,6 +635,19 @@ export default function AdminPage() {
                   </div>
 
                   <div>
+                    <label className="block text-sm text-gray-400 mb-2">Role *</label>
+                    <select
+                      value={newUser.role}
+                      onChange={(e) => setNewUser({...newUser, role: e.target.value})}
+                      className="input-neon"
+                      disabled={createLoading}
+                    >
+                      <option value="user">👤 User (vê apenas sua pasta)</option>
+                      <option value="admin">👑 Admin (vê tudo)</option>
+                    </select>
+                  </div>
+
+                  <div>
                     <label className="block text-sm text-gray-400 mb-2">
                       Pasta S3 (gerada automaticamente)
                       <span className="ml-2 text-xs text-neon-cyan" title="Usuário verá apenas arquivos desta pasta">ℹ️</span>
@@ -455,7 +660,7 @@ export default function AdminPage() {
                       disabled
                     />
                     <p className="text-xs text-gray-500 mt-1">
-                      Usuário verá apenas arquivos da sua pasta
+                      {newUser.role === 'admin' ? 'Admin vê todos os arquivos' : 'User vê apenas arquivos da sua pasta'}
                     </p>
                   </div>
 

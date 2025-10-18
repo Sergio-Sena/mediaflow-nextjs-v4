@@ -39,9 +39,12 @@ def lambda_handler(event, context):
                     print(f"JWT decode error: {str(e)}")
                     pass
             
-            # Admin vê tudo (sem filtro)
+            # Admin vê tudo (sem filtro), user vê apenas sua pasta
             if user_role == 'admin':
-                user_prefix = ''
+                user_prefix = ''  # Admin sem filtro
+                print(f"Admin access - no prefix filter")
+            elif user_prefix:
+                print(f"User access - filtering by prefix: {user_prefix}")
             
             return list_files(user_prefix, view_context)
         elif method == 'DELETE' and 'bulk-delete' not in path:
