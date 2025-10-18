@@ -74,7 +74,9 @@ export default function TwoFactorPage() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-dark-900 to-dark-800">
       <div className="glass-card p-8 max-w-md w-full">
         <div className="text-center mb-6">
-          <h1 className="text-3xl font-bold neon-text mb-2">🔐 Autenticação 2FA</h1>
+          <h1 className="text-3xl font-bold neon-text mb-2 flex items-center justify-center gap-2">
+            <span className="text-4xl">🔒</span> Autenticação 2FA
+          </h1>
           <p className="text-gray-400">
             Insira o código do Google Authenticator
           </p>

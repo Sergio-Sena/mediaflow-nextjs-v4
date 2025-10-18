@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { Upload, X, CheckCircle, AlertCircle } from 'lucide-react'
+import MultipartUploader from './MultipartUploader'
 
 interface DirectUploadProps {
   onUploadComplete?: (files: any[]) => void
@@ -263,12 +264,35 @@ export default function DirectUpload({
         className="hidden"
       />
 
-      {/* File List */}
-      {files.length > 0 && (
+      {/* Multipart Uploads (>5GB) */}
+      {files.filter(f => f.size > 5 * 1024 * 1024 * 1024).length > 0 && (
+        <div className="space-y-4 mb-6">
+          <h4 className="text-lg font-semibold text-white">Upload Multipart (Arquivos Grandes)</h4>
+          {files.filter(f => f.size > 5 * 1024 * 1024 * 1024).map((file, i) => (
+            <MultipartUploader
+              key={i}
+              file={file}
+              destination={destination}
+              onComplete={() => {
+                setFiles(prev => prev.filter(f => f !== file))
+                setResults(prev => ({ ...prev, [file.name]: 'success' }))
+                onUploadComplete?.([file])
+              }}
+              onError={(error) => {
+                setResults(prev => ({ ...prev, [file.name]: 'error' }))
+                console.error(`Multipart error for ${file.name}:`, error)
+              }}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* File List (<=5GB) */}
+      {files.filter(f => f.size <= 5 * 1024 * 1024 * 1024).length > 0 && (
         <div className="glass-card p-6">
           <div className="flex justify-between items-center mb-4">
             <h4 className="text-lg font-semibold text-white">
-              Arquivos ({files.length})
+              Arquivos Normais ({files.filter(f => f.size <= 5 * 1024 * 1024 * 1024).length})
             </h4>
             <div className="flex gap-2">
               <button
@@ -289,7 +313,7 @@ export default function DirectUpload({
           </div>
 
           <div className="space-y-3">
-            {files.map((file, index) => (
+            {files.filter(f => f.size <= 5 * 1024 * 1024 * 1024).map((file, index) => (
               <div key={index} className="flex items-center gap-4 p-3 bg-gray-800/50 rounded-lg">
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between items-center mb-1 gap-2">

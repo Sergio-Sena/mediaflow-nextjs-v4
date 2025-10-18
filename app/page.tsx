@@ -73,8 +73,8 @@ export default function HomePage() {
                   <span>AWS Services</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="text-neon-green">🐳</span>
-                  <span>Vercel Functions</span>
+                  <span className="text-neon-green">🔒</span>
+                  <span>JWT Security</span>
                 </li>
               </ul>
             </div>
@@ -117,24 +117,26 @@ export default function HomePage() {
                 Acessar Sistema
               </Link>
               
-              <button className="btn-secondary px-6 py-3 inline-flex items-center gap-2">
+              <Link 
+                href="/docs" 
+                className="btn-secondary px-6 py-3 inline-flex items-center gap-2 no-underline"
+              >
                 <span>📚</span>
                 Documentação
-              </button>
+              </Link>
             </div>
             
             <div className="border-t border-neon-cyan/20 pt-6 mt-8">
-              <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-gray-500">
-                <div className="flex items-center gap-4">
-                  <span className="px-2 py-1 bg-dark-800/50 rounded border border-neon-cyan/20">
-                    Desenvolvido por Sergio Sena
-                  </span>
-                  <span className="px-2 py-1 bg-dark-800/50 rounded border border-neon-purple/20">
-                    SStech
-                  </span>
+              <div className="text-center space-y-3">
+                <div className="inline-block px-6 py-3 bg-gradient-to-r from-cyan-500/10 to-purple-500/10 border border-cyan-500/30 rounded-lg">
+                  <p className="text-base font-semibold">
+                    <span className="text-cyan-400">Desenvolvido por </span>
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400">SSTechnologies</span>
+                  </p>
+                  <p className="text-sm text-gray-400 mt-1">Sergio Sena</p>
                 </div>
-                <div className="flex items-center gap-2 text-neon-cyan">
-                  <div className="w-2 h-2 bg-neon-cyan rounded-full animate-pulse-neon-fast"></div>
+                <div className="flex items-center justify-center gap-2 text-xs text-neon-cyan">
+                  <div className="w-2 h-2 bg-neon-cyan rounded-full animate-pulse"></div>
                   <span>Sistema Online</span>
                 </div>
               </div>

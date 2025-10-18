@@ -17,12 +17,16 @@ def lambda_handler(event, context):
         if method == 'OPTIONS':
             return cors_response(200, {})
         elif method == 'GET':
+            # Extrair context (dashboard ou admin)
+            query_params = event.get('queryStringParameters') or {}
+            view_context = query_params.get('context', 'dashboard')
+            
             # Extrair e validar JWT para filtro por usuário
             user_prefix = ''
             user_role = 'user'
             auth_header = event.get('headers', {}).get('Authorization', '') or event.get('headers', {}).get('authorization', '')
             
-            print(f"Auth header: {auth_header}")
+            print(f"Auth header: {auth_header}, context: {view_context}")
             
             if auth_header:
                 try:
@@ -39,7 +43,7 @@ def lambda_handler(event, context):
             if user_role == 'admin':
                 user_prefix = ''
             
-            return list_files(user_prefix)
+            return list_files(user_prefix, view_context)
         elif method == 'DELETE' and 'bulk-delete' not in path:
             # Try pathParameters first, then body
             if event.get('pathParameters') and event['pathParameters'].get('key'):
@@ -55,9 +59,9 @@ def lambda_handler(event, context):
     except Exception as e:
         return cors_response(500, {'success': False, 'message': str(e)})
 
-def list_files(user_prefix=''):
+def list_files(user_prefix='', context='dashboard'):
     files = []
-    print(f"Listing files with prefix: '{user_prefix}'")
+    print(f"Listing files with prefix: '{user_prefix}', context: '{context}'")
     
     for bucket, bucket_type in [(UPLOADS_BUCKET, 'uploads'), (PROCESSED_BUCKET, 'processed')]:
         try:
@@ -71,6 +75,11 @@ def list_files(user_prefix=''):
             for obj in response.get('Contents', []):
                 # Preserve full path structure
                 key = obj['Key']
+                
+                # Filtrar pastas especiais no dashboard
+                if context == 'dashboard':
+                    if key.startswith('avatars/') or key.startswith('qrcodes/'):
+                        continue
                 
                 # Extract folder and filename
                 if '/' in key:

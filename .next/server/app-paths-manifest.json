@@ -1,11 +1,11 @@
 {
   "/_not-found/page": "app/_not-found/page.js",
-  "/(auth)/login/page": "app/(auth)/login/page.js",
   "/2fa/page": "app/2fa/page.js",
-  "/admin/page": "app/admin/page.js",
-  "/api/auth/login/route": "app/api/auth/login/route.js",
+  "/(auth)/login/page": "app/(auth)/login/page.js",
   "/api/upload/avatar/route": "app/api/upload/avatar/route.js",
   "/api/upload/check-exists/route": "app/api/upload/check-exists/route.js",
+  "/admin/page": "app/admin/page.js",
+  "/api/auth/login/route": "app/api/auth/login/route.js",
   "/api/upload/direct/route": "app/api/upload/direct/route.js",
   "/api/upload/multipart/route": "app/api/upload/multipart/route.js",
   "/api/upload/presigned-url/route": "app/api/upload/presigned-url/route.js",
@@ -13,6 +13,7 @@
   "/api/videos/delete/route": "app/api/videos/delete/route.js",
   "/api/videos/list/route": "app/api/videos/list/route.js",
   "/dashboard/page": "app/dashboard/page.js",
+  "/docs/page": "app/docs/page.js",
   "/page": "app/page.js",
   "/users/page": "app/users/page.js"
 }
