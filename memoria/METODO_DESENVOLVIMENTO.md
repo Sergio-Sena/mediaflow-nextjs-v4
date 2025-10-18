@@ -358,6 +358,36 @@ Upload direto para S3 com presigned URLs.
 
 ---
 
+## 📊 Monitoramento de Performance
+
+### Consumo de Tokens
+
+Para manter performance ideal do chat, monitore o uso de tokens:
+
+**Formato Padrão:**
+```
+📊 Tokens: X.Xk usados (XX% do limite de 200k)
+```
+
+**Quando Abrir Novo Chat:**
+- ✅ **< 50k tokens (25%)**: Performance ótima, continue
+- ⚠️ **50k-100k tokens (25-50%)**: Performance boa, pode continuar
+- 🟡 **100k-150k tokens (50-75%)**: Considere novo chat
+- 🔴 **> 150k tokens (75%+)**: Abra novo chat para melhor performance
+
+**Como Verificar:**
+O assistente informa automaticamente o consumo. Peça atualização a qualquer momento:
+- "Qual o consumo de tokens atual?"
+- "Devo abrir novo chat?"
+
+**Ao Encerrar Chat:**
+1. Verifique consumo final
+2. Atualize PROMPT_PROXIMO_CHAT.md se necessário
+3. Commit pendências
+4. Abra novo chat com memoria/PROMPT_PROXIMO_CHAT.md
+
+---
+
 ## 🎓 Lições Aprendidas
 
 ### 1. Admin User ID
