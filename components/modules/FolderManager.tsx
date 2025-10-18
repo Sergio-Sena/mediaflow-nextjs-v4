@@ -35,6 +35,21 @@ export default function FolderManager({ onNavigateToFolder, onFilesLoaded }: Fol
       const { mediaflowClient } = await import('@/lib/aws-client')
       const data = await mediaflowClient.getFiles()
       
+      // Obter informações do usuário do JWT
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
+      let userPrefix = ''
+      let userRole = 'user'
+      
+      if (token) {
+        try {
+          const payload = JSON.parse(atob(token.split('.')[1]))
+          userPrefix = payload.s3_prefix || ''
+          userRole = payload.role || 'user'
+        } catch (e) {
+          console.error('Error parsing JWT:', e)
+        }
+      }
+      
       if (data.success) {
         const transformedFiles = data.files.map((file: any) => {
           const folderName = file.folder || (
@@ -58,19 +73,22 @@ export default function FolderManager({ onNavigateToFolder, onFilesLoaded }: Fol
         setFiles(transformedFiles)
         onFilesLoaded?.(transformedFiles)
         
-        // Build folder structure
+        // Build folder structure (filtrada por userPrefix se não for admin)
         const structure: {[key: string]: string[]} = {}
         transformedFiles.forEach((file: any) => {
           if (file.folder && file.folder !== 'root') {
-            const parts = file.folder.split('/')
-            parts.forEach((part: string, index: number) => {
-              const parentPath = parts.slice(0, index).join('/')
-              if (!structure[parentPath]) structure[parentPath] = []
-              const fullPath = parts.slice(0, index + 1).join('/')
-              if (!structure[parentPath].includes(fullPath)) {
-                structure[parentPath].push(fullPath)
-              }
-            })
+            // Admin vê todas as pastas, user só vê suas pastas
+            if (userRole === 'admin' || !userPrefix || file.folder.startsWith(userPrefix.replace(/\/$/, ''))) {
+              const parts = file.folder.split('/')
+              parts.forEach((part: string, index: number) => {
+                const parentPath = parts.slice(0, index).join('/')
+                if (!structure[parentPath]) structure[parentPath] = []
+                const fullPath = parts.slice(0, index + 1).join('/')
+                if (!structure[parentPath].includes(fullPath)) {
+                  structure[parentPath].push(fullPath)
+                }
+              })
+            }
           }
         })
         setFolderStructure(structure)
