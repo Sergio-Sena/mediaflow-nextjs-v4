@@ -117,11 +117,6 @@ export default function LoginPage() {
             ← Escolher outro usuário
           </Link>
         </div>
-
-        <div className="mt-6 text-xs text-gray-500 text-center">
-          <p>Credenciais padrão para teste:</p>
-          <p className="text-neon-cyan">sergiosenaadmin@sstech / sergiosena</p>
-        </div>
       </div>
     </div>
   )

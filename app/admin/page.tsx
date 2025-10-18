@@ -16,7 +16,19 @@ export default function AdminPage() {
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
   const [showCreateModal, setShowCreateModal] = useState(false)
-  const [newUser, setNewUser] = useState({ user_id: '', name: '', s3_prefix: '' })
+  const [newUser, setNewUser] = useState({ user_id: '', email: '', password: '', confirmPassword: '', name: '', s3_prefix: '' })
+  const [createLoading, setCreateLoading] = useState(false)
+  const [createError, setCreateError] = useState('')
+
+  const generateUserId = (name: string) => {
+    return name
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '') // Remove acentos
+      .replace(/[^a-z0-9\s]/g, '') // Remove caracteres especiais
+      .trim()
+      .replace(/\s+/g, '_') // Substitui espaços por _
+  }
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
   const [qrCodeUri, setQrCodeUri] = useState<string | null>(null)
@@ -70,16 +82,39 @@ export default function AdminPage() {
   }
 
   const handleCreateUser = async () => {
-    if (!newUser.user_id || !newUser.name) {
-      alert('Preencha user_id e nome')
+    setCreateError('')
+
+    if (!newUser.name || !newUser.email || !newUser.password) {
+      setCreateError('Preencha nome, email e senha')
       return
     }
 
-    try {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(newUser.email)) {
+      setCreateError('Email inválido')
+      return
+    }
+
+    if (newUser.password.length < 6) {
+      setCreateError('Senha deve ter no mínimo 6 caracteres')
+      return
+    }
+
+    if (newUser.password !== newUser.confirmPassword) {
+      setCreateError('As senhas não coincidem')
+      return
+    }
+
+    const userId = newUser.user_id || generateUserId(newUser.name)
+
+    setCreateLoading(true)
+    try{
       const body: any = {
-        user_id: newUser.user_id,
+        user_id: userId,
+        email: newUser.email,
+        password: newUser.password,
         name: newUser.name,
-        s3_prefix: newUser.s3_prefix || `${newUser.user_id}/`
+        s3_prefix: `${userId}/`
       }
 
       if (avatarPreview) {
@@ -97,14 +132,16 @@ export default function AdminPage() {
       if (data.success) {
         setQrCodeUri(data.user.totp_uri)
         fetchUsers()
-        setNewUser({ user_id: '', name: '', s3_prefix: '' })
+        setNewUser({ user_id: '', email: '', password: '', confirmPassword: '', name: '', s3_prefix: '' })
         setAvatarFile(null)
         setAvatarPreview(null)
       } else {
-        alert(data.message)
+        setCreateError(data.message || 'Erro ao criar usuário')
       }
     } catch (error) {
-      alert('Erro ao criar usuário')
+      setCreateError('Erro ao criar usuário')
+    } finally {
+      setCreateLoading(false)
     }
   }
 
@@ -193,7 +230,7 @@ export default function AdminPage() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {users.map(user => (
-            <div key={user.user_id} className="glass-card p-6">
+            <div key={user.user_id} className="glass-card p-6 min-h-[200px] flex flex-col">
               <div className="flex justify-between items-start mb-4">
                 {user.avatar_url ? (
                   <img 
@@ -283,7 +320,9 @@ export default function AdminPage() {
 
               {qrCodeUri ? (
                 <div className="text-center">
-                  <p className="text-green-400 mb-4">✅ Usuário criado com sucesso!</p>
+                  <div className="mb-4 p-4 bg-green-500/20 border border-green-500/50 rounded-lg">
+                    <p className="text-green-400 font-semibold">✅ Usuário criado com sucesso!</p>
+                  </div>
                   <p className="text-white mb-4">Escaneie o QR Code no Google Authenticator:</p>
                   <img 
                     src={`https://api.qrserver.net/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrCodeUri)}`}
@@ -293,12 +332,19 @@ export default function AdminPage() {
                   <button onClick={() => {
                     setShowCreateModal(false)
                     setQrCodeUri(null)
+                    setCreateError('')
                   }} className="btn-neon w-full">
                     Fechar
                   </button>
                 </div>
               ) : (
                 <div className="space-y-4">
+                  {createError && (
+                    <div className="p-3 bg-red-500/20 border border-red-500/50 rounded-lg">
+                      <p className="text-red-400 text-sm text-center">{createError}</p>
+                    </div>
+                  )}
+
                   {/* Avatar Upload */}
                   <div className="text-center">
                     <input
@@ -322,43 +368,110 @@ export default function AdminPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm text-gray-400 mb-2">User ID *</label>
-                    <input
-                      type="text"
-                      value={newUser.user_id}
-                      onChange={(e) => setNewUser({...newUser, user_id: e.target.value})}
-                      className="input-neon"
-                      placeholder="admin, user1, etc"
-                    />
-                  </div>
-
-                  <div>
                     <label className="block text-sm text-gray-400 mb-2">Nome *</label>
                     <input
                       type="text"
                       value={newUser.name}
-                      onChange={(e) => setNewUser({...newUser, name: e.target.value})}
+                      onChange={(e) => {
+                        const name = e.target.value
+                        const userId = generateUserId(name)
+                        setNewUser({...newUser, name, user_id: userId, s3_prefix: `${userId}/`})
+                      }}
                       className="input-neon"
-                      placeholder="Administrador"
+                      placeholder="João Silva"
+                      disabled={createLoading}
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm text-gray-400 mb-2">Pasta S3 (opcional)</label>
+                    <label className="block text-sm text-gray-400 mb-2">
+                      User ID (gerado automaticamente)
+                      <span className="ml-2 text-xs text-neon-cyan" title="Gerado automaticamente a partir do nome">ℹ️</span>
+                    </label>
                     <input
                       type="text"
-                      value={newUser.s3_prefix}
-                      onChange={(e) => setNewUser({...newUser, s3_prefix: e.target.value})}
+                      value={newUser.user_id || 'Digite o nome acima...'}
+                      className="input-neon bg-gray-800 cursor-not-allowed text-gray-400"
+                      placeholder="joao_silva"
+                      disabled
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm text-gray-400 mb-2">Email *</label>
+                    <input
+                      type="email"
+                      value={newUser.email}
+                      onChange={(e) => setNewUser({...newUser, email: e.target.value})}
                       className="input-neon"
-                      placeholder="Deixe vazio para ver tudo"
+                      placeholder="joao@email.com"
+                      disabled={createLoading}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm text-gray-400 mb-2">Senha * (mínimo 6 caracteres)</label>
+                    <input
+                      type="password"
+                      value={newUser.password}
+                      onChange={(e) => setNewUser({...newUser, password: e.target.value})}
+                      className="input-neon"
+                      placeholder="••••••••"
+                      disabled={createLoading}
+                    />
+                    {newUser.password && newUser.password.length < 6 && (
+                      <p className="text-xs text-yellow-400 mt-1">⚠️ Senha muito curta</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm text-gray-400 mb-2">Confirmar Senha *</label>
+                    <input
+                      type="password"
+                      value={newUser.confirmPassword}
+                      onChange={(e) => setNewUser({...newUser, confirmPassword: e.target.value})}
+                      className="input-neon"
+                      placeholder="••••••••"
+                      disabled={createLoading}
+                    />
+                    {newUser.confirmPassword && newUser.password !== newUser.confirmPassword && (
+                      <p className="text-xs text-red-400 mt-1">❌ Senhas não coincidem</p>
+                    )}
+                    {newUser.confirmPassword && newUser.password === newUser.confirmPassword && newUser.password.length >= 6 && (
+                      <p className="text-xs text-green-400 mt-1">✅ Senhas coincidem</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm text-gray-400 mb-2">
+                      Pasta S3 (gerada automaticamente)
+                      <span className="ml-2 text-xs text-neon-cyan" title="Usuário verá apenas arquivos desta pasta">ℹ️</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={newUser.s3_prefix || 'Digite o nome acima...'}
+                      className="input-neon bg-gray-800 cursor-not-allowed text-gray-400"
+                      placeholder="joao_silva/"
+                      disabled
                     />
                     <p className="text-xs text-gray-500 mt-1">
-                      Vazio = vê todos os arquivos | Ex: "user1/" = vê apenas pasta user1
+                      Usuário verá apenas arquivos da sua pasta
                     </p>
                   </div>
 
-                  <button onClick={handleCreateUser} className="btn-neon w-full">
-                    Criar Usuário
+                  <button 
+                    onClick={handleCreateUser} 
+                    className="btn-neon w-full"
+                    disabled={createLoading || !newUser.name || !newUser.email || !newUser.password || !newUser.confirmPassword}
+                  >
+                    {createLoading ? (
+                      <div className="flex items-center justify-center gap-2">
+                        <div className="w-4 h-4 border-2 border-dark-900 border-t-transparent rounded-full animate-spin"></div>
+                        Criando...
+                      </div>
+                    ) : (
+                      'Criar Usuário'
+                    )}
                   </button>
                 </div>
               )}
