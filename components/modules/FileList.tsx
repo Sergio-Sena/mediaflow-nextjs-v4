@@ -45,6 +45,21 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
       const { mediaflowClient } = await import('@/lib/aws-client')
       const data = await mediaflowClient.getFiles()
       
+      // Obter informações do usuário do JWT
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
+      let userPrefix = ''
+      let userRole = 'user'
+      
+      if (token) {
+        try {
+          const payload = JSON.parse(atob(token.split('.')[1]))
+          userPrefix = payload.s3_prefix || ''
+          userRole = payload.role || 'user'
+        } catch (e) {
+          console.error('Error parsing JWT:', e)
+        }
+      }
+      
       if (data.success) {
         // Transform AWS response to match component expectations
         const transformedFiles = data.files.map((file: any) => {
@@ -112,9 +127,12 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
         if (hasRootFiles) {
           allFolders.push('📁 Raiz')
         }
-        // Add other folders
+        // Add other folders (filtradas por userPrefix se não for admin)
         uniqueFolderPaths.forEach(f => {
-          allFolders.push(`📁 ${f}`)
+          // Admin vê todas as pastas, user só vê suas pastas
+          if (userRole === 'admin' || !userPrefix || f.startsWith(userPrefix.replace(/\/$/, ''))) {
+            allFolders.push(`📁 ${f}`)
+          }
         })
         
         setFolders(allFolders)
