@@ -1,4 +1,4 @@
-# 🎬 MEDIAFLOW v4.0 - DOCUMENTAÇÃO COMPLETA
+# 🎬 MEDIAFLOW v4.3 - DOCUMENTAÇÃO COMPLETA
 
 ## 📋 **ÍNDICE**
 1. [Sistema em Produção](#sistema-em-produção)
@@ -342,6 +342,24 @@ npm run dev
 
 ## 📝 **CHANGELOG**
 
+### **v4.3.0 (2025-10-18) - PRODUÇÃO**
+- ✅ Sistema multi-usuário completo
+- ✅ Upload de avatar para S3
+- ✅ Página Admin dedicada
+- ✅ QR Code 2FA automático
+- ✅ Controle de acesso por pasta S3
+- ✅ Lambda create-user API
+- ✅ Design profissional com avatares circulares
+
+### **v4.2.0 (2025-10-02) - PRODUÇÃO**
+- ✅ Compatibilidade mobile nativa
+- ✅ Gestos touch (swipe, tap)
+- ✅ Controles touch-friendly (48px+)
+- ✅ Layout fullscreen mobile
+- ✅ Gerenciador de pastas avançado
+- ✅ Seleção e delete em lote
+- ✅ Busca global em todas as pastas
+
 ### **v4.0.0 (2025-09-11) - PRODUÇÃO**
 - ✅ Sistema completo deployado
 - ✅ CloudFront CDN configurado
@@ -389,4 +407,4 @@ npm run dev
 **🌐 Status**: https://mediaflow.sstechnologies-cloud.com
 **📊 Uptime**: 99.9% SLA garantido pela AWS
 
-**Versão**: 4.0.0 | **Status**: ✅ PRODUÇÃO | **Última atualização**: 2025-09-11
+**Versão**: 4.3.0 | **Status**: ✅ PRODUÇÃO | **Última atualização**: 2025-10-18
