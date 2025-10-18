@@ -115,14 +115,22 @@ npm run dev
 drive-online-clean-NextJs/
 ├── app/                    # Next.js App Router
 │   ├── (auth)/            # Rotas de autenticação
-│   ├── dashboard/         # Dashboard principal
+│   ├── admin/             # Painel admin
+│   │   └── dashboard/         # Dashboard principal
 │   └── globals.css        # Estilos globais
 ├── components/            # Componentes React
-│   └── modules/           # Módulos principais
+│   ├── modules/           # Módulos principais
+│   ├── AvatarUpload.tsx   # Upload de avatar
+│   └── UserCard.tsx       # Card de usuário
 ├── lib/                   # Clientes AWS e utilitários
 ├── aws-setup/             # Scripts de deploy AWS
-│   └── lambda-functions/  # Funções Lambda
-├── DOCUMENTACAO_COMPLETA.md # Documentação completa
+│   └── lambda-functions/  # 7 Funções Lambda
+├── scripts/               # Scripts utilitários
+│   ├── s3-operations/     # Operações S3
+│   └── testing/           # Scripts de teste
+├── memoria/               # Documentação e histórico
+│   ├── PROMPT_CONSOLIDADO.md
+│   └── METODO_DESENVOLVIMENTO.md
 └── README.md             # Este arquivo
 ```
 
@@ -160,18 +168,12 @@ npm run type-check   # Verificar tipos TypeScript
 - **Segurança**: SSL/HTTPS + JWT
 - **Escalabilidade**: Milhares de usuários
 
-### **📝 Documentação Completa**
+### **📝 Documentação Técnica**
 
-Para informações detalhadas sobre arquitetura, configuração, manutenção e troubleshooting:
+Para metodologia de desenvolvimento e contexto completo:
 
-**📄 [DOCUMENTACAO_COMPLETA.md](./DOCUMENTACAO_COMPLETA.md)**
-
-Inclui:
-- Arquitetura AWS detalhada
-- Guia de uso completo
-- Troubleshooting
-- Guia de restauração
-- Roadmap futuro
+**📄 [memoria/PROMPT_CONSOLIDADO.md](./memoria/PROMPT_CONSOLIDADO.md)** - Histórico e contexto completo  
+**📄 [memoria/METODO_DESENVOLVIMENTO.md](./memoria/METODO_DESENVOLVIMENTO.md)** - Metodologia C.E.R.T.O e padrões
 
 ---
 

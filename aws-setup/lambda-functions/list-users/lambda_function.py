@@ -16,7 +16,7 @@ def lambda_handler(event, context):
         # Remover secrets da resposta (segurança)
         for user in users:
             user.pop('totp_secret', None)
-            # Manter avatar_url se existir
+            user.pop('password', None)
         
         return cors_response(200, {
             'success': True,
@@ -35,7 +35,7 @@ def cors_response(status_code, body):
         'headers': {
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Headers': 'Content-Type,Authorization',
-            'Access-Control-Allow-Methods': 'GET,OPTIONS'
+            'Access-Control-Allow-Methods': 'GET,POST,OPTIONS'
         },
         'body': json.dumps(body)
     }
