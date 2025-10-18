@@ -58,9 +58,9 @@ Frontend ←─── API Gateway ←─── View Handler (Smart Routing)
 ### **Infraestrutura AWS:**
 
 #### **S3 Buckets:**
-- `mediaflow-frontend-969430605054` - Frontend estático
-- `mediaflow-uploads-969430605054` - Arquivos originais
-- `mediaflow-processed-969430605054` - Vídeos convertidos
+- `mediaflow-frontend-<account-id>` - Frontend estático
+- `mediaflow-uploads-<account-id>` - Arquivos originais
+- `mediaflow-processed-<account-id>` - Vídeos convertidos
 
 #### **Lambda Functions:**
 - `mediaflow-auth-handler` - Autenticação JWT
@@ -75,8 +75,8 @@ Frontend ←─── API Gateway ←─── View Handler (Smart Routing)
 - **URL**: https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod
 
 #### **CloudFront CDN:**
-- **Distribution ID**: E2HZKZ9ZJK18IU
-- **Domain**: d2x90cv3rb5hoa.cloudfront.net
+- **Distribution ID**: <distribution-id>
+- **Domain**: <cloudfront-domain>.cloudfront.net
 - **Custom Domain**: mediaflow.sstechnologies-cloud.com
 
 #### **DNS & SSL:**
@@ -221,10 +221,10 @@ else:                   # Preserva qualidade (3Mbps)
 ### **Limpeza Periódica:**
 ```bash
 # Listar arquivos duplicados
-aws s3 ls s3://mediaflow-uploads-969430605054/ --recursive
+aws s3 ls s3://mediaflow-uploads-<account-id>/ --recursive
 
 # Remover arquivo específico (se necessário)
-aws s3 rm "s3://mediaflow-uploads-969430605054/arquivo.mp4"
+aws s3 rm "s3://mediaflow-uploads-<account-id>/arquivo.mp4"
 
 # Cleanup automático de órfãos
 curl -X POST "https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/cleanup"
@@ -264,7 +264,7 @@ curl -X POST "https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/auth/l
 - Cache pode levar até 24h para propagar
 - Invalidar cache se necessário:
 ```bash
-aws cloudfront create-invalidation --distribution-id E2HZKZ9ZJK18IU --paths "/*"
+aws cloudfront create-invalidation --distribution-id <distribution-id> --paths "/*"
 ```
 
 ---
