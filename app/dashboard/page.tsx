@@ -181,9 +181,18 @@ export default function DashboardPage() {
               {(currentUser?.user_id === 'admin' || currentUser?.user_id === 'user_admin' || currentUser?.id === 'user_admin') && (
                 <button
                   onClick={() => router.push('/admin')}
-                  className="btn-neon px-4 py-2 text-sm"
+                  className="btn-neon px-4 py-2 text-sm flex items-center gap-2"
                 >
-                  👥 Admin
+                  {currentUser.avatar_url ? (
+                    <img 
+                      src={currentUser.avatar_url} 
+                      alt="Admin"
+                      className="w-5 h-5 rounded-full object-cover border border-neon-cyan/50"
+                    />
+                  ) : (
+                    <span>👥</span>
+                  )}
+                  Admin
                 </button>
               )}
               <button
@@ -231,9 +240,18 @@ export default function DashboardPage() {
                     router.push('/admin')
                     setMobileMenuOpen(false)
                   }}
-                  className="btn-neon w-full px-4 py-3 text-sm"
+                  className="btn-neon w-full px-4 py-3 text-sm flex items-center justify-center gap-2"
                 >
-                  👥 Painel Admin
+                  {currentUser.avatar_url ? (
+                    <img 
+                      src={currentUser.avatar_url} 
+                      alt="Admin"
+                      className="w-5 h-5 rounded-full object-cover border border-neon-cyan/50"
+                    />
+                  ) : (
+                    <span>👥</span>
+                  )}
+                  Painel Admin
                 </button>
               )}
               <button

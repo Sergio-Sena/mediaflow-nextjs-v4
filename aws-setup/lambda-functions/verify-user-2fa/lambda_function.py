@@ -46,7 +46,8 @@ def lambda_handler(event, context):
         token = jwt.encode({
             'user_id': user_id,
             'user_name': user['name'],
-            's3_prefix': user['s3_prefix'],
+            's3_prefix': user.get('s3_prefix', ''),
+            'role': user.get('role', 'user'),
             'exp': datetime.utcnow() + timedelta(hours=24)
         }, SECRET_KEY, algorithm='HS256')
         

@@ -2,6 +2,7 @@ import json
 import boto3
 import base64
 import pyotp
+import hashlib
 from datetime import datetime
 
 dynamodb = boto3.resource('dynamodb')
@@ -19,13 +20,15 @@ def lambda_handler(event, context):
             
             user_id = body.get('user_id')
             name = body.get('name')
+            email = body.get('email')
+            password = body.get('password')
             s3_prefix = body.get('s3_prefix', f"{user_id}/")
             avatar_base64 = body.get('avatar_image')
             
-            if not user_id or not name:
+            if not user_id or not name or not email or not password:
                 return cors_response(400, {
                     'success': False,
-                    'message': 'user_id e name são obrigatórios'
+                    'message': 'user_id, name, email e password são obrigatórios'
                 })
             
             # Verificar se usuário já existe
@@ -62,10 +65,15 @@ def lambda_handler(event, context):
             # Gerar TOTP secret
             totp_secret = pyotp.random_base32()
             
+            # Hash da senha
+            password_hash = hashlib.sha256(password.encode()).hexdigest()
+            
             # Criar usuário
             user = {
                 'user_id': user_id,
                 'name': name,
+                'email': email,
+                'password': password_hash,
                 's3_prefix': s3_prefix,
                 'avatar_url': avatar_url,
                 'totp_secret': totp_secret,
