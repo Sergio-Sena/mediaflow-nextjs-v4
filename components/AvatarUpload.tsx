@@ -52,8 +52,9 @@ export default function AvatarUpload({
       
       if (!presignedData.success) throw new Error('Failed to get presigned URL')
       
-      // Upload para S3 usando presigned URL
-      await fetch(presignedData.presignedUrl, {
+      // Upload para S3 usando presigned URL (decode para evitar &amp;)
+      const cleanUrl = presignedData.presignedUrl.replace(/&amp;/g, '&')
+      await fetch(cleanUrl, {
         method: 'PUT',
         body: file,
         headers: { 'Content-Type': file.type }
