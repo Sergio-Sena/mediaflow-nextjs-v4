@@ -18,10 +18,11 @@ Você está assumindo o desenvolvimento do **Mediaflow v4.3**, uma plataforma de
 
 **Sistema Multi-Usuário Completo:**
 - Cadastro via painel admin com user_id auto-gerado
-- Upload de avatar direto para S3
+- Upload de avatar direto para S3 (fix &amp; aplicado)
 - QR Code 2FA automático
-- Role-based access (admin vê tudo, user vê só sua pasta)
+- Role-based access (admin vê tudo na raiz, user vê só sua pasta)
 - s3_prefix: `users/{user_id}/`
+- Dropdown admin com opção "Minha pasta (Admin)"
 
 **Streaming Profissional:**
 - Upload até 5GB com DirectUpload component
@@ -148,13 +149,17 @@ maxSize: 5120MB      // 5GB (multipart automático para >5GB)
 
 ## 🐛 Problemas Já Resolvidos
 
-✅ Avatar upload 400 → Fix: Limpar &amp; das URLs  
+✅ Avatar upload 400 → Fix: Limpar &amp; das URLs + Deploy  
 ✅ 2FA ícone quebrado → Fix: Emoji fora do neon-text  
 ✅ Grid quebrando 1024x768 → Fix: md:grid-cols-2 lg:grid-cols-4  
-✅ Users vendo arquivos de outros → Fix: s3_prefix no JWT  
+✅ Users vendo arquivos de outros → Fix: s3_prefix no JWT + filtro Lambda  
 ✅ Admin sem dropdown → Fix: Condição expandida  
 ✅ Pastas mostrando só subpastas → Fix: getCurrentFiles() match exato  
 ✅ sergio_sena em root → Fix: Movido para users/sergio_sena/  
+✅ Admin não via todos arquivos na raiz → Fix: getCurrentFiles() role check  
+✅ Admin não conseguia selecionar própria pasta → Fix: Opção dedicada dropdown  
+✅ Upload limite 5GB → Atualizado para 10GB (100 arquivos)  
+✅ SECRET_KEY diferente entre Lambdas → Padronizado  
 
 ---
 
@@ -272,6 +277,6 @@ Ou pergunte: **"O que você gostaria de implementar?"**
 
 ---
 
-**Versão**: 4.3.0 | **Status**: ✅ PRODUÇÃO | **Última atualização**: 2025-01-18
+**Versão**: 4.3.1 | **Status**: ✅ PRODUÇÃO | **Última atualização**: 2025-01-19
 
 **Sistema 100% funcional e documentado. Pronto para evolução!** 🚀
