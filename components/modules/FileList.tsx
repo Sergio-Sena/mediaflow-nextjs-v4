@@ -194,9 +194,24 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
   
   const getCurrentFiles = () => {
     const currentFolderPath = getCurrentFolderPath()
+    
+    // Obter role do JWT
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
+    let userRole = 'user'
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]))
+        userRole = payload.role || 'user'
+      } catch (e) {}
+    }
+    
     return files.filter(file => {
       if (currentFolderPath === '' || currentFolderPath === 'Raiz') {
-        // Root level - show files in root only (not in subfolders)
+        // Admin na raiz vê TODOS os arquivos
+        if (userRole === 'admin') {
+          return true
+        }
+        // User na raiz vê apenas arquivos root
         return file.folder === 'root' || file.folder === ''
       }
       // Show files that are EXACTLY in this folder (not in subfolders)
