@@ -220,8 +220,9 @@ export default function DirectUpload({
               onChange={(e) => setDestination(e.target.value)}
               className="px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:border-neon-cyan focus:outline-none"
             >
-              <option value="">Minha pasta (raiz)</option>
-              {users.map(user => (
+              <option value="">Raiz do sistema</option>
+              <option value="users/user_admin/">📁 Minha pasta (Admin)</option>
+              {users.filter(user => user.user_id !== 'user_admin').map(user => (
                 <option key={user.user_id} value={`${user.s3_prefix}`}>
                   📁 {user.name} ({user.user_id})
                 </option>
