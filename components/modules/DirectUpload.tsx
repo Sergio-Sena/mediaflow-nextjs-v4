@@ -13,7 +13,7 @@ interface DirectUploadProps {
 export default function DirectUpload({ 
   onUploadComplete, 
   maxFiles = 100, 
-  maxSize = 5120
+  maxSize = 10240
 }: DirectUploadProps) {
   const [files, setFiles] = useState<File[]>([])
   const [uploading, setUploading] = useState(false)
@@ -143,7 +143,14 @@ export default function DirectUpload({
   }
 
   const handleFileSelect = async (selectedFiles: FileList) => {
-    const validFiles = Array.from(selectedFiles).filter(file => {
+    const allFiles = Array.from(selectedFiles)
+    
+    // Avisar se exceder limite
+    if (allFiles.length > maxFiles) {
+      alert(`⚠️ Limite de ${maxFiles} arquivos excedido!\n\n📁 Selecionados: ${allFiles.length} arquivos\n✅ Serão enviados: ${maxFiles} arquivos\n\n🔁 Após o upload, selecione os próximos ${allFiles.length - maxFiles} arquivos.`)
+    }
+    
+    const validFiles = allFiles.filter(file => {
       if (file.size > maxSize * 1024 * 1024) {
         alert(`${file.name} é muito grande. Máximo: ${maxSize}MB`)
         return false
