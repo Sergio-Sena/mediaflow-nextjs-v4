@@ -7,16 +7,14 @@ export default function HomePage() {
         <div className="mb-8">
           <div className="mb-6">
             <h1 className="text-4xl md:text-7xl lg:text-8xl mb-4">
-              <span className="animate-float inline-block">🎬</span> <span className="neon-text-large">Mediaflow</span>
+              <span className="animate-float inline-block">🎬</span> <span className="neon-text-large">Mídiaflow</span>
             </h1>
           </div>
           <div className="space-y-2">
             <p className="text-xl md:text-2xl text-gradient font-medium">
               Sistema de Streaming Modular
             </p>
-            <p className="text-sm md:text-base text-gray-400">
-              Next.js 14 + Node.js 22 + AWS
-            </p>
+
             <div className="inline-block px-3 py-1 bg-neon-cyan/10 border border-neon-cyan/30 rounded-full">
               <span className="text-xs text-neon-cyan font-medium">v4.0.0 - Arquitetura Modular</span>
             </div>
@@ -24,93 +22,56 @@ export default function HomePage() {
         </div>
 
         <div className="space-y-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
-            <div className="glass-card-hover p-6 group text-center">
-              <div className="text-2xl md:text-3xl mb-3 group-hover:animate-pulse-neon-fast transition-all duration-300">
-                ✨
+          {/* Hero Stats */}
+          <div className="glass-card p-6 mb-8">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+              <div className="space-y-2">
+                <div className="text-2xl font-bold text-neon-cyan">99.9%</div>
+                <div className="text-sm text-gray-400">Uptime</div>
               </div>
-              <h3 className="text-lg font-semibold text-neon-cyan mb-3">
-                Funcionalidades
-              </h3>
-              <ul className="text-sm text-gray-300 space-y-2 text-left mx-auto w-fit">
-                <li className="flex items-center gap-2">
-                  <span className="text-neon-cyan">📤</span>
-                  <span>Upload inteligente</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="text-neon-purple">🔄</span>
-                  <span>Conversão automática</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="text-neon-blue">🎥</span>
-                  <span>Player híbrido</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="text-neon-green">🔐</span>
-                  <span>Autenticação MFA</span>
-                </li>
-              </ul>
+              <div className="space-y-2">
+                <div className="text-2xl font-bold text-neon-purple">5GB</div>
+                <div className="text-sm text-gray-400">Upload Máximo</div>
+              </div>
+              <div className="space-y-2">
+                <div className="text-2xl font-bold text-neon-cyan">400+</div>
+                <div className="text-sm text-gray-400">Edge Locations</div>
+              </div>
+              <div className="space-y-2">
+                <div className="text-2xl font-bold text-neon-purple">95+</div>
+                <div className="text-sm text-gray-400">Lighthouse Score</div>
+              </div>
             </div>
+          </div>
 
-            <div className="glass-card-hover p-6 group text-center">
-              <div className="text-2xl md:text-3xl mb-3 group-hover:animate-pulse-neon-fast transition-all duration-300">
-                🚀
-              </div>
-              <h3 className="text-lg font-semibold text-neon-purple mb-3">
-                Tecnologias
-              </h3>
-              <ul className="text-sm text-gray-300 space-y-2 text-left mx-auto w-fit">
-                <li className="flex items-center gap-2">
-                  <span className="text-neon-cyan">⚡</span>
-                  <span>Node.js 22</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="text-neon-purple">🎨</span>
-                  <span>Tailwind CSS</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="text-neon-blue">☁️</span>
-                  <span>AWS Services</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="text-neon-green">🔒</span>
-                  <span>JWT Security</span>
-                </li>
-              </ul>
-            </div>
-
-            <div className="glass-card-hover p-6 group md:col-span-2 lg:col-span-1 text-center">
-              <div className="text-2xl md:text-3xl mb-3 group-hover:animate-pulse-neon-fast transition-all duration-300">
-                📊
-              </div>
-              <h3 className="text-lg font-semibold text-neon-blue mb-3">
-                Performance
-              </h3>
-              <ul className="text-sm text-gray-300 space-y-2 text-left mx-auto w-fit">
-                <li className="flex items-center gap-2">
-                  <span className="text-neon-cyan">⚡</span>
-                  <span>Upload 4x mais rápido</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="text-neon-purple">🎯</span>
-                  <span>Conversão 50% menor</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="text-neon-blue">💰</span>
-                  <span>Custo otimizado</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="text-neon-green">🌐</span>
-                  <span>CDN global</span>
-                </li>
-              </ul>
+          {/* Feature Highlights */}
+          <div className="text-center space-y-6">
+            <h2 className="text-2xl md:text-3xl font-bold text-gradient">
+              Plataforma Profissional de Streaming
+            </h2>
+            <div className="flex flex-wrap justify-center gap-4 text-sm">
+              <span className="glass-card px-4 py-2 text-neon-cyan">
+                📤 Upload Inteligente
+              </span>
+              <span className="glass-card px-4 py-2 text-neon-purple">
+                🔄 Conversão H.264
+              </span>
+              <span className="glass-card px-4 py-2 text-neon-cyan">
+                🎥 Player Sequencial
+              </span>
+              <span className="glass-card px-4 py-2 text-neon-purple">
+                🔐 Multi-usuário 2FA
+              </span>
+              <span className="glass-card px-4 py-2 text-neon-cyan">
+                ☁️ CDN Global
+              </span>
             </div>
           </div>
 
           <div className="space-y-6">
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Link 
-                href="/users" 
+                href="/login" 
                 className="btn-neon text-lg px-8 py-4 no-underline inline-flex items-center gap-2 group"
               >
                 <span className="group-hover:animate-pulse-neon-fast">🚀</span>

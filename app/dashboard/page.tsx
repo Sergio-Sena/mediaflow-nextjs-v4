@@ -11,6 +11,8 @@ import PDFViewer from '@/components/modules/PDFViewer'
 import Analytics from '@/components/modules/Analytics'
 import FolderManager from '@/components/modules/FolderManager'
 import AvatarUpload from '@/components/AvatarUpload'
+import HeroSection from '@/components/modules/HeroSection'
+import VideoCarousel from '@/components/modules/VideoCarousel'
 
 
 interface User {
@@ -32,7 +34,7 @@ interface FileItem {
 export default function DashboardPage() {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState<'files' | 'upload' | 'manager' | 'analytics'>('files')
+  const [activeTab, setActiveTab] = useState<'home' | 'files' | 'upload' | 'manager' | 'analytics'>('home')
   const [selectedVideo, setSelectedVideo] = useState<FileItem | null>(null)
   const [selectedImage, setSelectedImage] = useState<FileItem | null>(null)
   const [selectedPDF, setSelectedPDF] = useState<FileItem | null>(null)
@@ -57,9 +59,13 @@ export default function DashboardPage() {
       return
     }
 
-    // Verificar sessão 2FA (30 minutos = 1800000ms)
+    // Verificar sessão 2FA apenas para admin (30 minutos = 1800000ms)
     const session = localStorage.getItem('2fa_session')
-    if (!session || (Date.now() - parseInt(session)) > 1800000) {
+    const isAdmin = currentUserData ? 
+      JSON.parse(currentUserData).role === 'admin' || 
+      JSON.parse(currentUserData).user_id === 'user_admin' : false
+    
+    if (isAdmin && (!session || (Date.now() - parseInt(session)) > 1800000)) {
       router.push('/2fa')
       return
     }
@@ -145,7 +151,7 @@ export default function DashboardPage() {
                 className="text-lg sm:text-2xl font-bold cursor-pointer hover:scale-105 transition-transform duration-300"
                 onClick={() => window.location.reload()}
               >
-                🎬 <span className="neon-text">Mediaflow</span>
+                🎬 <span className="neon-text">Mídiaflow</span>
               </h1>
               <div className="hidden md:block text-sm text-gray-400">
                 Dashboard v4.3
@@ -168,8 +174,9 @@ export default function DashboardPage() {
                     }}
                   />
                   <div className="text-sm">
-                    <div className="text-neon-cyan font-semibold truncate max-w-[100px]">{currentUser.name}</div>
-                    <div className="text-xs text-gray-400">🔒 2FA</div>
+                    <div className="text-neon-cyan font-semibold truncate max-w-[100px]">
+                      {currentUser.role === 'admin' || currentUser.user_id === 'user_admin' ? 'Admin' : currentUser.name}
+                    </div>
                   </div>
                 </div>
               )}
@@ -183,16 +190,8 @@ export default function DashboardPage() {
                   onClick={() => router.push('/admin')}
                   className="btn-neon px-4 py-2 text-sm flex items-center gap-2"
                 >
-                  {currentUser.avatar_url ? (
-                    <img 
-                      src={currentUser.avatar_url} 
-                      alt="Admin"
-                      className="w-5 h-5 rounded-full object-cover border border-neon-cyan/50"
-                    />
-                  ) : (
-                    <span>👥</span>
-                  )}
-                  Admin
+                  <span>👥</span>
+                  Gerenciamento
                 </button>
               )}
               <button
@@ -206,7 +205,7 @@ export default function DashboardPage() {
             {/* Mobile Hamburger */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden btn-secondary p-2 text-xl"
+              className="lg:hidden btn-secondary p-3 text-xl min-h-[44px] min-w-[44px]"
             >
               {mobileMenuOpen ? '✕' : '☰'}
             </button>
@@ -230,7 +229,6 @@ export default function DashboardPage() {
                   />
                   <div className="text-sm">
                     <div className="text-neon-cyan font-semibold">{currentUser.name}</div>
-                    <div className="text-xs text-gray-400">🔒 2FA Ativo</div>
                   </div>
                 </div>
               )}
@@ -273,7 +271,8 @@ export default function DashboardPage() {
         <div className="max-w-7xl mx-auto px-2 sm:px-4">
           <div className="flex space-x-2 sm:space-x-4 md:space-x-8 min-w-max">
             {[
-              { id: 'files', label: '📁 Arquivos', count: 0 },
+              { id: 'home', label: '🏠 Início', count: 0 },
+              { id: 'files', label: '📁 Biblioteca', count: 0 },
               { id: 'upload', label: '📤 Upload', count: 0 },
               { id: 'manager', label: '🗂️ Gerenciador', count: 0 },
               { id: 'analytics', label: '📊 Analytics', count: 0 },
@@ -301,6 +300,78 @@ export default function DashboardPage() {
 
       {/* Content */}
       <main className="max-w-7xl mx-auto px-2 sm:px-4 py-4 sm:py-8">
+        {activeTab === 'home' && (
+          <div className="space-y-8">
+            {/* Hero Section */}
+            <HeroSection
+              video={allFiles.find(f => f.type === 'video') ? {
+                name: allFiles.find(f => f.type === 'video')!.name,
+                url: allFiles.find(f => f.type === 'video')!.url,
+                description: 'Continue de onde parou'
+              } : undefined}
+              onPlay={() => {
+                // Buscar último vídeo assistido ou primeiro disponível
+                const lastWatched = localStorage.getItem('last_watched_video')
+                let videoToPlay = allFiles.find(f => f.type === 'video')
+                
+                if (lastWatched) {
+                  const lastVideo = allFiles.find(f => f.key === lastWatched)
+                  if (lastVideo) videoToPlay = lastVideo
+                }
+                
+                if (videoToPlay) {
+                  setSelectedVideo(videoToPlay)
+                  setVideoPlaylist(allFiles.filter(f => f.type === 'video'))
+                }
+              }}
+            />
+
+            {/* Carrosséis */}
+            <VideoCarousel
+              title="Adicionados Recentemente"
+              videos={allFiles
+                .filter(f => f.type === 'video')
+                .sort((a, b) => new Date(b.lastModified).getTime() - new Date(a.lastModified).getTime())
+                .slice(0, 10)
+                .map(f => ({
+                  key: f.key,
+                  name: f.name,
+                  url: f.url
+                }))}
+              onVideoClick={(video) => {
+                const fileItem = allFiles.find(f => f.key === video.key)
+                if (fileItem) {
+                  setSelectedVideo(fileItem)
+                  setVideoPlaylist(allFiles.filter(f => f.type === 'video'))
+                }
+              }}
+            />
+
+            {/* Por Pasta */}
+            {Array.from(new Set(allFiles.filter(f => f.type === 'video').map(f => f.folder))).map(folder => (
+              <VideoCarousel
+                key={folder}
+                title={`Pasta: ${folder || 'Root'}`}
+                videos={allFiles
+                  .filter(f => f.type === 'video' && f.folder === folder)
+                  .slice(0, 10)
+                  .map(f => ({
+                    key: f.key,
+                    name: f.name,
+                    url: f.url
+                  }))}
+                onVideoClick={(video) => {
+                  const fileItem = allFiles.find(f => f.key === video.key)
+                  if (fileItem) {
+                    setSelectedVideo(fileItem)
+                    setVideoPlaylist(allFiles.filter(f => f.type === 'video' && f.folder === folder))
+                  }
+                }}
+              />
+            ))}
+          </div>
+        )}
+
         {activeTab === 'files' && (
           <FileList 
             onPlayVideo={(video) => {
@@ -332,7 +403,7 @@ export default function DashboardPage() {
               <h2 className="text-xl font-semibold text-white">Upload de Arquivos</h2>
               <button
                 onClick={() => setActiveTab('files')}
-                className="btn-secondary px-4 py-2 text-sm"
+                className="btn-secondary px-4 py-3 text-sm min-h-[44px]"
               >
                 📁 Ver Arquivos
               </button>

@@ -2,554 +2,152 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  body {
-    background-color: #0a0a0f;
-    color: white;
+:root {
+  --neon-cyan: #00ffff;
+  --neon-purple: #ff00ff;
+  --neon-pink: #ff0080;
+  --dark-900: #0a0a0a;
+  --dark-800: #1a1a1a;
+}
+
+body {
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+  color: white;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+/* Scrollbar Hide */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Neon Text */
+.neon-text {
+  color: var(--neon-cyan);
+  text-shadow: 0 0 10px var(--neon-cyan), 0 0 20px var(--neon-cyan), 0 0 30px var(--neon-cyan);
+}
+
+.neon-text-large {
+  color: var(--neon-cyan);
+  text-shadow: 0 0 15px var(--neon-cyan), 0 0 30px var(--neon-cyan), 0 0 45px var(--neon-cyan);
+}
+
+/* Glass Card */
+.glass-card {
+  background: rgba(26, 26, 26, 0.7);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(0, 255, 255, 0.1);
+}
+
+/* Buttons */
+.btn-neon {
+  background: linear-gradient(135deg, #00ffff 0%, #00cccc 100%);
+  color: #0a0a0a;
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+}
+
+.btn-neon:hover {
+  box-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+  transform: translateY(-2px);
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(0, 255, 255, 0.5);
+}
+
+/* Input */
+.input-neon {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: rgba(26, 26, 26, 0.8);
+  border: 1px solid rgba(0, 255, 255, 0.3);
+  border-radius: 0.5rem;
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.input-neon:focus {
+  outline: none;
+  border-color: var(--neon-cyan);
+  box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+}
+
+/* Animations */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-@layer components {
-  .btn-neon {
-    background: linear-gradient(to right, #00ffff, #bf00ff);
-    color: #0a0a0f;
-    font-weight: bold;
-    padding: 12px 24px;
-    border-radius: 12px;
-    border: 1px solid rgba(0, 255, 255, 0.4);
-    backdrop-filter: blur(8px);
-    transition: all 0.3s ease;
-    min-height: 44px;
-    min-width: 44px;
-    cursor: pointer;
-    touch-action: manipulation;
-    -webkit-tap-highlight-color: transparent;
-  }
-  
-  .btn-neon:focus-visible {
-    outline: 2px solid #00ffff;
-    outline-offset: 2px;
-  }
-  
-  .btn-neon:hover {
-    box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
-    transform: scale(1.05) translateY(-2px);
-  }
-  
-  .input-neon {
-    width: 100%;
-    padding: 12px 16px;
-    background: rgba(26, 26, 46, 0.6);
-    border: 1px solid rgba(0, 255, 255, 0.3);
-    border-radius: 12px;
-    color: white;
-    backdrop-filter: blur(8px);
-    transition: all 0.3s ease;
-    min-height: 44px;
-  }
-  
-  .input-neon:focus {
-    outline: none;
-    border-color: #00ffff;
-    box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
-  }
-  
-  .input-neon:focus-visible {
-    outline: 2px solid #00ffff;
-    outline-offset: 2px;
-  }
-  
-  .glass-card {
-    background: rgba(26, 26, 46, 0.4);
-    backdrop-filter: blur(16px);
-    border: 1px solid rgba(0, 255, 255, 0.2);
-    border-radius: 16px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    transition: all 0.5s ease;
-  }
-  
-  .glass-card:hover {
-    border-color: rgba(0, 255, 255, 0.3);
-    box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
-  }
-  
-  .glass-card-hover {
-    background: rgba(26, 26, 46, 0.4);
-    backdrop-filter: blur(16px);
-    border: 1px solid rgba(0, 255, 255, 0.2);
-    border-radius: 16px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    transition: all 0.3s ease;
-    cursor: pointer;
-  }
-  
-  .glass-card-hover:hover {
-    transform: scale(1.05) translateY(-8px);
-    border-color: rgba(0, 255, 255, 0.3);
-    box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
-  }
-  
-  .neon-text {
-    background: linear-gradient(to right, #00ffff, #bf00ff);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    text-shadow: 0 0 20px rgba(0, 255, 255, 0.6);
-  }
-  
-  .neon-text-large {
-    background: linear-gradient(to right, #00ffff, #bf00ff);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    text-shadow: 0 0 30px rgba(0, 255, 255, 0.8);
-  }
-  
-  .btn-secondary {
-    background: rgba(22, 33, 62, 0.8);
-    color: #00ffff;
-    border: 1px solid rgba(0, 255, 255, 0.3);
-    padding: 12px 16px;
-    border-radius: 8px;
-    backdrop-filter: blur(8px);
-    transition: all 0.3s ease;
-    min-height: 44px;
-    min-width: 44px;
-    cursor: pointer;
-    touch-action: manipulation;
-    -webkit-tap-highlight-color: transparent;
-  }
-  
-  .btn-secondary:focus-visible {
-    outline: 2px solid #00ffff;
-    outline-offset: 2px;
-  }
-  
-  .btn-secondary:hover {
-    background: rgba(15, 52, 96, 0.8);
-    border-color: rgba(0, 255, 255, 0.5);
-    box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
-    transform: scale(1.05);
-  }
-  
-  .text-gradient {
-    background: linear-gradient(to right, #e5e7eb, #9ca3af);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-  }
+.animate-fade-in {
+  animation: fade-in 0.5s ease-out;
+}
 
-  /* Video Player Sliders */
-  .slider {
-    background: #374151;
-    border-radius: 4px;
+@keyframes slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
   }
-
-  .slider::-webkit-slider-thumb {
-    appearance: none;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background: #06b6d4;
-    cursor: pointer;
-    border: 2px solid #0f172a;
-    box-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
+}
 
-  .slider::-moz-range-thumb {
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background: #06b6d4;
-    cursor: pointer;
-    border: 2px solid #0f172a;
-    box-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
+.animate-slide-down {
+  animation: slide-down 0.3s ease-out;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
   }
-
-  /* Scrollbar customizada */
-  ::-webkit-scrollbar {
-    width: 8px;
+  50% {
+    transform: translateY(-10px);
   }
+}
 
-  ::-webkit-scrollbar-track {
-    background: rgba(15, 23, 42, 0.5);
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.loading-shimmer {
+  background: linear-gradient(90deg, #1a1a1a 25%, #2a2a2a 50%, #1a1a1a 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
   }
-
-  ::-webkit-scrollbar-thumb {
-    background: rgba(6, 182, 212, 0.3);
-    border-radius: 4px;
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    background: rgba(6, 182, 212, 0.5);
-  }
-
-  /* Ícones centralizados */
-  .icon-centered {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-  }
-
-  .search-icon {
-    position: absolute !important;
-    left: 12px !important;
-    top: 50% !important;
-    transform: translateY(-50%) !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-  }
-
-  /* Força centralização para ícones Lucide */
-  .lucide {
-    vertical-align: middle !important;
-  }
-
-  /* Correção específica para lupa */
-  .lucide-search {
-    position: absolute !important;
-    left: 12px !important;
-    top: 50% !important;
-    transform: translateY(-50%) !important;
-    vertical-align: middle !important;
-  }
-
-  /* Força posicionamento da lupa independente das classes */
-  input[type="text"] + .lucide-search,
-  .relative .lucide-search {
-    position: absolute !important;
-    left: 12px !important;
-    top: 50% !important;
-    transform: translateY(-50%) !important;
-    z-index: 10 !important;
-  }
-
-  /* Correção específica para engrenagem */
-  .lucide-settings {
-    margin: auto !important;
-  }
-
-  /* Botão de atualizar com animação */
-  .btn-refresh {
-    @apply btn-secondary p-2 flex items-center justify-center;
-  }
-
-  .btn-refresh:hover .lucide-refresh-cw {
-    transform: rotate(180deg);
-    transition: transform 0.3s ease;
-  }
-
-  /* Input de busca com ícone centralizado */
-  .search-input {
-    @apply w-full pl-10 pr-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400;
-  }
-
-  .search-input:focus {
-    @apply border-neon-cyan outline-none;
-  }
-
-  .search-input-icon {
-    @apply absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 pointer-events-none;
-  }
-
-  /* Botão de alternar visualização (grade/lista) */
-  .btn-view-toggle {
-    @apply btn-secondary p-2 flex items-center justify-center;
-    min-width: 44px;
-    min-height: 44px;
-  }
-
-  .btn-view-toggle .lucide {
-    margin: 0 auto;
-    display: block;
-  }
-
-  /* Mobile Video Player Optimizations */
-  @media (max-width: 768px) {
-    /* Video container adapts to screen */
-    .mobile-video-container {
-      position: fixed !important;
-      top: 0 !important;
-      left: 0 !important;
-      right: 0 !important;
-      bottom: 0 !important;
-      width: 100vw !important;
-      height: 100vh !important;
-      display: flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      background: #000 !important;
-    }
-    
-    /* Video element fills container */
-    .mobile-video-container video {
-      width: 100% !important;
-      height: 100% !important;
-      object-fit: contain !important;
-    }
-    
-    /* Controls fixed at bottom */
-    .mobile-video-controls {
-      position: fixed !important;
-      bottom: 0 !important;
-      left: 0 !important;
-      right: 0 !important;
-      width: 100% !important;
-      z-index: 999 !important;
-      background: linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.95) 60%, transparent 100%) !important;
-      padding: 8px 16px 16px !important;
-    }
-    
-    /* Button sizing for touch */
-    .mobile-control-button {
-      min-height: 48px !important;
-      min-width: 48px !important;
-      padding: 10px !important;
-      touch-action: manipulation !important;
-      -webkit-tap-highlight-color: transparent !important;
-    }
-    
-    .mobile-control-button-large {
-      min-height: 64px !important;
-      min-width: 64px !important;
-      padding: 14px !important;
-    }
-    
-    /* Playlist with padding for controls */
-    .mobile-playlist {
-      padding-bottom: 200px !important;
-      max-height: calc(100vh - 200px) !important;
-    }
-  }
-
-  /* Touch gestures feedback */
-  .touch-feedback {
-    transition: transform 0.1s ease, background-color 0.1s ease;
-  }
-  
-  .touch-feedback:active {
-    transform: scale(0.95);
-    background-color: rgba(0, 255, 255, 0.1) !important;
-  }
-
-  /* Video player slider mobile */
-  @media (max-width: 768px) {
-    .slider {
-      height: 8px !important;
-      background: #374151;
-      border-radius: 4px;
-    }
-
-    .slider::-webkit-slider-thumb {
-      appearance: none;
-      width: 20px !important;
-      height: 20px !important;
-      border-radius: 50%;
-      background: #06b6d4;
-      cursor: pointer;
-      border: 3px solid #0f172a;
-      box-shadow: 0 0 15px rgba(6, 182, 212, 0.7);
-    }
-
-    .slider::-moz-range-thumb {
-      width: 20px !important;
-      height: 20px !important;
-      border-radius: 50%;
-      background: #06b6d4;
-      cursor: pointer;
-      border: 3px solid #0f172a;
-      box-shadow: 0 0 15px rgba(6, 182, 212, 0.7);
-    }
-  }
-
-  /* Prevent text selection on mobile controls */
-  .video-controls {
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-  }
-
-  /* Mobile fullscreen video */
-  @media (max-width: 768px) {
-    video:fullscreen {
-      object-fit: contain !important;
-      width: 100vw !important;
-      height: 100vh !important;
-    }
-    
-    video:-webkit-full-screen {
-      object-fit: contain !important;
-      width: 100vw !important;
-      height: 100vh !important;
-    }
-    
-    video:-moz-full-screen {
-      object-fit: contain !important;
-      width: 100vw !important;
-      height: 100vh !important;
-    }
-  }
-  
-  /* Safe area for mobile devices with notch */
-  @supports (padding: env(safe-area-inset-bottom)) {
-    .mobile-video-controls {
-      padding-bottom: calc(16px + env(safe-area-inset-bottom)) !important;
-    }
-  }
-
-  /* Mobile-first utilities */
-  .touch-manipulation {
-    touch-action: manipulation;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  /* Responsive text sizes */
-  @media (max-width: 640px) {
-    .glass-card {
-      padding: 1rem;
-    }
-
-    .btn-neon, .btn-secondary {
-      min-height: 48px;
-      font-size: 0.875rem;
-    }
-
-    h1 {
-      font-size: 1.5rem;
-    }
-
-    h2 {
-      font-size: 1.25rem;
-    }
-  }
-
-  /* Horizontal scroll for tabs */
-  .overflow-x-auto {
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-  }
-
-  .overflow-x-auto::-webkit-scrollbar {
-    display: none;
-  }
-
-  /* Active state for mobile */
-  .active\:scale-95:active {
-    transform: scale(0.95);
-  }
-
-  /* Cyberpunk Animations */
-  @keyframes float {
-    0%, 100% {
-      transform: translateY(0px);
-    }
-    50% {
-      transform: translateY(-10px);
-    }
-  }
-
-  @keyframes pulse-slow {
-    0%, 100% {
-      opacity: 0.5;
-    }
-    50% {
-      opacity: 1;
-    }
-  }
-
-  .animate-float {
-    animation: float 3s ease-in-out infinite;
-  }
-
-  .animate-pulse-slow {
-    animation: pulse-slow 4s ease-in-out infinite;
-  }
-
-  @keyframes moveDown {
-    0% {
-      transform: translateY(-100%);
-    }
-    100% {
-      transform: translateY(100vh);
-    }
-  }
-
-  @keyframes spin-slow {
-    0% {
-      transform: rotate(0deg);
-    }
-    100% {
-      transform: rotate(360deg);
-    }
-  }
-
-  @keyframes pulse-text {
-    0%, 100% {
-      opacity: 1;
-    }
-    50% {
-      opacity: 0.8;
-    }
-  }
-
-  .animate-spin-slow {
-    animation: spin-slow 8s linear infinite;
-  }
-
-  .animate-pulse-text {
-    animation: pulse-text 2s ease-in-out infinite;
-  }
-
-  @keyframes neon-pulse {
-    0%, 100% {
-      border-color: #00FFFF;
-      box-shadow: 0 0 10px #00FFFF, 0 0 20px #FF00FF, inset 0 0 10px rgba(0,255,255,0.1);
-    }
-    50% {
-      border-color: #FF00FF;
-      box-shadow: 0 0 15px #FF00FF, 0 0 25px #00FFFF, inset 0 0 15px rgba(255,0,255,0.2);
-    }
-  }
-
-  .animate-neon-pulse {
-    animation: neon-pulse 3s ease-in-out infinite;
-  }
-
-  @keyframes shimmer {
-    0% {
-      transform: translateX(-100%) rotate(45deg);
-    }
-    100% {
-      transform: translateX(200%) rotate(45deg);
-    }
-  }
-
-  /* Neon glow effects */
-  .neon-glow-cyan {
-    text-shadow: 0 0 10px rgba(0, 255, 255, 0.5),
-                 0 0 20px rgba(0, 255, 255, 0.3),
-                 0 0 30px rgba(0, 255, 255, 0.2);
-  }
-
-  .neon-glow-purple {
-    text-shadow: 0 0 10px rgba(191, 0, 255, 0.5),
-                 0 0 20px rgba(191, 0, 255, 0.3),
-                 0 0 30px rgba(191, 0, 255, 0.2);
-  }
-
-  /* Avatar Upload Animations */
-  @keyframes avatarPulse {
-    0%, 100% {
-      box-shadow: 0 0 15px rgba(6, 182, 212, 0.3);
-    }
-    50% {
-      box-shadow: 0 0 25px rgba(6, 182, 212, 0.6), 0 0 35px rgba(139, 92, 246, 0.4);
-    }
-  }
-
-  .animate-avatar-pulse {
-    animation: avatarPulse 2s ease-in-out infinite;
+  100% {
+    background-position: -200% 0;
   }
 }

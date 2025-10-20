@@ -1,0 +1,4 @@
+{
+  "httpMethod": "POST",
+  "body": "{\"email\":\"admin@midiaflow.com\",\"password\":\"admin123\"}"
+}

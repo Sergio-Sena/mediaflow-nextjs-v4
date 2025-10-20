@@ -22,7 +22,8 @@ def lambda_handler(event, context):
             name = body.get('name')
             email = body.get('email')
             password = body.get('password')
-            s3_prefix = body.get('s3_prefix', f"{user_id}/")
+            role = body.get('role', 'user')
+            s3_prefix = body.get('s3_prefix', f"users/{user_id}/")
             avatar_base64 = body.get('avatar_image')
             
             if not user_id or not name or not email or not password:
@@ -74,6 +75,7 @@ def lambda_handler(event, context):
                 'name': name,
                 'email': email,
                 'password': password_hash,
+                'role': role,
                 's3_prefix': s3_prefix,
                 'avatar_url': avatar_url,
                 'totp_secret': totp_secret,
@@ -85,7 +87,7 @@ def lambda_handler(event, context):
             # Gerar QR Code URI para 2FA
             totp_uri = pyotp.totp.TOTP(totp_secret).provisioning_uri(
                 name=user_id,
-                issuer_name='Mediaflow'
+                issuer_name='Mídiaflow'
             )
             
             return cors_response(200, {

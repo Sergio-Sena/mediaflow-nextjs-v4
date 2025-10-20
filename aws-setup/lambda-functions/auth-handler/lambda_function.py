@@ -5,7 +5,7 @@ import base64
 import boto3
 from datetime import datetime, timedelta
 
-JWT_SECRET = "mediaflow_super_secret_key_2025"
+JWT_SECRET = "17b8312c72fdcffbff89f2f4a564fb26e936002d344717ab7753a237fcd57aea"
 
 dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
 table = dynamodb.Table('mediaflow-users')
@@ -30,16 +30,20 @@ def create_jwt(payload, secret):
 
 def lambda_handler(event, context):
     try:
+        print(f"Event: {json.dumps(event)}")
         if event['httpMethod'] == 'OPTIONS':
             return cors_response(200, {})
         
         body = json.loads(event.get('body', '{}'))
         email = body.get('email')
         password = body.get('password')
+        print(f"Login attempt: email={email}")
         
         # Check DynamoDB users
+        print("Scanning DynamoDB table...")
         response = table.scan()
         users = response.get('Items', [])
+        print(f"Found {len(users)} users")
         
         for user in users:
             if user.get('email') == email and user.get('password') == hash_password(password):
@@ -67,6 +71,9 @@ def lambda_handler(event, context):
         return cors_response(401, {'success': False, 'error': 'Invalid credentials'})
             
     except Exception as e:
+        print(f"Error in lambda_handler: {str(e)}")
+        import traceback
+        print(f"Traceback: {traceback.format_exc()}")
         return cors_response(500, {'success': False, 'message': str(e)})
 
 def cors_response(status_code, body):

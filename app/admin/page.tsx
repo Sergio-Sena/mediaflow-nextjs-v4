@@ -214,7 +214,10 @@ export default function AdminPage() {
 
     try {
       const res = await fetch(`https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/users/${userId}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        }
       })
 
       const data = await res.json()
@@ -267,7 +270,9 @@ export default function AdminPage() {
     <div className="min-h-screen bg-gradient-to-br from-dark-900 to-dark-800 p-4 sm:p-8">
       <div className="max-w-6xl mx-auto">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-4xl font-bold neon-text">👥 Gerenciar Usuários</h1>
+          <h1 className="text-2xl sm:text-4xl font-bold neon-text">
+            <span className="text-neon-cyan">👥</span> Gerenciar Usuários
+          </h1>
           <div className="flex gap-2 sm:gap-4 w-full sm:w-auto">
             <button
               onClick={() => {
@@ -518,7 +523,7 @@ export default function AdminPage() {
                   </div>
                   <p className="text-white mb-4">Escaneie o QR Code no Google Authenticator:</p>
                   <img 
-                    src={`https://api.qrserver.net/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrCodeUri)}`}
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrCodeUri)}`}
                     alt="QR Code 2FA"
                     className="mx-auto mb-4"
                   />
