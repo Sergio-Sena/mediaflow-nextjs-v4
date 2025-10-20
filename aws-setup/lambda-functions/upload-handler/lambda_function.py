@@ -40,31 +40,36 @@ def lambda_handler(event, context):
         if not filename:
             return cors_response(400, {'success': False, 'message': 'Filename required'})
         
-        # Extrair prefix do usuário do JWT
-        user_prefix = ''
+        # Extrair username do JWT
+        username = ''
         auth_header = event.get('headers', {}).get('Authorization', '')
         if auth_header:
             try:
                 token = auth_header.replace('Bearer ', '')
                 decoded = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
-                user_prefix = decoded.get('s3_prefix', '')
+                username = decoded.get('username', '')
             except:
-                pass  # Se falhar, usa comportamento antigo
+                pass
+        
+        # Se não tiver username, usar 'anonymous'
+        if not username:
+            username = 'anonymous'
         
         sanitized_name = sanitize_filename(filename)
         
+        # SEMPRE salvar em users/{username}/
         # Organizar por tipo se arquivo solto (sem pasta)
         if '/' not in sanitized_name:
             file_type = get_file_type(sanitized_name)
             if file_type == 'image':
-                sanitized_name = f'{user_prefix}Fotos/{sanitized_name}' if user_prefix else f'Fotos/{sanitized_name}'
+                sanitized_name = f'users/{username}/Fotos/{sanitized_name}'
             elif file_type == 'document':
-                sanitized_name = f'{user_prefix}Documentos/{sanitized_name}' if user_prefix else f'Documentos/{sanitized_name}'
+                sanitized_name = f'users/{username}/Documentos/{sanitized_name}'
             else:  # video e outros
-                sanitized_name = f'{user_prefix}Videos/{sanitized_name}' if user_prefix else f'raiz/{sanitized_name}'
+                sanitized_name = f'users/{username}/Videos/{sanitized_name}'
         else:
-            # Pasta: adicionar prefix do usuário
-            sanitized_name = f'{user_prefix}{sanitized_name}' if user_prefix else sanitized_name
+            # Pasta: adicionar users/{username}/ no início
+            sanitized_name = f'users/{username}/{sanitized_name}'
 
         needs_conversion = should_convert(sanitized_name, file_size)
         

@@ -73,22 +73,19 @@ export default function FolderManager({ onNavigateToFolder, onFilesLoaded }: Fol
         setFiles(transformedFiles)
         onFilesLoaded?.(transformedFiles)
         
-        // Build folder structure (filtrada por userPrefix se não for admin)
+        // Build folder structure
         const structure: {[key: string]: string[]} = {}
         transformedFiles.forEach((file: any) => {
           if (file.folder && file.folder !== 'root') {
-            // Admin vê todas as pastas, user só vê suas pastas
-            if (userRole === 'admin' || !userPrefix || file.folder.startsWith(userPrefix.replace(/\/$/, ''))) {
-              const parts = file.folder.split('/')
-              parts.forEach((part: string, index: number) => {
-                const parentPath = parts.slice(0, index).join('/')
-                if (!structure[parentPath]) structure[parentPath] = []
-                const fullPath = parts.slice(0, index + 1).join('/')
-                if (!structure[parentPath].includes(fullPath)) {
-                  structure[parentPath].push(fullPath)
-                }
-              })
-            }
+            const parts = file.folder.split('/')
+            parts.forEach((part: string, index: number) => {
+              const parentPath = parts.slice(0, index).join('/')
+              if (!structure[parentPath]) structure[parentPath] = []
+              const fullPath = parts.slice(0, index + 1).join('/')
+              if (!structure[parentPath].includes(fullPath)) {
+                structure[parentPath].push(fullPath)
+              }
+            })
           }
         })
         setFolderStructure(structure)

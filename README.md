@@ -1,20 +1,22 @@
-# 🎬 Mediaflow v4.3 - Sistema de Streaming Profissional Multi-Usuário
+# 🎬 Mídiaflow v4.5 - Sistema de Streaming Profissional Multi-Usuário
 
 > **Plataforma completa de streaming com AWS, CDN global e upload modular inteligente**
 
 [![Next.js](https://img.shields.io/badge/Next.js-14-black?logo=next.js)](https://nextjs.org/)
 [![AWS](https://img.shields.io/badge/AWS-Lambda%20%7C%20S3%20%7C%20CloudFront-orange?logo=amazon-aws)](https://aws.amazon.com/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.6-blue?logo=typescript)](https://www.typescriptlang.org/)
-[![Status](https://img.shields.io/badge/Status-✅%20PRODUÇÃO-brightgreen)](https://mediaflow.sstechnologies-cloud.com)
-[![Uptime](https://img.shields.io/badge/Uptime-99.9%25-brightgreen)](https://mediaflow.sstechnologies-cloud.com)
-[![Performance](https://img.shields.io/badge/Lighthouse-95+-brightgreen)](https://mediaflow.sstechnologies-cloud.com)
+[![Status](https://img.shields.io/badge/Status-✅%20PRODUÇÃO-brightgreen)](https://midiaflow.sstechnologies-cloud.com)
+[![Uptime](https://img.shields.io/badge/Uptime-99.9%25-brightgreen)](https://midiaflow.sstechnologies-cloud.com)
+[![Performance](https://img.shields.io/badge/Lighthouse-95+-brightgreen)](https://midiaflow.sstechnologies-cloud.com)
 
 ---
 
 ## ✨ **SISTEMA EM PRODUÇÃO**
 
 ### 🌐 **Acesse Agora:**
-**https://mediaflow.sstechnologies-cloud.com**
+**https://midiaflow.sstechnologies-cloud.com**
+
+⚠️ **Domínio antigo `mediaflow` foi removido. Use apenas `midiaflow`.**
 
 ### 🔑 **Login:**
 - **Email**: [admin-email]
@@ -36,10 +38,12 @@
 - ✅ **Cleanup Automático** - Remoção de arquivos órfãos
 - ✅ **Busca Global** - Procura em todas as pastas simultaneamente
 - ✅ **Contagem Inteligente** - Subpastas e arquivos totais visíveis
-- ✅ **Organização S3** - Estrutura otimizada com movimentação de pastas
+- ✅ **Organização S3** - Estrutura users/{username}/ automática
 - ✅ **Sistema Multi-Usuário** - Gerenciamento completo com avatares
 - ✅ **Upload de Avatar** - Imagens para S3 com preview
 - ✅ **Página Admin** - Interface de gerenciamento de usuários
+- ✅ **Continue Assistindo** - Botão retoma último vídeo
+- ✅ **Thumbnails Client-Side** - Geração automática gratuita
 
 ---
 
@@ -49,7 +53,7 @@
 - **CDN**: CloudFront global
 - **Hosting**: S3 Static Website
 - **SSL**: Certificado wildcard
-- **Domínio**: mediaflow.sstechnologies-cloud.com
+- **Domínio**: midiaflow.sstechnologies-cloud.com
 
 ### **Backend**
 - **API**: API Gateway + 7 Lambda Functions
@@ -282,9 +286,27 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 - [x] **Truncate de Nomes** - Textos não estouram divs
 - [x] **Avatar Circular** - Design profissional
 
-### **v4.4 (Próxima)**
+### **v4.4 (PRODUÇÃO)** ✅
+- [x] **Rebrand Midiaflow → Mídiaflow** - Nome atualizado
+- [x] **Login direto** - Sem dropdown de usuários
+- [x] **Cadastro público** - Página /register
+- [x] **2FA seletivo** - Apenas admin precisa
+- [x] **Botões padronizados** - Altura uniforme
+- [x] **Ícone colorido admin** - 👥 com cor neon
+- [x] **APIs corrigidas** - Endpoint /users/create funcionando
+- [x] **Deploy realizado** - Build 20/10/2025 11:56
+
+### **v4.5 (PRODUÇÃO)** ✅
+- [x] **Estrutura users/** - Uploads automáticos em users/{username}/
+- [x] **Continue Assistindo** - Hero Section retoma último vídeo
+- [x] **Thumbnails Client-Side** - Geração gratuita no navegador
+- [x] **Lambda Upload Corrigido** - Sempre salva em users/{username}/
+- [x] **Movimentação S3** - Arquivos reorganizados para estrutura correta
+- [x] **Deploy realizado** - Build 20/10/2025 20:10
+
+### **v4.6 (Próxima)**
 - [ ] Editar usuários existentes
-- [ ] Thumbnails automáticos para vídeos
+- [ ] OAuth Google
 - [ ] Compressão de imagens automática
 - [ ] Notificações push
 - [ ] PWA offline support
@@ -300,12 +322,12 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 
 ## 🎆 **Status Final**
 
-**🎬 Mediaflow v4.3 - Sistema de Streaming Profissional Multi-Usuário**  
-**Versão**: 4.3.0 | **Status**: ✅ PRODUÇÃO | **CDN**: ✅ ATIVO | **Multi-User**: ✅ ATIVO
+**🎬 Mídiaflow v4.5 - Sistema de Streaming Profissional Multi-Usuário**  
+**Versão**: 4.5.0 | **Status**: ✅ PRODUÇÃO | **CDN**: ✅ ATIVO | **Multi-User**: ✅ ATIVO
 
-**🌐 URL Produção**: https://mediaflow.sstechnologies-cloud.com  
+**🌐 URL Produção**: https://midiaflow.sstechnologies-cloud.com  
 **🔑 Login**: [admin-email] / [admin-password]  
-**👥 Admin**: https://mediaflow.sstechnologies-cloud.com/admin
+**👥 Admin**: https://midiaflow.sstechnologies-cloud.com/admin
 
 ### **✅ Sistema 100% Funcional + Multi-Usuário:**
 - 🌍 Domínio próprio com SSL wildcard
@@ -325,8 +347,11 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 - 📈 Analytics em tempo real
 - 🧠 Cleanup automático inteligente
 - 🏗️ **Arquitetura AWS limpa** (APIs consolidadas)
+- 📁 **Estrutura users/** (Uploads organizados por usuário)
+- ▶️ **Continue assistindo** (Retoma último vídeo)
+- 🖼️ **Thumbnails gratuitas** (Geração client-side)
 
-*"De plataforma desktop para experiência mobile completa!" - Mediaflow Team* 📱🚀
+*"De plataforma desktop para experiência mobile completa!" - Mídiaflow Team* 📱🚀
 
 ---
 

@@ -13,12 +13,19 @@ export default function TwoFactorPage() {
   const router = useRouter()
   
   useEffect(() => {
-    const selectedUser = localStorage.getItem('selected_user')
-    if (!selectedUser) {
-      router.push('/users')
+    const token = localStorage.getItem('token')
+    if (!token) {
+      router.push('/login')
       return
     }
-    setUserId(selectedUser)
+    
+    // Decode JWT to get user_id
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]))
+      setUserId(payload.user_id)
+    } catch (error) {
+      router.push('/login')
+    }
   }, [router])
   
   const handleVerify = async () => {
@@ -41,9 +48,9 @@ export default function TwoFactorPage() {
       
       if (data.success) {
         localStorage.setItem('token', data.token)
-        localStorage.setItem('current_user', JSON.stringify(data.user))
+        localStorage.setItem('current_user', JSON.stringify(data.user || {}))
         localStorage.setItem('2fa_session', Date.now().toString())
-        localStorage.removeItem('selected_user')
+
         router.push('/dashboard')
       } else {
         setError(data.message || 'Código inválido')
@@ -109,11 +116,11 @@ export default function TwoFactorPage() {
         </button>
         
         <button 
-          onClick={() => router.push('/users')}
+          onClick={() => router.push('/login')}
           className="btn-secondary w-full"
           disabled={loading}
         >
-          ← Voltar aos Perfis
+          ← Voltar ao Login
         </button>
         
         <div className="mt-6 space-y-3">
@@ -132,7 +139,7 @@ export default function TwoFactorPage() {
               
               <div className="bg-white p-4 rounded-lg mb-3">
                 <img 
-                  src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=otpauth://totp/Mediaflow:${userId}?secret=${getSecretForUser(userId)}&issuer=Mediaflow`}
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=otpauth://totp/Mídiaflow:${userId}?secret=${getSecretForUser(userId)}&issuer=Mídiaflow`}
                   alt="QR Code"
                   className="w-full h-auto"
                 />

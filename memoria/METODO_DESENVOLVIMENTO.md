@@ -1,4 +1,4 @@
-# 🎯 Método de Desenvolvimento - Mediaflow
+# 🎯 Método de Desenvolvimento - Mídiaflow
 
 ## 📋 Metodologia C.E.R.T.O
 
@@ -11,7 +11,7 @@ Este projeto segue rigorosamente a metodologia **C.E.R.T.O** para garantir quali
 ### **C - Contexto**
 Entender completamente o domínio do problema antes de começar.
 
-**No Mediaflow:**
+**No Mídiaflow:**
 - Plataforma de streaming multi-usuário
 - AWS como infraestrutura principal
 - Necessidade de conversão automática de vídeos
@@ -21,7 +21,7 @@ Entender completamente o domínio do problema antes de começar.
 ### **E - Expectativa**
 Definir objetivos claros e métricas de sucesso.
 
-**No Mediaflow:**
+**No Mídiaflow:**
 - Uptime 99.9%
 - Performance Lighthouse 95+
 - Upload até 5GB sem falhas
@@ -31,7 +31,7 @@ Definir objetivos claros e métricas de sucesso.
 ### **R - Regras**
 Estabelecer restrições técnicas e de negócio.
 
-**No Mediaflow:**
+**No Mídiaflow:**
 - Senha mínimo 6 caracteres (SHA256)
 - s3_prefix fixo por usuário (segurança)
 - Admin bypassa filtros (role-based)
@@ -41,7 +41,7 @@ Estabelecer restrições técnicas e de negócio.
 ### **T - Tarefa**
 Quebrar em etapas executáveis e sequenciais.
 
-**No Mediaflow:**
+**No Mídiaflow:**
 1. Setup AWS (S3, Lambda, API Gateway)
 2. Frontend Next.js com autenticação
 3. Sistema de upload multipart
@@ -53,7 +53,7 @@ Quebrar em etapas executáveis e sequenciais.
 ### **O - Objetivo**
 Validar entrega final contra expectativas.
 
-**No Mediaflow:**
+**No Mídiaflow:**
 - ✅ Sistema 100% funcional em produção
 - ✅ Todas as métricas atingidas
 - ✅ Zero problemas críticos
@@ -219,7 +219,7 @@ const userData = await userResponse.json();
 ```bash
 npm run build
 cd out
-aws s3 sync . s3://mediaflow-frontend-969430605054/ --delete --region us-east-1
+aws s3 sync . s3://midiaflow-frontend-969430605054/ --delete --region us-east-1
 ```
 
 ### 3. Invalidar Cache

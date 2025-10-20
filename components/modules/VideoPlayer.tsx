@@ -56,6 +56,8 @@ export default function VideoPlayer({ src, title, currentVideo, playlist = [], o
         // Reset video state
         setCurrentTime(0)
         setIsPlaying(false)
+        // Salvar último vídeo assistido
+        localStorage.setItem('last_watched_video', currentVideo.key)
       }
     }
   }, [currentVideo, playlist])

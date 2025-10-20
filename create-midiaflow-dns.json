@@ -1,0 +1,17 @@
+{
+  "Changes": [
+    {
+      "Action": "CREATE",
+      "ResourceRecordSet": {
+        "Name": "midiaflow.sstechnologies-cloud.com",
+        "Type": "CNAME",
+        "TTL": 300,
+        "ResourceRecords": [
+          {
+            "Value": "d2x90cv3rb5hoa.cloudfront.net"
+          }
+        ]
+      }
+    }
+  ]
+}

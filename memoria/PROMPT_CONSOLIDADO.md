@@ -1,18 +1,19 @@
-# 🎬 Mediaflow v4.3 - Prompt Consolidado
+# 🎬 Mídiaflow v4.4 - Prompt Consolidado
 
 ## 📋 Contexto do Projeto
 
-**Mediaflow v4.3** é uma plataforma de streaming profissional multi-usuário em produção na AWS, com CDN global CloudFront, conversão automática de vídeos H.264 1080p, sistema de autenticação 2FA e gerenciamento completo de usuários.
+**Mídiaflow v4.4** é uma plataforma de streaming profissional multi-usuário em produção na AWS, com CDN global CloudFront, conversão automática de vídeos H.264 1080p, sistema de autenticação 2FA e gerenciamento completo de usuários.
 
 ### 🌐 Sistema em Produção
-- **URL**: https://mediaflow.sstechnologies-cloud.com
+- **URL**: https://midiaflow.sstechnologies-cloud.com
 - **Status**: ✅ 100% Funcional
-- **Versão**: 4.3.0
+- **Versão**: 4.4.0
 - **Uptime**: 99.9%
+- **Último Deploy**: 20/10/2025 11:56
 
 ### 🔑 Credenciais
 - **Admin**: [admin-email] / [admin-password]
-- **Painel Admin**: https://mediaflow.sstechnologies-cloud.com/admin
+- **Painel Admin**: https://midiaflow.sstechnologies-cloud.com/admin
 - **Usuário Teste**: sergio_sena / [test-password]
 
 ---
@@ -23,14 +24,14 @@
 
 ### S3 Buckets
 ```
-mediaflow-frontend-969430605054      # Frontend Next.js
-mediaflow-uploads-969430605054       # Uploads originais + avatares
-mediaflow-processed-969430605054     # Vídeos convertidos H.264
+midiaflow-frontend-969430605054      # Frontend Next.js
+midiaflow-uploads-969430605054       # Uploads originais + avatares
+midiaflow-processed-969430605054     # Vídeos convertidos H.264
 ```
 
 ### CloudFront CDN
 - **Distribution ID**: E2HZKZ9ZJK18IU
-- **Domain**: mediaflow.sstechnologies-cloud.com
+- **Domain**: midiaflow.sstechnologies-cloud.com
 - **SSL**: Wildcard certificate ativo
 - **Edge Locations**: 400+ globalmente
 
@@ -46,13 +47,23 @@ mediaflow-processed-969430605054     # Vídeos convertidos H.264
   - `folder-operations` - Operações de pastas
 
 ### DynamoDB
-- **Table**: mediaflow-users
+- **Table**: midiaflow-users
 - **Key**: user_id (String)
 - **Campos**: user_id, email, password (SHA256), name, role, s3_prefix, avatar_url, totp_secret, created_at
 
 ---
 
 ## 🎯 Funcionalidades Implementadas
+
+### ✅ v4.4 - Rebrand e Melhorias UX
+- Rebrand Midiaflow → Mídiaflow (visual completo)
+- Login direto (sem dropdown de usuários)
+- Cadastro público (/register)
+- 2FA seletivo (apenas admin)
+- Botões padronizados (altura uniforme)
+- Ícone colorido no admin (👥 com neon)
+- APIs corrigidas (/users/create funcionando)
+- Deploy realizado (20/10/2025 11:56)
 
 ### ✅ v4.3 - Sistema Multi-Usuário
 - Cadastro via painel admin com user_id auto-gerado
@@ -116,7 +127,7 @@ drive-online-clean-NextJs/
 ```bash
 npm run build
 cd out
-aws s3 sync . s3://mediaflow-frontend-969430605054/ --delete --region us-east-1
+aws s3 sync . s3://midiaflow-frontend-969430605054/ --delete --region us-east-1
 aws cloudfront create-invalidation --distribution-id E2HZKZ9ZJK18IU --paths "/*"
 ```
 
@@ -318,7 +329,7 @@ const isAdmin =
 
 ## 🎯 Status Final
 
-**Mediaflow v4.3** é uma plataforma de streaming profissional completa:
+**Mídiaflow v4.3** é uma plataforma de streaming profissional completa:
 
 ✅ **Produção**: 100% funcional e online  
 ✅ **Escalável**: Suporta milhares de usuários  
@@ -331,4 +342,4 @@ const isAdmin =
 
 ---
 
-**Versão**: 4.3.0 | **Status**: ✅ PRODUÇÃO | **Última atualização**: 2025-01-18
+**Versão**: 4.4.0 | **Status**: ✅ PRODUÇÃO | **Última atualização**: 2025-01-20

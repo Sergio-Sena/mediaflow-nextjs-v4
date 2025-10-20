@@ -41,11 +41,13 @@ def lambda_handler(event, context):
             Params={
                 'Bucket': 'mediaflow-uploads-969430605054',
                 'Key': key,
-                'ContentType': content_type,
-                'ACL': 'public-read'
+                'ContentType': content_type
             },
             ExpiresIn=300
         )
+        
+        # Garantir que não há HTML entities na URL
+        presigned_url = presigned_url.replace('&amp;', '&')
         
         avatar_url = f'https://mediaflow-uploads-969430605054.s3.amazonaws.com/{key}'
         
