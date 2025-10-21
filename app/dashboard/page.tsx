@@ -11,8 +11,7 @@ import PDFViewer from '@/components/modules/PDFViewer'
 import Analytics from '@/components/modules/Analytics'
 import FolderManager from '@/components/modules/FolderManager'
 import AvatarUpload from '@/components/AvatarUpload'
-import HeroSection from '@/components/modules/HeroSection'
-import VideoCarousel from '@/components/modules/VideoCarousel'
+
 
 
 interface User {
@@ -34,7 +33,7 @@ interface FileItem {
 export default function DashboardPage() {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState<'home' | 'files' | 'upload' | 'manager' | 'analytics'>('home')
+  const [activeTab, setActiveTab] = useState<'files' | 'upload' | 'manager' | 'analytics'>('files')
   const [selectedVideo, setSelectedVideo] = useState<FileItem | null>(null)
   const [selectedImage, setSelectedImage] = useState<FileItem | null>(null)
   const [selectedPDF, setSelectedPDF] = useState<FileItem | null>(null)
@@ -271,7 +270,7 @@ export default function DashboardPage() {
         <div className="max-w-7xl mx-auto px-2 sm:px-4">
           <div className="flex space-x-2 sm:space-x-4 md:space-x-8 min-w-max">
             {[
-              { id: 'home', label: '🏠 Início', count: 0 },
+
               { id: 'files', label: '📁 Biblioteca', count: 0 },
               { id: 'upload', label: '📤 Upload', count: 0 },
               { id: 'manager', label: '🗂️ Gerenciador', count: 0 },
@@ -300,77 +299,7 @@ export default function DashboardPage() {
 
       {/* Content */}
       <main className="max-w-7xl mx-auto px-2 sm:px-4 py-4 sm:py-8">
-        {activeTab === 'home' && (
-          <div className="space-y-8">
-            {/* Hero Section */}
-            <HeroSection
-              video={allFiles.find(f => f.type === 'video') ? {
-                name: allFiles.find(f => f.type === 'video')!.name,
-                url: allFiles.find(f => f.type === 'video')!.url,
-                description: 'Continue de onde parou'
-              } : undefined}
-              onPlay={() => {
-                // Buscar último vídeo assistido ou primeiro disponível
-                const lastWatched = localStorage.getItem('last_watched_video')
-                let videoToPlay = allFiles.find(f => f.type === 'video')
-                
-                if (lastWatched) {
-                  const lastVideo = allFiles.find(f => f.key === lastWatched)
-                  if (lastVideo) videoToPlay = lastVideo
-                }
-                
-                if (videoToPlay) {
-                  setSelectedVideo(videoToPlay)
-                  setVideoPlaylist(allFiles.filter(f => f.type === 'video'))
-                }
-              }}
-            />
 
-            {/* Carrosséis */}
-            <VideoCarousel
-              title="Adicionados Recentemente"
-              videos={allFiles
-                .filter(f => f.type === 'video')
-                .sort((a, b) => new Date(b.lastModified).getTime() - new Date(a.lastModified).getTime())
-                .slice(0, 10)
-                .map(f => ({
-                  key: f.key,
-                  name: f.name,
-                  url: f.url
-                }))}
-              onVideoClick={(video) => {
-                const fileItem = allFiles.find(f => f.key === video.key)
-                if (fileItem) {
-                  setSelectedVideo(fileItem)
-                  setVideoPlaylist(allFiles.filter(f => f.type === 'video'))
-                }
-              }}
-            />
-
-            {/* Por Pasta */}
-            {Array.from(new Set(allFiles.filter(f => f.type === 'video').map(f => f.folder))).map(folder => (
-              <VideoCarousel
-                key={folder}
-                title={`Pasta: ${folder || 'Root'}`}
-                videos={allFiles
-                  .filter(f => f.type === 'video' && f.folder === folder)
-                  .slice(0, 10)
-                  .map(f => ({
-                    key: f.key,
-                    name: f.name,
-                    url: f.url
-                  }))}
-                onVideoClick={(video) => {
-                  const fileItem = allFiles.find(f => f.key === video.key)
-                  if (fileItem) {
-                    setSelectedVideo(fileItem)
-                    setVideoPlaylist(allFiles.filter(f => f.type === 'video' && f.folder === folder))
-                  }
-                }}
-              />
-            ))}
-          </div>
-        )}
 
         {activeTab === 'files' && (
           <FileList 
