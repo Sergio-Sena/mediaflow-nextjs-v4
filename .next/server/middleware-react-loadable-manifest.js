@@ -1,1 +1,1 @@
-self.__REACT_LOADABLE_MANIFEST="{}"
+self.__REACT_LOADABLE_MANIFEST='{"app\\\\(auth)\\\\login\\\\page.tsx -> @/lib/aws-client":{"id":4331,"files":["static/chunks/331.463278afaccdebd6.js"]},"components\\\\modules\\\\Analytics.tsx -> @/lib/aws-client":{"id":4331,"files":["static/chunks/331.463278afaccdebd6.js"]},"components\\\\modules\\\\FileList.tsx -> @/lib/aws-client":{"id":4331,"files":["static/chunks/331.463278afaccdebd6.js"]},"components\\\\modules\\\\FolderManager.tsx -> @/lib/aws-client":{"id":4331,"files":["static/chunks/331.463278afaccdebd6.js"]}}';

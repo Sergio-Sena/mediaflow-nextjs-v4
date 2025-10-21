@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { Upload, X, CheckCircle, AlertCircle } from 'lucide-react'
-import MultipartUploader from './MultipartUploader'
+import MultipartUpload from './MultipartUpload'
 
 interface DirectUploadProps {
   onUploadComplete?: (files: any[]) => void
@@ -56,6 +56,9 @@ export default function DirectUpload({
   }
 
   const uploadFile = async (file: File) => {
+    const startTime = Date.now()
+    console.log(`📤 Iniciando upload: ${file.name} (${formatFileSize(file.size)})`)
+    
     try {
       // Usar webkitRelativePath se disponível (para pastas)
       let filename = (file as any).webkitRelativePath || file.name
@@ -66,6 +69,8 @@ export default function DirectUpload({
       }
       
       // 1. Obter URL presigned diretamente da AWS API
+      console.log(`🔑 Solicitando presigned URL...`)
+      const presignedStart = Date.now()
       const urlResponse = await fetch('https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/upload/presigned', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -77,12 +82,15 @@ export default function DirectUpload({
       })
 
       const urlData = await urlResponse.json()
+      console.log(`⏱️ Presigned URL obtida em ${Date.now() - presignedStart}ms`)
       
       if (!urlData.success) {
         throw new Error(urlData.message || 'Falha ao obter URL')
       }
 
       // 2. Upload direto para S3 com progress tracking
+      console.log(`🚀 Iniciando upload S3...`)
+      const uploadStart = Date.now()
       await new Promise<void>((resolve, reject) => {
         const xhr = new XMLHttpRequest()
 
@@ -95,6 +103,9 @@ export default function DirectUpload({
 
         xhr.addEventListener('load', () => {
           if (xhr.status >= 200 && xhr.status < 300) {
+            const totalTime = Date.now() - startTime
+            const uploadTime = Date.now() - uploadStart
+            console.log(`✅ Upload concluído: ${file.name} em ${totalTime}ms (S3: ${uploadTime}ms)`)
             setResults(prev => ({ ...prev, [file.name]: 'success' }))
             setProgress(prev => ({ ...prev, [file.name]: 100 }))
             resolve()
@@ -121,16 +132,17 @@ export default function DirectUpload({
   }
 
   const handleUpload = async () => {
-    if (files.length === 0) return
+    const normalFiles = files.filter(f => f.size <= 100 * 1024 * 1024)
+    if (normalFiles.length === 0) return
 
     setUploading(true)
     setProgress({})
     setResults({})
 
-    // Upload em paralelo (máximo 3 simultâneos)
+    // Upload em paralelo (máximo 3 simultâneos) - apenas arquivos normais
     const batchSize = 3
-    for (let i = 0; i < files.length; i += batchSize) {
-      const batch = files.slice(i, i + batchSize)
+    for (let i = 0; i < normalFiles.length; i += batchSize) {
+      const batch = normalFiles.slice(i, i + batchSize)
       await Promise.all(batch.map(file => uploadFile(file)))
     }
 
@@ -138,18 +150,23 @@ export default function DirectUpload({
     
     const successCount = Object.values(results).filter(r => r === 'success').length
     if (successCount > 0) {
-      onUploadComplete?.(files.slice(0, successCount))
+      onUploadComplete?.(normalFiles.slice(0, successCount))
     }
   }
 
   const handleFileSelect = async (selectedFiles: FileList) => {
+    const selectStart = Date.now()
+    console.log(`📁 Processando ${selectedFiles.length} arquivos selecionados...`)
+    
     const allFiles = Array.from(selectedFiles)
+    console.log(`⏱️ Array.from concluído em ${Date.now() - selectStart}ms`)
     
     // Avisar se exceder limite
     if (allFiles.length > maxFiles) {
       alert(`⚠️ Limite de ${maxFiles} arquivos excedido!\n\n📁 Selecionados: ${allFiles.length} arquivos\n✅ Serão enviados: ${maxFiles} arquivos\n\n🔁 Após o upload, selecione os próximos ${allFiles.length - maxFiles} arquivos.`)
     }
     
+    const filterStart = Date.now()
     const validFiles = allFiles.filter(file => {
       if (file.size > maxSize * 1024 * 1024) {
         alert(`${file.name} é muito grande. Máximo: ${maxSize}MB`)
@@ -157,36 +174,52 @@ export default function DirectUpload({
       }
       return true
     }).slice(0, maxFiles)
+    console.log(`⏱️ Filtro de arquivos concluído em ${Date.now() - filterStart}ms`)
 
-    // Check which files already exist
-    try {
-      const filenames = validFiles.map(f => (f as any).webkitRelativePath || f.name)
-      const checkResponse = await fetch('https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/upload/check', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ filenames })
-      })
-      
-      const checkData = await checkResponse.json()
-      
-      if (checkData.success) {
-        const existingFiles = checkData.files.filter((f: any) => f.exists)
-        const newFiles = validFiles.filter((file, index) => !checkData.files[index].exists)
+    // Separar arquivos por tamanho
+    const separateStart = Date.now()
+    const normalFiles = validFiles.filter(f => f.size <= 100 * 1024 * 1024)
+    const multipartFiles = validFiles.filter(f => f.size > 100 * 1024 * 1024)
+    console.log(`⏱️ Separação concluída em ${Date.now() - separateStart}ms - Normal: ${normalFiles.length}, Multipart: ${multipartFiles.length}`)
+    
+    // Skip check para uploads rápidos (apenas 1 arquivo pequeno)
+    let finalNormalFiles = normalFiles
+    if (normalFiles.length > 1) {
+      try {
+        console.log(`🔍 Verificando ${normalFiles.length} arquivos normais existentes...`)
+        const checkStart = Date.now()
+        const filenames = normalFiles.map(f => (f as any).webkitRelativePath || f.name)
+        const checkResponse = await fetch('https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/upload/check', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ filenames })
+        })
         
-        if (existingFiles.length > 0) {
-          const existingNames = existingFiles.map((f: any) => `• ${f.original}`).join('\n')
-          const message = `⚠️ ARQUIVOS JÁ EXISTENTES\n\n${existingFiles.length} arquivo(s) já existe(m) no destino e foram removidos da lista:\n\n${existingNames}\n\n✅ ${newFiles.length} arquivo(s) novo(s) serão enviados.`
-          alert(message)
+        const checkData = await checkResponse.json()
+        console.log(`⏱️ Check concluído em ${Date.now() - checkStart}ms`)
+        
+        if (checkData.success) {
+          const existingFiles = checkData.files.filter((f: any) => f.exists)
+          finalNormalFiles = normalFiles.filter((file, index) => !checkData.files[index].exists)
+          
+          if (existingFiles.length > 0) {
+            const existingNames = existingFiles.map((f: any) => `• ${f.original}`).join('\n')
+            const message = `⚠️ ARQUIVOS JÁ EXISTENTES\n\n${existingFiles.length} arquivo(s) já existe(m) no destino e foram removidos da lista:\n\n${existingNames}\n\n✅ ${finalNormalFiles.length} arquivo(s) novo(s) serão enviados.`
+            alert(message)
+          }
         }
-        
-        setFiles(newFiles)
-      } else {
-        setFiles(validFiles)
+      } catch (error) {
+        console.error('Error checking files:', error)
       }
-    } catch (error) {
-      console.error('Error checking files:', error)
-      setFiles(validFiles)
+    } else if (normalFiles.length === 1) {
+      console.log(`⚡ Skip check - apenas 1 arquivo pequeno`)
     }
+    
+    // Combinar arquivos finais
+    const combineStart = Date.now()
+    setFiles([...finalNormalFiles, ...multipartFiles])
+    console.log(`⏱️ setFiles concluído em ${Date.now() - combineStart}ms`)
+    console.log(`✅ handleFileSelect TOTAL: ${Date.now() - selectStart}ms`)
 
     setProgress({})
     setResults({})
@@ -272,35 +305,38 @@ export default function DirectUpload({
         className="hidden"
       />
 
-      {/* Multipart Uploads (>5GB) */}
-      {files.filter(f => f.size > 5 * 1024 * 1024 * 1024).length > 0 && (
+      {/* Multipart Uploads (>100MB) */}
+      {files.filter(f => f.size > 100 * 1024 * 1024).length > 0 && (
         <div className="space-y-4 mb-6">
-          <h4 className="text-lg font-semibold text-white">Upload Multipart (Arquivos Grandes)</h4>
-          {files.filter(f => f.size > 5 * 1024 * 1024 * 1024).map((file, i) => (
-            <MultipartUploader
+          <h4 className="text-lg font-semibold text-white">
+            ⚡ Upload Multipart - Arquivos Grandes ({files.filter(f => f.size > 100 * 1024 * 1024).length})
+          </h4>
+          <p className="text-sm text-gray-400 mb-4">
+            Arquivos maiores que 100MB usam upload paralelo para maior velocidade
+          </p>
+          {files.filter(f => f.size > 100 * 1024 * 1024).map((file, i) => (
+            <MultipartUpload
               key={i}
               file={file}
-              destination={destination}
-              onComplete={() => {
+              onComplete={(key) => {
                 setFiles(prev => prev.filter(f => f !== file))
                 setResults(prev => ({ ...prev, [file.name]: 'success' }))
                 onUploadComplete?.([file])
               }}
-              onError={(error) => {
-                setResults(prev => ({ ...prev, [file.name]: 'error' }))
-                console.error(`Multipart error for ${file.name}:`, error)
+              onCancel={() => {
+                setFiles(prev => prev.filter(f => f !== file))
               }}
             />
           ))}
         </div>
       )}
 
-      {/* File List (<=5GB) */}
-      {files.filter(f => f.size <= 5 * 1024 * 1024 * 1024).length > 0 && (
+      {/* File List (<=100MB) */}
+      {files.filter(f => f.size <= 100 * 1024 * 1024).length > 0 && (
         <div className="glass-card p-6">
           <div className="flex justify-between items-center mb-4">
             <h4 className="text-lg font-semibold text-white">
-              Arquivos Normais ({files.filter(f => f.size <= 5 * 1024 * 1024 * 1024).length})
+              📄 Upload Normal - Arquivos Pequenos ({files.filter(f => f.size <= 100 * 1024 * 1024).length})
             </h4>
             <div className="flex gap-2">
               <button
@@ -313,7 +349,7 @@ export default function DirectUpload({
               <button
                 onClick={handleUpload}
                 className="btn-neon px-6 py-2"
-                disabled={uploading || files.length === 0}
+                disabled={uploading || files.filter(f => f.size <= 100 * 1024 * 1024).length === 0}
               >
                 {uploading ? '📤 Enviando...' : '📤 Upload Todos'}
               </button>
@@ -321,7 +357,7 @@ export default function DirectUpload({
           </div>
 
           <div className="space-y-3">
-            {files.filter(f => f.size <= 5 * 1024 * 1024 * 1024).map((file, index) => (
+            {files.filter(f => f.size <= 100 * 1024 * 1024).map((file, index) => (
               <div key={index} className="flex items-center gap-4 p-3 bg-gray-800/50 rounded-lg">
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between items-center mb-1 gap-2">
