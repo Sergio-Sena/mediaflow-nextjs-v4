@@ -57,17 +57,20 @@ Benefícios:
 #### **2. Sistema de Aprovação Manual**
 ```typescript
 Fluxo:
-1. User se cadastra sem código
-2. Status: "pending_approval"
-3. Admin recebe notificação
-4. Admin aprova/rejeita no painel
-5. User recebe notificação do resultado
+1. User se cadastra (com ou sem código)
+2. Status: "pending_approval" 
+3. Badge de notificação aparece na página Admin
+4. Admin clica "Aprovar" ou "Rejeitar"
+5. Sistema gera token de acesso automático
+6. AWS SES envia email de boas-vindas
+7. User pode fazer login normalmente
 
 Benefícios:
-✅ Backup do sistema de códigos
-✅ Controle granular
-✅ Histórico de decisões
-✅ Possibilidade de entrevista/validação
+✅ Notificação visual em tempo real
+✅ Email automático de aprovação
+✅ Token de acesso gerado automaticamente
+✅ Controle granular do admin
+✅ Histórico completo de decisões
 ```
 
 #### **3. Status de Usuário**
@@ -112,7 +115,10 @@ Controles:
   "invite_code": "CONV-2025-ABC123",
   "approved_at": "2025-01-22T12:30:00Z",
   "approved_by": "user_admin",
-  "rejection_reason": null
+  "rejection_reason": null,
+  "access_token": "acc_2025_xyz789",
+  "welcome_email_sent": true,
+  "welcome_email_sent_at": "2025-01-22T12:31:00Z"
 }
 ```
 
@@ -128,10 +134,11 @@ DELETE /invites/{code}  # Revogar código
 #### **Nova Lambda: user-approval**
 ```python
 # Endpoints:
-POST /users/approve/{user_id}
-POST /users/reject/{user_id}
-POST /users/suspend/{user_id}
-GET  /users/pending     # Listar pendentes
+POST /users/approve/{user_id}  # Aprova + envia email
+POST /users/reject/{user_id}   # Rejeita + envia email
+POST /users/suspend/{user_id}  # Suspende usuário
+GET  /users/pending           # Lista pendentes (badge)
+POST /users/send-welcome      # Reenviar email boas-vindas
 ```
 
 #### **Atualizar Frontend**
@@ -156,12 +163,19 @@ if (inviteCode && isValid(inviteCode)) {
 
 **Admin Panel (/admin):**
 ```typescript
+// Badge de notificação no header
+<Badge count={pendingUsers.length} color="red">
+  <BellIcon />
+</Badge>
+
 // Nova aba "Controle de Acesso"
+- Badge com contador de usuários pendentes
+- Lista de usuários aguardando aprovação
+- Botões "Aprovar" e "Rejeitar" com um clique
 - Gerar códigos de convite
 - Listar códigos (ativos/usados/expirados)
-- Aprovar usuários pendentes
-- Suspender/reativar usuários
-- Histórico de aprovações
+- Histórico de aprovações com timestamps
+- Reenviar emails de boas-vindas
 ```
 
 **Middleware de Auth:**
@@ -176,11 +190,40 @@ if (user.status === 'pending') {
 }
 ```
 
+#### **Sistema de Email (AWS SES)**
+```python
+# Template de email de aprovação
+subject = "🎉 Sua conta Mídiaflow foi aprovada!"
+body = f"""
+Olá {user.name},
+
+Sua conta no Mídiaflow foi aprovada pelo administrador!
+
+🎬 Acesse agora: https://midiaflow.sstechnologies-cloud.com
+📧 Email: {user.email}
+🔑 Token de acesso: {access_token}
+
+Bem-vindo à plataforma!
+
+Equipe Mídiaflow
+"""
+
+# Configuração SES
+ses_client.send_email(
+    Source='noreply@midiaflow.sstechnologies-cloud.com',
+    Destination={'ToAddresses': [user.email]},
+    Message={
+        'Subject': {'Data': subject},
+        'Body': {'Text': {'Data': body}}
+    }
+)
+```
+
 ### **Estimativa de Desenvolvimento**
-- **Tempo**: 2-3 dias
-- **Complexidade**: Média
-- **Impacto**: Alto (controle imediato de custos)
-- **ROI**: Imediato (economia de custos)
+- **Tempo**: 3-4 dias (incluindo SES + emails)
+- **Complexidade**: Média-Alta
+- **Impacto**: Alto (controle imediato + UX profissional)
+- **ROI**: Imediato (economia de custos + satisfação do usuário)
 
 ---
 
@@ -423,17 +466,20 @@ Produto:
 Semana 1:
 - [ ] DynamoDB tables (invites + user status)
 - [ ] Lambda invite-manager
-- [ ] Lambda user-approval
+- [ ] Lambda user-approval com SES
+- [ ] Configuração AWS SES (domínio + templates)
 
 Semana 2:
 - [ ] Frontend: campo código no cadastro
-- [ ] Admin panel: aba controle de acesso
+- [ ] Admin panel: badge de notificação + aba controle
 - [ ] Middleware: verificação de status
+- [ ] Templates de email (aprovação/rejeição)
 
 Semana 3:
-- [ ] Testes completos
+- [ ] Sistema de notificações em tempo real
+- [ ] Testes completos (fluxo + emails)
 - [ ] Deploy produção
-- [ ] Documentação
+- [ ] Documentação atualizada
 ```
 
 ### **v4.9 - Preparação Monetização (Março 2025)**
