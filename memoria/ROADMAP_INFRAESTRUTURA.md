@@ -6,7 +6,56 @@
 
 ## 🔥 **PRIORIDADE 1: CRÍTICO (v4.8)**
 
-### **1.1 Logs Estruturados CloudWatch**
+### **1.1 Sistema de Controle de Acesso** 🆕
+**Tempo**: 2-3 dias | **Impacto**: CRÍTICO | **Custo**: $0
+
+**Problema Atual:**
+- ❌ Cadastro público aberto (qualquer um pode se registrar)
+- ❌ Admin paga storage/processamento de todos os usuários
+- ❌ Sem controle de custos ou receita
+- ❌ Risco financeiro crescente
+
+**Solução:**
+```typescript
+// Sistema híbrido: Códigos de convite + Aprovação manual
+
+1. Códigos de Convite:
+   - Admin gera: "CONV-2025-ABC123"
+   - User usa no cadastro → aprovado automaticamente
+   - Código expira após uso ou prazo
+
+2. Aprovação Manual:
+   - User se cadastra sem código → status "pending"
+   - Admin aprova/rejeita no painel
+   - Notificações automáticas
+
+3. Status de Usuário:
+   - pending: Aguardando aprovação
+   - approved: Acesso liberado
+   - rejected: Cadastro negado
+   - suspended: Bloqueado temporariamente
+```
+
+**Implementação:**
+- [ ] Nova tabela DynamoDB: `mediaflow-invites`
+- [ ] Atualizar tabela: `mediaflow-users` (campo status)
+- [ ] Nova Lambda: `invite-manager`
+- [ ] Nova Lambda: `user-approval`
+- [ ] Frontend: campo código no cadastro
+- [ ] Admin panel: aba "Controle de Acesso"
+- [ ] Middleware: verificação de status
+
+**Benefícios:**
+- ✅ Controle total de novos usuários
+- ✅ Economia imediata de custos
+- ✅ Base para monetização futura
+- ✅ Rastreabilidade completa
+
+**Documentação**: `memoria/ROADMAP_MONETIZACAO.md`
+
+---
+
+### **1.2 Logs Estruturados CloudWatch**
 **Tempo**: 3 horas | **Impacto**: CRÍTICO | **Custo**: $0
 
 **Problema Atual:**
@@ -464,6 +513,6 @@ Implementar em ordem:
 
 ---
 
-*Última atualização: 20/01/2025*  
-*Versão atual: v4.7.0*  
-*Próxima versão: v4.8.0 (Infraestrutura)*
+*Última atualização: 22/01/2025*  
+*Versão atual: v4.7.1*  
+*Próxima versão: v4.8.0 (Infraestrutura + Controle de Acesso)*
