@@ -57,9 +57,9 @@ export default function DirectUpload({
     return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`
   }
 
-  const uploadFile = async (file: File) => {
+  const uploadFile = async (file: File, retryCount = 0) => {
     const startTime = Date.now()
-    console.log(`📤 Iniciando upload: ${file.name} (${formatFileSize(file.size)})`)
+    console.log(`📤 Iniciando upload: ${file.name} (${formatFileSize(file.size)})${retryCount > 0 ? ` [Tentativa ${retryCount + 1}]` : ''}`)
     
     try {
       // Usar webkitRelativePath se disponível (para pastas)
@@ -118,6 +118,13 @@ export default function DirectUpload({
             setResults(prev => ({ ...prev, [file.name]: 'success' }))
             setProgress(prev => ({ ...prev, [file.name]: 100 }))
             resolve()
+          } else if (xhr.status === 503 && retryCount < 3) {
+            // Retry com backoff exponencial para 503 Slow Down
+            const delay = Math.pow(2, retryCount) * 1000
+            console.log(`⚠️ S3 503 Slow Down - Aguardando ${delay}ms antes de retentar...`)
+            setTimeout(() => {
+              uploadFile(file, retryCount + 1).then(resolve).catch(reject)
+            }, delay)
           } else {
             setResults(prev => ({ ...prev, [file.name]: 'error' }))
             reject(new Error(`HTTP ${xhr.status}: ${xhr.statusText}`))
@@ -125,8 +132,16 @@ export default function DirectUpload({
         })
 
         xhr.addEventListener('error', () => {
-          setResults(prev => ({ ...prev, [file.name]: 'error' }))
-          reject(new Error('Erro de rede'))
+          if (retryCount < 3) {
+            const delay = Math.pow(2, retryCount) * 1000
+            console.log(`⚠️ Erro de rede - Aguardando ${delay}ms antes de retentar...`)
+            setTimeout(() => {
+              uploadFile(file, retryCount + 1).then(resolve).catch(reject)
+            }, delay)
+          } else {
+            setResults(prev => ({ ...prev, [file.name]: 'error' }))
+            reject(new Error('Erro de rede'))
+          }
         })
 
         xhr.open('PUT', urlData.uploadUrl)
@@ -148,11 +163,15 @@ export default function DirectUpload({
     setProgress({})
     setResults({})
 
-    // Upload em paralelo (máximo 3 simultâneos) - apenas arquivos normais
-    const batchSize = 3
+    // Upload em paralelo (máximo 2 simultâneos para evitar S3 503) - apenas arquivos normais
+    const batchSize = 2
     for (let i = 0; i < normalFiles.length; i += batchSize) {
       const batch = normalFiles.slice(i, i + batchSize)
       await Promise.all(batch.map(file => uploadFile(file)))
+      // Pequeno delay entre batches para evitar rate limit
+      if (i + batchSize < normalFiles.length) {
+        await new Promise(resolve => setTimeout(resolve, 500))
+      }
     }
 
     setUploading(false)
