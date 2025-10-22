@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { Upload, X, CheckCircle, AlertCircle } from 'lucide-react'
+import { Upload, X, CheckCircle, AlertCircle, AlertTriangle } from 'lucide-react'
 import MultipartUpload from './MultipartUpload'
 
 interface DirectUploadProps {
@@ -23,6 +23,7 @@ export default function DirectUpload({
   const [multipartUploading, setMultipartUploading] = useState(false)
   const [users, setUsers] = useState<any[]>([])
   const [currentUser, setCurrentUser] = useState<any>(null)
+  const [notification, setNotification] = useState<{type: 'warning' | 'error' | 'info', message: string} | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const folderInputRef = useRef<HTMLInputElement>(null)
 
@@ -157,8 +158,8 @@ export default function DirectUpload({
     setUploading(false)
     
     const successCount = Object.values(results).filter(r => r === 'success').length
-    if (successCount > 0) {
-      onUploadComplete?.(normalFiles.slice(0, successCount))
+    if (successCount > 0 && onUploadComplete) {
+      setTimeout(() => onUploadComplete(normalFiles.slice(0, successCount)), 100)
     }
   }
 
@@ -171,13 +172,19 @@ export default function DirectUpload({
     
     // Avisar se exceder limite
     if (allFiles.length > maxFiles) {
-      alert(`⚠️ Limite de ${maxFiles} arquivos excedido!\n\n📁 Selecionados: ${allFiles.length} arquivos\n✅ Serão enviados: ${maxFiles} arquivos\n\n🔁 Após o upload, selecione os próximos ${allFiles.length - maxFiles} arquivos.`)
+      setNotification({
+        type: 'warning',
+        message: `⚠️ Limite de ${maxFiles} arquivos excedido! Selecionados: ${allFiles.length}, serão enviados: ${maxFiles}. Após o upload, selecione os próximos ${allFiles.length - maxFiles} arquivos.`
+      })
     }
     
     const filterStart = Date.now()
     const validFiles = allFiles.filter(file => {
       if (file.size > maxSize * 1024 * 1024) {
-        alert(`${file.name} é muito grande. Máximo: ${maxSize}MB`)
+        setNotification({
+          type: 'error',
+          message: `❌ ${file.name} é muito grande. Máximo: ${maxSize}MB`
+        })
         return false
       }
       return true
@@ -211,9 +218,12 @@ export default function DirectUpload({
           finalNormalFiles = normalFiles.filter((file, index) => !checkData.files[index].exists)
           
           if (existingFiles.length > 0) {
-            const existingNames = existingFiles.map((f: any) => `• ${f.original}`).join('\n')
-            const message = `⚠️ ARQUIVOS JÁ EXISTENTES\n\n${existingFiles.length} arquivo(s) já existe(m) no destino e foram removidos da lista:\n\n${existingNames}\n\n✅ ${finalNormalFiles.length} arquivo(s) novo(s) serão enviados.`
-            alert(message)
+            const existingNames = existingFiles.map((f: any) => f.original).slice(0, 5).join(', ')
+            const more = existingFiles.length > 5 ? ` e mais ${existingFiles.length - 5}` : ''
+            setNotification({
+              type: 'warning',
+              message: `⚠️ ${existingFiles.length} arquivo(s) já existe(m): ${existingNames}${more}. Serão enviados ${finalNormalFiles.length} novo(s).`
+            })
           }
         }
       } catch (error) {
@@ -235,6 +245,32 @@ export default function DirectUpload({
 
   return (
     <div className="space-y-6">
+      {/* Notification Toast */}
+      {notification && (
+        <div className={`glass-card p-4 border-l-4 ${
+          notification.type === 'error' ? 'border-red-500 bg-red-500/10' :
+          notification.type === 'warning' ? 'border-yellow-500 bg-yellow-500/10' :
+          'border-blue-500 bg-blue-500/10'
+        }`}>
+          <div className="flex items-start gap-3">
+            <AlertTriangle className={`w-5 h-5 flex-shrink-0 ${
+              notification.type === 'error' ? 'text-red-400' :
+              notification.type === 'warning' ? 'text-yellow-400' :
+              'text-blue-400'
+            }`} />
+            <div className="flex-1">
+              <p className="text-sm text-white">{notification.message}</p>
+            </div>
+            <button
+              onClick={() => setNotification(null)}
+              className="text-gray-400 hover:text-white transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Drop Zone */}
       <div
         onDrop={(e) => {
@@ -300,7 +336,10 @@ export default function DirectUpload({
         ref={fileInputRef}
         type="file"
         multiple
-        onChange={(e) => e.target.files && handleFileSelect(e.target.files)}
+        onChange={(e) => {
+          e.preventDefault()
+          if (e.target.files) handleFileSelect(e.target.files)
+        }}
         className="hidden"
       />
       
@@ -309,7 +348,10 @@ export default function DirectUpload({
         type="file"
         {...({ webkitdirectory: '' } as any)}
         multiple
-        onChange={(e) => e.target.files && handleFileSelect(e.target.files)}
+        onChange={(e) => {
+          e.preventDefault()
+          if (e.target.files) handleFileSelect(e.target.files)
+        }}
         className="hidden"
       />
 
@@ -373,7 +415,9 @@ export default function DirectUpload({
                 onComplete={(key) => {
                   setFiles(prev => prev.filter(f => f !== file))
                   setResults(prev => ({ ...prev, [file.name]: 'success' }))
-                  onUploadComplete?.([file])
+                  if (onUploadComplete) {
+                    setTimeout(() => onUploadComplete([file]), 100)
+                  }
                   if (files.filter(f => f.size > 100 * 1024 * 1024).length === 1) {
                     setMultipartUploading(false)
                   }
