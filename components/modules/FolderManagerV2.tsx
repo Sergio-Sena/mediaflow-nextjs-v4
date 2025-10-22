@@ -66,6 +66,16 @@ export default function FolderManagerV2({ onNavigate, currentPath = '' }: Folder
 
         data.files.forEach((file: any) => {
           const folder = file.folder || 'root'
+          
+          // Detectar placeholders de pastas vazias
+          if (file.name === '.folder_placeholder') {
+            const folderPath = folder
+            if (!folderMap.has(folderPath)) {
+              folderMap.set(folderPath, { files: 0, subfolders: new Set() })
+            }
+            return
+          }
+          
           if (folder === 'root') return
 
           // Admin vê tudo, user só vê suas pastas
@@ -126,7 +136,28 @@ export default function FolderManagerV2({ onNavigate, currentPath = '' }: Folder
 
     try {
       const token = localStorage.getItem('token')
-      const folderPath = currentFolderPath ? `${currentFolderPath}/${newFolderName}` : newFolderName
+      
+      // Get user prefix from JWT
+      let userPrefix = ''
+      let userRole = 'user'
+      if (token) {
+        try {
+          const payload = JSON.parse(atob(token.split('.')[1]))
+          const userId = payload.user_id || ''
+          userRole = payload.role || 'user'
+          userPrefix = userRole === 'admin' ? '' : `users/${userId}`
+        } catch (e) {}
+      }
+      
+      // Build full path with user prefix
+      let folderPath = ''
+      if (currentFolderPath) {
+        folderPath = `${currentFolderPath}/${newFolderName}`
+      } else if (userPrefix) {
+        folderPath = `${userPrefix}/${newFolderName}`
+      } else {
+        folderPath = newFolderName
+      }
 
       const response = await fetch('https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/folders', {
         method: 'POST',
