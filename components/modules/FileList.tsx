@@ -220,7 +220,10 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
   }
   
   const filteredFiles = (searchTerm ? files : getCurrentFiles()).filter(file => {
-    const matchesSearch = file.name.toLowerCase().includes(searchTerm.toLowerCase())
+    // Normalizar busca: remover _ e espaços para comparação
+    const normalizedFileName = file.name.toLowerCase().replace(/[_\s]/g, '')
+    const normalizedSearch = searchTerm.toLowerCase().replace(/[_\s]/g, '')
+    const matchesSearch = normalizedFileName.includes(normalizedSearch)
     const matchesType = selectedType === 'all' || file.type === selectedType
     return matchesSearch && matchesType
   })

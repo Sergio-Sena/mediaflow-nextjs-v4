@@ -1,15 +1,17 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Upload, X, CheckCircle, AlertCircle } from 'lucide-react'
 
 interface MultipartUploadProps {
   file: File
+  destination?: string
   onComplete: (key: string) => void
   onCancel: () => void
+  autoStart?: boolean
 }
 
-export default function MultipartUpload({ file, onComplete, onCancel }: MultipartUploadProps) {
+export default function MultipartUpload({ file, destination = '', onComplete, onCancel, autoStart = false }: MultipartUploadProps) {
   const [progress, setProgress] = useState(0)
   const [status, setStatus] = useState<'uploading' | 'completed' | 'error'>('uploading')
   const [error, setError] = useState<string | null>(null)
@@ -70,6 +72,16 @@ export default function MultipartUpload({ file, onComplete, onCancel }: Multipar
 
       // 1. Iniciar multipart
       console.log('📡 Chamando /multipart/init...')
+      
+      // Processar filename com destino
+      let filename = (file as any).webkitRelativePath || file.name
+      if (destination) {
+        // Manter estrutura completa da pasta selecionada
+        filename = destination + filename
+      }
+      
+      console.log(`📝 Filename final: ${filename}`)
+      
       const initResponse = await fetch(`${API_URL}/multipart/init`, {
         method: 'POST',
         headers: {
@@ -77,7 +89,7 @@ export default function MultipartUpload({ file, onComplete, onCancel }: Multipar
           'Authorization': token ? `Bearer ${token}` : ''
         },
         body: JSON.stringify({
-          filename: file.name,
+          filename: filename,
           fileSize: file.size
         })
       })
@@ -150,10 +162,12 @@ export default function MultipartUpload({ file, onComplete, onCancel }: Multipar
     onCancel()
   }
 
-  // Auto-start upload
-  useState(() => {
-    startUpload()
-  })
+  // Auto-start if enabled
+  useEffect(() => {
+    if (autoStart) {
+      startUpload()
+    }
+  }, [autoStart])
 
   return (
     <div className="glass-card p-6">

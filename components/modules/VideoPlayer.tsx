@@ -33,6 +33,7 @@ export default function VideoPlayer({ src, title, currentVideo, playlist = [], o
   const [isMobile, setIsMobile] = useState(false)
   const [touchStart, setTouchStart] = useState<{ x: number; y: number } | null>(null)
   const [showMobileControls, setShowMobileControls] = useState(true)
+  const hideControlsTimeout = useRef<NodeJS.Timeout | null>(null)
   
   // Detectar dispositivo móvel
   useEffect(() => {
@@ -45,6 +46,31 @@ export default function VideoPlayer({ src, title, currentVideo, playlist = [], o
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
   
+  // Auto-hide controles após 3s de inatividade
+  const resetHideTimer = () => {
+    if (hideControlsTimeout.current) {
+      clearTimeout(hideControlsTimeout.current)
+    }
+    setShowControls(true)
+    setShowMobileControls(true)
+    
+    hideControlsTimeout.current = setTimeout(() => {
+      if (isPlaying) {
+        setShowControls(false)
+        setShowMobileControls(false)
+      }
+    }, 3000)
+  }
+  
+  useEffect(() => {
+    resetHideTimer()
+    return () => {
+      if (hideControlsTimeout.current) {
+        clearTimeout(hideControlsTimeout.current)
+      }
+    }
+  }, [isPlaying])
+  
   // Update current index and source when currentVideo changes
   useEffect(() => {
     if (currentVideo && playlist.length > 0) {
@@ -55,9 +81,21 @@ export default function VideoPlayer({ src, title, currentVideo, playlist = [], o
         setVideoError(null)
         // Reset video state
         setCurrentTime(0)
-        setIsPlaying(false)
         // Salvar último vídeo assistido
         localStorage.setItem('last_watched_video', currentVideo.key)
+        
+        // Autoplay novo vídeo
+        setTimeout(() => {
+          const video = videoRef.current
+          if (video) {
+            video.play().then(() => {
+              setIsPlaying(true)
+            }).catch(err => {
+              console.log('Autoplay prevented:', err)
+              setIsPlaying(false)
+            })
+          }
+        }, 100)
       }
     }
   }, [currentVideo, playlist])
@@ -305,10 +343,13 @@ export default function VideoPlayer({ src, title, currentVideo, playlist = [], o
 
         {/* Video Container */}
         <div 
-          className="relative bg-black group max-h-[70vh] overflow-hidden"
-          onMouseEnter={() => !isMobile && setShowControls(true)}
-          onMouseLeave={() => !isMobile && setShowControls(false)}
-          onTouchStart={handleTouchStart}
+          className="relative bg-black group overflow-hidden" 
+          style={{ maxHeight: playlist.length > 1 ? '60vh' : '80vh' }}
+          onMouseMove={resetHideTimer}
+          onTouchStart={(e) => {
+            handleTouchStart(e)
+            resetHideTimer()
+          }}
           onTouchEnd={handleTouchEnd}
         >
           {/* Close Button - Top Right */}
@@ -326,7 +367,8 @@ export default function VideoPlayer({ src, title, currentVideo, playlist = [], o
 
           <video
             ref={videoRef}
-            className="w-full h-full max-h-[70vh] object-contain"
+            className="w-full h-full object-contain"
+            style={{ maxHeight: playlist.length > 1 ? '60vh' : '80vh' }}
             onClick={togglePlay}
             crossOrigin="anonymous"
             preload="metadata"
@@ -479,8 +521,8 @@ export default function VideoPlayer({ src, title, currentVideo, playlist = [], o
         
         {/* Playlist */}
         {playlist.length > 1 && (
-          <div className={`bg-dark-800/30 border-t border-neon-cyan/20 overflow-y-auto flex-1 ${
-            isMobile ? 'p-3' : 'p-4'
+          <div className={`bg-dark-800/30 border-t border-neon-cyan/20 overflow-y-auto ${
+            isMobile ? 'p-3 max-h-[30vh]' : 'p-4 max-h-[25vh]'
           }`}>
             <h4 className="text-sm font-semibold text-white mb-3">📋 Playlist ({playlist.length} vídeos)</h4>
             <div className={isMobile ? 'space-y-1' : 'space-y-2'}>
