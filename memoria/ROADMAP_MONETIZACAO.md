@@ -118,11 +118,15 @@ Controles:
     "uploads_per_month": -1,
     "conversion_minutes": -1,
     "conversion_quality": "4k",
-    "watermark": false,
-    "api_access": true,
+    "watermark": false
+  },
+  "vip_features": {
+    "unlimited_storage": true,
+    "unlimited_conversion": true,
+    "api_access": false,
     "white_label": true,
     "download_enabled": true,
-    "sharing_enabled": true,
+    "sharing_enabled": false,
     "analytics_advanced": true,
     "priority_support": true,
     "billing_access": false,
@@ -156,20 +160,46 @@ DELETE /invites/{code}  # Revogar código
 #### **Nova Lambda: user-approval**
 ```python
 # Endpoints:
-POST /users/approve/{user_id}  # Aprova + define plano + envia email
+POST /users/approve/{user_id}  # Aprova + define plano + funcionalidades VIP
 POST /users/reject/{user_id}   # Rejeita + envia email
 POST /users/suspend/{user_id}  # Suspende usuário
 POST /users/change-plan/{user_id}  # Altera plano existente
+POST /users/update-vip-features/{user_id}  # Atualiza funcionalidades VIP
 GET  /users/pending           # Lista pendentes (badge)
 POST /users/send-welcome      # Reenviar email boas-vindas
 
-# Payload aprovação:
+# Lógica de aprovação VIP:
+def approve_vip_user(user_id, vip_features):
+    # Aplica apenas funcionalidades selecionadas
+    user_limits = {
+        'storage_gb': -1 if vip_features['unlimited_storage'] else 1,
+        'conversion_minutes': -1 if vip_features['unlimited_conversion'] else 0,
+        'api_access': vip_features['api_access'],
+        'white_label': vip_features['white_label'],
+        'download_enabled': vip_features['download_enabled'],
+        'sharing_enabled': vip_features['sharing_enabled'],
+        'analytics_advanced': vip_features['analytics_advanced'],
+        'priority_support': vip_features['priority_support']
+    }
+    return update_user_plan(user_id, 'vip', user_limits)
+
+# Payload aprovação VIP:
 {
   "user_id": "user_123",
-  "plan": "vip",  # free/basic/pro/vip/corporate
+  "plan": "vip",
   "approved_by": "admin_user",
-  "notes": "Pessoa próxima - acesso total",
-  "vip_reason": "Familiar/Amigo próximo"
+  "notes": "Pessoa próxima - funcionalidades selecionadas",
+  "vip_reason": "Familiar/Amigo próximo",
+  "vip_features": {
+    "unlimited_storage": true,
+    "unlimited_conversion": true,
+    "api_access": false,
+    "white_label": true,
+    "download_enabled": true,
+    "sharing_enabled": false,
+    "analytics_advanced": true,
+    "priority_support": true
+  }
 }
 ```
 
@@ -212,9 +242,38 @@ if (inviteCode && isValid(inviteCode)) {
     onSelect={setPlan}
   />
   {plan === 'vip' && (
-    <Alert type="warning">
-      🌟 Plano VIP: Acesso total sem custos (pessoas próximas)
-    </Alert>
+    <div>
+      <Alert type="warning">
+        🌟 Plano VIP: Selecione funcionalidades para pessoas próximas
+      </Alert>
+      <div className="vip-features-checklist">
+        <h4>Funcionalidades VIP:</h4>
+        <Checkbox checked={features.unlimited_storage} onChange={(e) => setFeatures({...features, unlimited_storage: e.target.checked})}>
+          Storage ilimitado
+        </Checkbox>
+        <Checkbox checked={features.unlimited_conversion} onChange={(e) => setFeatures({...features, unlimited_conversion: e.target.checked})}>
+          Conversão ilimitada (1080p + 4K)
+        </Checkbox>
+        <Checkbox checked={features.api_access} onChange={(e) => setFeatures({...features, api_access: e.target.checked})}>
+          API access completo
+        </Checkbox>
+        <Checkbox checked={features.white_label} onChange={(e) => setFeatures({...features, white_label: e.target.checked})}>
+          White-label (sem logo)
+        </Checkbox>
+        <Checkbox checked={features.download_enabled} onChange={(e) => setFeatures({...features, download_enabled: e.target.checked})}>
+          Download de arquivos
+        </Checkbox>
+        <Checkbox checked={features.sharing_enabled} onChange={(e) => setFeatures({...features, sharing_enabled: e.target.checked})}>
+          Compartilhamento de links
+        </Checkbox>
+        <Checkbox checked={features.analytics_advanced} onChange={(e) => setFeatures({...features, analytics_advanced: e.target.checked})}>
+          Analytics avançadas
+        </Checkbox>
+        <Checkbox checked={features.priority_support} onChange={(e) => setFeatures({...features, priority_support: e.target.checked})}>
+          Suporte prioritário
+        </Checkbox>
+      </div>
+    </div>
   )}
   <TextArea placeholder="Notas (opcional)" />
   <Button onClick={approveWithPlan}>Aprovar</Button>
@@ -229,7 +288,9 @@ if (inviteCode && isValid(inviteCode)) {
 - Gerar códigos de convite
 - Histórico com planos atribuídos
 - Alterar plano de usuários existentes
-- Gestão de funcionalidades VIP
+- Gestão granular de funcionalidades VIP
+- Checkboxes individuais para cada recurso VIP
+- Atualização de funcionalidades pós-aprovação
 ```
 
 **Middleware de Auth:**
@@ -281,21 +342,26 @@ else:
     subject = f"🎉 Conta aprovada - Plano {user.plan.title()}!"
 # Body personalizado por plano
 if user.plan == 'vip':
+    # Gera lista dinâmica de funcionalidades liberadas
+    enabled_features = []
+    if user.vip_features.get('unlimited_storage'): enabled_features.append('✅ Storage ilimitado')
+    if user.vip_features.get('unlimited_conversion'): enabled_features.append('✅ Conversão ilimitada (1080p + 4K)')
+    if user.vip_features.get('api_access'): enabled_features.append('✅ API access completo')
+    if user.vip_features.get('white_label'): enabled_features.append('✅ White-label (sem logo)')
+    if user.vip_features.get('download_enabled'): enabled_features.append('✅ Download de arquivos')
+    if user.vip_features.get('sharing_enabled'): enabled_features.append('✅ Compartilhamento de links')
+    if user.vip_features.get('analytics_advanced'): enabled_features.append('✅ Analytics avançadas')
+    if user.vip_features.get('priority_support'): enabled_features.append('✅ Suporte prioritário')
+    
+    features_list = '\n'.join(enabled_features) if enabled_features else '• Funcionalidades básicas liberadas'
+    
     body = f"""
 Olá {user.name},
 
-🌟 Sua conta VIP foi aprovada com acesso total!
+🌟 Sua conta VIP foi aprovada!
 
 ✨ Funcionalidades Liberadas:
-✅ Storage ilimitado
-✅ Uploads ilimitados
-✅ Conversão ilimitada (1080p + 4K)
-✅ Gerenciador de pastas avançado
-✅ Busca e analytics
-✅ API access completo
-✅ White-label (sem logo)
-✅ Download e compartilhamento
-✅ Suporte prioritário
+{features_list}
 
 🎬 Acesse: https://midiaflow.sstechnologies-cloud.com
 📧 Login: {user.email}
