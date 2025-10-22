@@ -54,23 +54,24 @@ Benefícios:
 ✅ Limite de usos por código
 ```
 
-#### **2. Sistema de Aprovação Manual**
+#### **2. Sistema de Aprovação Manual com Planos**
 ```typescript
 Fluxo:
 1. User se cadastra (com ou sem código)
 2. Status: "pending_approval" 
 3. Badge de notificação aparece na página Admin
-4. Admin clica "Aprovar" ou "Rejeitar"
-5. Sistema gera token de acesso automático
-6. AWS SES envia email de boas-vindas
-7. User pode fazer login normalmente
+4. Admin clica "Aprovar" → Modal de seleção de plano
+5. Admin escolhe: Free/Basic/Pro/Corporativo
+6. Sistema gera token + aplica limites do plano
+7. AWS SES envia email com detalhes do plano
+8. User acessa com limites configurados
 
 Benefícios:
-✅ Notificação visual em tempo real
-✅ Email automático de aprovação
-✅ Token de acesso gerado automaticamente
-✅ Controle granular do admin
-✅ Histórico completo de decisões
+✅ Admin controla plano de cada usuário
+✅ Limites aplicados automaticamente
+✅ Email com detalhes do plano aprovado
+✅ Controle de custos por usuário
+✅ Base para cobrança futura
 ```
 
 #### **3. Status de Usuário**
@@ -111,14 +112,26 @@ Controles:
 {
   // Campos existentes...
   "status": "approved",
+  "plan": "basic",
+  "plan_limits": {
+    "storage_gb": 50,
+    "uploads_per_month": -1,
+    "conversion_minutes": 60,
+    "conversion_quality": "1080p",
+    "watermark": false,
+    "api_access": false
+  },
+  "usage_current_month": {
+    "storage_used_gb": 2.5,
+    "uploads_count": 15,
+    "conversion_minutes_used": 12
+  },
   "invited_by": "user_admin",
-  "invite_code": "CONV-2025-ABC123",
   "approved_at": "2025-01-22T12:30:00Z",
   "approved_by": "user_admin",
-  "rejection_reason": null,
+  "plan_assigned_by": "user_admin",
   "access_token": "acc_2025_xyz789",
-  "welcome_email_sent": true,
-  "welcome_email_sent_at": "2025-01-22T12:31:00Z"
+  "welcome_email_sent": true
 }
 ```
 
@@ -134,11 +147,20 @@ DELETE /invites/{code}  # Revogar código
 #### **Nova Lambda: user-approval**
 ```python
 # Endpoints:
-POST /users/approve/{user_id}  # Aprova + envia email
+POST /users/approve/{user_id}  # Aprova + define plano + envia email
 POST /users/reject/{user_id}   # Rejeita + envia email
 POST /users/suspend/{user_id}  # Suspende usuário
+POST /users/change-plan/{user_id}  # Altera plano existente
 GET  /users/pending           # Lista pendentes (badge)
 POST /users/send-welcome      # Reenviar email boas-vindas
+
+# Payload aprovação:
+{
+  "user_id": "user_123",
+  "plan": "basic",  # free/basic/pro/corporate
+  "approved_by": "admin_user",
+  "notes": "Cliente premium"
+}
 ```
 
 #### **Atualizar Frontend**
@@ -168,14 +190,25 @@ if (inviteCode && isValid(inviteCode)) {
   <BellIcon />
 </Badge>
 
+// Modal de Aprovação com Planos
+<Modal title="Aprovar Usuário">
+  <UserInfo user={selectedUser} />
+  <PlanSelector 
+    plans={['free', 'basic', 'pro', 'corporate']}
+    onSelect={setPlan}
+  />
+  <TextArea placeholder="Notas (opcional)" />
+  <Button onClick={approveWithPlan}>Aprovar</Button>
+</Modal>
+
 // Nova aba "Controle de Acesso"
 - Badge com contador de usuários pendentes
-- Lista de usuários aguardando aprovação
-- Botões "Aprovar" e "Rejeitar" com um clique
+- Lista com botão "Aprovar com Plano"
+- Modal de seleção de plano na aprovação
+- Visualização de limites por plano
 - Gerar códigos de convite
-- Listar códigos (ativos/usados/expirados)
-- Histórico de aprovações com timestamps
-- Reenviar emails de boas-vindas
+- Histórico com planos atribuídos
+- Alterar plano de usuários existentes
 ```
 
 **Middleware de Auth:**
@@ -190,33 +223,49 @@ if (user.status === 'pending') {
 }
 ```
 
-#### **Sistema de Email (AWS SES)**
+#### **Sistema de Email (AWS SES) com Detalhes do Plano**
 ```python
-# Template de email de aprovação
-subject = "🎉 Sua conta Mídiaflow foi aprovada!"
+# Template personalizado por plano
+plan_details = {
+    'free': {
+        'storage': '1 GB',
+        'uploads': '10/mês',
+        'conversion': 'Não disponível (MP4/WebM/MOV apenas)',
+        'features': 'Marca d\'água Mídiaflow'
+    },
+    'basic': {
+        'storage': '50 GB', 
+        'uploads': 'Ilimitados',
+        'conversion': '60 min/mês H.264 1080p',
+        'features': 'Sem marca d\'água'
+    },
+    'pro': {
+        'storage': '500 GB',
+        'uploads': 'Ilimitados', 
+        'conversion': '30 min/mês 4K',
+        'features': 'API + Analytics + White-label'
+    }
+}
+
+subject = f"🎉 Conta aprovada - Plano {user.plan.title()}!"
 body = f"""
 Olá {user.name},
 
-Sua conta no Mídiaflow foi aprovada pelo administrador!
+Sua conta foi aprovada com o Plano {user.plan.title()}!
 
-🎬 Acesse agora: https://midiaflow.sstechnologies-cloud.com
-📧 Email: {user.email}
-🔑 Token de acesso: {access_token}
+📦 Seu Plano Inclui:
+• Storage: {plan_details[user.plan]['storage']}
+• Uploads: {plan_details[user.plan]['uploads']}
+• Conversão: {plan_details[user.plan]['conversion']}
+• Recursos: {plan_details[user.plan]['features']}
 
-Bem-vindo à plataforma!
+🎬 Acesse: https://midiaflow.sstechnologies-cloud.com
+📧 Login: {user.email}
+
+Bem-vindo à Mídiaflow!
 
 Equipe Mídiaflow
 """
-
-# Configuração SES
-ses_client.send_email(
-    Source='noreply@midiaflow.sstechnologies-cloud.com',
-    Destination={'ToAddresses': [user.email]},
-    Message={
-        'Subject': {'Data': subject},
-        'Body': {'Text': {'Data': body}}
-    }
-)
 ```
 
 ### **Estimativa de Desenvolvimento**
@@ -234,37 +283,51 @@ Transformar Mídiaflow em produto rentável e sustentável.
 
 ### **Modelos de Receita**
 
-#### **1. SaaS Freemium (Recomendado)**
+#### **1. SaaS com Planos Otimizados (Custo vs Lucro)**
+
+**Análise de Custos AWS:**
+```
+S3 Storage: $0.023/GB/mês
+CloudFront: $0.085/GB transferência
+MediaConvert: $0.0075/minuto (1080p) | $0.036/minuto (4K)
+Lambda: $0.0000002/request
+```
+
+**Planos Ajustados:**
 ```
 Plano Gratuito (Free):
-- 1 GB storage
+- 1 GB storage (custo: $0.02/mês)
 - 10 uploads/mês
-- Sem conversão de vídeo
-- Marca d'água nos vídeos
+- SEM conversão (formatos: MP4, WebM, MOV nativos)
+- Aviso: "Plano gratuito suporta apenas MP4/WebM/MOV"
+- Marca d'água Mídiaflow
 - Suporte por email
 
 Plano Basic ($9.99/mês):
-- 50 GB storage
+- 50 GB storage (custo: $1.15/mês)
 - Uploads ilimitados
-- Conversão H.264 1080p
+- 60 minutos conversão H.264/mês (custo: $0.45/mês)
 - Sem marca d'água
 - Suporte prioritário
+- LUCRO: $8.39/mês (84% margem)
 
 Plano Pro ($19.99/mês):
-- 500 GB storage
+- 500 GB storage (custo: $11.50/mês)
 - Uploads ilimitados
-- Conversão 4K
+- 30 minutos conversão 4K/mês (custo: $1.08/mês)
 - API access
 - Analytics avançadas
-- White-label (sem logo Mídiaflow)
+- White-label
+- LUCRO: $7.41/mês (37% margem)
 
-Plano Enterprise ($99/mês):
-- Storage ilimitado
+Plano Corporativo ($99/mês):
+- Storage ilimitado (estimativa: $50/mês)
 - Multi-tenancy
-- SSO integration
+- White-label completo
+- Suporte prioritário 24/7
 - SLA 99.9%
-- Suporte 24/7
-- Custom features
+- Conversão ilimitada
+- LUCRO: $40+/mês (40%+ margem)
 ```
 
 #### **2. Marketplace de Conteúdo**
