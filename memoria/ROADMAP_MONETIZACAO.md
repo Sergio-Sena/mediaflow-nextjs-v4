@@ -112,14 +112,22 @@ Controles:
 {
   // Campos existentes...
   "status": "approved",
-  "plan": "basic",
+  "plan": "vip",
   "plan_limits": {
-    "storage_gb": 50,
+    "storage_gb": -1,
     "uploads_per_month": -1,
-    "conversion_minutes": 60,
-    "conversion_quality": "1080p",
+    "conversion_minutes": -1,
+    "conversion_quality": "4k",
     "watermark": false,
-    "api_access": false
+    "api_access": true,
+    "white_label": true,
+    "download_enabled": true,
+    "sharing_enabled": true,
+    "analytics_advanced": true,
+    "priority_support": true,
+    "billing_access": false,
+    "marketplace_access": false,
+    "multi_tenancy": false
   },
   "usage_current_month": {
     "storage_used_gb": 2.5,
@@ -130,6 +138,7 @@ Controles:
   "approved_at": "2025-01-22T12:30:00Z",
   "approved_by": "user_admin",
   "plan_assigned_by": "user_admin",
+  "vip_reason": "Pessoa próxima - sem custos",
   "access_token": "acc_2025_xyz789",
   "welcome_email_sent": true
 }
@@ -157,9 +166,10 @@ POST /users/send-welcome      # Reenviar email boas-vindas
 # Payload aprovação:
 {
   "user_id": "user_123",
-  "plan": "basic",  # free/basic/pro/corporate
+  "plan": "vip",  # free/basic/pro/vip/corporate
   "approved_by": "admin_user",
-  "notes": "Cliente premium"
+  "notes": "Pessoa próxima - acesso total",
+  "vip_reason": "Familiar/Amigo próximo"
 }
 ```
 
@@ -194,9 +204,18 @@ if (inviteCode && isValid(inviteCode)) {
 <Modal title="Aprovar Usuário">
   <UserInfo user={selectedUser} />
   <PlanSelector 
-    plans={['free', 'basic', 'pro', 'corporate']}
+    plans={[
+      'free', 'basic', 'pro', 
+      'vip',      // 🌟 Exclusivo Admin
+      'corporate'
+    ]}
     onSelect={setPlan}
   />
+  {plan === 'vip' && (
+    <Alert type="warning">
+      🌟 Plano VIP: Acesso total sem custos (pessoas próximas)
+    </Alert>
+  )}
   <TextArea placeholder="Notas (opcional)" />
   <Button onClick={approveWithPlan}>Aprovar</Button>
 </Modal>
@@ -206,9 +225,11 @@ if (inviteCode && isValid(inviteCode)) {
 - Lista com botão "Aprovar com Plano"
 - Modal de seleção de plano na aprovação
 - Visualização de limites por plano
+- Checklist de funcionalidades por plano
 - Gerar códigos de convite
 - Histórico com planos atribuídos
 - Alterar plano de usuários existentes
+- Gestão de funcionalidades VIP
 ```
 
 **Middleware de Auth:**
@@ -244,11 +265,47 @@ plan_details = {
         'uploads': 'Ilimitados', 
         'conversion': '30 min/mês 4K',
         'features': 'API + Analytics + White-label'
+    },
+    'vip': {
+        'storage': 'Ilimitado',
+        'uploads': 'Ilimitados',
+        'conversion': 'Ilimitada (1080p + 4K)',
+        'features': 'Todas as funcionalidades + API + White-label'
     }
 }
 
-subject = f"🎉 Conta aprovada - Plano {user.plan.title()}!"
-body = f"""
+# Subject personalizado por plano
+if user.plan == 'vip':
+    subject = "🌟 Conta VIP aprovada - Acesso total liberado!"
+else:
+    subject = f"🎉 Conta aprovada - Plano {user.plan.title()}!"
+# Body personalizado por plano
+if user.plan == 'vip':
+    body = f"""
+Olá {user.name},
+
+🌟 Sua conta VIP foi aprovada com acesso total!
+
+✨ Funcionalidades Liberadas:
+✅ Storage ilimitado
+✅ Uploads ilimitados
+✅ Conversão ilimitada (1080p + 4K)
+✅ Gerenciador de pastas avançado
+✅ Busca e analytics
+✅ API access completo
+✅ White-label (sem logo)
+✅ Download e compartilhamento
+✅ Suporte prioritário
+
+🎬 Acesse: https://midiaflow.sstechnologies-cloud.com
+📧 Login: {user.email}
+
+Bem-vindo à família Mídiaflow! 🚀
+
+Equipe Mídiaflow
+"""
+else:
+    body = f"""
 Olá {user.name},
 
 Sua conta foi aprovada com o Plano {user.plan.title()}!
@@ -319,6 +376,36 @@ Plano Pro ($19.99/mês):
 - Analytics avançadas
 - White-label
 - LUCRO: $7.41/mês (37% margem)
+
+Plano VIP (🌟 Exclusivo Admin):
+- Storage ilimitado
+- Uploads ilimitados
+- Conversão ilimitada (1080p + 4K)
+- Sem marca d'água
+- API access completo
+- White-label
+- Suporte prioritário
+- CUSTO: Absorvido pelo admin (pessoas próximas)
+
+**Checklist Funcionalidades VIP:**
+✅ Upload de arquivos (ilimitado)
+✅ Streaming de vídeos
+✅ Conversão H.264 1080p (ilimitada)
+✅ Conversão 4K (ilimitada)
+✅ Gerenciador de pastas
+✅ Busca avançada
+✅ Analytics pessoais
+✅ Thumbnails automáticas
+✅ Player sequencial
+✅ Continue assistindo
+✅ Download de arquivos
+✅ Compartilhamento de links
+✅ API access (endpoints completos)
+✅ White-label (sem logo Mídiaflow)
+✅ Suporte prioritário
+❌ Billing/Faturamento (não aplicável)
+❌ Marketplace (futuro)
+❌ Multi-tenancy (corporativo apenas)
 
 Plano Corporativo ($99/mês):
 - Storage ilimitado (estimativa: $50/mês)
