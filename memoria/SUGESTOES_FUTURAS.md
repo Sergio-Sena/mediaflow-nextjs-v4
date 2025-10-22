@@ -8,7 +8,17 @@
 
 ## 🚀 **v4.8+ - Melhorias Imediatas**
 
-### **🔐 Sistema de Autenticação**
+### **🔐 Sistema de Controle de Acesso & Autenticação**
+- [x] **Sistema de Aprovação Manual** - Admin aprova novos usuários
+- [x] **Códigos de Convite** - Sistema de convites únicos
+- [x] **Planos por Usuário** - Free/Basic/Pro/VIP/Corporativo
+- [x] **Funcionalidades VIP Granulares** - Checkboxes individuais
+- [x] **Notificações Admin** - Badge de usuários pendentes
+- [x] **Emails Automáticos** - AWS SES com detalhes do plano
+- [ ] **Bloqueio de Cadastro Público** - Apenas por convite
+- [ ] **Whitelist de Domínios** - Cadastro apenas emails corporativos
+- [ ] **Limite de Usuários por Plano** - Controle de capacidade
+- [ ] **Expiração de Convites** - Códigos com prazo
 - [ ] **2FA Opcional** - Usuários escolhem ativar/desativar
 - [ ] **Login Social** - Google, GitHub, Microsoft
 - [ ] **SSO Empresarial** - SAML/OAuth para corporativo
@@ -66,7 +76,12 @@
 - [ ] **Análise de Sentimento** - Feedback automático
 
 ### **📊 Analytics & Business Intelligence**
+- [x] **Analytics por Usuário** - Métricas individualizadas
+- [x] **Controle de Custos** - Análise de margem por plano
 - [ ] **Dashboard Executivo** - KPIs em tempo real
+- [ ] **Relatórios de Billing** - Receita e custos detalhados
+- [ ] **Métricas de Aprovação** - Taxa de conversão de usuários
+- [ ] **Análise de Planos** - Performance por tipo de usuário
 - [ ] **Relatórios Customizáveis** - Exportação PDF/Excel
 - [ ] **Heatmaps de Visualização** - Partes mais assistidas
 - [ ] **Análise de Engajamento** - Tempo de retenção
@@ -84,7 +99,16 @@
 - [ ] **Backup Enterprise** - Replicação geográfica
 - [ ] **SLA Personalizado** - Acordos de nível de serviço
 
-### **💰 Monetização Avançada**
+### **💰 Monetização & Billing**
+- [x] **Planos com Margem de Lucro** - Análise de custos AWS
+- [x] **Plano VIP Gratuito** - Para pessoas próximas do admin
+- [x] **Controle de Funcionalidades** - Limites por plano
+- [x] **Sistema de Aprovação** - Admin define plano na aprovação
+- [ ] **Integração Stripe** - Pagamentos automáticos
+- [ ] **Billing Dashboard** - Faturas e uso por usuário
+- [ ] **Usage Tracking** - Monitoramento de limites
+- [ ] **Alertas de Limite** - Notificações de uso
+- [ ] **Upgrade/Downgrade** - Mudança de planos
 - [ ] **Marketplace de Templates** - Temas e layouts
 - [ ] **Sistema de Afiliados** - Comissões por indicação
 - [ ] **Cobrança por Uso** - Pay-per-view, pay-per-GB
@@ -182,11 +206,13 @@
 ## 📈 **Roadmap de Priorização**
 
 ### **🔥 Alta Prioridade (v4.8-4.9)**
-1. **Sistema de Autenticação** - 2FA, Login Social
-2. **Player Avançado** - Legendas, Múltiplas qualidades
-3. **Mobile PWA** - App instalável
-4. **Analytics Melhorado** - Dashboard executivo
-5. **Colaboração Básica** - Compartilhamento avançado
+1. **✅ Sistema de Controle de Acesso** - IMPLEMENTADO v4.8
+2. **Integração Stripe** - Pagamentos e billing
+3. **Usage Tracking** - Monitoramento de limites por plano
+4. **Player Avançado** - Legendas, Múltiplas qualidades
+5. **Mobile PWA** - App instalável
+6. **Analytics Melhorado** - Dashboard executivo
+7. **Colaboração Básica** - Compartilhamento avançado
 
 ### **⚡ Média Prioridade (v5.0-5.2)**
 1. **IA Básica** - Transcrição, Tags automáticas
@@ -228,9 +254,10 @@ Impacto vs Esforço:
 
 ## 🎉 **Conclusão**
 
-**Total de Sugestões**: 100+ funcionalidades  
+**Total de Sugestões**: 120+ funcionalidades  
 **Categorias**: 15 áreas diferentes  
 **Horizonte**: 2-3 anos de desenvolvimento  
+**Implementado v4.8**: Sistema completo de controle de acesso  
 
 **Próximos Passos**:
 1. ✅ Avaliar sugestões por categoria
