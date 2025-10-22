@@ -55,8 +55,7 @@ def lambda_handler(event, context):
                         Bucket=BUCKET,
                         Key=avatar_key,
                         Body=image_data,
-                        ContentType='image/jpeg',
-                        ACL='public-read'
+                        ContentType='image/jpeg'
                     )
                     
                     avatar_url = f"https://{BUCKET}.s3.amazonaws.com/{avatar_key}"

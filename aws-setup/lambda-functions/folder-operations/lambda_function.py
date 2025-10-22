@@ -10,21 +10,36 @@ def lambda_handler(event, context):
     method = event['httpMethod']
     body = json.loads(event.get('body', '{}'))
     
+    print(f"Method: {method}, Body: {body}")
+    
     # Extract user_id from JWT
     token = event['headers'].get('Authorization', '').replace('Bearer ', '')
     try:
         payload = json.loads(base64.b64decode(token.split('.')[1] + '=='))
         user_id = payload['user_id']
         role = payload.get('role', 'user')
+        print(f"User: {user_id}, Role: {role}")
     except:
-        return {'statusCode': 401, 'body': json.dumps({'success': False, 'message': 'Unauthorized'})}
+        return {
+            'statusCode': 401,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({'success': False, 'message': 'Unauthorized'})
+        }
     
     if method == 'POST':
         folder_path = body['folderPath'].strip('/')
+        print(f"Creating folder: {folder_path}")
         
         # Validate permission
-        if role != 'admin' and not folder_path.startswith(f'users/{user_id}'):
-            return {'statusCode': 403, 'body': json.dumps({'success': False, 'message': 'Forbidden'})}
+        expected_prefix = f'users/{user_id}'
+        print(f"Checking: {folder_path} starts with {expected_prefix}? {folder_path.startswith(expected_prefix)}")
+        
+        if role != 'admin' and not folder_path.startswith(expected_prefix):
+            return {
+                'statusCode': 403,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'success': False, 'message': 'Forbidden'})
+            }
         
         # Create placeholder
         s3.put_object(
@@ -45,14 +60,22 @@ def lambda_handler(event, context):
         
         # Validate permission
         if role != 'admin' and not folder_path.startswith(f'users/{user_id}'):
-            return {'statusCode': 403, 'body': json.dumps({'success': False, 'message': 'Forbidden'})}
+            return {
+                'statusCode': 403,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'success': False, 'message': 'Forbidden'})
+            }
         
         # List objects in folder
         response = s3.list_objects_v2(Bucket=BUCKET, Prefix=f'{folder_path}/')
         
         # Only delete if empty (safety)
         if 'Contents' in response and len(response['Contents']) > 1:
-            return {'statusCode': 400, 'body': json.dumps({'success': False, 'message': 'Folder not empty'})}
+            return {
+                'statusCode': 400,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'success': False, 'message': 'Folder not empty'})
+            }
         
         # Delete placeholder
         try:
@@ -66,4 +89,8 @@ def lambda_handler(event, context):
             'body': json.dumps({'success': True})
         }
     
-    return {'statusCode': 405, 'body': json.dumps({'success': False, 'message': 'Method Not Allowed'})}
+    return {
+        'statusCode': 405,
+        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+        'body': json.dumps({'success': False, 'message': 'Method Not Allowed'})
+    }

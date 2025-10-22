@@ -336,13 +336,22 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 - [x] **Permissões Granulares** - Admin vê tudo, User vê só suas pastas
 - [x] **Deploy realizado** - Build 20/01/2025 02:08
 
-### **v4.8 (Próxima)**
-- [ ] Renomear pastas
-- [ ] Mover arquivos entre pastas
-- [ ] DynamoDB cache de metadados
-- [ ] Editar usuários existentes
-- [ ] OAuth Google
-- [ ] PWA offline support
+### **v4.7.1 (HOTFIX)** ✅
+- [x] **Busca Filtrada** - Usuários só veem seus arquivos na busca
+- [x] **Analytics por Usuário** - Métricas individualizadas
+- [x] **Download Temporário** - Mensagem "Em breve" até implementação
+- [x] **Avatar Upload Fix** - Remoção de ACL para compatibilidade S3
+- [x] **Usuários Iniciam em Sua Pasta** - Dashboard abre em users/{user_id}/
+- [x] **CloudFront Cleanup** - 2 distribuições antigas desabilitadas
+- [x] **Deploy realizado** - Build 22/01/2025 11:57
+
+### **v4.8 (Infraestrutura)**
+- [ ] Logs estruturados (JSON) em 8 Lambdas
+- [ ] CI/CD GitHub Actions
+- [ ] Ambientes dev/staging/prod
+- [ ] Rate limiting API Gateway
+- [ ] CloudWatch Alarms + SNS
+- [ ] Documentação OpenAPI (futuro)
 
 ### **v5.0 (Futuro)**
 - [ ] Multi-tenancy
@@ -355,7 +364,7 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 ## 🎆 **Status Final**
 
 **🎬 Mídiaflow v4.7 - Sistema de Streaming Profissional Multi-Usuário**  
-**Versão**: 4.7.0 | **Status**: ✅ PRODUÇÃO | **CDN**: ✅ ATIVO | **Multi-User**: ✅ ATIVO
+**Versão**: 4.7.1 | **Status**: ✅ PRODUÇÃO | **CDN**: ✅ ATIVO | **Multi-User**: ✅ ATIVO
 
 **🌐 URL Produção**: https://midiaflow.sstechnologies-cloud.com  
 **🔑 Login**: [admin-email] / [admin-password]  

@@ -39,7 +39,26 @@ export default function Analytics() {
       const data = await mediaflowClient.getFiles()
       
       if (data.success) {
-        const files = data.files
+        // Filtrar arquivos por usuário
+        const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
+        let userRole = 'user'
+        let userId = ''
+        
+        if (token) {
+          try {
+            const payload = JSON.parse(atob(token.split('.')[1]))
+            userRole = payload.role || 'user'
+            userId = payload.user_id || ''
+          } catch (e) {}
+        }
+        
+        // Admin vê tudo, user só vê seus arquivos
+        const files = userRole === 'admin' 
+          ? data.files 
+          : data.files.filter((f: any) => {
+              const folder = f.folder || (f.key.includes('/') ? f.key.split('/').slice(0, -1).join('/') : 'root')
+              return folder.startsWith(`users/${userId}`) || folder === 'root'
+            })
         
         const totalFiles = files.length
         const totalSize = files.reduce((acc: number, file: any) => acc + file.size, 0)

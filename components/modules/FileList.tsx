@@ -34,7 +34,8 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
   const [selectedFiles, setSelectedFiles] = useState<Set<string>>(new Set())
   const [selectAll, setSelectAll] = useState(false)
   const [converting, setConverting] = useState<Set<string>>(new Set())
-  const [currentPath, setCurrentPath] = useState<string[]>([''])
+  const [currentPath, setCurrentPath] = useState<string[]>([])
+  const [initialPathSet, setInitialPathSet] = useState(false)
   const [folderStructure, setFolderStructure] = useState<{[key: string]: string[]}>({})
 
   const fetchFiles = async () => {
@@ -165,6 +166,36 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
     fetchFiles()
   }, [refreshTrigger])
 
+  // Set initial path based on user role
+  useEffect(() => {
+    if (files.length > 0 && !initialPathSet) {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
+      if (token) {
+        try {
+          const payload = JSON.parse(atob(token.split('.')[1]))
+          const userRole = payload.role || 'user'
+          const userId = payload.user_id || ''
+          
+          if (userRole === 'user' && userId) {
+            // User: navigate to users/{user_id}/
+            const userFolder = `users/${userId}`
+            setCurrentPath(['', 'users', userId])
+          } else {
+            // Admin: stay at root
+            setCurrentPath([''])
+          }
+          setInitialPathSet(true)
+        } catch (e) {
+          setCurrentPath([''])
+          setInitialPathSet(true)
+        }
+      } else {
+        setCurrentPath([''])
+        setInitialPathSet(true)
+      }
+    }
+  }, [files, initialPathSet])
+
   useEffect(() => {
     if (targetFolder !== undefined) {
       const pathParts = targetFolder ? targetFolder.split('/') : ['']
@@ -225,7 +256,25 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
     const normalizedSearch = searchTerm.toLowerCase().replace(/[_\s]/g, '')
     const matchesSearch = normalizedFileName.includes(normalizedSearch)
     const matchesType = selectedType === 'all' || file.type === selectedType
-    return matchesSearch && matchesType
+    
+    // Filtrar por permissão do usuário
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
+    let userRole = 'user'
+    let userPrefix = ''
+    
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]))
+        userRole = payload.role || 'user'
+        const userId = payload.user_id || ''
+        userPrefix = `users/${userId}`
+      } catch (e) {}
+    }
+    
+    // Admin vê tudo, user só vê seus arquivos
+    const hasPermission = userRole === 'admin' || file.folder.startsWith(userPrefix) || file.folder === 'root'
+    
+    return matchesSearch && matchesType && hasPermission
   })
 
   const formatFileSize = (bytes: number) => {
@@ -265,10 +314,7 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
   }
 
   const handleDownload = (file: S3File) => {
-    const link = document.createElement('a')
-    link.href = file.url
-    link.download = file.name
-    link.click()
+    alert('📥 Função de download estará disponível em breve!')
   }
 
   const handleDelete = async (file: S3File) => {

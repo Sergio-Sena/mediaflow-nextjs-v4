@@ -5,17 +5,17 @@
 **Mídiaflow** é uma plataforma de streaming profissional multi-usuário em produção na AWS.
 
 - **URL Produção**: https://midiaflow.sstechnologies-cloud.com
-- **Versão Atual**: v4.7.0 (Gerenciador de Pastas)
+- **Versão Atual**: v4.7.1 (Hotfix Multi-Usuário)
 - **Status**: ✅ 100% FUNCIONAL EM PRODUÇÃO
 
 ## Arquitetura AWS
 
 ### Frontend
 - **Hosting**: S3 bucket `mediaflow-frontend-969430605054` (static export Next.js)
-- **CDN**: CloudFront distribution `E3ODIUY4LXU8TH`
+- **CDN**: CloudFront distribution `E2HZKZ9ZJK18IU` (d2x90cv3rb5hoa.cloudfront.net)
 - **SSL**: Certificado wildcard ativo
 - **Build**: `npm run build` → `aws s3 sync out/ s3://mediaflow-frontend-969430605054 --delete`
-- **Cache**: Invalidar com `aws cloudfront create-invalidation --distribution-id E3ODIUY4LXU8TH --paths "/*"`
+- **Cache**: Invalidar com `aws cloudfront create-invalidation --distribution-id E2HZKZ9ZJK18IU --paths "/*"`
 
 ### Backend
 - **API Gateway**: 8 Lambda Functions (Python 3.12)
@@ -100,6 +100,9 @@ mediaflow-uploads/
 ✅ **Upload consolidado** (botão único multipart + normal)
 ✅ **Busca inteligente** (encontra com underscore)
 ✅ **Player otimizado** (auto-hide + autoplay)
+✅ **Busca filtrada por usuário** (v4.7.1)
+✅ **Analytics individualizadas** (v4.7.1)
+✅ **Usuários iniciam em sua pasta** (v4.7.1)
 
 ## Estrutura do Projeto
 
@@ -131,8 +134,11 @@ drive-online-clean-NextJs/
     ├── PROMPT_CONSOLIDADO.md
     ├── METODO_DESENVOLVIMENTO.md
     ├── FIX_PATH_DUPLICADO.md
-    ├── CHANGELOG_v4.7.md          # Novidades v4.7 (NOVO)
-    └── FOLDER_MANAGER_V2.md       # Docs técnica (NOVO)
+    ├── CHANGELOG_v4.7.md          # Novidades v4.7
+    ├── CHANGELOG_v4.7.1.md        # Hotfix multi-usuário (NOVO)
+    ├── ROADMAP_INFRAESTRUTURA.md  # Roadmap v4.8+ (NOVO)
+    ├── INFRAESTRUTURA_AWS.md      # Docs completa AWS (NOVO)
+    └── FIXES_CHECKLIST.md         # Correções v4.7.1 (NOVO)
 ```
 
 ## Dashboard Tabs (4 tabs)
@@ -152,7 +158,7 @@ npm run build
 aws s3 sync out/ s3://mediaflow-frontend-969430605054 --delete
 
 # 3. Invalidar CloudFront
-aws cloudfront create-invalidation --distribution-id E3ODIUY4LXU8TH --paths "/*"
+aws cloudfront create-invalidation --distribution-id E2HZKZ9ZJK18IU --paths "/*"
 
 # 4. Deploy Lambda (exemplo)
 cd aws-setup/lambda-functions/upload-handler
@@ -165,7 +171,7 @@ aws lambda update-function-code --function-name upload-handler --zip-file fileb:
 ### 1. Cache CloudFront Persistente
 **Problema**: Mudanças não aparecem após deploy
 **Solução**: 
-- Invalidar cache: `aws cloudfront create-invalidation --distribution-id E3ODIUY4LXU8TH --paths "/*"`
+- Invalidar cache: `aws cloudfront create-invalidation --distribution-id E2HZKZ9ZJK18IU --paths "/*"`
 - Hard refresh no browser: `Ctrl+Shift+R` (Windows) ou `Cmd+Shift+R` (Mac)
 - Aguardar 5-10 minutos para propagação global
 
@@ -198,7 +204,7 @@ npm run lint                # ESLint
 # AWS CLI
 aws s3 ls s3://mediaflow-uploads/users/ --recursive --human-readable --summarize
 aws lambda list-functions --query 'Functions[?starts_with(FunctionName, `mediaflow`)].FunctionName'
-aws cloudfront get-invalidation --distribution-id E3ODIUY4LXU8TH --id <INVALIDATION_ID>
+aws cloudfront get-invalidation --distribution-id E2HZKZ9ZJK18IU --id <INVALIDATION_ID>
 
 # Scripts S3
 node scripts/s3-operations/analyze-structure.js
@@ -212,14 +218,29 @@ node scripts/s3-operations/cleanup-anonymous.js
 - **DynamoDB Table**: mediaflow-users
 - **S3 Buckets**: mediaflow-uploads, mediaflow-processed, mediaflow-frontend-969430605054
 
-## Próximos Passos Sugeridos (v4.8)
+## Próximos Passos Sugeridos (v4.8 - Infraestrutura)
 
+**Prioridade 1 - CRÍTICO** (3h):
+- [ ] Logs estruturados (JSON) em 8 Lambdas
+- [ ] CloudWatch Insights otimizado
+- [ ] Correlation IDs para rastreamento
+
+**Prioridade 2 - ALTA** (2 dias):
+- [ ] CI/CD GitHub Actions (deploy automático)
+- [ ] Ambientes dev/staging/prod
+- [ ] Testes automatizados
+
+**Prioridade 3 - MÉDIA** (3h):
+- [ ] Rate limiting API Gateway
+- [ ] CloudWatch Alarms + SNS
+- [ ] Monitoramento proativo
+
+**Features (v4.9+)**:
+- [ ] Download com signed URLs
 - [ ] Renomear pastas
 - [ ] Mover arquivos entre pastas
-- [ ] DynamoDB para cache de metadados
-- [ ] Editar usuários existentes (admin)
-- [ ] OAuth Google login
-- [ ] PWA offline support
+- [ ] Editar usuários existentes
+- [ ] Área pública de mídias
 
 ## Documentação Completa
 
@@ -228,7 +249,9 @@ node scripts/s3-operations/cleanup-anonymous.js
 - **memoria/METODO_DESENVOLVIMENTO.md**: Metodologia C.E.R.T.O
 - **memoria/FIX_PATH_DUPLICADO.md**: Hotfix v4.6.1
 - **memoria/CHANGELOG_v4.7.md**: Novidades v4.7
-- **memoria/FOLDER_MANAGER_V2.md**: Docs técnica gerenciador
+- **memoria/CHANGELOG_v4.7.1.md**: Hotfix multi-usuário
+- **memoria/ROADMAP_INFRAESTRUTURA.md**: Roadmap v4.8+
+- **memoria/INFRAESTRUTURA_AWS.md**: Documentação completa AWS
 
 ---
 
@@ -244,4 +267,11 @@ node scripts/s3-operations/cleanup-anonymous.js
 
 **Sistema 100% funcional. Qualquer mudança deve manter compatibilidade com arquitetura existente.**
 
-🎬 **Mídiaflow v4.7** - Sistema de Streaming Profissional Multi-Usuário
+🎬 **Mídiaflow v4.7.1** - Sistema de Streaming Profissional Multi-Usuário
+
+## Infraestrutura AWS (v4.7.1)
+
+**CloudFront Ativo**: E2HZKZ9ZJK18IU (d2x90cv3rb5hoa.cloudfront.net)  
+**CloudFronts Inativos**: E3ODIUY4LXU8TH, E12GJ6BBJXZML5 (desabilitados 22/01/2025)  
+**Custo Mensal**: ~$21.20/mês  
+**Recursos**: 3 S3, 1 CloudFront, 8 Lambdas, 1 API Gateway, 1 DynamoDB
