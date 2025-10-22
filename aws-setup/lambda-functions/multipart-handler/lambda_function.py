@@ -17,16 +17,16 @@ def lambda_handler(event, context):
         path = event.get('path', '')
         body = json.loads(event.get('body', '{}'))
         
-        # Extrair username do JWT
-        username = extract_username(event)
+        # Extrair user_id do JWT
+        user_id = extract_user_id(event)
         
         # INIT - Iniciar multipart upload
         if '/init' in path:
             filename = body.get('filename', '')
             file_size = body.get('fileSize', 0)
             
-            # SEMPRE usar users/{username}/ independente do filename
-            key = f"users/{username}/{filename}"
+            # SEMPRE usar users/{user_id}/ independente do filename
+            key = f"users/{user_id}/{filename}"
             
             response = s3.create_multipart_upload(
                 Bucket=BUCKET,
@@ -112,8 +112,8 @@ def lambda_handler(event, context):
             'message': str(e)
         })
 
-def extract_username(event):
-    """Extrair username do JWT sem biblioteca externa"""
+def extract_user_id(event):
+    """Extrair user_id do JWT sem biblioteca externa"""
     auth_header = event.get('headers', {}).get('Authorization', '') or \
                   event.get('headers', {}).get('authorization', '')
     
@@ -141,10 +141,10 @@ def extract_username(event):
         decoded = base64.urlsafe_b64decode(payload)
         payload_data = json.loads(decoded)
         
-        # Extrair username
-        username = payload_data.get('username', 'anonymous')
-        print(f"Username extraído do JWT: {username}")
-        return username
+        # Extrair user_id (campo correto do JWT)
+        user_id = payload_data.get('user_id', 'anonymous')
+        print(f"User ID extraído do JWT: {user_id}")
+        return user_id
         
     except Exception as e:
         print(f"Erro ao parsear JWT: {e}")

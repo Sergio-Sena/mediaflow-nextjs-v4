@@ -13,10 +13,7 @@ export default function HomePage() {
         <div className="mb-8">
           <div className="mb-6">
             <h1 className="text-4xl md:text-6xl lg:text-7xl mb-6 font-black">
-              <span className="animate-float inline-block">🎬</span> <span className="text-blue-300 relative">
-                Mídiaflow
-                <div className="absolute inset-0 bg-blue-400/20 rounded-lg blur-md animate-pulse -z-10"></div>
-              </span>
+              <span className="animate-float inline-block">🎬</span> <span className="text-blue-300">Mídiaflow</span>
             </h1>
           </div>
           <div className="space-y-2">
@@ -74,7 +71,7 @@ export default function HomePage() {
           {/* Feature Highlights */}
           <div className="text-left space-y-6">
             <h2 className="text-2xl md:text-3xl font-bold text-gradient">
-              Filmes, fotos, vídeos, ae em nuvem e mais.
+              Filmes, fotos, vídeos, storage em nuvem e mais.
             </h2>
             <p className="text-lg text-gray-300 mt-2">
               Comece agora

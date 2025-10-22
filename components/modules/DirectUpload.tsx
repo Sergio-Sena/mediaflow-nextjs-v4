@@ -20,6 +20,7 @@ export default function DirectUpload({
   const [progress, setProgress] = useState<{[key: string]: number}>({})
   const [results, setResults] = useState<{[key: string]: 'success' | 'error'}>({})
   const [destination, setDestination] = useState('')
+  const [multipartUploading, setMultipartUploading] = useState(false)
   const [users, setUsers] = useState<any[]>([])
   const [currentUser, setCurrentUser] = useState<any>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -65,15 +66,22 @@ export default function DirectUpload({
       
       // Adicionar prefixo de destino se selecionado
       if (destination) {
+        // Se tem webkitRelativePath, manter estrutura completa da pasta selecionada
+        // Ex: C:\Users\dell\Videos\IDM\Anime\video.mp4 → Anime/video.mp4
+        // Ex: C:\Users\dell\Videos\Star\Anime\video.mp4 → Star/Anime/video.mp4
         filename = destination + filename
       }
       
       // 1. Obter URL presigned diretamente da AWS API
-      console.log(`🔑 Solicitando presigned URL...`)
+      console.log(`🔑 Solicitando presigned URL para: ${filename}`)
       const presignedStart = Date.now()
+      const token = localStorage.getItem('token')
       const urlResponse = await fetch('https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/upload/presigned', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': token ? `Bearer ${token}` : ''
+        },
         body: JSON.stringify({
           filename: filename,
           contentType: file.type,
@@ -305,55 +313,88 @@ export default function DirectUpload({
         className="hidden"
       />
 
+      {/* Botões Globais */}
+      {files.length > 0 && (
+        <div className="glass-card p-6">
+          <div className="flex justify-between items-center">
+            <div>
+              <h4 className="text-lg font-semibold text-white">
+                📦 {files.length} arquivo(s) selecionado(s)
+              </h4>
+              <p className="text-sm text-gray-400">
+                {files.filter(f => f.size > 100 * 1024 * 1024).length} grande(s) • {files.filter(f => f.size <= 100 * 1024 * 1024).length} pequeno(s)
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  setFiles([])
+                  setMultipartUploading(false)
+                  setUploading(false)
+                }}
+                className="btn-secondary px-4 py-2 text-sm"
+                disabled={uploading || multipartUploading}
+              >
+                Limpar Todos
+              </button>
+              <button
+                onClick={() => {
+                  setMultipartUploading(true)
+                  handleUpload()
+                }}
+                className="btn-neon px-6 py-2"
+                disabled={uploading || multipartUploading}
+              >
+                {(uploading || multipartUploading) ? '📤 Enviando...' : '📤 Upload Todos'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Multipart Uploads (>100MB) */}
       {files.filter(f => f.size > 100 * 1024 * 1024).length > 0 && (
-        <div className="space-y-4 mb-6">
-          <h4 className="text-lg font-semibold text-white">
-            ⚡ Upload Multipart - Arquivos Grandes ({files.filter(f => f.size > 100 * 1024 * 1024).length})
-          </h4>
+        <div className="glass-card p-6">
+          <div className="mb-4">
+            <h4 className="text-lg font-semibold text-white">
+              ⚡ Arquivos Grandes ({files.filter(f => f.size > 100 * 1024 * 1024).length})
+            </h4>
+          </div>
           <p className="text-sm text-gray-400 mb-4">
-            Arquivos maiores que 100MB usam upload paralelo para maior velocidade
+            Arquivos maiores que 100MB usam upload paralelo em chunks de 50MB
           </p>
-          {files.filter(f => f.size > 100 * 1024 * 1024).map((file, i) => (
-            <MultipartUpload
-              key={i}
-              file={file}
-              onComplete={(key) => {
-                setFiles(prev => prev.filter(f => f !== file))
-                setResults(prev => ({ ...prev, [file.name]: 'success' }))
-                onUploadComplete?.([file])
-              }}
-              onCancel={() => {
-                setFiles(prev => prev.filter(f => f !== file))
-              }}
-            />
-          ))}
+          <div className="space-y-4">
+            {files.filter(f => f.size > 100 * 1024 * 1024).map((file, i) => (
+              <MultipartUpload
+                key={i}
+                file={file}
+                destination={destination}
+                autoStart={multipartUploading}
+                onComplete={(key) => {
+                  setFiles(prev => prev.filter(f => f !== file))
+                  setResults(prev => ({ ...prev, [file.name]: 'success' }))
+                  onUploadComplete?.([file])
+                  if (files.filter(f => f.size > 100 * 1024 * 1024).length === 1) {
+                    setMultipartUploading(false)
+                  }
+                }}
+                onCancel={() => {
+                  setFiles(prev => prev.filter(f => f !== file))
+                  setMultipartUploading(false)
+                }}
+              />
+            ))}
+          </div>
         </div>
       )}
 
       {/* File List (<=100MB) */}
       {files.filter(f => f.size <= 100 * 1024 * 1024).length > 0 && (
         <div className="glass-card p-6">
-          <div className="flex justify-between items-center mb-4">
+          <div className="mb-4">
             <h4 className="text-lg font-semibold text-white">
-              📄 Upload Normal - Arquivos Pequenos ({files.filter(f => f.size <= 100 * 1024 * 1024).length})
+              📄 Arquivos Pequenos ({files.filter(f => f.size <= 100 * 1024 * 1024).length})
             </h4>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setFiles([])}
-                className="btn-secondary px-4 py-2 text-sm"
-                disabled={uploading}
-              >
-                Limpar
-              </button>
-              <button
-                onClick={handleUpload}
-                className="btn-neon px-6 py-2"
-                disabled={uploading || files.filter(f => f.size <= 100 * 1024 * 1024).length === 0}
-              >
-                {uploading ? '📤 Enviando...' : '📤 Upload Todos'}
-              </button>
-            </div>
           </div>
 
           <div className="space-y-3">

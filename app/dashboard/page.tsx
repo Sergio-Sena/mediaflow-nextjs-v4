@@ -9,7 +9,8 @@ import VideoPlayer from '@/components/modules/VideoPlayer'
 import ImageViewer from '@/components/modules/ImageViewer'
 import PDFViewer from '@/components/modules/PDFViewer'
 import Analytics from '@/components/modules/Analytics'
-import FolderManager from '@/components/modules/FolderManager'
+import FolderManagerV2 from '@/components/modules/FolderManagerV2'
+
 import AvatarUpload from '@/components/AvatarUpload'
 
 
@@ -33,7 +34,7 @@ interface FileItem {
 export default function DashboardPage() {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState<'files' | 'upload' | 'manager' | 'analytics'>('files')
+  const [activeTab, setActiveTab] = useState<'files' | 'folders' | 'upload' | 'analytics'>('files')
   const [selectedVideo, setSelectedVideo] = useState<FileItem | null>(null)
   const [selectedImage, setSelectedImage] = useState<FileItem | null>(null)
   const [selectedPDF, setSelectedPDF] = useState<FileItem | null>(null)
@@ -270,11 +271,10 @@ export default function DashboardPage() {
         <div className="max-w-7xl mx-auto px-2 sm:px-4">
           <div className="flex space-x-2 sm:space-x-4 md:space-x-8 min-w-max">
             {[
-
               { id: 'files', label: '📁 Biblioteca', count: 0 },
               { id: 'upload', label: '📤 Upload', count: 0 },
-              { id: 'manager', label: '🗂️ Gerenciador', count: 0 },
               { id: 'analytics', label: '📊 Analytics', count: 0 },
+              { id: 'folders', label: '🗂️ Pastas', count: 0 },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -326,6 +326,16 @@ export default function DashboardPage() {
           />
         )}
 
+        {activeTab === 'folders' && (
+          <FolderManagerV2
+            currentPath={currentFolderPath}
+            onNavigate={(path) => {
+              setCurrentFolderPath(path)
+              setActiveTab('files')
+            }}
+          />
+        )}
+
         {activeTab === 'upload' && (
           <div className="space-y-6">
             <div className="flex justify-between items-center">
@@ -346,19 +356,6 @@ export default function DashboardPage() {
                 handleRefresh()
                 setActiveTab('files')
               }}
-            />
-          </div>
-        )}
-
-        {activeTab === 'manager' && (
-          <div className="space-y-6">
-            <FolderManager 
-              onNavigateToFolder={(folderPath) => {
-                // Switch to files tab and navigate to folder
-                setCurrentFolderPath(folderPath)
-                setActiveTab('files')
-              }}
-              onFilesLoaded={setAllFiles}
             />
           </div>
         )}

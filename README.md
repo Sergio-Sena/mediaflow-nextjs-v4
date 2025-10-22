@@ -1,4 +1,4 @@
-# 🎬 Mídiaflow v4.6 - Sistema de Streaming Profissional Multi-Usuário
+# 🎬 Mídiaflow v4.7 - Sistema de Streaming Profissional Multi-Usuário
 
 > **Plataforma completa de streaming com AWS, CDN global e upload modular inteligente**
 
@@ -28,7 +28,7 @@
 - ✅ **Conversão H.264** - AWS MediaConvert 1080p automático
 - ✅ **Player Sequencial** - Navegação Previous/Next entre vídeos da pasta
 - ✅ **Navegação por Pastas** - Breadcrumbs e estrutura hierárquica
-- ✅ **Gerenciador Avançado** - Interface dedicada com seleção em lote
+- ✅ **Gerenciador de Pastas** - Navegação hierárquica visual com breadcrumbs
 - ✅ **UI Polida** - Botões centralizados e animações suaves
 - ✅ **CDN Global** - CloudFront para performance mundial (400+ edge locations)
 - ✅ **SSL/HTTPS** - Certificado wildcard ativo
@@ -44,6 +44,8 @@
 - ✅ **Página Admin** - Interface de gerenciamento de usuários
 - ✅ **Continue Assistindo** - Botão retoma último vídeo
 - ✅ **Thumbnails Client-Side** - Geração automática gratuita
+- ✅ **Busca Inteligente** - Encontra arquivos com underscore e espaços
+- ✅ **Player Otimizado** - Auto-hide de controles e autoplay em playlist
 
 ---
 
@@ -56,7 +58,7 @@
 - **Domínio**: midiaflow.sstechnologies-cloud.com
 
 ### **Backend**
-- **API**: API Gateway + 7 Lambda Functions
+- **API**: API Gateway + 8 Lambda Functions
 - **Storage**: 3 S3 Buckets (uploads/processed/frontend)
 - **Vídeo**: AWS MediaConvert H.264 1080p
 - **Auth**: JWT com sessão persistente
@@ -128,7 +130,7 @@ drive-online-clean-NextJs/
 │   └── UserCard.tsx       # Card de usuário
 ├── lib/                   # Clientes AWS e utilitários
 ├── aws-setup/             # Scripts de deploy AWS
-│   └── lambda-functions/  # 7 Funções Lambda
+│   └── lambda-functions/  # 8 Funções Lambda
 ├── scripts/               # Scripts utilitários
 │   ├── s3-operations/     # Operações S3
 │   └── testing/           # Scripts de teste
@@ -315,14 +317,32 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 - [x] **Deploy Completo** - Frontend + Lambda + CloudFront
 - [x] **Docs Simplificada** - Sem caracteres especiais
 - [x] **Build Otimizado** - 3.6 MB, 19 páginas
+- [x] **FIX Path Duplicado** - JWT user_id corrigido (v4.6.1)
 
-### **v4.7 (Próxima)**
+### **v4.6.1 (HOTFIX)** ✅
+- [x] **JWT Field Fix** - Lambdas multipart + upload usam user_id ao invés de username
+- [x] **Path Consistency** - Elimina users/anonymous/ para novos usuários
+- [x] **Deploy Scripts** - deploy-multipart-fix.py + deploy-upload-fix.py
+- [x] **Documentação** - FIX_PATH_DUPLICADO.md completo
+- [x] **UI Multipart** - Card visual para arquivos >100MB
+
+### **v4.7 (PRODUÇÃO)** ✅
+- [x] **Tab Pastas** - Gerenciador visual hierárquico
+- [x] **Upload Consolidado** - Botão único para multipart + normal
+- [x] **Busca Melhorada** - Encontra com underscore (_)
+- [x] **Player Otimizado** - Maior em telas grandes + auto-hide
+- [x] **Autoplay Playlist** - Previous/Next com autoplay automático
+- [x] **Lambda folder-operations** - CRUD de pastas com permissões
+- [x] **Permissões Granulares** - Admin vê tudo, User vê só suas pastas
+- [x] **Deploy realizado** - Build 20/01/2025 02:08
+
+### **v4.8 (Próxima)**
+- [ ] Renomear pastas
+- [ ] Mover arquivos entre pastas
+- [ ] DynamoDB cache de metadados
 - [ ] Editar usuários existentes
 - [ ] OAuth Google
-- [ ] Compressão de imagens automática
-- [ ] Notificações push
 - [ ] PWA offline support
-- [ ] Modo picture-in-picture
 
 ### **v5.0 (Futuro)**
 - [ ] Multi-tenancy
@@ -334,8 +354,8 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 
 ## 🎆 **Status Final**
 
-**🎬 Mídiaflow v4.6 - Sistema de Streaming Profissional Multi-Usuário**  
-**Versão**: 4.6.0 | **Status**: ✅ PRODUÇÃO | **CDN**: ✅ ATIVO | **Multi-User**: ✅ ATIVO
+**🎬 Mídiaflow v4.7 - Sistema de Streaming Profissional Multi-Usuário**  
+**Versão**: 4.7.0 | **Status**: ✅ PRODUÇÃO | **CDN**: ✅ ATIVO | **Multi-User**: ✅ ATIVO
 
 **🌐 URL Produção**: https://midiaflow.sstechnologies-cloud.com  
 **🔑 Login**: [admin-email] / [admin-password]  
@@ -362,8 +382,11 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 - 📁 **Estrutura users/** (Uploads organizados por usuário)
 - ▶️ **Continue assistindo** (Retoma último vídeo)
 - 🖼️ **Thumbnails gratuitas** (Geração client-side)
+- 🗂️ **Gerenciador de Pastas** (Navegação visual hierárquica)
+- 🔍 **Busca inteligente** (Encontra com underscore)
+- 🎮 **Controles auto-hide** (Somem após 3s)
 
-*"De plataforma desktop para experiência mobile completa!" - Mídiaflow Team* 📱🚀
+*"De plataforma desktop para experiência mobile completa com gerenciamento visual!" - Mídiaflow Team* 📱🚀
 
 ---
 

@@ -73,10 +73,18 @@ export default function FolderManager({ onNavigateToFolder, onFilesLoaded }: Fol
         setFiles(transformedFiles)
         onFilesLoaded?.(transformedFiles)
         
-        // Build folder structure
+        // Build folder structure (filtrado por permissão)
         const structure: {[key: string]: string[]} = {}
         transformedFiles.forEach((file: any) => {
           if (file.folder && file.folder !== 'root') {
+            // Filtrar por permissão do usuário
+            if (userRole !== 'admin') {
+              const normalizedPrefix = userPrefix.replace(/\/$/, '')
+              if (!file.key.startsWith(normalizedPrefix)) {
+                return // Pular arquivos de outros usuários
+              }
+            }
+            
             const parts = file.folder.split('/')
             parts.forEach((part: string, index: number) => {
               const parentPath = parts.slice(0, index).join('/')
@@ -133,16 +141,66 @@ export default function FolderManager({ onNavigateToFolder, onFilesLoaded }: Fol
   
   const getCurrentFolders = () => {
     const currentFolderPath = getCurrentFolderPath()
-    return folderStructure[currentFolderPath] || []
+    const folders = folderStructure[currentFolderPath] || []
+    
+    // Filtrar pastas por permissão do usuário
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
+    let userPrefix = ''
+    let userRole = 'user'
+    
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]))
+        userPrefix = payload.s3_prefix || ''
+        userRole = payload.role || 'user'
+      } catch (e) {}
+    }
+    
+    // Admin vê todas as pastas
+    if (userRole === 'admin') {
+      return folders
+    }
+    
+    // User só vê suas pastas
+    return folders.filter(f => {
+      const normalizedPrefix = userPrefix.replace(/\/$/, '')
+      return f.startsWith(normalizedPrefix)
+    })
   }
 
   const getCurrentFiles = () => {
     const currentFolderPath = getCurrentFolderPath()
+    
+    // Filtrar arquivos por permissão do usuário
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
+    let userPrefix = ''
+    let userRole = 'user'
+    
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]))
+        userPrefix = payload.s3_prefix || ''
+        userRole = payload.role || 'user'
+      } catch (e) {}
+    }
+    
     return files.filter(file => {
+      // Filtro de pasta atual
+      let inCurrentFolder = false
       if (currentFolderPath === '') {
-        return file.folder === 'root' || !file.folder.includes('/')
+        inCurrentFolder = file.folder === 'root' || !file.folder.includes('/')
+      } else {
+        inCurrentFolder = file.folder === currentFolderPath
       }
-      return file.folder === currentFolderPath
+      
+      if (!inCurrentFolder) return false
+      
+      // Admin vê todos os arquivos
+      if (userRole === 'admin') return true
+      
+      // User só vê seus arquivos
+      const normalizedPrefix = userPrefix.replace(/\/$/, '')
+      return file.key.startsWith(normalizedPrefix)
     })
   }
 

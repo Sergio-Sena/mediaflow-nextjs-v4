@@ -7,7 +7,7 @@ from datetime import datetime
 
 s3 = boto3.client('s3')
 UPLOADS_BUCKET = os.environ.get('UPLOADS_BUCKET', 'mediaflow-uploads-969430605054')
-SECRET_KEY = 'your-secret-key-here-change-in-production'
+SECRET_KEY = os.environ.get('JWT_SECRET', '17b8312c72fdcffbff89f2f4a564fb26e936002d344717ab7753a237fcd57aea')
 
 def lambda_handler(event, context):
     try:
@@ -40,36 +40,18 @@ def lambda_handler(event, context):
         if not filename:
             return cors_response(400, {'success': False, 'message': 'Filename required'})
         
-        # Extrair username do JWT
-        username = ''
-        auth_header = event.get('headers', {}).get('Authorization', '')
-        if auth_header:
-            try:
-                token = auth_header.replace('Bearer ', '')
-                decoded = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
-                username = decoded.get('username', '')
-            except:
-                pass
-        
-        # Se não tiver username, usar 'anonymous'
-        if not username:
-            username = 'anonymous'
+        # Extrair user_id do JWT
+        user_id = extract_user_id(event)
         
         sanitized_name = sanitize_filename(filename)
         
-        # SEMPRE salvar em users/{username}/
-        # Organizar por tipo se arquivo solto (sem pasta)
-        if '/' not in sanitized_name:
-            file_type = get_file_type(sanitized_name)
-            if file_type == 'image':
-                sanitized_name = f'users/{username}/Fotos/{sanitized_name}'
-            elif file_type == 'document':
-                sanitized_name = f'users/{username}/Documentos/{sanitized_name}'
-            else:  # video e outros
-                sanitized_name = f'users/{username}/Videos/{sanitized_name}'
+        # SEMPRE salvar em users/{user_id}/ respeitando estrutura original
+        # Se já começa com users/, não duplicar
+        if not sanitized_name.startswith('users/'):
+            sanitized_name = f'users/{user_id}/{sanitized_name}'
         else:
-            # Pasta: adicionar users/{username}/ no início
-            sanitized_name = f'users/{username}/{sanitized_name}'
+            # Já tem users/ no início, usar como está
+            pass
 
         needs_conversion = should_convert(sanitized_name, file_size)
         
@@ -171,6 +153,24 @@ def get_file_type(filename):
         return 'document'
     else:
         return 'other'
+
+def extract_user_id(event):
+    """Extrair user_id do JWT"""
+    auth_header = event.get('headers', {}).get('Authorization', '') or \
+                  event.get('headers', {}).get('authorization', '')
+    
+    if not auth_header:
+        return 'anonymous'
+    
+    try:
+        token = auth_header.replace('Bearer ', '').strip()
+        decoded = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+        user_id = decoded.get('user_id', 'anonymous')
+        print(f"User ID extraído: {user_id}")
+        return user_id
+    except Exception as e:
+        print(f"Erro JWT: {e}")
+        return 'anonymous'
 
 def cors_response(status_code, body):
     return {
