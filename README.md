@@ -345,6 +345,11 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 - [x] **CloudFront Cleanup** - 2 distribuições antigas desabilitadas
 - [x] **Deploy realizado** - Build 22/01/2025 11:57
 
+### **v4.7.2 (OTIMIZAÇÃO)** ✅
+- [x] 💰 **Lifecycle Policy** - INTELLIGENT_TIERING após 60 dias (economia ~30-40%)
+- [x] **Otimização de Custos** - Transição automática para classes econômicas
+- [x] **Zero Impacto** - Performance mantida com acesso instantâneo
+
 ### **v4.8 (Infraestrutura)**
 - [ ] Logs estruturados (JSON) em 8 Lambdas
 - [ ] CI/CD GitHub Actions
