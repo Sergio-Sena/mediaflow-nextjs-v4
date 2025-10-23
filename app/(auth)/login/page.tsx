@@ -24,12 +24,35 @@ export default function LoginPage() {
         // Salvar token e dados do usuário
         localStorage.setItem('token', data.token)
         localStorage.setItem('user', JSON.stringify(data.user))
-        localStorage.setItem('current_user', JSON.stringify({
-          user_id: data.user_id,
-          name: data.user.name,
-          email: data.user.email,
-          role: data.user.role
-        }))
+        
+        // Buscar dados completos do usuário (incluindo avatar)
+        try {
+          const usersRes = await fetch('https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/users')
+          const usersData = await usersRes.json()
+          if (usersData.success) {
+            const fullUser = usersData.users.find((u: any) => u.user_id === data.user_id)
+            if (fullUser) {
+              localStorage.setItem('current_user', JSON.stringify(fullUser))
+            } else {
+              // Fallback se não encontrar
+              localStorage.setItem('current_user', JSON.stringify({
+                user_id: data.user_id,
+                name: data.user.name,
+                email: data.user.email,
+                role: data.user.role
+              }))
+            }
+          }
+        } catch (err) {
+          console.error('Erro ao buscar dados do usuário:', err)
+          // Fallback
+          localStorage.setItem('current_user', JSON.stringify({
+            user_id: data.user_id,
+            name: data.user.name,
+            email: data.user.email,
+            role: data.user.role
+          }))
+        }
         
         // 2FA apenas para admin
         if (data.user.role === 'admin' || data.user_id === 'user_admin') {
