@@ -6,36 +6,27 @@ Esta pasta contém **toda a documentação consolidada** do projeto Mídiaflow d
 
 ---
 
-## 📁 Estrutura Organizada (18 arquivos)
+## 📁 Estrutura Organizada (9 arquivos)
 
 ### **📋 Documentação Principal**
-- `PROMPT_CONSOLIDADO.md` - **Histórico completo** do projeto (v4.1 → v4.7.1)
-- `METODO_DESENVOLVIMENTO.md` - **Metodologia C.E.R.T.O** e padrões
 - `PROMPT_PROXIMO_CHAT.md` - **Contexto rápido** para novos chats
+- `METODO_DESENVOLVIMENTO.md` - **Metodologia C.E.R.T.O** e padrões
+- `README.md` - Índice desta pasta
 
-### **🔄 Changelogs & Versões**
-- `CHANGELOG_v4.5.md` - Estrutura users/ + Continue assistindo + Thumbnails
-- `CHANGELOG_v4.7.md` - Tab Pastas + Upload consolidado + Player otimizado
-- `CHANGELOG_v4.7.1.md` - Busca filtrada + Analytics por usuário + Fixes
+### **🔄 Versão Atual**
 - `CHANGELOG_v4.7.2.md` - Lifecycle Policy S3 + Otimização de custos
 
-### **🛠️ Fixes & Correções Técnicas**
-- `FIX_CLOUDFRONT_CACHE.md` - Resolução problemas cache CloudFront E2HZKZ9ZJK18IU
+### **🛠️ Correções Importantes**
 - `FIX_PATH_DUPLICADO.md` - Correção JWT user_id vs username (v4.6.1)
-- `FIXES_CHECKLIST.md` - Lista completa de correções aplicadas
 
 ### **🏗️ Arquitetura & Infraestrutura**
 - `INFRAESTRUTURA_AWS.md` - **Recursos AWS completos** (3 S3 + 8 Lambdas + CloudFront)
 - `LOGICA_PASTAS_UPLOAD.md` - Sistema hierárquico de pastas S3
-- `FOLDER_MANAGER_V2.md` - Gerenciador visual de pastas
 
-### **💰 Monetização & Roadmaps**
-- `ROADMAP_MONETIZACAO.md` - **Sistema de planos v4.8+** (Free/Basic/Pro/VIP/Corporate)
-- `ROADMAP_INFRAESTRUTURA.md` - Melhorias técnicas e DevOps
-- `SUGESTOES_FUTURAS.md` - **120+ funcionalidades** categorizadas para v4.8+
-
-### **📈 Estratégia & Crescimento**
-- `PLANO_PROXIMO_NIVEL.md` - Estratégias de crescimento e expansão
+### **💰 Roadmaps & Futuro**
+- `PROXIMOS_PASSOS_PRIORIZADOS.md` - **Roadmap v4.8+** priorizado
+- `ROADMAP_MONETIZACAO.md` - **Sistema de planos** (Free/Basic/Pro/VIP/Corporate)
+- `SUGESTOES_FUTURAS.md` - **120+ funcionalidades** categorizadas
 
 ---
 
@@ -47,11 +38,7 @@ Esta pasta contém **toda a documentação consolidada** do projeto Mídiaflow d
 ```
 Contexto rápido com estado atual v4.7.1
 
-### **Para Contexto Completo**
-```
-@memoria/PROMPT_CONSOLIDADO.md
-```
-Histórico completo desde v4.1
+
 
 ### **Para Implementar Funcionalidades**
 ```
@@ -127,11 +114,11 @@ Arquitetura AWS e soluções aplicadas
 - Adição de fixes e infraestrutura
 - Documentação de problemas específicos
 
-### **v4.7-4.7.2**: Maturidade Completa
-- 18 arquivos organizados
-- Roadmaps de monetização
+### **v4.7-4.7.2**: Documentação Enxuta
+- 9 arquivos essenciais
+- Roadmaps priorizados
 - 120+ sugestões futuras
-- Documentação empresarial
+- Foco em próximos passos
 - Otimização de custos AWS
 
 ---
