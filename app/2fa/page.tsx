@@ -48,8 +48,24 @@ export default function TwoFactorPage() {
       
       if (data.success) {
         localStorage.setItem('token', data.token)
-        localStorage.setItem('current_user', JSON.stringify(data.user || {}))
         localStorage.setItem('2fa_session', Date.now().toString())
+        
+        // Buscar dados completos do usuário (incluindo avatar)
+        try {
+          const usersRes = await fetch('https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/users')
+          const usersData = await usersRes.json()
+          if (usersData.success) {
+            const fullUser = usersData.users.find((u: any) => u.user_id === userId)
+            if (fullUser) {
+              localStorage.setItem('current_user', JSON.stringify(fullUser))
+            } else {
+              localStorage.setItem('current_user', JSON.stringify(data.user || {}))
+            }
+          }
+        } catch (err) {
+          console.error('Erro ao buscar dados do usuário:', err)
+          localStorage.setItem('current_user', JSON.stringify(data.user || {}))
+        }
 
         router.push('/dashboard')
       } else {
