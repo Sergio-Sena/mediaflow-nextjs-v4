@@ -171,6 +171,7 @@ export default function DashboardPage() {
                       const updated = { ...currentUser, avatar_url: avatarUrl }
                       setCurrentUser(updated)
                       localStorage.setItem('current_user', JSON.stringify(updated))
+                      setTimeout(() => fetchUserData(currentUser.user_id || currentUser.id), 500)
                     }}
                   />
                   <div className="text-sm">
@@ -225,6 +226,7 @@ export default function DashboardPage() {
                       const updated = { ...currentUser, avatar_url: avatarUrl }
                       setCurrentUser(updated)
                       localStorage.setItem('current_user', JSON.stringify(updated))
+                      setTimeout(() => fetchUserData(currentUser.user_id || currentUser.id), 500)
                     }}
                   />
                   <div className="text-sm">
