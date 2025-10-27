@@ -334,6 +334,15 @@ export default function DashboardPage() {
             onNavigate={(path) => {
               setCurrentFolderPath(path)
               setActiveTab('files')
+              // Aguardar FileList carregar e abrir primeiro vídeo
+              setTimeout(() => {
+                const firstVideo = allFiles.find(f => f.type === 'video' && f.folder === path)
+                if (firstVideo) {
+                  setSelectedVideo(firstVideo)
+                  const videosInFolder = allFiles.filter(f => f.type === 'video' && f.folder === path)
+                  setVideoPlaylist(videosInFolder)
+                }
+              }, 500)
             }}
           />
         )}

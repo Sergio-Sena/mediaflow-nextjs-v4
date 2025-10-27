@@ -19,6 +19,8 @@ export default function MultipartUploader({ file, destination = '', onComplete, 
   const [status, setStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle')
   const [currentPart, setCurrentPart] = useState(0)
   const [totalParts, setTotalParts] = useState(0)
+  const [uploadId, setUploadId] = useState<string | null>(null)
+  const [uploadKey, setUploadKey] = useState<string | null>(null)
 
   const uploadMultipart = async () => {
     setUploading(true)
@@ -44,6 +46,8 @@ export default function MultipartUploader({ file, destination = '', onComplete, 
       if (!initData.success) throw new Error('Falha ao iniciar upload')
       
       const uploadId = initData.uploadId
+      setUploadId(uploadId)
+      setUploadKey(filename)
       const parts: {PartNumber: number, ETag: string}[] = []
       
       // 2. Upload paralelo (3 chunks por vez)
@@ -78,6 +82,8 @@ export default function MultipartUploader({ file, destination = '', onComplete, 
       if (!completeData.success) throw new Error('Falha ao completar upload')
       
       setStatus('success')
+      setUploadId(null)
+      setUploadKey(null)
       onComplete()
       
     } catch (error) {
@@ -86,6 +92,34 @@ export default function MultipartUploader({ file, destination = '', onComplete, 
       onError?.(error instanceof Error ? error.message : 'Erro desconhecido')
     } finally {
       setUploading(false)
+    }
+  }
+
+  const abortUpload = async () => {
+    if (!uploadId || !uploadKey) return
+    
+    try {
+      const token = localStorage.getItem('token')
+      await fetch(`${API_URL}/abort`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          uploadId,
+          key: uploadKey
+        })
+      })
+      
+      setStatus('idle')
+      setProgress(0)
+      setCurrentPart(0)
+      setUploadId(null)
+      setUploadKey(null)
+      onError?.('Upload cancelado pelo usuário')
+    } catch (error) {
+      console.error('Erro ao abortar upload:', error)
     }
   }
 
@@ -163,9 +197,15 @@ export default function MultipartUploader({ file, destination = '', onComplete, 
               style={{ width: `${progress}%` }}
             />
           </div>
-          <p className="text-center text-neon-cyan text-sm">
+          <p className="text-center text-neon-cyan text-sm mb-3">
             {progress}% • Enviando parte {currentPart}/{totalParts}
           </p>
+          <button 
+            onClick={abortUpload}
+            className="btn-secondary w-full"
+          >
+            ❌ Cancelar Upload
+          </button>
         </div>
       )}
       

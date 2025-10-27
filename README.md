@@ -336,6 +336,20 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 - [x] **Permissões Granulares** - Admin vê tudo, User vê só suas pastas
 - [x] **Deploy realizado** - Build 20/01/2025 02:08
 
+### **v4.7.3 (PRODUÇÃO)** ✅
+- [x] **Paginação S3 Completa** - Lambda lista TODAS as pastas (49 em Star/)
+- [x] **Navegação Inteligente** - Prioriza subpastas sobre arquivos
+- [x] **Autoplay ao Navegar** - Player abre automaticamente
+- [x] **Indicadores Visuais** - ▶ (arquivos) e → (subpastas)
+- [x] **Deploy realizado** - Build 22/01/2025 15:30
+
+### **v4.7.4 (PRODUÇÃO)** ✅
+- [x] **Paginação Frontend** - 50 arquivos por página
+- [x] **Performance 10x** - Carregamento instantâneo (<1s)
+- [x] **Navegação de Páginas** - Botões Anterior/Próxima
+- [x] **Reset Automático** - Página 1 ao mudar filtros
+- [x] **Deploy realizado** - Build 22/01/2025 16:00
+
 ### **v4.7.1 (HOTFIX)** ✅
 - [x] **Busca Filtrada** - Usuários só veem seus arquivos na busca
 - [x] **Analytics por Usuário** - Métricas individualizadas

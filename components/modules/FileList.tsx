@@ -37,6 +37,8 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
   const [currentPath, setCurrentPath] = useState<string[]>([])
   const [initialPathSet, setInitialPathSet] = useState(false)
   const [folderStructure, setFolderStructure] = useState<{[key: string]: string[]}>({})
+  const [currentPage, setCurrentPage] = useState(1)
+  const [itemsPerPage] = useState(50)
 
   const fetchFiles = async () => {
     try {
@@ -250,6 +252,11 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
     })
   }
   
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [searchTerm, selectedType, currentPath])
+
   const filteredFiles = (searchTerm ? files : getCurrentFiles()).filter(file => {
     // Normalizar busca: remover _ e espaços para comparação
     const normalizedFileName = file.name.toLowerCase().replace(/[_\s]/g, '')
@@ -602,6 +609,36 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
         </div>
       </div>
 
+      {/* Pagination Info */}
+      {filteredFiles.length > itemsPerPage && (
+        <div className="glass-card p-4">
+          <div className="flex items-center justify-between">
+            <div className="text-sm text-gray-400">
+              Mostrando {((currentPage - 1) * itemsPerPage) + 1}-{Math.min(currentPage * itemsPerPage, filteredFiles.length)} de {filteredFiles.length} arquivos
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="btn-secondary px-4 py-2 disabled:opacity-50"
+              >
+                ← Anterior
+              </button>
+              <span className="px-4 py-2 text-white">
+                Página {currentPage} de {Math.ceil(filteredFiles.length / itemsPerPage)}
+              </span>
+              <button
+                onClick={() => setCurrentPage(p => Math.min(Math.ceil(filteredFiles.length / itemsPerPage), p + 1))}
+                disabled={currentPage >= Math.ceil(filteredFiles.length / itemsPerPage)}
+                className="btn-secondary px-4 py-2 disabled:opacity-50"
+              >
+                Próxima →
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* File List */}
       {filteredFiles.length === 0 ? (
         <div className="glass-card p-8 text-center">
@@ -609,7 +646,9 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
         </div>
       ) : (
         <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4' : 'space-y-3'}>
-          {filteredFiles.map((file) => {
+          {filteredFiles
+            .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+            .map((file) => {
             const status = getConversionStatus(file.name, file.key)
             const isSelected = selectedFiles.has(file.key)
             

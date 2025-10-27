@@ -25,8 +25,11 @@ def lambda_handler(event, context):
             filename = body.get('filename', '')
             file_size = body.get('fileSize', 0)
             
-            # SEMPRE usar users/{user_id}/ independente do filename
-            key = f"users/{user_id}/{filename}"
+            # Se filename já tem prefixo users/, usar direto. Senão, adicionar users/{user_id}/
+            if filename.startswith('users/'):
+                key = filename
+            else:
+                key = f"users/{user_id}/{filename}"
             
             response = s3.create_multipart_upload(
                 Bucket=BUCKET,
