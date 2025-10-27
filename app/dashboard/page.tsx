@@ -331,16 +331,34 @@ export default function DashboardPage() {
         {activeTab === 'folders' && (
           <FolderManagerV2
             currentPath={currentFolderPath}
-            onNavigate={(path) => {
+            onNavigate={async (path) => {
               setCurrentFolderPath(path)
               setActiveTab('files')
-              // Aguardar FileList carregar e abrir primeiro vídeo
-              setTimeout(() => {
+              // Aguardar FileList carregar e abrir primeiro vídeo com URL assinada
+              setTimeout(async () => {
                 const firstVideo = allFiles.find(f => f.type === 'video' && f.folder === path)
                 if (firstVideo) {
-                  setSelectedVideo(firstVideo)
-                  const videosInFolder = allFiles.filter(f => f.type === 'video' && f.folder === path)
-                  setVideoPlaylist(videosInFolder)
+                  // Buscar URL assinada
+                  try {
+                    const response = await fetch(`https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/view/${encodeURIComponent(firstVideo.key)}`, {
+                      method: 'GET',
+                      headers: { 'Content-Type': 'application/json' }
+                    })
+                    
+                    if (response.ok) {
+                      const data = await response.json()
+                      if (data.success) {
+                        setSelectedVideo({ ...firstVideo, url: data.viewUrl })
+                        const videosInFolder = allFiles.filter(f => f.type === 'video' && f.folder === path)
+                        setVideoPlaylist(videosInFolder)
+                      }
+                    }
+                  } catch (error) {
+                    console.error('Erro ao buscar URL assinada:', error)
+                    setSelectedVideo(firstVideo)
+                    const videosInFolder = allFiles.filter(f => f.type === 'video' && f.folder === path)
+                    setVideoPlaylist(videosInFolder)
+                  }
                 }
               }, 500)
             }}

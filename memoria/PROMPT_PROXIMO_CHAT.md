@@ -52,7 +52,7 @@
 
 **Status**: Build concluído, Lambda deployada, sistema testado e funcional.
 
-**Versão**: v4.7.4
+**Versão**: v4.7.4 (Final)
 
 ---
 
@@ -68,10 +68,13 @@ Tab Arquivos (filtrado) → Player abre automaticamente
 **Funcionalidades Ativas**:
 - ✅ 49 subpastas em Star/ visíveis
 - ✅ Navegação hierárquica inteligente
-- ✅ Autoplay ao navegar
+- ✅ Autoplay ao navegar com URL assinada
 - ✅ Indicadores visuais (▶ e →)
 - ✅ Paginação S3 completa
 - ✅ Paginação frontend (50 itens)
 - ✅ Performance 10x mais rápida
+- ✅ 2FA bypass localhost
+- ✅ 1669 arquivos sanitizados
+- ✅ 700+ arquivos em Star/
 
 Sistema pronto para uso! 🎬

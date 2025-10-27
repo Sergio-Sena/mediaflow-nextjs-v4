@@ -346,9 +346,12 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 ### **v4.7.4 (PRODUÇÃO)** ✅
 - [x] **Paginação Frontend** - 50 arquivos por página
 - [x] **Performance 10x** - Carregamento instantâneo (<1s)
-- [x] **Navegação de Páginas** - Botões Anterior/Próxima
-- [x] **Reset Automático** - Página 1 ao mudar filtros
-- [x] **Deploy realizado** - Build 22/01/2025 16:00
+- [x] **Navegação de Páginas** - Botões Anterior/Próxima no final
+- [x] **URL Assinada** - Player reproduz corretamente ao navegar
+- [x] **2FA Bypass Localhost** - Desenvolvimento facilitado
+- [x] **Sanitização S3** - 26 arquivos corrigidos (acentos, espaços)
+- [x] **Upload Star/** - 111 arquivos novos (30+ GB)
+- [x] **Deploy realizado** - Build 22/01/2025 23:00
 
 ### **v4.7.1 (HOTFIX)** ✅
 - [x] **Busca Filtrada** - Usuários só veem seus arquivos na busca
