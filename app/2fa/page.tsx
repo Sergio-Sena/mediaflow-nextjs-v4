@@ -38,13 +38,23 @@ export default function TwoFactorPage() {
     setError('')
     
     try {
-      const res = await fetch('https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/users/verify-2fa', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user_id: userId, code })
-      })
+      // Bypass para desenvolvimento local - aceita qualquer código de 6 dígitos
+      const isLocalDev = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
       
-      const data = await res.json()
+      let data
+      if (isLocalDev) {
+        // Simular sucesso local
+        const token = localStorage.getItem('token')
+        data = { success: true, token, user: { user_id: userId } }
+      } else {
+        // Produção - validar com Lambda
+        const res = await fetch('https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/users/verify-2fa', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_id: userId, code })
+        })
+        data = await res.json()
+      }
       
       if (data.success) {
         localStorage.setItem('token', data.token)
@@ -130,6 +140,16 @@ export default function TwoFactorPage() {
         >
           {loading ? 'Verificando...' : 'Verificar Código'}
         </button>
+        
+        {typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && (
+          <button 
+            onClick={() => setCode(Math.floor(100000 + Math.random() * 900000).toString())}
+            className="btn-secondary w-full mb-3"
+            disabled={loading}
+          >
+            🎲 Gerar Código Aleatório (Dev)
+          </button>
+        )}
         
         <button 
           onClick={() => router.push('/login')}
