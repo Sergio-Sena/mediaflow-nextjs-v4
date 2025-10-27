@@ -68,45 +68,48 @@ def list_files(user_prefix='', context='dashboard'):
     
     for bucket, bucket_type in [(UPLOADS_BUCKET, 'uploads'), (PROCESSED_BUCKET, 'processed')]:
         try:
-            # Aplicar filtro de usuário se existir
+            # Usar paginator para listar TODOS os arquivos
+            paginator = s3.get_paginator('list_objects_v2')
+            
             if user_prefix:
                 print(f"Filtering bucket {bucket} with prefix: {user_prefix}")
-                response = s3.list_objects_v2(Bucket=bucket, Prefix=user_prefix)
+                page_iterator = paginator.paginate(Bucket=bucket, Prefix=user_prefix)
             else:
                 print(f"Listing all files in bucket {bucket}")
-                response = s3.list_objects_v2(Bucket=bucket)
-            for obj in response.get('Contents', []):
-                # Preserve full path structure
-                key = obj['Key']
-                
-                # Filtrar pastas especiais no dashboard
-                if context == 'dashboard':
-                    if key.startswith('avatars/') or key.startswith('qrcodes/'):
-                        continue
-                
-                # Extract folder and filename
-                if '/' in key:
-                    folder_path = '/'.join(key.split('/')[:-1])
-                    filename = key.split('/')[-1]
-                else:
-                    folder_path = 'root'  # Changed from '' to 'root'
-                    filename = key
-                
-                print(f"File: {key} -> folder: '{folder_path}', name: '{filename}'")
-                
-                files.append({
-                    'key': key,  # Full path preserved
-                    'name': filename,
-                    'folder': folder_path,
-                    'size': obj['Size'],
-                    'lastModified': obj['LastModified'].isoformat(),
-                    'bucket': bucket_type,
-                    'url': f"https://{bucket}.s3.amazonaws.com/{obj['Key']}"
-                })
+                page_iterator = paginator.paginate(Bucket=bucket)
+            
+            # Iterar por TODAS as páginas
+            for page in page_iterator:
+                for obj in page.get('Contents', []):
+                    key = obj['Key']
+                    
+                    # Filtrar pastas especiais no dashboard
+                    if context == 'dashboard':
+                        if key.startswith('avatars/') or key.startswith('qrcodes/'):
+                            continue
+                    
+                    # Extract folder and filename
+                    if '/' in key:
+                        folder_path = '/'.join(key.split('/')[:-1])
+                        filename = key.split('/')[-1]
+                    else:
+                        folder_path = 'root'
+                        filename = key
+                    
+                    files.append({
+                        'key': key,
+                        'name': filename,
+                        'folder': folder_path,
+                        'size': obj['Size'],
+                        'lastModified': obj['LastModified'].isoformat(),
+                        'bucket': bucket_type,
+                        'url': f"https://{bucket}.s3.amazonaws.com/{obj['Key']}"
+                    })
         except Exception as e:
             print(f"Error listing bucket {bucket}: {str(e)}")
             pass
     
+    print(f"Total files returned: {len(files)}")
     return cors_response(200, {'success': True, 'files': files})
 
 def delete_file(key):

@@ -1,26 +1,26 @@
 {
   "app\\(auth)\\login\\page.tsx -> @/lib/aws-client": {
-    "id": "app\\(auth)\\login\\page.tsx -> @/lib/aws-client",
+    "id": 4331,
     "files": [
-      "static/chunks/_app-pages-browser_lib_aws-client_ts.js"
+      "static/chunks/331.463278afaccdebd6.js"
     ]
   },
   "components\\modules\\Analytics.tsx -> @/lib/aws-client": {
-    "id": "components\\modules\\Analytics.tsx -> @/lib/aws-client",
+    "id": 4331,
     "files": [
-      "static/chunks/_app-pages-browser_lib_aws-client_ts.js"
+      "static/chunks/331.463278afaccdebd6.js"
     ]
   },
   "components\\modules\\FileList.tsx -> @/lib/aws-client": {
-    "id": "components\\modules\\FileList.tsx -> @/lib/aws-client",
+    "id": 4331,
     "files": [
-      "static/chunks/_app-pages-browser_lib_aws-client_ts.js"
+      "static/chunks/331.463278afaccdebd6.js"
     ]
   },
   "components\\modules\\FolderManagerV2.tsx -> @/lib/aws-client": {
-    "id": "components\\modules\\FolderManagerV2.tsx -> @/lib/aws-client",
+    "id": 4331,
     "files": [
-      "static/chunks/_app-pages-browser_lib_aws-client_ts.js"
+      "static/chunks/331.463278afaccdebd6.js"
     ]
   }
 }
