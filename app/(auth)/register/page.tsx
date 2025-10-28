@@ -119,8 +119,8 @@ export default function RegisterPage() {
 
         {qrCodeUri ? (
           <div className="text-center">
-            <div className="mb-4 p-4 bg-green-500/20 border border-green-500/50 rounded-lg">
-              <p className="text-green-400 font-semibold">✅ Conta criada com sucesso!</p>
+            <div className="mb-4 p-4 bg-yellow-500/20 border border-yellow-500/50 rounded-lg">
+              <p className="text-yellow-400 font-semibold">⏳ Conta criada! Aguardando aprovação do administrador</p>
             </div>
             <p className="text-white mb-4">Configure o 2FA no Google Authenticator (opcional):</p>
             <img 
