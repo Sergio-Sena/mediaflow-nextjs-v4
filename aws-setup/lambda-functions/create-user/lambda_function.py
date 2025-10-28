@@ -78,6 +78,7 @@ def lambda_handler(event, context):
                 's3_prefix': s3_prefix,
                 'avatar_url': avatar_url,
                 'totp_secret': totp_secret,
+                'status': 'pending',
                 'created_at': datetime.utcnow().isoformat()
             }
             

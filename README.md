@@ -353,6 +353,16 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 - [x] **Upload Star/** - 111 arquivos novos (30+ GB)
 - [x] **Deploy realizado** - Build 22/01/2025 23:00
 
+### **v4.8 (PRODUÇÃO)** ✅
+- [x] **Sistema de Aprovação** - Novos usuários precisam de aprovação admin
+- [x] **Lambda approve-user** - Endpoint POST /users/approve
+- [x] **Status Pendente** - Usuários criados com status 'pending'
+- [x] **Bloqueio de Login** - Usuários não aprovados não podem logar
+- [x] **Painel Admin** - Seção "Aprovações Pendentes"
+- [x] **Botões Aprovar/Rejeitar** - Interface intuitiva
+- [x] **Compatibilidade** - Usuários antigos funcionam normalmente
+- [x] **Deploy realizado** - Build 27/10/2025 23:55
+
 ### **v4.7.1 (HOTFIX)** ✅
 - [x] **Busca Filtrada** - Usuários só veem seus arquivos na busca
 - [x] **Analytics por Usuário** - Métricas individualizadas
@@ -367,13 +377,30 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 - [x] **Otimização de Custos** - Transição automática para classes econômicas
 - [x] **Zero Impacto** - Performance mantida com acesso instantâneo
 
-### **v4.8 (Infraestrutura)**
-- [ ] Logs estruturados (JSON) em 8 Lambdas
-- [ ] CI/CD GitHub Actions
+### **v4.9 (Infraestrutura Primeiro)** ⏳
+**Estratégia**: Infraestrutura → Features (30 dias)
+
+**Semana 1: CI/CD Pipeline**
+- [ ] GitHub Actions (deploy automático)
 - [ ] Ambientes dev/staging/prod
-- [ ] Rate limiting API Gateway
-- [ ] CloudWatch Alarms + SNS
-- [ ] Documentação OpenAPI (futuro)
+- [ ] Rollback automático
+- [ ] Secrets management
+
+**Semana 2: Logs + Monitoring**
+- [ ] CloudWatch Logs JSON (9 Lambdas)
+- [ ] Correlation IDs (rastreamento)
+- [ ] CloudWatch Alarms (errors, latency, custos)
+- [ ] SNS Notifications (email admin)
+- [ ] Dashboard em tempo real
+
+**Semana 3-4: Sistema de Planos + Limites**
+- [ ] DynamoDB: campos plan + limits + usage
+- [ ] Middleware: verificação de limites
+- [ ] Usage tracking (storage, uploads, conversão)
+- [ ] Admin: modal de planos na aprovação
+- [ ] User: dashboard de uso
+- [ ] Emails SES: alertas de limite (80%, 90%, 100%)
+- [ ] Planos: Free/Basic/Pro/VIP/Corporate
 
 ### **v5.0 (Futuro)**
 - [ ] Multi-tenancy
@@ -385,8 +412,8 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 
 ## 🎆 **Status Final**
 
-**🎬 Mídiaflow v4.7 - Sistema de Streaming Profissional Multi-Usuário**  
-**Versão**: 4.7.1 | **Status**: ✅ PRODUÇÃO | **CDN**: ✅ ATIVO | **Multi-User**: ✅ ATIVO
+**🎬 Mídiaflow v4.8 - Sistema de Streaming Profissional Multi-Usuário**  
+**Versão**: 4.8 | **Status**: ✅ PRODUÇÃO | **CDN**: ✅ ATIVO | **Multi-User**: ✅ ATIVO | **Aprovação**: ✅ ATIVO
 
 **🌐 URL Produção**: https://midiaflow.sstechnologies-cloud.com  
 **🔑 Login**: [admin-email] / [admin-password]  

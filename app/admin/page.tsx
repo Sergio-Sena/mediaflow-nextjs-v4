@@ -16,6 +16,7 @@ interface User {
 
 export default function AdminPage() {
   const [users, setUsers] = useState<User[]>([])
+  const [pendingUsers, setPendingUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
@@ -65,7 +66,10 @@ export default function AdminPage() {
       const res = await fetch('https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/users')
       const data = await res.json()
       if (data.success) {
-        setUsers(data.users)
+        const approved = data.users.filter((u: User & {status?: string}) => u.status !== 'pending')
+        const pending = data.users.filter((u: User & {status?: string}) => u.status === 'pending')
+        setUsers(approved)
+        setPendingUsers(pending)
       }
     } catch (error) {
       console.error('Error fetching users:', error)
@@ -209,6 +213,22 @@ export default function AdminPage() {
     }
   }
 
+  const handleApproveUser = async (userId: string, action: 'approve' | 'reject') => {
+    try {
+      const res = await fetch('https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/users/approve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: userId, action })
+      })
+      const data = await res.json()
+      if (data.success) {
+        fetchUsers()
+      }
+    } catch (error) {
+      alert('Erro ao processar aprovação')
+    }
+  }
+
   const handleDeleteUser = async (userId: string) => {
     if (!confirm(`Deletar usuário ${userId}?`)) return
 
@@ -297,6 +317,49 @@ export default function AdminPage() {
           </div>
         </div>
 
+        {pendingUsers.length > 0 && (
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold text-yellow-400 mb-4">⏳ Aprovações Pendentes ({pendingUsers.length})</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+              {pendingUsers.map(user => (
+                <div key={user.user_id} className="glass-card p-6 border-2 border-yellow-500/50">
+                  <div className="flex justify-between items-start mb-4">
+                    {user.avatar_url ? (
+                      <img 
+                        src={user.avatar_url} 
+                        alt={user.name}
+                        className="w-16 h-16 rounded-full object-cover border-2 border-yellow-400"
+                      />
+                    ) : (
+                      <div className="w-16 h-16 rounded-full bg-gray-700 flex items-center justify-center text-2xl">
+                        👤
+                      </div>
+                    )}
+                  </div>
+                  <h3 className="text-xl font-semibold text-white mb-2">{user.name}</h3>
+                  <p className="text-sm text-gray-400 mb-1">Email: {user.email || 'N/A'}</p>
+                  <p className="text-sm text-gray-400 mb-4">ID: {user.user_id}</p>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleApproveUser(user.user_id, 'approve')}
+                      className="flex-1 px-4 py-2 bg-green-500/20 hover:bg-green-500/30 text-green-400 rounded-lg transition-colors font-semibold"
+                    >
+                      ✅ Aprovar
+                    </button>
+                    <button
+                      onClick={() => handleApproveUser(user.user_id, 'reject')}
+                      className="flex-1 px-4 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg transition-colors font-semibold"
+                    >
+                      ❌ Rejeitar
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <h2 className="text-2xl font-bold text-white mb-4">✅ Usuários Aprovados ({users.length})</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {users.map(user => (
             <div key={user.user_id} className="glass-card p-6 min-h-[200px] flex flex-col">

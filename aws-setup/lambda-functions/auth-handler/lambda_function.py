@@ -47,6 +47,12 @@ def lambda_handler(event, context):
         
         for user in users:
             if user.get('email') == email and user.get('password') == hash_password(password):
+                status = user.get('status', 'approved')
+                if status == 'pending':
+                    return cors_response(403, {'success': False, 'error': 'Conta aguardando aprovação do administrador'})
+                if status == 'rejected':
+                    return cors_response(403, {'success': False, 'error': 'Conta rejeitada pelo administrador'})
+                
                 s3_prefix = user.get('s3_prefix', '')
                 role = user.get('role', 'user')
                 payload = {
