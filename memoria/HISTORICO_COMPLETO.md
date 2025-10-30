@@ -1,7 +1,7 @@
 # Historico Completo - Midiaflow
 
 **Projeto**: Sistema de Streaming Profissional Multi-Usuario  
-**Versao Atual**: v4.8  
+**Versao Atual**: v4.8.1  
 **Status**: PRODUCAO  
 **URL**: https://midiaflow.sstechnologies-cloud.com
 
@@ -45,8 +45,12 @@
 - Sanitizacao S3 (26 arquivos corrigidos)
 - Upload Star/ (111 arquivos, 30+ GB)
 
-### v4.8: Sistema de Aprovacao (ATUAL)
+### v4.8: Sistema de Aprovacao
 **Data**: 27/01/2025  
+**Status**: PRODUCAO
+
+### v4.8.1: Correcao Sistema de Aprovacao (ATUAL)
+**Data**: 30/01/2025  
 **Status**: PRODUCAO
 
 **Problema Resolvido**:
@@ -103,6 +107,19 @@ Sistema de aprovacao em 3 estados: pending → approved / rejected
 **Compatibilidade**:
 - Usuarios antigos: funcionam normalmente (default approved)
 - Usuarios novos: precisam de aprovacao
+
+**Correcao v4.8.1**:
+**Problema**: Rejeitar usuario apenas marcava como 'rejected', usuario continuava no DynamoDB
+
+**Solucao**:
+- Lambda approve-user modificada
+- Rejeitar agora DELETA usuario completamente
+- Usuarios antigos (gabriel, lid_lima, sergio_sena) atualizados para status 'approved'
+- Deploy realizado: 30/01/2025
+
+**Comportamento Final**:
+- Aprovar: status = 'approved' (usuario pode logar)
+- Rejeitar: Usuario DELETADO do DynamoDB (remocao completa)
 
 ---
 
@@ -374,7 +391,7 @@ Sistema de aprovacao em 3 estados: pending → approved / rejected
 
 ---
 
-**Ultima atualizacao**: 27/01/2025  
-**Versao**: v4.8  
+**Ultima atualizacao**: 30/01/2025  
+**Versao**: v4.8.1  
 **Status**: PRODUCAO  
 **Proximo marco**: v4.9 (CI/CD + Logs + Planos)

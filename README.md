@@ -363,6 +363,12 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 - [x] **Compatibilidade** - Usuários antigos funcionam normalmente
 - [x] **Deploy realizado** - Build 27/10/2025 23:55
 
+### **v4.8.1 (PRODUÇÃO)** ✅
+- [x] **Correção Rejeitar** - Agora DELETA usuário do DynamoDB
+- [x] **Usuários Antigos** - Atualizados para status 'approved'
+- [x] **Lambda approve-user** - Corrigida e deployada
+- [x] **Deploy realizado** - Build 30/01/2025 02:00
+
 ### **v4.7.1 (HOTFIX)** ✅
 - [x] **Busca Filtrada** - Usuários só veem seus arquivos na busca
 - [x] **Analytics por Usuário** - Métricas individualizadas
@@ -412,8 +418,8 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 
 ## 🎆 **Status Final**
 
-**🎬 Mídiaflow v4.8 - Sistema de Streaming Profissional Multi-Usuário**  
-**Versão**: 4.8 | **Status**: ✅ PRODUÇÃO | **CDN**: ✅ ATIVO | **Multi-User**: ✅ ATIVO | **Aprovação**: ✅ ATIVO
+**🎬 Mídiaflow v4.8.1 - Sistema de Streaming Profissional Multi-Usuário**  
+**Versão**: 4.8.1 | **Status**: ✅ PRODUÇÃO | **CDN**: ✅ ATIVO | **Multi-User**: ✅ ATIVO | **Aprovação**: ✅ ATIVO
 
 **🌐 URL Produção**: https://midiaflow.sstechnologies-cloud.com  
 **🔑 Login**: [admin-email] / [admin-password]  

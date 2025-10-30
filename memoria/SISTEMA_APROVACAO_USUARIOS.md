@@ -23,7 +23,9 @@ Sistema de aprovacao em 3 estados: **pending** → **approved** / **rejected**
 }
 ```
 
-**Funcao**: Atualiza campo `status` no DynamoDB
+**Funcao**: 
+- Aprovar: Atualiza campo `status` para 'approved'
+- Rejeitar: DELETA usuario do DynamoDB (remocao completa)
 
 ---
 
@@ -239,13 +241,14 @@ Todos os novos usuarios terao `status: 'pending'` e precisarao de aprovacao.
 ---
 
 ## Status
-- ✅ Lambda approve-user criada
+- ✅ Lambda approve-user criada e corrigida
 - ✅ Lambda create-user modificada
 - ✅ Lambda auth-handler modificada
 - ✅ Pagina /register modificada
 - ✅ Painel admin modificado
-- ⏳ Deploy pendente
-- ⏳ Testes pendentes
+- ✅ Deploy realizado
+- ✅ Correcao: Rejeitar agora DELETA usuario
+- ✅ Usuarios antigos atualizados para status 'approved'
 
-**Data**: 22/01/2025  
-**Versao**: v4.8 (Sistema de Aprovacao)
+**Data**: 30/01/2025  
+**Versao**: v4.8.1 (Sistema de Aprovacao - Corrigido)

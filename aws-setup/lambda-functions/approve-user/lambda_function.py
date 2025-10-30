@@ -28,21 +28,27 @@ def lambda_handler(event, context):
                     'message': 'Usuário não encontrado'
                 })
             
-            new_status = 'approved' if action == 'approve' else 'rejected'
-            table.update_item(
-                Key={'user_id': user_id},
-                UpdateExpression='SET #status = :status, approved_at = :timestamp',
-                ExpressionAttributeNames={'#status': 'status'},
-                ExpressionAttributeValues={
-                    ':status': new_status,
-                    ':timestamp': datetime.utcnow().isoformat()
-                }
-            )
-            
-            return cors_response(200, {
-                'success': True,
-                'message': f'Usuário {action}d com sucesso'
-            })
+            if action == 'approve':
+                table.update_item(
+                    Key={'user_id': user_id},
+                    UpdateExpression='SET #status = :status, approved_at = :timestamp',
+                    ExpressionAttributeNames={'#status': 'status'},
+                    ExpressionAttributeValues={
+                        ':status': 'approved',
+                        ':timestamp': datetime.utcnow().isoformat()
+                    }
+                )
+                return cors_response(200, {
+                    'success': True,
+                    'message': 'Usuário aprovado com sucesso'
+                })
+            else:
+                # Rejeitar = deletar usuário
+                table.delete_item(Key={'user_id': user_id})
+                return cors_response(200, {
+                    'success': True,
+                    'message': 'Usuário rejeitado e removido com sucesso'
+                })
             
     except Exception as e:
         return cors_response(500, {
