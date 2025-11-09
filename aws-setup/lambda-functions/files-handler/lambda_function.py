@@ -2,6 +2,9 @@ import json
 import boto3
 import os
 import jwt
+import sys
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../lib'))
+from logger import Logger
 from urllib.parse import unquote
 
 s3 = boto3.client('s3')
@@ -10,9 +13,13 @@ PROCESSED_BUCKET = os.environ.get('PROCESSED_BUCKET', 'mediaflow-processed-96943
 SECRET_KEY = 'mediaflow_super_secret_key_2025'
 
 def lambda_handler(event, context):
+    correlation_id = event.get('headers', {}).get('x-correlation-id', None)
+    logger = Logger('files-handler', correlation_id)
+    
     try:
         method = event['httpMethod']
         path = event.get('path', '')
+        logger.info("Files request received", method=method, path=path)
         
         if method == 'OPTIONS':
             return cors_response(200, {})
@@ -26,7 +33,7 @@ def lambda_handler(event, context):
             user_role = 'user'
             auth_header = event.get('headers', {}).get('Authorization', '') or event.get('headers', {}).get('authorization', '')
             
-            print(f"Auth header: {auth_header}, context: {view_context}")
+            logger.info("List files request", context=view_context, has_auth=bool(auth_header))
             
             if auth_header:
                 try:
@@ -34,19 +41,19 @@ def lambda_handler(event, context):
                     decoded = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
                     user_prefix = decoded.get('s3_prefix', '')
                     user_role = decoded.get('role', 'user')
-                    print(f"Decoded JWT - s3_prefix: '{user_prefix}', role: '{user_role}'")
+                    logger.info("JWT decoded", s3_prefix=user_prefix, role=user_role)
                 except Exception as e:
-                    print(f"JWT decode error: {str(e)}")
+                    logger.warn("JWT decode failed", error=str(e))
                     pass
             
             # Admin vê tudo (sem filtro), user vê apenas sua pasta
             if user_role == 'admin':
                 user_prefix = ''  # Admin sem filtro
-                print(f"Admin access - no prefix filter")
+                logger.info("Admin access - no filter")
             elif user_prefix:
-                print(f"User access - filtering by prefix: {user_prefix}")
+                logger.info("User access", prefix=user_prefix)
             
-            return list_files(user_prefix, view_context)
+            return list_files(user_prefix, view_context, logger)
         elif method == 'DELETE' and 'bulk-delete' not in path:
             # Try pathParameters first, then body
             if event.get('pathParameters') and event['pathParameters'].get('key'):
@@ -54,17 +61,22 @@ def lambda_handler(event, context):
             else:
                 body = json.loads(event['body'])
                 key = body.get('key')
-            return delete_file(key)
+            logger.info("Delete file request", key=key)
+            return delete_file(key, logger)
         elif method == 'POST' and 'bulk-delete' in path:
             body = json.loads(event['body'])
-            return bulk_delete(body.get('keys', []))
+            keys = body.get('keys', [])
+            logger.info("Bulk delete request", count=len(keys))
+            return bulk_delete(keys, logger)
             
     except Exception as e:
+        logger.error("Files handler error", error=str(e))
         return cors_response(500, {'success': False, 'message': str(e)})
 
-def list_files(user_prefix='', context='dashboard'):
+def list_files(user_prefix='', context='dashboard', logger=None):
     files = []
-    print(f"Listing files with prefix: '{user_prefix}', context: '{context}'")
+    if logger:
+        logger.info("Listing files", prefix=user_prefix, context=context)
     
     for bucket, bucket_type in [(UPLOADS_BUCKET, 'uploads'), (PROCESSED_BUCKET, 'processed')]:
         try:
@@ -72,10 +84,8 @@ def list_files(user_prefix='', context='dashboard'):
             paginator = s3.get_paginator('list_objects_v2')
             
             if user_prefix:
-                print(f"Filtering bucket {bucket} with prefix: {user_prefix}")
                 page_iterator = paginator.paginate(Bucket=bucket, Prefix=user_prefix)
             else:
-                print(f"Listing all files in bucket {bucket}")
                 page_iterator = paginator.paginate(Bucket=bucket)
             
             # Iterar por TODAS as páginas
@@ -106,21 +116,29 @@ def list_files(user_prefix='', context='dashboard'):
                         'url': f"https://{bucket}.s3.amazonaws.com/{obj['Key']}"
                     })
         except Exception as e:
-            print(f"Error listing bucket {bucket}: {str(e)}")
+            if logger:
+                logger.warn("Bucket list error", bucket=bucket, error=str(e))
             pass
     
-    print(f"Total files returned: {len(files)}")
+    if logger:
+        logger.info("Files listed", total=len(files))
+        logger.metric("files_listed", len(files))
     return cors_response(200, {'success': True, 'files': files})
 
-def delete_file(key):
+def delete_file(key, logger=None):
     try:
         s3.delete_object(Bucket=UPLOADS_BUCKET, Key=key)
         s3.delete_object(Bucket=PROCESSED_BUCKET, Key=key)
+        if logger:
+            logger.info("File deleted", key=key)
+            logger.metric("file_deleted", 1)
         return cors_response(200, {'success': True})
-    except:
+    except Exception as e:
+        if logger:
+            logger.error("Delete failed", key=key, error=str(e))
         return cors_response(404, {'success': False, 'message': 'File not found'})
 
-def bulk_delete(keys):
+def bulk_delete(keys, logger=None):
     deleted = []
     for key in keys:
         try:
@@ -129,6 +147,10 @@ def bulk_delete(keys):
             deleted.append(key)
         except:
             pass
+    
+    if logger:
+        logger.info("Bulk delete completed", requested=len(keys), deleted=len(deleted))
+        logger.metric("bulk_delete", len(deleted))
     
     return cors_response(200, {'success': True, 'deleted': deleted})
 
