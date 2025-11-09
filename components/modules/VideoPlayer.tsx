@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { Play, Pause, Volume2, VolumeX, Maximize, SkipBack, SkipForward, ChevronLeft, ChevronRight, RotateCcw } from 'lucide-react'
+import Hls from 'hls.js'
 
 interface VideoFile {
   key: string
@@ -34,6 +35,7 @@ export default function VideoPlayer({ src, title, currentVideo, playlist = [], o
   const [touchStart, setTouchStart] = useState<{ x: number; y: number } | null>(null)
   const [showMobileControls, setShowMobileControls] = useState(true)
   const hideControlsTimeout = useRef<NodeJS.Timeout | null>(null)
+  const hlsRef = useRef<Hls | null>(null)
   
   // Detectar dispositivo móvel
   useEffect(() => {
@@ -164,9 +166,20 @@ export default function VideoPlayer({ src, title, currentVideo, playlist = [], o
   console.log('Previous disabled:', currentIndex === 0 || playlist.length === 0)
   console.log('Next disabled:', currentIndex >= playlist.length - 1 || playlist.length === 0)
 
+  // Hls.js setup for .ts files
   useEffect(() => {
     const video = videoRef.current
     if (!video) return
+
+    // Cleanup previous HLS instance
+    if (hlsRef.current) {
+      hlsRef.current.destroy()
+      hlsRef.current = null
+    }
+
+    // Try native playback for .ts files
+    console.log('🎬 Loading video:', currentSrc)
+    video.src = currentSrc
 
     const updateTime = () => setCurrentTime(video.currentTime)
     const updateDuration = () => setDuration(video.duration)
@@ -175,24 +188,27 @@ export default function VideoPlayer({ src, title, currentVideo, playlist = [], o
     video.addEventListener('loadedmetadata', updateDuration)
     video.addEventListener('ended', () => {
       setIsPlaying(false)
-      // Auto-play next video
       playNext()
     })
     
-    // Debug events
     video.addEventListener('loadstart', () => console.log('📦 Video load started'))
     video.addEventListener('canplay', () => console.log('✅ Video can play'))
     video.addEventListener('error', (e) => {
       console.error('❌ Video error:', e)
-      setVideoError('Erro ao carregar vídeo')
+      if (!currentSrc.endsWith('.ts')) {
+        setVideoError('Erro ao carregar vídeo')
+      }
     })
     video.addEventListener('loadeddata', () => console.log('📊 Video data loaded'))
 
     return () => {
       video.removeEventListener('timeupdate', updateTime)
       video.removeEventListener('loadedmetadata', updateDuration)
+      if (hlsRef.current) {
+        hlsRef.current.destroy()
+      }
     }
-  }, [])
+  }, [currentSrc])
 
   const togglePlay = () => {
     const video = videoRef.current
@@ -372,23 +388,8 @@ export default function VideoPlayer({ src, title, currentVideo, playlist = [], o
             onClick={togglePlay}
             crossOrigin="anonymous"
             preload="metadata"
-            key={currentSrc}
-          >
-            {/* Priorizar .ts nativo primeiro */}
-            {currentSrc.endsWith('.ts') ? (
-              <>
-                <source src={currentSrc} type="video/mp2t" />
-                <source src={currentSrc.replace('.ts', '.mp4')} type="video/mp4" />
-              </>
-            ) : (
-              <>
-                <source src={currentSrc} type="video/mp4" />
-                <source src={currentSrc} type="video/webm" />
-                <source src={currentSrc} type="video/ogg" />
-              </>
-            )}
-            Seu navegador não suporta reprodução de vídeo.
-          </video>
+            controls={false}
+          />
 
           {/* Error Message */}
           {videoError && (
@@ -407,9 +408,9 @@ export default function VideoPlayer({ src, title, currentVideo, playlist = [], o
           {/* Controls */}
           <div className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent transition-opacity duration-300 ${
             (isMobile ? showMobileControls : showControls) ? 'opacity-100' : 'opacity-0'
-          } ${isMobile ? 'p-3' : 'p-4'}`}>
+          } ${isMobile ? 'p-2 pb-safe' : 'p-4'}`}>
             {/* Control Buttons */}
-            <div className="flex items-center justify-between gap-2 mb-3">
+            <div className="flex items-center justify-between gap-1 mb-2">
               <div className="flex items-center gap-2">
                 {/* Previous Video */}
                 <button
