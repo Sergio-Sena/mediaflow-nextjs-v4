@@ -74,6 +74,10 @@ export default function DashboardPage() {
     if (currentUserData) {
       const user = JSON.parse(currentUserData)
       setCurrentUser(user)
+      // Definir pasta inicial baseada no s3_prefix do usuário
+      if (user.s3_prefix && !currentFolderPath) {
+        setCurrentFolderPath(user.s3_prefix.replace(/\/$/, ''))
+      }
       // Recarregar dados do usuário para pegar avatar atualizado
       fetchUserData(user.user_id || user.id)
     }
@@ -409,13 +413,12 @@ export default function DashboardPage() {
           playlist={videoPlaylist}
           onClose={() => setSelectedVideo(null)}
           onVideoChange={(video) => {
-            // Convert VideoFile to FileItem
             const fileItem: FileItem = {
               key: video.key,
               name: video.name,
               url: video.url,
               folder: video.folder,
-              size: 0, // Will be updated from allFiles if needed
+              size: 0,
               lastModified: new Date().toISOString(),
               type: 'video'
             }

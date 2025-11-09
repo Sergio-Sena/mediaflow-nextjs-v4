@@ -182,12 +182,60 @@ export default function DirectUpload({
     }
   }
 
+  const convertTsToMp4 = async (file: File): Promise<File> => {
+    console.log(`🔄 Convertendo ${file.name} de .ts para .mp4...`)
+    const formData = new FormData()
+    formData.append('file', file)
+    
+    const response = await fetch('/api/convert-ts', {
+      method: 'POST',
+      body: formData
+    })
+    
+    if (!response.ok) throw new Error('Conversão falhou')
+    
+    const blob = await response.blob()
+    return new File([blob], file.name.replace('.ts', '.mp4'), { type: 'video/mp4' })
+  }
+
   const handleFileSelect = async (selectedFiles: FileList) => {
     const selectStart = Date.now()
     console.log(`📁 Processando ${selectedFiles.length} arquivos selecionados...`)
     
-    const allFiles = Array.from(selectedFiles)
+    let allFiles = Array.from(selectedFiles)
     console.log(`⏱️ Array.from concluído em ${Date.now() - selectStart}ms`)
+    
+    // Converter arquivos .ts automaticamente
+    const tsFiles = allFiles.filter(f => f.name.endsWith('.ts'))
+    if (tsFiles.length > 0) {
+      console.log(`🎬 Encontrados ${tsFiles.length} arquivos .ts, convertendo...`)
+      setNotification({
+        type: 'info',
+        message: `🔄 Convertendo ${tsFiles.length} arquivo(s) .ts para .mp4...`
+      })
+      
+      try {
+        const convertedFiles = await Promise.all(
+          tsFiles.map(f => convertTsToMp4(f))
+        )
+        
+        // Substituir .ts por .mp4 convertidos
+        allFiles = allFiles.filter(f => !f.name.endsWith('.ts')).concat(convertedFiles)
+        
+        setNotification({
+          type: 'info',
+          message: `✅ ${tsFiles.length} arquivo(s) convertido(s) com sucesso!`
+        })
+      } catch (error) {
+        console.error('Erro na conversão:', error)
+        setNotification({
+          type: 'error',
+          message: `❌ Erro ao converter arquivos .ts`
+        })
+        return
+      }
+    }
+    console.log(`⏱️ Conversão concluída em ${Date.now() - selectStart}ms`)
     
     // Avisar se exceder limite
     if (allFiles.length > maxFiles) {

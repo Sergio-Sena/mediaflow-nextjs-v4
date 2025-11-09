@@ -121,7 +121,15 @@ def start_conversion(file_key):
                 "Inputs": [{
                     "FileInput": input_uri,
                     "AudioSelectors": {
-                        "Audio Selector 1": {"DefaultSelection": "DEFAULT"}
+                        "Audio Selector 1": {
+                            "DefaultSelection": "DEFAULT",
+                            "SelectorType": "TRACK"
+                        },
+                        "Audio Selector 2": {
+                            "DefaultSelection": "NOT_DEFAULT",
+                            "SelectorType": "TRACK",
+                            "Tracks": [2]
+                        }
                     },
                     "VideoSelector": {}
                 }],
@@ -150,16 +158,32 @@ def start_conversion(file_key):
                                     }
                                 }
                             },
-                            "AudioDescriptions": [{
-                                "CodecSettings": {
-                                    "Codec": "AAC",
-                                    "AacSettings": {
-                                        "Bitrate": 128000,
-                                        "SampleRate": 48000,
-                                        "CodingMode": "CODING_MODE_2_0"
-                                    }
+                            "AudioDescriptions": [
+                                {
+                                    "AudioSourceName": "Audio Selector 1",
+                                    "CodecSettings": {
+                                        "Codec": "AAC",
+                                        "AacSettings": {
+                                            "Bitrate": 128000,
+                                            "SampleRate": 48000,
+                                            "CodingMode": "CODING_MODE_2_0"
+                                        }
+                                    },
+                                    "LanguageCodeControl": "FOLLOW_INPUT"
+                                },
+                                {
+                                    "AudioSourceName": "Audio Selector 2",
+                                    "CodecSettings": {
+                                        "Codec": "AAC",
+                                        "AacSettings": {
+                                            "Bitrate": 128000,
+                                            "SampleRate": 48000,
+                                            "CodingMode": "CODING_MODE_2_0"
+                                        }
+                                    },
+                                    "LanguageCodeControl": "FOLLOW_INPUT"
                                 }
-                            }],
+                            ],
                             "ContainerSettings": {"Container": "MP4"}
                         },
                         # Thumbnail JPG
