@@ -3,10 +3,6 @@ import hashlib
 import hmac
 import base64
 import boto3
-import sys
-import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../lib'))
-from logger import Logger
 from datetime import datetime, timedelta
 
 JWT_SECRET = "17b8312c72fdcffbff89f2f4a564fb26e936002d344717ab7753a237fcd57aea"
@@ -33,34 +29,28 @@ def create_jwt(payload, secret):
     return f"{message}.{signature_encoded}"
 
 def lambda_handler(event, context):
-    correlation_id = event.get('headers', {}).get('x-correlation-id', None)
-    logger = Logger('auth-handler', correlation_id)
-    
     try:
-        logger.info("Login request received", method=event['httpMethod'])
-        
+        print(f"Event: {json.dumps(event)}")
         if event['httpMethod'] == 'OPTIONS':
             return cors_response(200, {})
         
         body = json.loads(event.get('body', '{}'))
         email = body.get('email')
         password = body.get('password')
-        logger.info("Login attempt", email=email)
+        print(f"Login attempt: email={email}")
         
         # Check DynamoDB users
-        logger.info("Scanning DynamoDB")
+        print("Scanning DynamoDB table...")
         response = table.scan()
         users = response.get('Items', [])
-        logger.info("Users found", count=len(users))
+        print(f"Found {len(users)} users")
         
         for user in users:
             if user.get('email') == email and user.get('password') == hash_password(password):
                 status = user.get('status', 'approved')
                 if status == 'pending':
-                    logger.warn("Login blocked - pending approval", email=email)
                     return cors_response(403, {'success': False, 'error': 'Conta aguardando aprovação do administrador'})
                 if status == 'rejected':
-                    logger.warn("Login blocked - rejected", email=email)
                     return cors_response(403, {'success': False, 'error': 'Conta rejeitada pelo administrador'})
                 
                 s3_prefix = user.get('s3_prefix', '')
@@ -73,8 +63,6 @@ def lambda_handler(event, context):
                     'exp': int((datetime.utcnow() + timedelta(hours=24)).timestamp())
                 }
                 token = create_jwt(payload, JWT_SECRET)
-                logger.info("Login successful", email=email, role=role, user_id=user['user_id'])
-                logger.metric("login_success", 1)
                 return cors_response(200, {
                     'success': True,
                     'token': token,
@@ -86,13 +74,12 @@ def lambda_handler(event, context):
                     }
                 })
         
-        logger.warn("Login failed - invalid credentials", email=email)
-        logger.metric("login_failed", 1)
         return cors_response(401, {'success': False, 'error': 'Invalid credentials'})
             
     except Exception as e:
-        logger.error("Lambda error", error=str(e), traceback=str(e.__traceback__))
-        logger.metric("login_error", 1)
+        print(f"Error in lambda_handler: {str(e)}")
+        import traceback
+        print(f"Traceback: {traceback.format_exc()}")
         return cors_response(500, {'success': False, 'message': str(e)})
 
 def cors_response(status_code, body):
