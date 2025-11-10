@@ -50,8 +50,8 @@ jobs:
       
       - name: Build Next.js
         env:
-          JWT_SECRET: ${{ secrets.STAGING_JWT_SECRET }}
-          NEXT_PUBLIC_API_URL: ${{ secrets.STAGING_API_URL }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
         run: npm run build
       
       - name: Upload build artifacts
@@ -85,57 +85,28 @@ jobs:
       
       - name: Sync to S3 Staging
         run: |
-          aws s3 sync out/ s3://${{ secrets.S3_BUCKET_STAGING }}/ --delete
+          aws s3 sync out/ s3://${{ secrets.S3_BUCKET_FRONTEND }}/ --delete
+          aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"
 
   deploy-lambdas:
-    name: Deploy Lambda Functions (Staging)
+    name: Skip Lambda Deploy (Staging)
     needs: test
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        lambda:
-          - login
-          - upload
-          - list-files
-          - delete-file
-          - convert-video
-          - create-user
-          - multipart-upload
-          - folder-operations
-          - approve-user
     steps:
-      - uses: actions/checkout@v4
-      
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
-      
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      
-      - name: Package and Deploy Lambda
-        run: |
-          cd aws-setup/lambda-functions
-          zip -r /tmp/${{ matrix.lambda }}.zip ${{ matrix.lambda }}.py
-          aws lambda update-function-code \
-            --function-name midiaflow-staging-${{ matrix.lambda }} \
-            --zip-file fileb:///tmp/${{ matrix.lambda }}.zip
+      - name: Skip Lambda Deploy
+        run: echo "Lambdas não são deployadas em staging - apenas frontend"
 
   notify:
     name: Notify Staging Deployment
-    needs: [deploy-frontend, deploy-lambdas]
+    needs: [deploy-frontend]
     runs-on: ubuntu-latest
     if: always()
     steps:
       - name: Deployment Status
         run: |
-          if [ "${{ needs.deploy-frontend.result }}" == "success" ] && [ "${{ needs.deploy-lambdas.result }}" == "success" ]; then
+          if [ "${{ needs.deploy-frontend.result }}" == "success" ]; then
             echo "✅ Staging deployment successful!"
+            echo "🌐 URL: https://midiaflow.sstechnologies-cloud.com"
           else
             echo "❌ Staging deployment failed!"
             exit 1
