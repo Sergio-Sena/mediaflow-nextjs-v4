@@ -1,0 +1,21 @@
+name: Test Simple
+
+on:
+  push:
+    branches:
+      - develop
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Simple Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Echo test
+        run: echo "CI/CD is working"
+      
+      - name: List files
+        run: ls -la
