@@ -1,0 +1,74 @@
+[
+  {
+    "file1": {
+      "bucket": "mediaflow-uploads-969430605054",
+      "key": "users/lid_lima/Fotos_Lid/IMG_20190210_162038.jpg",
+      "name": "IMG_20190210_162038.jpg",
+      "size": 363565,
+      "modified": "2025-10-22 13:57:34+00:00"
+    },
+    "file2": {
+      "bucket": "mediaflow-uploads-969430605054",
+      "key": "users/lid_lima/IMG_20190210_162038.jpg",
+      "name": "IMG_20190210_162038.jpg",
+      "size": 363565,
+      "modified": "2025-10-22 13:15:36+00:00"
+    },
+    "similarity": 1.0,
+    "size": 363565
+  },
+  {
+    "file1": {
+      "bucket": "mediaflow-uploads-969430605054",
+      "key": "users/lid_lima/Fotos/.folder_placeholder",
+      "name": ".folder_placeholder",
+      "size": 0,
+      "modified": "2025-10-22 13:51:50+00:00"
+    },
+    "file2": {
+      "bucket": "mediaflow-uploads-969430605054",
+      "key": "users/lid_lima/Videos/.folder_placeholder",
+      "name": ".folder_placeholder",
+      "size": 0,
+      "modified": "2025-10-22 13:52:13+00:00"
+    },
+    "similarity": 1.0,
+    "size": 0
+  },
+  {
+    "file1": {
+      "bucket": "mediaflow-uploads-969430605054",
+      "key": "users/sergio_sena/Captures/V_deo_de_show_musical_na_cidade.mp4",
+      "name": "V_deo_de_show_musical_na_cidade.mp4",
+      "size": 1315030,
+      "modified": "2025-10-22 00:07:31+00:00"
+    },
+    "file2": {
+      "bucket": "mediaflow-uploads-969430605054",
+      "key": "users/user_admin/Star/Captures/V_deo_de_show_musical_na_cidade.mp4",
+      "name": "V_deo_de_show_musical_na_cidade.mp4",
+      "size": 1315030,
+      "modified": "2025-10-15 20:49:11+00:00"
+    },
+    "similarity": 1.0,
+    "size": 1315030
+  },
+  {
+    "file1": {
+      "bucket": "mediaflow-uploads-969430605054",
+      "key": "users/sergio_sena/SergioSenaTeste.mp4",
+      "name": "SergioSenaTeste.mp4",
+      "size": 33345329,
+      "modified": "2025-10-18 22:47:55+00:00"
+    },
+    "file2": {
+      "bucket": "mediaflow-uploads-969430605054",
+      "key": "users/user_admin/Video/SergioSenaTeste.mp4",
+      "name": "SergioSenaTeste.mp4",
+      "size": 33345329,
+      "modified": "2025-10-15 20:57:01+00:00"
+    },
+    "similarity": 1.0,
+    "size": 33345329
+  }
+]

@@ -1,0 +1,144 @@
+RELATORIO AVANCADO DE DUPLICADOS
+================================================================================
+
+Total de arquivos: 1746
+Duplicados nome exato: 8
+Duplicados nome sanitizado: 11
+Duplicados tamanho + similar: 2
+Total: 21
+
+================================================================================
+
+### 1. NOME EXATO ###
+
+[1] .folder_placeholder
+  1: users/lid_lima/Fotos/.folder_placeholder (0.0 MB)
+  2: users/lid_lima/Videos/.folder_placeholder (0.0 MB)
+
+[2] IMG_20190210_162038.jpg
+  1: users/lid_lima/Fotos_Lid/IMG_20190210_162038.jpg (0.3 MB)
+  2: users/lid_lima/IMG_20190210_162038.jpg (0.3 MB)
+
+[3] V_deo_de_show_musical_na_cidade.mp4
+  1: users/sergio_sena/Captures/V_deo_de_show_musical_na_cidade.mp4 (1.3 MB)
+  2: users/user_admin/Star/Captures/V_deo_de_show_musical_na_cidade.mp4 (1.3 MB)
+
+[4] SergioSenaTeste.mp4
+  1: users/sergio_sena/SergioSenaTeste.mp4 (31.8 MB)
+  2: users/user_admin/Video/SergioSenaTeste.mp4 (31.8 MB)
+
+[5] ....mp4
+  1: users/user_admin/Anime/Monster_Hunter/....mp4 (29.9 MB)
+  2: users/user_admin/Anime/Street_Fighter/....mp4 (6.1 MB)
+  TAMANHOS DIFERENTES: 23.8 MB
+
+[6] Ranni_The....mp4
+  1: users/user_admin/Anime/Ranni/Ranni_The....mp4 (15.7 MB)
+  2: users/user_admin/Anime/Ranni/Ranni_the....mp4 (3.9 MB)
+  TAMANHOS DIFERENTES: 11.8 MB
+
+[7] _-_Pornhub.com.mp4
+  1: users/user_admin/Star/Jenny_Kitty/_-_Pornhub.com.mp4 (450.0 MB)
+  2: users/user_admin/Star/charmig/_-_Pornhub.com.mp4 (118.2 MB)
+  TAMANHOS DIFERENTES: 331.8 MB
+
+[8] WOWGIRLS.COM_Two_horny_h....mp4
+  1: users/user_admin/Star/angelica/WOWGIRLS.COM_Two_horny_h....mp4 (42.6 MB)
+  2: users/user_admin/Star/angelica/WOWGIRLS.COM_two_Horny_H....mp4 (53.2 MB)
+  TAMANHOS DIFERENTES: 10.6 MB
+
+
+### 2. NOME SANITIZADO (sem acentos/espacos) ###
+
+[1] Sanitizado: imagem3
+  1: Imagem (3).jpg (0.2 MB)
+     users/user_admin/Anime/Jiggly Girls [Hentai on Brasil]/Imagem (3).jpg
+  2: Imagem (3).png (2.4 MB)
+     users/user_admin/Anime/Jiggly Girls [Hentai on Brasil]/Imagem (3).png
+  TAMANHOS DIFERENTES: 2.3 MB
+
+[2] Sanitizado: imagem4
+  1: Imagem (4).jpg (1.5 MB)
+     users/user_admin/Anime/Jiggly Girls [Hentai on Brasil]/Imagem (4).jpg
+  2: Imagem (4).png (2.9 MB)
+     users/user_admin/Anime/Jiggly Girls [Hentai on Brasil]/Imagem (4).png
+  TAMANHOS DIFERENTES: 1.4 MB
+
+[3] Sanitizado: imagem5
+  1: Imagem (5).jpg (6.5 MB)
+     users/user_admin/Anime/Jiggly Girls [Hentai on Brasil]/Imagem (5).jpg
+  2: Imagem (5).png (2.4 MB)
+     users/user_admin/Anime/Jiggly Girls [Hentai on Brasil]/Imagem (5).png
+  TAMANHOS DIFERENTES: 4.1 MB
+
+[4] Sanitizado: imagem6
+  1: Imagem (6).jpg (0.8 MB)
+     users/user_admin/Anime/Jiggly Girls [Hentai on Brasil]/Imagem (6).jpg
+  2: Imagem (6).png (3.3 MB)
+     users/user_admin/Anime/Jiggly Girls [Hentai on Brasil]/Imagem (6).png
+  TAMANHOS DIFERENTES: 2.4 MB
+
+[5] Sanitizado: imagem7
+  1: Imagem (7).jpg (0.2 MB)
+     users/user_admin/Anime/Jiggly Girls [Hentai on Brasil]/Imagem (7).jpg
+  2: Imagem (7).png (1.9 MB)
+     users/user_admin/Anime/Jiggly Girls [Hentai on Brasil]/Imagem (7).png
+  TAMANHOS DIFERENTES: 1.7 MB
+
+[6] Sanitizado: marvel
+  1: Marvel_-....mp4 (10.1 MB)
+     users/user_admin/Anime/Marvel/Marvel_-....mp4
+  2: marvel.png (3.0 MB)
+     users/user_admin/Seart/marvel.png
+  TAMANHOS DIFERENTES: 7.1 MB
+
+[7] Sanitizado: pornhubcom
+  1: _-_Pornhub.com.mp4 (450.0 MB)
+     users/user_admin/Star/Jenny_Kitty/_-_Pornhub.com.mp4
+  2: _._-_Pornhub.com.mp4 (466.5 MB)
+     users/user_admin/Star/Jenny_Kitty/_._-_Pornhub.com.mp4
+  TAMANHOS DIFERENTES: 16.5 MB
+
+[8] Sanitizado: pornhubcom
+  1: _-_Pornhub.com.mp4 (450.0 MB)
+     users/user_admin/Star/Jenny_Kitty/_-_Pornhub.com.mp4
+  2: _..._-_Pornhub.com.mp4 (93.3 MB)
+     users/user_admin/Star/charmig/_..._-_Pornhub.com.mp4
+  TAMANHOS DIFERENTES: 356.7 MB
+
+[9] Sanitizado: pornhubcom
+  1: _._-_Pornhub.com.mp4 (466.5 MB)
+     users/user_admin/Star/Jenny_Kitty/_._-_Pornhub.com.mp4
+  2: _-_Pornhub.com.mp4 (118.2 MB)
+     users/user_admin/Star/charmig/_-_Pornhub.com.mp4
+  TAMANHOS DIFERENTES: 348.2 MB
+
+[10] Sanitizado: pornhubcom
+  1: _._-_Pornhub.com.mp4 (466.5 MB)
+     users/user_admin/Star/Jenny_Kitty/_._-_Pornhub.com.mp4
+  2: _..._-_Pornhub.com.mp4 (93.3 MB)
+     users/user_admin/Star/charmig/_..._-_Pornhub.com.mp4
+  TAMANHOS DIFERENTES: 373.2 MB
+
+[11] Sanitizado: pornhubcom
+  1: _-_Pornhub.com.mp4 (118.2 MB)
+     users/user_admin/Star/charmig/_-_Pornhub.com.mp4
+  2: _..._-_Pornhub.com.mp4 (93.3 MB)
+     users/user_admin/Star/charmig/_..._-_Pornhub.com.mp4
+  TAMANHOS DIFERENTES: 24.9 MB
+
+
+### 3. TAMANHO IGUAL + NOME SIMILAR ###
+
+[1] Tamanho: 1.3 MB | Similaridade: 100%
+  1: V_deo_de_show_musical_na_cidade.mp4
+     users/sergio_sena/Captures/V_deo_de_show_musical_na_cidade.mp4
+  2: V_deo_de_show_musical_na_cidade.mp4
+     users/user_admin/Star/Captures/V_deo_de_show_musical_na_cidade.mp4
+
+[2] Tamanho: 31.8 MB | Similaridade: 100%
+  1: SergioSenaTeste.mp4
+     users/sergio_sena/SergioSenaTeste.mp4
+  2: SergioSenaTeste.mp4
+     users/user_admin/Video/SergioSenaTeste.mp4
+

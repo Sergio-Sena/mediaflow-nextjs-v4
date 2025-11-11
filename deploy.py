@@ -13,7 +13,7 @@ from pathlib import Path
 from datetime import datetime
 
 # Config
-S3_BUCKET = 'midiaflow-frontend-969430605054'
+S3_BUCKET = 'mediaflow-frontend-969430605054'
 CLOUDFRONT_ID = 'E2HZKZ9ZJK18IU'
 BACKUP_BUCKET = 'midiaflow-backups-969430605054'
 

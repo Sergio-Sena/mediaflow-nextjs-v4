@@ -1,0 +1,424 @@
+[
+  {
+    "file1": {
+      "bucket": "mediaflow-uploads-969430605054",
+      "key": "users/lid_lima/Fotos/.folder_placeholder",
+      "name": ".folder_placeholder",
+      "sanitized": "",
+      "size": 0,
+      "modified": "2025-10-22 13:51:50+00:00"
+    },
+    "file2": {
+      "bucket": "mediaflow-uploads-969430605054",
+      "key": "users/lid_lima/Videos/.folder_placeholder",
+      "name": ".folder_placeholder",
+      "sanitized": "",
+      "size": 0,
+      "modified": "2025-10-22 13:52:13+00:00"
+    },
+    "type": "exact_name",
+    "match": "Nome exato"
+  },
+  {
+    "file1": {
+      "bucket": "mediaflow-uploads-969430605054",
+      "key": "users/lid_lima/Fotos_Lid/IMG_20190210_162038.jpg",
+      "name": "IMG_20190210_162038.jpg",
+      "sanitized": "img20190210162038",
+      "size": 363565,
+      "modified": "2025-10-22 13:57:34+00:00"
+    },
+    "file2": {
+      "bucket": "mediaflow-uploads-969430605054",
+      "key": "users/lid_lima/IMG_20190210_162038.jpg",
+      "name": "IMG_20190210_162038.jpg",
+      "sanitized": "img20190210162038",
+      "size": 363565,
+      "modified": "2025-10-22 13:15:36+00:00"
+    },
+    "type": "exact_name",
+    "match": "Nome exato"
+  },
+  {
+    "file1": {
+      "bucket": "mediaflow-uploads-969430605054",
+      "key": "users/sergio_sena/Captures/V_deo_de_show_musical_na_cidade.mp4",
+      "name": "V_deo_de_show_musical_na_cidade.mp4",
+      "sanitized": "vdeodeshowmusicalnacidade",
+      "size": 1315030,
+      "modified": "2025-10-22 00:07:31+00:00"
+    },
+    "file2": {
+      "bucket": "mediaflow-uploads-969430605054",
+      "key": "users/user_admin/Star/Captures/V_deo_de_show_musical_na_cidade.mp4",
+      "name": "V_deo_de_show_musical_na_cidade.mp4",
+      "sanitized": "vdeodeshowmusicalnacidade",
+      "size": 1315030,
+      "modified": "2025-10-15 20:49:11+00:00"
+    },
+    "type": "exact_name",
+    "match": "Nome exato"
+  },
+  {
+    "file1": {
+      "bucket": "mediaflow-uploads-969430605054",
+      "key": "users/sergio_sena/SergioSenaTeste.mp4",
+      "name": "SergioSenaTeste.mp4",
+      "sanitized": "sergiosenateste",
+      "size": 33345329,
+      "modified": "2025-10-18 22:47:55+00:00"
+    },
+    "file2": {
+      "bucket": "mediaflow-uploads-969430605054",
+      "key": "users/user_admin/Video/SergioSenaTeste.mp4",
+      "name": "SergioSenaTeste.mp4",
+      "sanitized": "sergiosenateste",
+      "size": 33345329,
+      "modified": "2025-10-15 20:57:01+00:00"
+    },
+    "type": "exact_name",
+    "match": "Nome exato"
+  },
+  {
+    "file1": {
+      "bucket": "mediaflow-uploads-969430605054",
+      "key": "users/user_admin/Anime/Monster_Hunter/....mp4",
+      "name": "....mp4",
+      "sanitized": "",
+      "size": 31333795,
+      "modified": "2025-10-22 18:33:12+00:00"
+    },
+    "file2": {
+      "bucket": "mediaflow-uploads-969430605054",
+      "key": "users/user_admin/Anime/Street_Fighter/....mp4",
+      "name": "....mp4",
+      "sanitized": "",
+      "size": 6411910,
+      "modified": "2025-10-23 00:41:31+00:00"
+    },
+    "type": "exact_name",
+    "match": "Nome exato"
+  },
+  {
+    "file1": {
+      "bucket": "mediaflow-uploads-969430605054",
+      "key": "users/user_admin/Anime/Ranni/Ranni_The....mp4",
+      "name": "Ranni_The....mp4",
+      "sanitized": "rannithe",
+      "size": 16466763,
+      "modified": "2025-10-22 21:55:13+00:00"
+    },
+    "file2": {
+      "bucket": "mediaflow-uploads-969430605054",
+      "key": "users/user_admin/Anime/Ranni/Ranni_the....mp4",
+      "name": "Ranni_the....mp4",
+      "sanitized": "rannithe",
+      "size": 4041650,
+      "modified": "2025-10-22 21:54:38+00:00"
+    },
+    "type": "exact_name",
+    "match": "Nome exato"
+  },
+  {
+    "file1": {
+      "bucket": "mediaflow-uploads-969430605054",
+      "key": "users/user_admin/Star/Jenny_Kitty/_-_Pornhub.com.mp4",
+      "name": "_-_Pornhub.com.mp4",
+      "sanitized": "pornhubcom",
+      "size": 471875227,
+      "modified": "2025-10-15 21:12:53+00:00"
+    },
+    "file2": {
+      "bucket": "mediaflow-uploads-969430605054",
+      "key": "users/user_admin/Star/charmig/_-_Pornhub.com.mp4",
+      "name": "_-_Pornhub.com.mp4",
+      "sanitized": "pornhubcom",
+      "size": 123991341,
+      "modified": "2025-10-15 21:59:27+00:00"
+    },
+    "type": "exact_name",
+    "match": "Nome exato"
+  },
+  {
+    "file1": {
+      "bucket": "mediaflow-uploads-969430605054",
+      "key": "users/user_admin/Star/angelica/WOWGIRLS.COM_Two_horny_h....mp4",
+      "name": "WOWGIRLS.COM_Two_horny_h....mp4",
+      "sanitized": "wowgirlscomtwohornyh",
+      "size": 44617476,
+      "modified": "2025-10-15 21:57:10+00:00"
+    },
+    "file2": {
+      "bucket": "mediaflow-uploads-969430605054",
+      "key": "users/user_admin/Star/angelica/WOWGIRLS.COM_two_Horny_H....mp4",
+      "name": "WOWGIRLS.COM_two_Horny_H....mp4",
+      "sanitized": "wowgirlscomtwohornyh",
+      "size": 55765722,
+      "modified": "2025-10-15 21:57:11+00:00"
+    },
+    "type": "exact_name",
+    "match": "Nome exato"
+  },
+  {
+    "file1": {
+      "bucket": "mediaflow-uploads-969430605054",
+      "key": "users/user_admin/Anime/Jiggly Girls [Hentai on Brasil]/Imagem (3).jpg",
+      "name": "Imagem (3).jpg",
+      "sanitized": "imagem3",
+      "size": 165240,
+      "modified": "2025-10-23 00:34:35+00:00"
+    },
+    "file2": {
+      "bucket": "mediaflow-uploads-969430605054",
+      "key": "users/user_admin/Anime/Jiggly Girls [Hentai on Brasil]/Imagem (3).png",
+      "name": "Imagem (3).png",
+      "sanitized": "imagem3",
+      "size": 2551419,
+      "modified": "2025-10-23 00:27:02+00:00"
+    },
+    "type": "sanitized_name",
+    "match": "Nome sanitizado"
+  },
+  {
+    "file1": {
+      "bucket": "mediaflow-uploads-969430605054",
+      "key": "users/user_admin/Anime/Jiggly Girls [Hentai on Brasil]/Imagem (4).jpg",
+      "name": "Imagem (4).jpg",
+      "sanitized": "imagem4",
+      "size": 1587086,
+      "modified": "2025-10-23 00:34:39+00:00"
+    },
+    "file2": {
+      "bucket": "mediaflow-uploads-969430605054",
+      "key": "users/user_admin/Anime/Jiggly Girls [Hentai on Brasil]/Imagem (4).png",
+      "name": "Imagem (4).png",
+      "sanitized": "imagem4",
+      "size": 3045919,
+      "modified": "2025-10-23 00:27:51+00:00"
+    },
+    "type": "sanitized_name",
+    "match": "Nome sanitizado"
+  },
+  {
+    "file1": {
+      "bucket": "mediaflow-uploads-969430605054",
+      "key": "users/user_admin/Anime/Jiggly Girls [Hentai on Brasil]/Imagem (5).jpg",
+      "name": "Imagem (5).jpg",
+      "sanitized": "imagem5",
+      "size": 6850292,
+      "modified": "2025-10-23 00:34:44+00:00"
+    },
+    "file2": {
+      "bucket": "mediaflow-uploads-969430605054",
+      "key": "users/user_admin/Anime/Jiggly Girls [Hentai on Brasil]/Imagem (5).png",
+      "name": "Imagem (5).png",
+      "sanitized": "imagem5",
+      "size": 2521351,
+      "modified": "2025-10-23 00:28:35+00:00"
+    },
+    "type": "sanitized_name",
+    "match": "Nome sanitizado"
+  },
+  {
+    "file1": {
+      "bucket": "mediaflow-uploads-969430605054",
+      "key": "users/user_admin/Anime/Jiggly Girls [Hentai on Brasil]/Imagem (6).jpg",
+      "name": "Imagem (6).jpg",
+      "sanitized": "imagem6",
+      "size": 886387,
+      "modified": "2025-10-23 00:34:49+00:00"
+    },
+    "file2": {
+      "bucket": "mediaflow-uploads-969430605054",
+      "key": "users/user_admin/Anime/Jiggly Girls [Hentai on Brasil]/Imagem (6).png",
+      "name": "Imagem (6).png",
+      "sanitized": "imagem6",
+      "size": 3417500,
+      "modified": "2025-10-23 00:29:17+00:00"
+    },
+    "type": "sanitized_name",
+    "match": "Nome sanitizado"
+  },
+  {
+    "file1": {
+      "bucket": "mediaflow-uploads-969430605054",
+      "key": "users/user_admin/Anime/Jiggly Girls [Hentai on Brasil]/Imagem (7).jpg",
+      "name": "Imagem (7).jpg",
+      "sanitized": "imagem7",
+      "size": 255350,
+      "modified": "2025-10-23 00:29:24+00:00"
+    },
+    "file2": {
+      "bucket": "mediaflow-uploads-969430605054",
+      "key": "users/user_admin/Anime/Jiggly Girls [Hentai on Brasil]/Imagem (7).png",
+      "name": "Imagem (7).png",
+      "sanitized": "imagem7",
+      "size": 1988789,
+      "modified": "2025-10-23 00:29:24+00:00"
+    },
+    "type": "sanitized_name",
+    "match": "Nome sanitizado"
+  },
+  {
+    "file1": {
+      "bucket": "mediaflow-uploads-969430605054",
+      "key": "users/user_admin/Anime/Marvel/Marvel_-....mp4",
+      "name": "Marvel_-....mp4",
+      "sanitized": "marvel",
+      "size": 10602878,
+      "modified": "2025-10-22 18:26:56+00:00"
+    },
+    "file2": {
+      "bucket": "mediaflow-uploads-969430605054",
+      "key": "users/user_admin/Seart/marvel.png",
+      "name": "marvel.png",
+      "sanitized": "marvel",
+      "size": 3166333,
+      "modified": "2025-10-15 20:56:46+00:00"
+    },
+    "type": "sanitized_name",
+    "match": "Nome sanitizado"
+  },
+  {
+    "file1": {
+      "bucket": "mediaflow-uploads-969430605054",
+      "key": "users/user_admin/Star/Jenny_Kitty/_-_Pornhub.com.mp4",
+      "name": "_-_Pornhub.com.mp4",
+      "sanitized": "pornhubcom",
+      "size": 471875227,
+      "modified": "2025-10-15 21:12:53+00:00"
+    },
+    "file2": {
+      "bucket": "mediaflow-uploads-969430605054",
+      "key": "users/user_admin/Star/Jenny_Kitty/_._-_Pornhub.com.mp4",
+      "name": "_._-_Pornhub.com.mp4",
+      "sanitized": "pornhubcom",
+      "size": 489136510,
+      "modified": "2025-10-15 21:13:07+00:00"
+    },
+    "type": "sanitized_name",
+    "match": "Nome sanitizado"
+  },
+  {
+    "file1": {
+      "bucket": "mediaflow-uploads-969430605054",
+      "key": "users/user_admin/Star/Jenny_Kitty/_-_Pornhub.com.mp4",
+      "name": "_-_Pornhub.com.mp4",
+      "sanitized": "pornhubcom",
+      "size": 471875227,
+      "modified": "2025-10-15 21:12:53+00:00"
+    },
+    "file2": {
+      "bucket": "mediaflow-uploads-969430605054",
+      "key": "users/user_admin/Star/charmig/_..._-_Pornhub.com.mp4",
+      "name": "_..._-_Pornhub.com.mp4",
+      "sanitized": "pornhubcom",
+      "size": 97833243,
+      "modified": "2025-10-15 21:59:30+00:00"
+    },
+    "type": "sanitized_name",
+    "match": "Nome sanitizado"
+  },
+  {
+    "file1": {
+      "bucket": "mediaflow-uploads-969430605054",
+      "key": "users/user_admin/Star/Jenny_Kitty/_._-_Pornhub.com.mp4",
+      "name": "_._-_Pornhub.com.mp4",
+      "sanitized": "pornhubcom",
+      "size": 489136510,
+      "modified": "2025-10-15 21:13:07+00:00"
+    },
+    "file2": {
+      "bucket": "mediaflow-uploads-969430605054",
+      "key": "users/user_admin/Star/charmig/_-_Pornhub.com.mp4",
+      "name": "_-_Pornhub.com.mp4",
+      "sanitized": "pornhubcom",
+      "size": 123991341,
+      "modified": "2025-10-15 21:59:27+00:00"
+    },
+    "type": "sanitized_name",
+    "match": "Nome sanitizado"
+  },
+  {
+    "file1": {
+      "bucket": "mediaflow-uploads-969430605054",
+      "key": "users/user_admin/Star/Jenny_Kitty/_._-_Pornhub.com.mp4",
+      "name": "_._-_Pornhub.com.mp4",
+      "sanitized": "pornhubcom",
+      "size": 489136510,
+      "modified": "2025-10-15 21:13:07+00:00"
+    },
+    "file2": {
+      "bucket": "mediaflow-uploads-969430605054",
+      "key": "users/user_admin/Star/charmig/_..._-_Pornhub.com.mp4",
+      "name": "_..._-_Pornhub.com.mp4",
+      "sanitized": "pornhubcom",
+      "size": 97833243,
+      "modified": "2025-10-15 21:59:30+00:00"
+    },
+    "type": "sanitized_name",
+    "match": "Nome sanitizado"
+  },
+  {
+    "file1": {
+      "bucket": "mediaflow-uploads-969430605054",
+      "key": "users/user_admin/Star/charmig/_-_Pornhub.com.mp4",
+      "name": "_-_Pornhub.com.mp4",
+      "sanitized": "pornhubcom",
+      "size": 123991341,
+      "modified": "2025-10-15 21:59:27+00:00"
+    },
+    "file2": {
+      "bucket": "mediaflow-uploads-969430605054",
+      "key": "users/user_admin/Star/charmig/_..._-_Pornhub.com.mp4",
+      "name": "_..._-_Pornhub.com.mp4",
+      "sanitized": "pornhubcom",
+      "size": 97833243,
+      "modified": "2025-10-15 21:59:30+00:00"
+    },
+    "type": "sanitized_name",
+    "match": "Nome sanitizado"
+  },
+  {
+    "file1": {
+      "bucket": "mediaflow-uploads-969430605054",
+      "key": "users/sergio_sena/Captures/V_deo_de_show_musical_na_cidade.mp4",
+      "name": "V_deo_de_show_musical_na_cidade.mp4",
+      "sanitized": "vdeodeshowmusicalnacidade",
+      "size": 1315030,
+      "modified": "2025-10-22 00:07:31+00:00"
+    },
+    "file2": {
+      "bucket": "mediaflow-uploads-969430605054",
+      "key": "users/user_admin/Star/Captures/V_deo_de_show_musical_na_cidade.mp4",
+      "name": "V_deo_de_show_musical_na_cidade.mp4",
+      "sanitized": "vdeodeshowmusicalnacidade",
+      "size": 1315030,
+      "modified": "2025-10-15 20:49:11+00:00"
+    },
+    "similarity": 1.0,
+    "type": "same_size_similar_name",
+    "match": "Tamanho igual + 100% similar"
+  },
+  {
+    "file1": {
+      "bucket": "mediaflow-uploads-969430605054",
+      "key": "users/sergio_sena/SergioSenaTeste.mp4",
+      "name": "SergioSenaTeste.mp4",
+      "sanitized": "sergiosenateste",
+      "size": 33345329,
+      "modified": "2025-10-18 22:47:55+00:00"
+    },
+    "file2": {
+      "bucket": "mediaflow-uploads-969430605054",
+      "key": "users/user_admin/Video/SergioSenaTeste.mp4",
+      "name": "SergioSenaTeste.mp4",
+      "sanitized": "sergiosenateste",
+      "size": 33345329,
+      "modified": "2025-10-15 20:57:01+00:00"
+    },
+    "similarity": 1.0,
+    "type": "same_size_similar_name",
+    "match": "Tamanho igual + 100% similar"
+  }
+]
