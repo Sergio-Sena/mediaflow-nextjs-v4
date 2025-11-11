@@ -266,7 +266,7 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 - [x] **Botões Centralizados** - Ícones perfeitamente alinhados
 - [x] **Animações Suaves** - Hover effects nos botões
 - [x] **Deploy de Produção** - Sistema atualizado com segurança
-- [x] **Organização S3** - Pastas reorganizadas (Mini_skirt, ShyBlanche, etc. → Star)
+- [x] **Organização S3** - Pastas reorganizadas (Usuario6, Usuario5, etc. → Star)
 - [x] **Busca Global** - Procura em todas as pastas, não apenas na atual
 - [x] **Contagem Inteligente** - Subpastas e arquivos totais no gerenciador
 - [x] **Filtros Corrigidos** - Botão "Limpar Filtros" funcional
@@ -337,7 +337,7 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 - [x] **Deploy realizado** - Build 20/01/2025 02:08
 
 ### **v4.7.3 (PRODUÇÃO)** ✅
-- [x] **Paginação S3 Completa** - Lambda lista TODAS as pastas (49 em Star/)
+- [x] **Paginação S3 Completa** - Lambda lista TODAS as pastas (49 em Corporativo/)
 - [x] **Navegação Inteligente** - Prioriza subpastas sobre arquivos
 - [x] **Autoplay ao Navegar** - Player abre automaticamente
 - [x] **Indicadores Visuais** - ▶ (arquivos) e → (subpastas)
@@ -350,7 +350,7 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 - [x] **URL Assinada** - Player reproduz corretamente ao navegar
 - [x] **2FA Bypass Localhost** - Desenvolvimento facilitado
 - [x] **Sanitização S3** - 26 arquivos corrigidos (acentos, espaços)
-- [x] **Upload Star/** - 111 arquivos novos (30+ GB)
+- [x] **Upload Corporativo/** - 111 arquivos novos (30+ GB)
 - [x] **Deploy realizado** - Build 22/01/2025 23:00
 
 ### **v4.8 (PRODUÇÃO)** ✅
@@ -418,8 +418,8 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 - [x] Limpeza duplicados (11 deletados, ~45 MB)
 - [x] Conversão .TS→.MP4 (5 arquivos, 1.43 GB)
 - [x] Organização projeto local (18 movidos, 3 deletados)
-- [x] Renomeação S3 (Anasta_angel → anastangel)
-- [x] Upload Star/ (5 arquivos, 1.43 GB)
+- [x] Renomeação S3 (Usuario1 → usuario1)
+- [x] Upload Corporativo/ (5 arquivos, 1.43 GB)
 
 **Semana 3-4: Sistema de Planos + Limites** ⏳ PRÓXIMO
 - [ ] DynamoDB: campos plan + limits + usage

@@ -29,8 +29,8 @@
 2. ✅ Limpeza (11 deletados, ~45 MB)
 3. ✅ Conversao .TS→.MP4 (5 arquivos, 1.43 GB)
 4. ✅ Organizacao projeto local (18 movidos, 3 deletados)
-5. ✅ Renomeacao S3 (Anasta_angel → anastangel)
-6. ✅ Upload Star/ (5 arquivos, 1.43 GB)
+5. ✅ Renomeacao S3 (Usuario1 → usuario1)
+6. ✅ Upload Corporativo/ (5 arquivos, 1.43 GB)
 
 ### Scripts Criados
 - `scripts/scan-duplicates-advanced.py`
@@ -63,9 +63,25 @@
 
 ## Opcoes para Proxima Sessao
 
-### Opcao 1: Sistema de Planos (v4.9)
+### Opcao 1: SANITIZACAO PRODUTO (RECOMENDADO) ⚠️
+**Duracao**: ~4 semanas  
+**Impacto**: CRITICO (transforma projeto em produto vendavel)
+
+**Problema**: Nota cliente 4/10 (nao compraria)  
+**Solucao**: Plano completo em `memoria/PLANO_SANITIZACAO_PRODUTO.md`
+
+**Proxima acao**: Remover conteudo adulto do README
+
+**Fases**:
+1. CRITICOS (Semana 1): Conteudo adulto, trial automatico, pricing, landing page
+2. GRAVES (Semana 2): Diferenciacao, docs comercial, SLA, branding
+3. IMPORTANTES (Semana 3): Casos de uso, provas sociais, onboarding
+4. EXTRAS (Semana 4): Blog, Stripe, email marketing
+
+### Opcao 2: Sistema de Planos (v4.9)
 **Duracao**: ~15 dias  
-**Impacto**: Alto (controle custos + monetizacao)
+**Impacto**: Alto (controle custos + monetizacao)  
+**Nota**: Recomendado APOS sanitizacao
 
 **Tarefas**:
 1. Atualizar schema DynamoDB
@@ -75,25 +91,16 @@
 5. User dashboard
 6. Emails SES
 
-### Opcao 2: Uploads e Organizacao
+### Opcao 3: Uploads e Organizacao
 **Duracao**: ~2-3 dias  
-**Impacto**: Medio (mais conteudo)
+**Impacto**: Medio (mais conteudo)  
+**Nota**: Pode fazer em paralelo com sanitizacao
 
 **Tarefas**:
 1. Converter mais .TS → .MP4
 2. Upload pastas locais
 3. Sanitizar nomes S3
 4. Organizar estrutura
-
-### Opcao 3: Melhorias Operacionais
-**Duracao**: ~1-2 dias  
-**Impacto**: Baixo (qualidade vida)
-
-**Tarefas**:
-1. Scripts de backup
-2. Verificacao integridade
-3. Documentacao tecnica
-4. Testes automatizados
 
 ---
 
@@ -173,8 +180,8 @@ python organize-project.py
 ```
 users/
 ├── user_admin/
-│   ├── Star/           # 49 pastas
-│   │   ├── anastangel/ # 33 arquivos (atualizado)
+│   ├── Corporativo/           # 49 pastas
+│   │   ├── usuario1/ # 33 arquivos (atualizado)
 │   │   └── ...
 │   └── Anime/          # Multiplas pastas
 ├── lid_lima/
@@ -222,14 +229,17 @@ users/
 
 ## Notas Importantes
 
-1. **Deploy**: Sempre fazer backup antes (deploy.py faz automatico)
-2. **S3**: Estrutura users/{user_id}/ obrigatoria
-3. **Lambdas**: 9 funcoes, todas com logs JSON
-4. **CloudWatch**: Alarms ativos, verificar diariamente
-5. **Custos**: Monitorar, limite $50/mes
+1. **PRIORIDADE MAXIMA**: Sanitizacao produto (memoria/PLANO_SANITIZACAO_PRODUTO.md)
+2. **Deploy**: Sempre fazer backup antes (deploy.py faz automatico)
+3. **S3**: Estrutura users/{user_id}/ obrigatoria
+4. **Lambdas**: 9 funcoes, todas com logs JSON
+5. **CloudWatch**: Alarms ativos, verificar diariamente
+6. **Custos**: Monitorar, limite $50/mes
+7. **Avaliacao Cliente**: 4/10 - Nao compraria sem sanitizacao
 
 ---
 
 **Preparado para**: Proximo chat  
-**Recomendacao**: Comecar com Sistema de Planos v4.9  
-**Alternativa**: Continuar uploads e organizacao
+**Recomendacao**: SANITIZACAO PRODUTO (URGENTE)  
+**Proxima acao**: Remover conteudo adulto do README  
+**Alternativa**: Sistema de Planos v4.9 (APOS sanitizacao)

@@ -27,7 +27,7 @@
 ### 3. `V_deo_de_show_musical_na_cidade.mp4` (1.3 MB)
 
 - `users/sergio_sena/Captures/V_deo_de_show_musical_na_cidade.mp4`(MANTER)
-- `users/user_admin/Star/Captures/V_deo_de_show_musical_na_cidade.mp4` remover
+- `users/user_admin/Corporativo/Captures/V_deo_de_show_musical_na_cidade.mp4` remover
 
 ### 4. `SergioSenaTeste.mp4` (33.3 MB)
 
@@ -44,21 +44,21 @@
 - `users/user_admin/Anime/Ranni/Ranni_The....mp4` (16.5 MB)(MANTER)
 - `users/user_admin/Anime/Ranni/Ranni_the....mp4` (4.0 MB)(MANTER)
 
-### 7. `_-_Pornhub.com.mp4` (471.9 MB vs 124.0 MB) ⚠️ Tamanhos diferentes
+### 7. `_-_video.mp4` (471.9 MB vs 124.0 MB) ⚠️ Tamanhos diferentes
 
-- `users/user_admin/Star/Jenny_Kitty/_-_Pornhub.com.mp4` (471.9 MB)(MANTER)
-- `users/user_admin/Star/charmig/_-_Pornhub.com.mp4` (124.0 MB)(MANTER)
+- `users/user_admin/Corporativo/Usuario2/_-_video.mp4` (471.9 MB)(MANTER)
+- `users/user_admin/Corporativo/usuario3/_-_video.mp4` (124.0 MB)(MANTER)
 
-### 8. `WOWGIRLS.COM_Two_horny_h....mp4` vs `WOWGIRLS.COM_two_Horny_H....mp4` (44.6 MB vs 55.8 MB) ⚠️ Tamanhos diferentes
+### 8. `VIDEO_Two_horny_h....mp4` vs `VIDEO_two_Horny_H....mp4` (44.6 MB vs 55.8 MB) ⚠️ Tamanhos diferentes
 
-- `users/user_admin/Star/angelica/WOWGIRLS.COM_Two_horny_h....mp4` (44.6 MB) (remover)
-- `users/user_admin/Star/angelica/WOWGIRLS.COM_two_Horny_H....mp4` (55.8 MB)(manter)
+- `users/user_admin/Corporativo/usuario4/VIDEO_Two_horny_h....mp4` (44.6 MB) (remover)
+- `users/user_admin/Corporativo/usuario4/VIDEO_two_Horny_H....mp4` (55.8 MB)(manter)
 
 ---
 
 ## 🟡 Duplicados por Nome Sanitizado (11)
 
-### 9-13. Imagens Jiggly Girls (JPG vs PNG)
+### 9-13. Imagens Animacoes (JPG vs PNG)
 
 - `Imagem (3).jpg` (165 KB) vs `Imagem (3).png` (2.6 MB)(manter)
 - `Imagem (4).jpg` (1.6 MB) vs `Imagem (4).png` (3.0 MB)(manter)
@@ -66,21 +66,21 @@
 - `Imagem (6).jpg` (886 KB) vs `Imagem (6).png` (3.4 MB)(manter)
 - `Imagem (7).jpg` (255 KB) vs `Imagem (7).png` (2.0 MB)(manter)
 
-**Localização**: `users/user_admin/Anime/Jiggly Girls [Hentai on Brasil]/`
+**Localização**: `users/user_admin/Anime/Animacoes [Conteudo]/`
 
 ### 14. `Marvel_-....mp4` vs `marvel.png` (10.6 MB vs 3.2 MB)
 
 - `users/user_admin/Anime/Marvel/Marvel_-....mp4` (10.6 MB)(manter)
 - `users/user_admin/Seart/marvel.png` (3.2 MB)(manter)
 
-### 15-20. Pornhub.com (6 combinações)
+### 15-20. video (6 combinações)
 
-Todos sanitizam para `pornhubcom`:
+Todos sanitizam para `videocom`:
 
-- `_-_Pornhub.com.mp4` (471.9 MB) - Jenny_Kitty (manter)
-- `_._-_Pornhub.com.mp4` (489.1 MB) - Jenny_Kitty(manter)
-- `_-_Pornhub.com.mp4` (124.0 MB) - charmig(manter)
-- `_..._-_Pornhub.com.mp4` (97.8 MB) - charmig(manter)
+- `_-_video.mp4` (471.9 MB) - Usuario2 (manter)
+- `_._-_video.mp4` (489.1 MB) - Usuario2(manter)
+- `_-_video.mp4` (124.0 MB) - usuario3(manter)
+- `_..._-_video.mp4` (97.8 MB) - usuario3(manter)
 
 ---
 
@@ -89,7 +89,7 @@ Todos sanitizam para `pornhubcom`:
 ### 21. `V_deo_de_show_musical_na_cidade.mp4` (1.3 MB) - 100% similar
 
 - `users/sergio_sena/Captures/V_deo_de_show_musical_na_cidade.mp4`
-- `users/user_admin/Star/Captures/V_deo_de_show_musical_na_cidade.mp4`(remover)
+- `users/user_admin/Corporativo/Captures/V_deo_de_show_musical_na_cidade.mp4`(remover)
 
 ### 22. `SergioSenaTeste.mp4` (33.3 MB) - 100% similar
 
@@ -111,8 +111,8 @@ Todos sanitizam para `pornhubcom`:
 
 - Arquivos `....mp4` truncados (Monster_Hunter vs Street_Fighter)(ja citado acima)
 - `Ranni_The....mp4` vs `Ranni_the....mp4` (podem ser vídeos diferentes)(ja citado acima)
-- Pornhub.com (4 arquivos com tamanhos variados - provavelmente vídeos diferentes)(ja citado acima)
-- WOWGIRLS.COM (2 arquivos com tamanhos diferentes)(ja citado acima)
+- video (4 arquivos com tamanhos variados - provavelmente vídeos diferentes)(ja citado acima)
+- VIDEO (2 arquivos com tamanhos diferentes)(ja citado acima)
 
 ### 🖼️ Imagens JPG vs PNG:
 
