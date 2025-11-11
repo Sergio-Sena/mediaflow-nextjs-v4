@@ -46,10 +46,10 @@ def lambda_handler(event, context):
                     logger.warn("JWT decode failed", error=str(e))
                     pass
             
-            # Admin vê tudo (sem filtro), user vê apenas sua pasta
+            # admin vê tudo, users veem apenas sua pasta
             if user_role == 'admin':
-                user_prefix = ''  # Admin sem filtro
-                logger.info("Admin access - no filter")
+                user_prefix = ''  # Admin vê tudo
+                logger.info("Admin access - full access")
             elif user_prefix:
                 logger.info("User access", prefix=user_prefix)
             
