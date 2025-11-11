@@ -74,10 +74,8 @@ export default function DashboardPage() {
     if (currentUserData) {
       const user = JSON.parse(currentUserData)
       setCurrentUser(user)
-      // Definir pasta inicial baseada no s3_prefix do usuário
-      if (user.s3_prefix && !currentFolderPath) {
-        setCurrentFolderPath(user.s3_prefix.replace(/\/$/, ''))
-      }
+      // NÃO definir pasta inicial - deixar vazio para viewer ver tudo de user_admin
+      // O filtro já é feito pela Lambda baseado no JWT
       // Recarregar dados do usuário para pegar avatar atualizado
       fetchUserData(user.user_id || user.id)
     }
