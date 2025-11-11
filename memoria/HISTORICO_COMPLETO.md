@@ -35,7 +35,7 @@
 - Analytics individualizadas
 - Usuarios iniciam em sua pasta (users/{user_id}/)
 - CloudFront cleanup (2 distribuicoes antigas desabilitadas)
-- Paginacao S3 completa (49 pastas em Star/)
+- Paginacao S3 completa (49 pastas em Corporativo/)
 - Navegacao inteligente (prioriza subpastas)
 - Autoplay ao navegar
 - Paginacao frontend (50 arquivos/pagina)
@@ -43,7 +43,7 @@
 - URL assinada no player
 - 2FA bypass localhost
 - Sanitizacao S3 (26 arquivos corrigidos)
-- Upload Star/ (111 arquivos, 30+ GB)
+- Upload Corporativo/ (111 arquivos, 30+ GB)
 
 ### v4.8: Sistema de Aprovacao
 **Data**: 27/01/2025  
