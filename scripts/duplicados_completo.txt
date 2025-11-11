@@ -1,0 +1,24 @@
+RELATORIO COMPLETO DE DUPLICADOS
+================================================================================
+
+Total de arquivos escaneados: 1747
+Duplicados encontrados: 4
+
+================================================================================
+
+[1] Similaridade: 100.0% | Tamanho: 0.3 MB
+  1: [mediaflow-uploads-969430605054] users/lid_lima/Fotos_Lid/IMG_20190210_162038.jpg
+  2: [mediaflow-uploads-969430605054] users/lid_lima/IMG_20190210_162038.jpg
+
+[2] Similaridade: 100.0% | Tamanho: 0.0 MB
+  1: [mediaflow-uploads-969430605054] users/lid_lima/Fotos/.folder_placeholder
+  2: [mediaflow-uploads-969430605054] users/lid_lima/Videos/.folder_placeholder
+
+[3] Similaridade: 100.0% | Tamanho: 1.3 MB
+  1: [mediaflow-uploads-969430605054] users/sergio_sena/Captures/V_deo_de_show_musical_na_cidade.mp4
+  2: [mediaflow-uploads-969430605054] users/user_admin/Star/Captures/V_deo_de_show_musical_na_cidade.mp4
+
+[4] Similaridade: 100.0% | Tamanho: 31.8 MB
+  1: [mediaflow-uploads-969430605054] users/sergio_sena/SergioSenaTeste.mp4
+  2: [mediaflow-uploads-969430605054] users/user_admin/Video/SergioSenaTeste.mp4
+

@@ -413,6 +413,14 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 - [x] Scripts de deploy automatizados
 - **Custo**: ~$0.90/mês
 
+**Manutenção 30/01/2025** ✅ COMPLETO
+- [x] Análise duplicados avançada (21 encontrados)
+- [x] Limpeza duplicados (11 deletados, ~45 MB)
+- [x] Conversão .TS→.MP4 (5 arquivos, 1.43 GB)
+- [x] Organização projeto local (18 movidos, 3 deletados)
+- [x] Renomeação S3 (Anasta_angel → anastangel)
+- [x] Upload Star/ (5 arquivos, 1.43 GB)
+
 **Semana 3-4: Sistema de Planos + Limites** ⏳ PRÓXIMO
 - [ ] DynamoDB: campos plan + limits + usage
 - [ ] Middleware: verificação de limites
