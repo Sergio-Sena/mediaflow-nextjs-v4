@@ -3,7 +3,7 @@ import boto3
 import base64
 import pyotp
 import hashlib
-from datetime import datetime
+from datetime import datetime, timedelta
 
 dynamodb = boto3.resource('dynamodb')
 s3 = boto3.client('s3')
@@ -68,7 +68,10 @@ def lambda_handler(event, context):
             # Hash da senha
             password_hash = hashlib.sha256(password.encode()).hexdigest()
             
-            # Criar usuário
+            # Criar usuário com trial automático
+            now = datetime.utcnow()
+            trial_end = now + timedelta(days=15)
+            
             user = {
                 'user_id': user_id,
                 'name': name,
@@ -78,8 +81,22 @@ def lambda_handler(event, context):
                 's3_prefix': s3_prefix,
                 'avatar_url': avatar_url,
                 'totp_secret': totp_secret,
-                'status': 'pending',
-                'created_at': datetime.utcnow().isoformat()
+                'status': 'trial',  # Mudança: era 'pending'
+                'plan': 'trial',
+                'trial_start': now.isoformat(),
+                'trial_end': trial_end.isoformat(),
+                'limits': {
+                    'storage_gb': 10,
+                    'bandwidth_gb': 20,
+                    'upload_max_gb': 1,
+                    'conversao_max': '1080p'
+                },
+                'usage': {
+                    'storage_used_gb': 0,
+                    'bandwidth_used_gb': 0,
+                    'videos_count': 0
+                },
+                'created_at': now.isoformat()
             }
             
             table.put_item(Item=user)

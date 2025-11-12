@@ -79,8 +79,12 @@ export default function FolderManagerV2({ onNavigate, currentPath = '' }: Folder
           
           if (folder === 'root') return
 
-          // Admin vê tudo, user só vê suas pastas
-          if (userRole !== 'admin' && userPrefix && !folder.startsWith(userPrefix.replace(/\/$/, ''))) {
+          // Admin vê apenas admin/, user vê apenas suas pastas
+          if (userRole === 'admin') {
+            if (!folder.startsWith('admin/') && folder !== 'admin') {
+              return
+            }
+          } else if (userPrefix && !folder.startsWith(userPrefix.replace(/\/$/, ''))) {
             return
           }
 
@@ -112,8 +116,12 @@ export default function FolderManagerV2({ onNavigate, currentPath = '' }: Folder
           
           if (folder === 'root') return
 
-          // Admin vê tudo, user só vê suas pastas
-          if (userRole !== 'admin' && userPrefix && !folder.startsWith(userPrefix.replace(/\/$/, ''))) {
+          // Admin vê apenas admin/, user vê apenas suas pastas
+          if (userRole === 'admin') {
+            if (!folder.startsWith('admin/') && folder !== 'admin') {
+              return
+            }
+          } else if (userPrefix && !folder.startsWith(userPrefix.replace(/\/$/, ''))) {
             return
           }
 

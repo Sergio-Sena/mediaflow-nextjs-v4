@@ -54,6 +54,14 @@ export default function DashboardPage() {
     const userData = localStorage.getItem('user')
     const currentUserData = localStorage.getItem('current_user')
     
+    // Admin começa em Pastas, users em Biblioteca
+    if (currentUserData) {
+      const user = JSON.parse(currentUserData)
+      if (user.role === 'admin') {
+        setActiveTab('folders')
+      }
+    }
+    
     if (!token) {
       router.push('/login')
       return
@@ -63,7 +71,8 @@ export default function DashboardPage() {
     const session = localStorage.getItem('2fa_session')
     const isAdmin = currentUserData ? 
       JSON.parse(currentUserData).role === 'admin' || 
-      JSON.parse(currentUserData).user_id === 'user_admin' : false
+      JSON.parse(currentUserData).user_id === 'user_admin' ||
+      JSON.parse(currentUserData).user_id === 'admin_sistema' : false
     
     if (isAdmin && (!session || (Date.now() - parseInt(session)) > 1800000)) {
       router.push('/2fa')
@@ -162,6 +171,13 @@ export default function DashboardPage() {
             
             {/* Desktop Menu */}
             <div className="hidden lg:flex items-center gap-2 md:gap-4">
+              {currentUser?.plan === 'trial' && (
+                <div className="glass-card px-3 py-1.5 border border-yellow-500/50 bg-yellow-500/10">
+                  <div className="text-xs text-yellow-400 font-semibold">
+                    ⏱️ Trial - {Math.max(0, Math.ceil((new Date(currentUser.trial_end).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))} dias
+                  </div>
+                </div>
+              )}
               {currentUser && (
                 <div className="flex items-center gap-2 glass-card px-4 py-2">
                   <AvatarUpload
@@ -178,7 +194,7 @@ export default function DashboardPage() {
                   />
                   <div className="text-sm">
                     <div className="text-neon-cyan font-semibold truncate max-w-[100px]">
-                      {currentUser.role === 'admin' || currentUser.user_id === 'user_admin' ? 'Admin' : currentUser.name}
+                      {currentUser.role === 'admin' ? 'Admin' : currentUser.name}
                     </div>
                   </div>
                 </div>
@@ -188,7 +204,7 @@ export default function DashboardPage() {
                   Olá, <span className="text-neon-cyan">{user?.name}</span>
                 </div>
               )}
-              {(currentUser?.user_id === 'admin' || currentUser?.user_id === 'user_admin' || currentUser?.id === 'user_admin') && (
+              {(currentUser?.role === 'admin') && (
                 <button
                   onClick={() => router.push('/admin')}
                   className="btn-neon px-4 py-2 text-sm flex items-center gap-2"
@@ -236,7 +252,7 @@ export default function DashboardPage() {
                   </div>
                 </div>
               )}
-              {(currentUser?.user_id === 'admin' || currentUser?.user_id === 'user_admin' || currentUser?.id === 'user_admin') && (
+              {(currentUser?.role === 'admin') && (
                 <button
                   onClick={() => {
                     router.push('/admin')
@@ -275,10 +291,10 @@ export default function DashboardPage() {
         <div className="max-w-7xl mx-auto px-2 sm:px-4">
           <div className="flex space-x-2 sm:space-x-4 md:space-x-8 min-w-max">
             {[
-              { id: 'files', label: '📁 Biblioteca', count: 0 },
+              ...(currentUser?.role !== 'admin' ? [{ id: 'files', label: '📁 Biblioteca', count: 0 }] : []),
+              { id: 'folders', label: '🗂️ Pastas', count: 0 },
               { id: 'upload', label: '📤 Upload', count: 0 },
               { id: 'analytics', label: '📊 Analytics', count: 0 },
-              { id: 'folders', label: '🗂️ Pastas', count: 0 },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -303,6 +319,41 @@ export default function DashboardPage() {
 
       {/* Content */}
       <main className="max-w-7xl mx-auto px-2 sm:px-4 py-4 sm:py-8">
+        {/* Trial Progress */}
+        {currentUser?.plan === 'trial' && (
+          <div className="mb-6 glass-card p-4 border border-yellow-500/30">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-semibold text-yellow-400">📊 Uso do Trial</h3>
+              <button className="btn-neon px-3 py-1 text-xs">Fazer Upgrade</button>
+            </div>
+            <div className="space-y-3">
+              <div>
+                <div className="flex justify-between text-xs mb-1">
+                  <span className="text-gray-400">Storage</span>
+                  <span className="text-white">{((currentUser.storage_used || 0) / 1024 / 1024 / 1024).toFixed(2)} GB / {(currentUser.storage_limit / 1024 / 1024 / 1024).toFixed(0)} GB</span>
+                </div>
+                <div className="w-full bg-gray-700 rounded-full h-2">
+                  <div 
+                    className="bg-gradient-to-r from-neon-cyan to-neon-purple h-2 rounded-full transition-all duration-300"
+                    style={{ width: `${Math.min(100, ((currentUser.storage_used || 0) / currentUser.storage_limit) * 100)}%` }}
+                  />
+                </div>
+              </div>
+              <div>
+                <div className="flex justify-between text-xs mb-1">
+                  <span className="text-gray-400">Bandwidth</span>
+                  <span className="text-white">{((currentUser.bandwidth_used || 0) / 1024 / 1024 / 1024).toFixed(2)} GB / {(currentUser.bandwidth_limit / 1024 / 1024 / 1024).toFixed(0)} GB</span>
+                </div>
+                <div className="w-full bg-gray-700 rounded-full h-2">
+                  <div 
+                    className="bg-gradient-to-r from-neon-purple to-neon-pink h-2 rounded-full transition-all duration-300"
+                    style={{ width: `${Math.min(100, ((currentUser.bandwidth_used || 0) / currentUser.bandwidth_limit) * 100)}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
 
         {activeTab === 'files' && (
