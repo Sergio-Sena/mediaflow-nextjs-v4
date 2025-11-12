@@ -96,7 +96,8 @@ export default function TwoFactorPage() {
   
   const getSecretForUser = (userId: string) => {
     const secrets: {[key: string]: string} = {
-      'user_admin': 'JBSWY3DPEHPK3PXP',
+      'admin_sistema': 'JBSWY3DPEHPK3PXP',  // Admin principal (mesmo secret do user_admin antigo)
+      'user_admin': 'JBSWY3DPEHPK3PXP',     // Fallback (sera removido apos migracao)
       'sergio_sena': 'KBSWY3DPEHPK3PXQ',
       'lid': 'LBSWY3DPEHPK3PXR'
     }

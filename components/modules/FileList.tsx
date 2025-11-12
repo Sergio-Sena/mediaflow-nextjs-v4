@@ -130,10 +130,14 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
         if (hasRootFiles) {
           allFolders.push('📁 Raiz')
         }
-        // Add other folders (filtradas por userPrefix se não for admin)
+        // Add other folders (filtradas por userPrefix)
         uniqueFolderPaths.forEach(f => {
-          // Admin vê todas as pastas, user só vê suas pastas
-          if (userRole === 'admin' || !userPrefix || f.startsWith(userPrefix.replace(/\/$/, ''))) {
+          // Admin vê apenas admin/, user vê apenas suas pastas
+          if (userRole === 'admin') {
+            if (f.startsWith('admin/') || f === 'admin') {
+              allFolders.push(`📁 ${f}`)
+            }
+          } else if (userPrefix && f.startsWith(userPrefix.replace(/\/$/, ''))) {
             allFolders.push(`📁 ${f}`)
           }
         })
@@ -239,16 +243,31 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
     }
     
     return files.filter(file => {
+      // Obter userPrefix do JWT
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
+      let userPrefix = ''
+      if (token) {
+        try {
+          const payload = JSON.parse(atob(token.split('.')[1]))
+          userPrefix = payload.s3_prefix || ''
+        } catch (e) {}
+      }
+      
       if (currentFolderPath === '' || currentFolderPath === 'Raiz') {
-        // Admin na raiz vê TODOS os arquivos
+        // Admin na raiz vê apenas admin/, user vê apenas root
         if (userRole === 'admin') {
-          return true
+          return file.folder.startsWith('admin/') || file.folder === 'admin'
         }
         // User na raiz vê apenas arquivos root
         return file.folder === 'root' || file.folder === ''
       }
       // Show files that are EXACTLY in this folder (not in subfolders)
-      return file.folder === currentFolderPath
+      // E que o usuário tem permissão
+      const inCurrentFolder = file.folder === currentFolderPath
+      const hasPermission = userRole === 'admin' 
+        ? file.folder.startsWith('admin/') || file.folder === 'admin'
+        : !userPrefix || file.folder.startsWith(userPrefix.replace(/\/$/, ''))
+      return inCurrentFolder && hasPermission
     })
   }
   
@@ -278,8 +297,10 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
       } catch (e) {}
     }
     
-    // Admin vê tudo, user só vê seus arquivos
-    const hasPermission = userRole === 'admin' || file.folder.startsWith(userPrefix) || file.folder === 'root'
+    // Admin vê apenas admin/, user vê apenas suas pastas
+    const hasPermission = userRole === 'admin' 
+      ? (file.folder.startsWith('admin/') || file.folder === 'admin')
+      : (file.folder.startsWith(userPrefix) || file.folder === 'root')
     
     return matchesSearch && matchesType && hasPermission
   })

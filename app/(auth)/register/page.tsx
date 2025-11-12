@@ -119,8 +119,9 @@ export default function RegisterPage() {
 
         {qrCodeUri ? (
           <div className="text-center">
-            <div className="mb-4 p-4 bg-yellow-500/20 border border-yellow-500/50 rounded-lg">
-              <p className="text-yellow-400 font-semibold">⏳ Conta criada! Aguardando aprovação do administrador</p>
+            <div className="mb-4 p-4 bg-green-500/20 border border-green-500/50 rounded-lg">
+              <p className="text-green-400 font-semibold">✅ Conta criada! 14 dias grátis ativados</p>
+              <p className="text-xs text-gray-400 mt-1">10 GB storage • 20 GB bandwidth • Upload até 1 GB</p>
             </div>
             <p className="text-white mb-4">Configure o 2FA no Google Authenticator (opcional):</p>
             <img 
@@ -262,8 +263,8 @@ export default function RegisterPage() {
           </div>
           
           <div className="text-xs text-gray-500 space-y-1">
-            <p>📝 <strong>Usuários existentes:</strong> Continuam funcionando normalmente</p>
-            <p>🆕 <strong>Novos usuários:</strong> 2FA opcional (recomendado para segurança)</p>
+            <p>🎁 <strong>14 dias grátis</strong> • Sem cartão de crédito</p>
+            <p>🔒 <strong>2FA opcional</strong> (recomendado para segurança)</p>
           </div>
           
           <Link 

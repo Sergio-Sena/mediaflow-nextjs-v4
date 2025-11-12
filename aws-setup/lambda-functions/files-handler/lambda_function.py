@@ -2,9 +2,6 @@ import json
 import boto3
 import os
 import jwt
-import sys
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../lib'))
-from logger import Logger
 from urllib.parse import unquote
 
 s3 = boto3.client('s3')
@@ -13,13 +10,9 @@ PROCESSED_BUCKET = os.environ.get('PROCESSED_BUCKET', 'mediaflow-processed-96943
 SECRET_KEY = 'mediaflow_super_secret_key_2025'
 
 def lambda_handler(event, context):
-    correlation_id = event.get('headers', {}).get('x-correlation-id', None)
-    logger = Logger('files-handler', correlation_id)
-    
     try:
         method = event['httpMethod']
         path = event.get('path', '')
-        logger.info("Files request received", method=method, path=path)
         
         if method == 'OPTIONS':
             return cors_response(200, {})
@@ -33,30 +26,26 @@ def lambda_handler(event, context):
             user_role = 'user'
             auth_header = event.get('headers', {}).get('Authorization', '') or event.get('headers', {}).get('authorization', '')
             
-            logger.info("List files request", context=view_context, has_auth=bool(auth_header))
-            
             if auth_header:
                 try:
                     token = auth_header.replace('Bearer ', '')
                     decoded = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
                     user_prefix = decoded.get('s3_prefix', '')
                     user_role = decoded.get('role', 'user')
-                    logger.info("JWT decoded", s3_prefix=user_prefix, role=user_role)
-                except Exception as e:
-                    logger.warn("JWT decode failed", error=str(e))
+                except:
                     pass
             
-            # admin vê tudo, viewer vê user_admin, users veem apenas sua pasta
+            # admin vê apenas admin/, users veem sua pasta
             if user_role == 'admin':
-                user_prefix = ''  # Admin vê tudo
-                logger.info("Admin access - full access")
+                if view_context == 'dashboard':
+                    user_prefix = user_prefix or 'admin/'  # Admin usa seu s3_prefix (admin/) no dashboard
+                else:
+                    user_prefix = ''  # Admin vê tudo no admin panel
             elif user_role == 'viewer':
-                user_prefix = 'users/user_admin/'  # Viewer vê apenas user_admin
-                logger.info("Viewer access - user_admin only")
-            elif user_prefix:
-                logger.info("User access", prefix=user_prefix)
+                user_prefix = 'users/user_admin/'  # Viewer vê apenas user_admin (legado)
+            # users mantêm seu s3_prefix do JWT
             
-            return list_files(user_prefix, view_context, logger)
+            return list_files(user_prefix, view_context)
         elif method == 'DELETE' and 'bulk-delete' not in path:
             # Try pathParameters first, then body
             if event.get('pathParameters') and event['pathParameters'].get('key'):
@@ -64,22 +53,17 @@ def lambda_handler(event, context):
             else:
                 body = json.loads(event['body'])
                 key = body.get('key')
-            logger.info("Delete file request", key=key)
-            return delete_file(key, logger)
+            return delete_file(key)
         elif method == 'POST' and 'bulk-delete' in path:
             body = json.loads(event['body'])
             keys = body.get('keys', [])
-            logger.info("Bulk delete request", count=len(keys))
-            return bulk_delete(keys, logger)
+            return bulk_delete(keys)
             
     except Exception as e:
-        logger.error("Files handler error", error=str(e))
         return cors_response(500, {'success': False, 'message': str(e)})
 
-def list_files(user_prefix='', context='dashboard', logger=None):
+def list_files(user_prefix='', context='dashboard'):
     files = []
-    if logger:
-        logger.info("Listing files", prefix=user_prefix, context=context)
     
     for bucket, bucket_type in [(UPLOADS_BUCKET, 'uploads'), (PROCESSED_BUCKET, 'processed')]:
         try:
@@ -118,30 +102,20 @@ def list_files(user_prefix='', context='dashboard', logger=None):
                         'bucket': bucket_type,
                         'url': f"https://{bucket}.s3.amazonaws.com/{obj['Key']}"
                     })
-        except Exception as e:
-            if logger:
-                logger.warn("Bucket list error", bucket=bucket, error=str(e))
+        except:
             pass
     
-    if logger:
-        logger.info("Files listed", total=len(files))
-        logger.metric("files_listed", len(files))
     return cors_response(200, {'success': True, 'files': files})
 
-def delete_file(key, logger=None):
+def delete_file(key):
     try:
         s3.delete_object(Bucket=UPLOADS_BUCKET, Key=key)
         s3.delete_object(Bucket=PROCESSED_BUCKET, Key=key)
-        if logger:
-            logger.info("File deleted", key=key)
-            logger.metric("file_deleted", 1)
         return cors_response(200, {'success': True})
-    except Exception as e:
-        if logger:
-            logger.error("Delete failed", key=key, error=str(e))
+    except:
         return cors_response(404, {'success': False, 'message': 'File not found'})
 
-def bulk_delete(keys, logger=None):
+def bulk_delete(keys):
     deleted = []
     for key in keys:
         try:
@@ -151,10 +125,6 @@ def bulk_delete(keys, logger=None):
         except:
             pass
     
-    if logger:
-        logger.info("Bulk delete completed", requested=len(keys), deleted=len(deleted))
-        logger.metric("bulk_delete", len(deleted))
-    
     return cors_response(200, {'success': True, 'deleted': deleted})
 
 def cors_response(status_code, body):
@@ -162,8 +132,9 @@ def cors_response(status_code, body):
         'statusCode': status_code,
         'headers': {
             'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Headers': 'Content-Type,Authorization',
-            'Access-Control-Allow-Methods': 'GET,POST,DELETE,OPTIONS'
+            'Access-Control-Allow-Headers': 'Content-Type,Authorization,x-correlation-id',
+            'Access-Control-Allow-Methods': 'GET,POST,DELETE,OPTIONS',
+            'Content-Type': 'application/json'
         },
-        'body': json.dumps(body)
+        'body': json.dumps(body) if body else '{}'
     }
