@@ -185,6 +185,40 @@ export default function PricingPage() {
         </div>
       </section>
 
+      {/* Garantia de 30 Dias */}
+      <section className="max-w-4xl mx-auto px-4 pb-16">
+        <div className="glass-card p-8 border-2 border-green-500/30 bg-green-500/5">
+          <div className="flex items-center justify-center gap-4 mb-4">
+            <div className="text-4xl">🛡️</div>
+            <h2 className="text-2xl font-bold">
+              Garantia de <span className="text-green-400">30 Dias</span>
+            </h2>
+          </div>
+          <p className="text-center text-gray-300 mb-6">
+            Não gostou? Devolvemos <span className="font-bold text-green-400">100% do seu dinheiro</span>. Sem perguntas, sem burocracia.
+          </p>
+          <div className="grid md:grid-cols-3 gap-4 text-sm">
+            <div className="text-center">
+              <div className="text-green-400 font-bold mb-1">✓ Reembolso Total</div>
+              <div className="text-gray-400">100% do valor pago</div>
+            </div>
+            <div className="text-center">
+              <div className="text-green-400 font-bold mb-1">✓ Sem Perguntas</div>
+              <div className="text-gray-400">Processo simples e rápido</div>
+            </div>
+            <div className="text-center">
+              <div className="text-green-400 font-bold mb-1">✓ 7 Dias Úteis</div>
+              <div className="text-gray-400">Dinheiro de volta</div>
+            </div>
+          </div>
+          <div className="text-center mt-6">
+            <Link href="/sla" className="text-neon-cyan hover:underline text-sm">
+              Ver detalhes da garantia e SLA →
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* Comparison */}
       <section className="max-w-7xl mx-auto px-4 pb-16">
         <h2 className="text-3xl font-bold text-center mb-8">

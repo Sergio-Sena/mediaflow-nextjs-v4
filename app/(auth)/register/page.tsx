@@ -20,6 +20,7 @@ export default function RegisterPage() {
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
   const [qrCodeUri, setQrCodeUri] = useState<string | null>(null)
+  const [acceptedTerms, setAcceptedTerms] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
 
@@ -66,6 +67,11 @@ export default function RegisterPage() {
 
     if (newUser.password !== newUser.confirmPassword) {
       setCreateError('As senhas não coincidem')
+      return
+    }
+
+    if (!acceptedTerms) {
+      setCreateError('Você deve aceitar os Termos de Serviço e Política de Privacidade')
       return
     }
 
@@ -233,10 +239,31 @@ export default function RegisterPage() {
               />
             </div>
 
+            <div className="flex items-start gap-3 p-4 bg-dark-800/50 rounded-lg border border-gray-700">
+              <input
+                type="checkbox"
+                id="terms"
+                checked={acceptedTerms}
+                onChange={(e) => setAcceptedTerms(e.target.checked)}
+                className="mt-1 w-4 h-4 accent-neon-cyan"
+                disabled={createLoading}
+              />
+              <label htmlFor="terms" className="text-sm text-gray-300">
+                Eu li e concordo com os{' '}
+                <Link href="/termos" target="_blank" className="text-neon-cyan hover:underline">
+                  Termos de Serviço
+                </Link>
+                {' '}e a{' '}
+                <Link href="/privacidade" target="_blank" className="text-neon-cyan hover:underline">
+                  Política de Privacidade
+                </Link>
+              </label>
+            </div>
+
             <button 
               onClick={handleCreateUser} 
               className="btn-neon w-full text-lg py-4 disabled:opacity-50 disabled:cursor-not-allowed"
-              disabled={createLoading || !newUser.name || !newUser.email || !newUser.password || !newUser.confirmPassword}
+              disabled={createLoading || !newUser.name || !newUser.email || !newUser.password || !newUser.confirmPassword || !acceptedTerms}
             >
               {createLoading ? (
                 <div className="flex items-center justify-center gap-2">

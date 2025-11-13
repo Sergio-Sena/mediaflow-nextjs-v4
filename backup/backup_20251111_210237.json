@@ -1,0 +1,13 @@
+{
+  "approved_at": "2025-10-28T00:12:26.908970",
+  "avatar": "\ud83d\udc68\ud83d\udcbc",
+  "avatar_url": "https://mediaflow-uploads-969430605054.s3.amazonaws.com/avatars/avatar_user_admin.png",
+  "email": "sergiosenaadmin@sstech",
+  "name": "Administrador",
+  "password": "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9",
+  "role": "admin",
+  "s3_prefix": "users/user_admin/",
+  "status": "approved",
+  "totp_secret": "JBSWY3DPEHPK3PXP",
+  "user_id": "user_admin"
+}

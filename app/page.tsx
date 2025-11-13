@@ -88,6 +88,89 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Comparison Table */}
+      <section className="max-w-7xl mx-auto px-4 py-16">
+        <h2 className="text-3xl font-bold text-center mb-8">
+          Por que <span className="neon-text">Mídiaflow</span>?
+        </h2>
+        
+        <div className="glass-card p-6 overflow-x-auto mb-8">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-gray-700">
+                <th className="text-left py-3 px-4">Recurso</th>
+                <th className="text-center py-3 px-4">Mídiaflow</th>
+                <th className="text-center py-3 px-4">Vimeo</th>
+                <th className="text-center py-3 px-4">Wistia</th>
+                <th className="text-center py-3 px-4">YouTube</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr className="border-b border-gray-800">
+                <td className="py-3 px-4">Preço (50GB)</td>
+                <td className="text-center text-neon-cyan font-bold">R$ 49,90</td>
+                <td className="text-center text-gray-400">R$ 60+</td>
+                <td className="text-center text-gray-400">R$ 95+</td>
+                <td className="text-center text-gray-400">Grátis</td>
+              </tr>
+              <tr className="border-b border-gray-800">
+                <td className="py-3 px-4">Conversão 4K</td>
+                <td className="text-center text-green-400">✓ Incluída</td>
+                <td className="text-center text-red-400">✗ Paga extra</td>
+                <td className="text-center text-red-400">✗</td>
+                <td className="text-center text-green-400">✓</td>
+              </tr>
+              <tr className="border-b border-gray-800">
+                <td className="py-3 px-4">Sem anúncios</td>
+                <td className="text-center text-green-400">✓</td>
+                <td className="text-center text-green-400">✓</td>
+                <td className="text-center text-green-400">✓</td>
+                <td className="text-center text-red-400">✗</td>
+              </tr>
+              <tr className="border-b border-gray-800">
+                <td className="py-3 px-4">White-label</td>
+                <td className="text-center text-green-400">✓ Pro</td>
+                <td className="text-center text-green-400">✓</td>
+                <td className="text-center text-green-400">✓</td>
+                <td className="text-center text-red-400">✗</td>
+              </tr>
+              <tr className="border-b border-gray-800">
+                <td className="py-3 px-4">API Completa</td>
+                <td className="text-center text-green-400">✓ Pro</td>
+                <td className="text-center text-gray-400">Planos caros</td>
+                <td className="text-center text-green-400">✓</td>
+                <td className="text-center text-green-400">✓</td>
+              </tr>
+              <tr>
+                <td className="py-3 px-4">🎁 Storage de arquivos</td>
+                <td className="text-center text-neon-cyan font-bold">✓ Bônus</td>
+                <td className="text-center text-red-400">✗</td>
+                <td className="text-center text-red-400">✗</td>
+                <td className="text-center text-red-400">✗</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-6">
+          <div className="glass-card p-6 text-center">
+            <div className="text-3xl mb-2">💰</div>
+            <h3 className="font-bold mb-2">50% mais barato</h3>
+            <p className="text-sm text-gray-400">que Vimeo com mesmas features</p>
+          </div>
+          <div className="glass-card p-6 text-center">
+            <div className="text-3xl mb-2">🎁</div>
+            <h3 className="font-bold mb-2">Storage bônus</h3>
+            <p className="text-sm text-gray-400">Armazene qualquer arquivo, não só vídeos</p>
+          </div>
+          <div className="glass-card p-6 text-center">
+            <div className="text-3xl mb-2">🚀</div>
+            <h3 className="font-bold mb-2">CDN Global</h3>
+            <p className="text-sm text-gray-400">400+ edge locations, 99.9% uptime</p>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Final */}
       <section className="max-w-4xl mx-auto px-4 py-16 text-center">
         <h2 className="text-3xl font-bold mb-4">
