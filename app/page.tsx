@@ -191,7 +191,9 @@ export default function HomePage() {
           <div className="flex justify-center gap-6 mt-4">
             <Link href="/pricing" className="hover:text-neon-cyan">Preços</Link>
             <Link href="/docs" className="hover:text-neon-cyan">Docs</Link>
-            <Link href="#" className="hover:text-neon-cyan">Contato</Link>
+            <Link href="/termos" className="hover:text-neon-cyan">Termos</Link>
+            <Link href="/privacidade" className="hover:text-neon-cyan">Privacidade</Link>
+            <Link href="/sla" className="hover:text-neon-cyan">SLA</Link>
           </div>
         </div>
       </footer>
