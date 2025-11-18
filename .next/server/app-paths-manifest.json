@@ -18,8 +18,8 @@
   "/page": "app/page.js",
   "/pricing/page": "app/pricing/page.js",
   "/privacidade/page": "app/privacidade/page.js",
-  "/termos/page": "app/termos/page.js",
   "/sla/page": "app/sla/page.js",
   "/test-ts/page": "app/test-ts/page.js",
+  "/termos/page": "app/termos/page.js",
   "/users/page": "app/users/page.js"
 }

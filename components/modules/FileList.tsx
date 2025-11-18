@@ -769,7 +769,7 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
                           } catch (error) {
                             onViewPDF?.(file)
                           }
-                        })
+                        }}
                         className="p-2 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 rounded-lg transition-colors"
                         title="Visualizar PDF"
                       >
