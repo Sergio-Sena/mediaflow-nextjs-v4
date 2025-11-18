@@ -691,9 +691,13 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
                       <button
                         onClick={async () => {
                           try {
+                            const token = localStorage.getItem('token')
                             const response = await fetch(`https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/view/${encodeURIComponent(file.key)}`, {
                               method: 'GET',
-                              headers: { 'Content-Type': 'application/json' }
+                              headers: { 
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                              }
                             })
                             
                             if (response.ok) {
@@ -717,9 +721,13 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
                       <button
                         onClick={async () => {
                           try {
+                            const token = localStorage.getItem('token')
                             const response = await fetch(`https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/view/${encodeURIComponent(file.key)}`, {
                               method: 'GET',
-                              headers: { 'Content-Type': 'application/json' }
+                              headers: { 
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                              }
                             })
                             
                             if (response.ok) {
@@ -743,9 +751,13 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
                       <button
                         onClick={async () => {
                           try {
+                            const token = localStorage.getItem('token')
                             const response = await fetch(`https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/view/${encodeURIComponent(file.key)}`, {
                               method: 'GET',
-                              headers: { 'Content-Type': 'application/json' }
+                              headers: { 
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                              }
                             })
                             
                             if (response.ok) {
@@ -757,7 +769,7 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
                           } catch (error) {
                             onViewPDF?.(file)
                           }
-                        }}
+                        })
                         className="p-2 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 rounded-lg transition-colors"
                         title="Visualizar PDF"
                       >

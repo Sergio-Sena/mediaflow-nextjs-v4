@@ -2,6 +2,132 @@
 
 Todas as mudancas notaveis do projeto serao documentadas neste arquivo.
 
+## [4.8.1] - 2025-01-30
+
+### Corrigido
+- **Sistema de aprovacao**: Rejeitar usuario agora DELETA completamente do DynamoDB
+- **Usuarios antigos**: Status atualizado para 'approved' (gabriel, lid_lima, sergio_sena)
+- **Lambda approve-user**: Comportamento final - Aprovar: status='approved', Rejeitar: DELETE usuario
+
+### Deploy
+- Lambda approve-user modificada e deployada
+- Usuarios antigos migrados para status 'approved'
+- Testes realizados: aprovacao e rejeicao funcionando
+
+---
+
+## [4.8.0] - 2025-01-27
+
+### Adicionado
+- **Sistema de aprovacao completo**: 3 estados (pending → approved/rejected)
+- **Lambda approve-user**: Nova funcao para aprovar/rejeitar usuarios
+- **Painel admin**: Secao "Aprovacoes Pendentes" no topo
+- **Seguranca**: Usuarios novos precisam de aprovacao para acessar
+
+### Modificado
+- **Lambda create-user**: Adiciona status 'pending' ao criar usuario
+- **Lambda auth-handler**: Bloqueia login de usuarios pending/rejected
+- **Pagina /register**: Mensagem "Aguardando aprovacao do administrador"
+- **Painel admin**: Botoes "Aprovar" e "Rejeitar" para cada usuario pendente
+
+### Fluxo Implementado
+1. Usuario se cadastra → status: 'pending'
+2. Tenta fazer login → bloqueado (403)
+3. Admin acessa /admin → ve usuarios pendentes
+4. Admin aprova → status: 'approved' → usuario pode logar
+
+### Deploy
+- API Gateway: endpoint POST /users/approve configurado
+- Frontend: build e deploy com compressao CloudFront
+- Compatibilidade: usuarios antigos funcionam normalmente
+
+---
+
+## [4.7.4] - 2025-01-22
+
+### Adicionado
+- **Upload Corporativo**: 111 arquivos, 30+ GB organizados
+- **Sanitizacao S3**: 26 arquivos com nomes corrigidos
+- **Paginacao frontend**: 50 arquivos por pagina para performance
+- **URL assinada**: Player usa URLs seguras do S3
+
+### Modificado
+- **Performance**: Carregamento <1s (10x mais rapido)
+- **Navegacao**: Autoplay ao navegar entre pastas
+- **2FA**: Bypass para localhost (desenvolvimento)
+
+### Corrigido
+- Nomes de arquivo com caracteres especiais
+- Paginacao S3 para pastas grandes (49 subpastas)
+- Player com URLs temporarias seguras
+
+---
+
+## [4.7.3] - 2025-01-20
+
+### Adicionado
+- **Navegacao inteligente**: Prioriza subpastas sobre arquivos
+- **Paginacao S3 completa**: Suporte para 1000+ objetos
+- **CloudFront cleanup**: 2 distribuicoes antigas desabilitadas
+
+### Modificado
+- **Estrutura S3**: Organizacao otimizada users/{user_id}/
+- **Analytics**: Individualizadas por usuario
+- **Busca**: Filtrada por usuario logado
+
+---
+
+## [4.7.2] - 2025-01-18
+
+### Corrigido
+- **Path duplicado**: Fix definitivo users/anonymous/ → users/{user_id}/
+- **Upload multipart**: Sempre salva na pasta correta do usuario
+- **Lambda multipart-handler**: Corrigida para usar username correto
+
+### Deploy
+- Lambda atualizada e testada
+- Estrutura S3 validada
+- Uploads funcionando corretamente
+
+---
+
+## [4.7.1] - 2025-01-15
+
+### Adicionado
+- **Usuarios iniciais**: Cada usuario inicia em sua pasta (users/{user_id}/)
+- **Navegacao personalizada**: Breadcrumbs mostram caminho relativo
+- **Busca por usuario**: Resultados filtrados por pasta do usuario
+
+### Modificado
+- **Interface**: Navegacao mais intuitiva
+- **Performance**: Carregamento otimizado por usuario
+
+---
+
+## [4.7.0] - 2025-01-10
+
+### Adicionado
+- **Gerenciador de pastas avancado**: Interface dedicada para navegacao
+- **Selecao em lote**: Checkbox individual e "Selecionar Todos"
+- **Delete em lote**: Confirmacao e progresso
+- **Navegacao integrada**: Duplo clique para entrar em pastas
+- **Busca global**: Em todas as pastas e subpastas
+- **Contagem inteligente**: Subpastas + arquivos
+- **Mobile otimizado**: Gestos touch e controles 48px+
+
+### Modificado
+- **Interface limpa**: Elementos redundantes removidos
+- **Botoes centralizados**: Layout profissional
+- **Animacoes suaves**: Hover effects e transicoes
+- **CSS mobile**: Layout fullscreen otimizado
+
+### Corrigido
+- Filtros de busca
+- Layout responsivo
+- Organizacao S3
+
+---
+
 ## [4.6.0] - 2025-10-21
 
 ### Adicionado

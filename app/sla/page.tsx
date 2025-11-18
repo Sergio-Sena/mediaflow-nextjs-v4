@@ -32,7 +32,7 @@ export default function SLAPage() {
           
           <div className="grid md:grid-cols-2 gap-6">
             <div className="bg-dark-800/50 p-6 rounded-lg border border-gray-700">
-              <h3 className="text-xl font-bold mb-3">Trial (Grátis - 14 dias)</h3>
+              <h3 className="text-xl font-bold mb-3">Trial (Grátis - 15 dias)</h3>
               <ul className="space-y-2 text-gray-300 text-sm">
                 <li><strong>Disponibilidade:</strong> 99.5%</li>
                 <li><strong>Downtime máximo:</strong> 3h 36min/mês</li>
@@ -113,7 +113,7 @@ export default function SLAPage() {
       <section className="max-w-4xl mx-auto px-4 pb-16">
         <div className="glass-card p-12 text-center">
           <h2 className="text-3xl font-bold mb-4">Pronto para <span className="neon-text">começar</span>?</h2>
-          <p className="text-xl text-gray-400 mb-8">14 dias grátis. Sem cartão. Cancele quando quiser.</p>
+          <p className="text-xl text-gray-400 mb-8">15 dias grátis. Sem cartão. Cancele quando quiser.</p>
           <div className="flex gap-4 justify-center">
             <Link href="/register" className="btn-neon px-8 py-4 text-lg">🚀 Começar Grátis</Link>
             <Link href="/pricing" className="btn-secondary px-8 py-4 text-lg">Ver Planos</Link>

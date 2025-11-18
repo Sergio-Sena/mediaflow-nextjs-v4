@@ -8,7 +8,7 @@ export default function PricingPage() {
     {
       name: 'Trial',
       price: 'Grátis',
-      period: '14 dias',
+      period: '15 dias',
       description: 'Teste todas as funcionalidades',
       features: [
         '10 GB de armazenamento',
@@ -87,7 +87,7 @@ export default function PricingPage() {
     },
     {
       q: 'Preciso de cartão de crédito no trial?',
-      a: 'Não! 14 dias grátis sem precisar de cartão.',
+      a: 'Não! 15 dias grátis sem precisar de cartão.',
     },
     {
       q: 'Quais formas de pagamento aceitam?',
@@ -132,7 +132,7 @@ export default function PricingPage() {
         </p>
         <div className="inline-flex items-center gap-2 glass-card px-4 py-2 text-sm">
           <span className="text-green-400">✓</span>
-          <span>14 dias grátis • Sem cartão de crédito • Cancele quando quiser</span>
+          <span>15 dias grátis • Sem cartão de crédito • Cancele quando quiser</span>
         </div>
       </section>
 
@@ -325,7 +325,7 @@ export default function PricingPage() {
             Pronto para <span className="neon-text">começar</span>?
           </h2>
           <p className="text-xl text-gray-400 mb-8">
-            14 dias grátis. Sem cartão de crédito. Cancele quando quiser.
+            15 dias grátis. Sem cartão de crédito. Cancele quando quiser.
           </p>
           <Link href="/register" className="btn-neon px-8 py-4 text-lg inline-block">
             🚀 Começar Grátis Agora

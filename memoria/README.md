@@ -107,9 +107,10 @@ memoria/
 
 ## Atualizacoes
 
-**Ultima limpeza**: 27/01/2025  
-**Versao atual**: v4.8  
-**Proximo marco**: v4.9 (CI/CD + Logs + Planos)
+**Ultima atualizacao**: 30/01/2025  
+**Versao atual**: v4.8.1  
+**Proximo marco**: v4.9 (CI/CD + Logs + Planos)  
+**Nova sessao**: SESSAO_2025-01-30_ATUALIZACAO_DOCS.md
 
 ---
 
