@@ -35,7 +35,7 @@ export default function HomePage() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/register" className="btn-neon px-8 py-4 text-lg">
-              🚀 Começar Grátis - 14 dias
+              🚀 Começar Grátis - 15 dias
             </Link>
             <Link href="/pricing" className="btn-secondary px-8 py-4 text-lg">
               Ver Preços
@@ -78,10 +78,10 @@ export default function HomePage() {
             </div>
             <div>
               <div className="text-3xl font-bold text-neon-purple mb-2">50%</div>
-              <div className="text-gray-400">Mais barato que Vimeo</div>
+              <div className="text-gray-400">Mais barato que a concorrencia</div>
             </div>
             <div>
-              <div className="text-3xl font-bold text-neon-cyan mb-2">14 dias</div>
+              <div className="text-3xl font-bold text-neon-cyan mb-2">15 dias</div>
               <div className="text-gray-400">Trial grátis</div>
             </div>
           </div>
@@ -156,7 +156,7 @@ export default function HomePage() {
           <div className="glass-card p-6 text-center">
             <div className="text-3xl mb-2">💰</div>
             <h3 className="font-bold mb-2">50% mais barato</h3>
-            <p className="text-sm text-gray-400">que Vimeo com mesmas features</p>
+            <p className="text-sm text-gray-400">que o concorrente com mesmas features</p>
           </div>
           <div className="glass-card p-6 text-center">
             <div className="text-3xl mb-2">🎁</div>
@@ -177,7 +177,7 @@ export default function HomePage() {
           Pronto para <span className="neon-text">começar</span>?
         </h2>
         <p className="text-xl text-gray-400 mb-8">
-          14 dias grátis. Sem cartão de crédito. Cancele quando quiser.
+          15 dias grátis. Sem cartão de crédito. Cancele quando quiser.
         </p>
         <Link href="/register" className="btn-neon px-8 py-4 text-lg inline-block">
           🚀 Começar Grátis Agora

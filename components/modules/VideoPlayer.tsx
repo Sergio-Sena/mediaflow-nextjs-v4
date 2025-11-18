@@ -271,9 +271,13 @@ export default function VideoPlayer({ src, title, currentVideo, playlist = [], o
       
       // Get presigned URL for next video
       try {
+        const token = localStorage.getItem('token')
         const response = await fetch(`https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/view/${encodeURIComponent(nextVideo.key)}`, {
           method: 'GET',
-          headers: { 'Content-Type': 'application/json' }
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
         })
         
         if (response.ok) {
@@ -302,9 +306,13 @@ export default function VideoPlayer({ src, title, currentVideo, playlist = [], o
       
       // Get presigned URL for previous video
       try {
+        const token = localStorage.getItem('token')
         const response = await fetch(`https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/view/${encodeURIComponent(prevVideo.key)}`, {
           method: 'GET',
-          headers: { 'Content-Type': 'application/json' }
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
         })
         
         if (response.ok) {

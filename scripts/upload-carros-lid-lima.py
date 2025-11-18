@@ -1,0 +1,51 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Upload apenas da pasta Carros para lid lima
+"""
+
+import boto3
+import sys
+import io
+from pathlib import Path
+
+# Fix encoding
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+
+s3_client = boto3.client(
+    's3',
+    region_name='us-east-1',
+    aws_access_key_id='AKIA6DNURDT7MO5EXHLQ',
+    aws_secret_access_key='9wmyrw4365OTX+hwZ2ZZXjE+lbEUxn3INY4tu0Ir'
+)
+
+BUCKET = 'mediaflow-uploads-969430605054'
+USER_ID = 'lid-lima'
+
+pasta = Path(r"C:\Users\dell 5557\Videos\Carros")
+arquivos = [f for f in pasta.rglob('*') if f.is_file()]
+
+print(f"Total: {len(arquivos)} arquivos")
+print("-" * 60)
+
+for i, file_path in enumerate(arquivos, 1):
+    relative_path = file_path.relative_to(pasta)
+    s3_key = f"users/{USER_ID}/Carros/{relative_path}".replace('\\', '/')
+    
+    try:
+        # Verificar se existe
+        try:
+            s3_client.head_object(Bucket=BUCKET, Key=s3_key)
+            print(f"[{i}/{len(arquivos)}] Ja existe: {relative_path}")
+            continue
+        except:
+            pass
+        
+        print(f"[{i}/{len(arquivos)}] Enviando: {relative_path}")
+        s3_client.upload_file(str(file_path), BUCKET, s3_key)
+        print("OK")
+        
+    except Exception as e:
+        print(f"ERRO: {e}")
+
+print("\nCONCLUIDO!")

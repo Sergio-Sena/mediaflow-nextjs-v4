@@ -1,6 +1,11 @@
 import os
 import subprocess
 import sys
+import io
+
+# Fix encoding for Windows console
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
 
 def find_ts_files(root_path):
     """Encontra todos os arquivos .ts recursivamente"""

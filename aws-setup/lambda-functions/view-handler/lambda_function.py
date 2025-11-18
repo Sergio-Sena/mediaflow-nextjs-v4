@@ -1,18 +1,42 @@
 import json
 import boto3
 import os
+import jwt
 from urllib.parse import unquote
 
 s3 = boto3.client('s3')
+dynamodb = boto3.resource('dynamodb')
+users_table = dynamodb.Table('mediaflow-users')
+
 UPLOADS_BUCKET = os.environ.get('UPLOADS_BUCKET', 'mediaflow-uploads-969430605054')
 PROCESSED_BUCKET = os.environ.get('PROCESSED_BUCKET', 'mediaflow-processed-969430605054')
+JWT_SECRET = os.environ.get('JWT_SECRET', 'your-secret-key')
 
 def lambda_handler(event, context):
     try:
         if event['httpMethod'] == 'OPTIONS':
             return cors_response(200, {})
         
+        # Verificar autenticação
+        auth_header = event.get('headers', {}).get('Authorization')
+        if not auth_header or not auth_header.startswith('Bearer '):
+            return cors_response(401, {'success': False, 'message': 'Token de acesso necessário'})
+        
+        token = auth_header.replace('Bearer ', '')
+        try:
+            payload = jwt.decode(token, JWT_SECRET, algorithms=['HS256'])
+            user_id = payload.get('user_id')
+            user_role = payload.get('role', 'user')
+        except jwt.InvalidTokenError:
+            return cors_response(401, {'success': False, 'message': 'Token inválido'})
+        
         key = unquote(event['pathParameters']['key'])
+        
+        # Verificar permissões
+        if user_role != 'admin':
+            # Usuários só podem acessar seus próprios arquivos
+            if not key.startswith(f'users/{user_id}/'):
+                return cors_response(403, {'success': False, 'message': 'Acesso negado'})
         
         # Try processed bucket first (optimized videos), then uploads
         bucket_to_use = UPLOADS_BUCKET
@@ -43,7 +67,8 @@ def lambda_handler(event, context):
         
         return cors_response(200, {
             'success': True,
-            'viewUrl': view_url
+            'viewUrl': view_url,
+            'user_id': user_id
         })
         
     except Exception as e:
