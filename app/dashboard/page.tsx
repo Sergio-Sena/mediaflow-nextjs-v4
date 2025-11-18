@@ -456,7 +456,7 @@ export default function DashboardPage() {
       {/* Viewers */}
       {selectedVideo && (
         <VideoPlayer
-          src={selectedVideo.url}
+          src={selectedVideo.key}
           title={selectedVideo.name}
           currentVideo={selectedVideo}
           playlist={videoPlaylist}

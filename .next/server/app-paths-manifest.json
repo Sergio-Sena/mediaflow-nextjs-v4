@@ -5,6 +5,7 @@
   "/2fa/page": "app/2fa/page.js",
   "/admin/page": "app/admin/page.js",
   "/api/convert-ts/route": "app/api/convert-ts/route.js",
+  "/api/proxy-view/route": "app/api/proxy-view/route.js",
   "/api/upload/avatar/route": "app/api/upload/avatar/route.js",
   "/api/upload/check-exists/route": "app/api/upload/check-exists/route.js",
   "/api/upload/direct/route": "app/api/upload/direct/route.js",
@@ -14,12 +15,12 @@
   "/api/videos/delete/route": "app/api/videos/delete/route.js",
   "/api/videos/list/route": "app/api/videos/list/route.js",
   "/dashboard/page": "app/dashboard/page.js",
-  "/docs/page": "app/docs/page.js",
   "/page": "app/page.js",
-  "/pricing/page": "app/pricing/page.js",
+  "/docs/page": "app/docs/page.js",
   "/privacidade/page": "app/privacidade/page.js",
-  "/sla/page": "app/sla/page.js",
-  "/test-ts/page": "app/test-ts/page.js",
+  "/pricing/page": "app/pricing/page.js",
   "/termos/page": "app/termos/page.js",
-  "/users/page": "app/users/page.js"
+  "/test-ts/page": "app/test-ts/page.js",
+  "/users/page": "app/users/page.js",
+  "/sla/page": "app/sla/page.js"
 }

@@ -13,13 +13,18 @@ PROCESSED_BUCKET = os.environ.get('PROCESSED_BUCKET', 'mediaflow-processed-96943
 JWT_SECRET = os.environ.get('JWT_SECRET', 'your-secret-key')
 
 def lambda_handler(event, context):
+    print(f"Event: {json.dumps(event)}")
     try:
         if event['httpMethod'] == 'OPTIONS':
             return cors_response(200, {})
         
         # Verificar autenticação
-        auth_header = event.get('headers', {}).get('Authorization')
+        headers = event.get('headers', {})
+        # API Gateway pode enviar headers em lowercase
+        auth_header = headers.get('Authorization') or headers.get('authorization')
+        
         if not auth_header or not auth_header.startswith('Bearer '):
+            print(f"Auth header missing or invalid: {auth_header}")
             return cors_response(401, {'success': False, 'message': 'Token de acesso necessário'})
         
         token = auth_header.replace('Bearer ', '')
@@ -27,10 +32,12 @@ def lambda_handler(event, context):
             payload = jwt.decode(token, JWT_SECRET, algorithms=['HS256'])
             user_id = payload.get('user_id')
             user_role = payload.get('role', 'user')
-        except jwt.InvalidTokenError:
+        except jwt.InvalidTokenError as e:
+            print(f"JWT decode error: {str(e)}")
             return cors_response(401, {'success': False, 'message': 'Token inválido'})
         
         key = unquote(event['pathParameters']['key'])
+        print(f"Decoded key: {key}")
         
         # Verificar permissões
         if user_role != 'admin':
@@ -72,6 +79,9 @@ def lambda_handler(event, context):
         })
         
     except Exception as e:
+        print(f"Error: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return cors_response(500, {'success': False, 'message': str(e)})
 
 def cors_response(status_code, body):

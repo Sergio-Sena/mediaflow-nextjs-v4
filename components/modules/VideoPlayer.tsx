@@ -1,8 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { Play, Pause, Volume2, VolumeX, Maximize, SkipBack, SkipForward, ChevronLeft, ChevronRight, RotateCcw } from 'lucide-react'
-import Hls from 'hls.js'
+import { Play, Pause, Volume2, VolumeX, Maximize, X } from 'lucide-react'
 
 interface VideoFile {
   key: string
@@ -20,195 +19,75 @@ interface VideoPlayerProps {
   onVideoChange?: (video: VideoFile) => void
 }
 
-export default function VideoPlayer({ src, title, currentVideo, playlist = [], onClose, onVideoChange }: VideoPlayerProps) {
+export default function VideoPlayer({ src, title, onClose }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
   const [volume, setVolume] = useState(1)
   const [isMuted, setIsMuted] = useState(false)
-  const [showControls, setShowControls] = useState(true)
-  const [videoError, setVideoError] = useState<string | null>(null)
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const [currentSrc, setCurrentSrc] = useState(src)
-  const [isMobile, setIsMobile] = useState(false)
-  const [touchStart, setTouchStart] = useState<{ x: number; y: number } | null>(null)
-  const [showMobileControls, setShowMobileControls] = useState(true)
-  const hideControlsTimeout = useRef<NodeJS.Timeout | null>(null)
-  const hlsRef = useRef<Hls | null>(null)
-  
-  // Detectar dispositivo móvel
+  const [videoUrl, setVideoUrl] = useState<string>('')
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string>('')
+
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768 || 'ontouchstart' in window)
-    }
-    
-    checkMobile()
-    window.addEventListener('resize', checkMobile)
-    return () => window.removeEventListener('resize', checkMobile)
-  }, [])
-  
-  // Auto-hide controles após 3s de inatividade
-  const resetHideTimer = () => {
-    if (hideControlsTimeout.current) {
-      clearTimeout(hideControlsTimeout.current)
-    }
-    setShowControls(true)
-    setShowMobileControls(true)
-    
-    hideControlsTimeout.current = setTimeout(() => {
-      if (isPlaying) {
-        setShowControls(false)
-        setShowMobileControls(false)
-      }
-    }, 3000)
-  }
-  
-  useEffect(() => {
-    resetHideTimer()
-    return () => {
-      if (hideControlsTimeout.current) {
-        clearTimeout(hideControlsTimeout.current)
-      }
-    }
-  }, [isPlaying])
-  
-  // Update current index and source when currentVideo changes
-  useEffect(() => {
-    if (currentVideo && playlist.length > 0) {
-      const index = playlist.findIndex(v => v.key === currentVideo.key)
-      if (index !== -1) {
-        setCurrentIndex(index)
-        setCurrentSrc(currentVideo.url)
-        setVideoError(null)
-        // Reset video state
-        setCurrentTime(0)
-        // Salvar último vídeo assistido
-        localStorage.setItem('last_watched_video', currentVideo.key)
-        
-        // Autoplay novo vídeo
-        setTimeout(() => {
-          const video = videoRef.current
-          if (video) {
-            video.play().then(() => {
-              setIsPlaying(true)
-            }).catch(err => {
-              console.log('Autoplay prevented:', err)
-              setIsPlaying(false)
+    const fetchPresignedUrl = async () => {
+      setLoading(true)
+      setError('')
+      
+      try {
+        const isDev = process.env.NODE_ENV === 'development'
+        const response = isDev 
+          ? await fetch('/api/proxy-view', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ key: src })
             })
+          : await fetch(`https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/view/${src}`, {
+              headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                'Content-Type': 'application/json'
+              }
+            })
+
+        if (response.ok) {
+          const data = await response.json()
+          if (data.success && data.viewUrl) {
+            setVideoUrl(data.viewUrl)
+          } else {
+            setError('Erro ao obter URL do vídeo')
           }
-        }, 100)
+        } else {
+          setError(`Erro ${response.status}: ${response.statusText}`)
+        }
+      } catch (err) {
+        setError('Erro ao conectar com servidor')
+        console.error(err)
+      } finally {
+        setLoading(false)
       }
     }
-  }, [currentVideo, playlist])
-  
-  // Update source when src prop changes
-  useEffect(() => {
-    setCurrentSrc(src)
+
+    if (src) {
+      fetchPresignedUrl()
+    }
   }, [src])
 
-  // Keyboard shortcuts e touch gestures
-  useEffect(() => {
-    const handleKeyPress = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        onClose?.()
-      } else if (e.key === 'ArrowLeft') {
-        playPrevious()
-      } else if (e.key === 'ArrowRight') {
-        playNext()
-      } else if (e.key === ' ') {
-        e.preventDefault()
-        togglePlay()
-      }
-    }
-    
-    window.addEventListener('keydown', handleKeyPress)
-    return () => window.removeEventListener('keydown', handleKeyPress)
-  }, [currentIndex, playlist.length])
-  
-  // Touch gestures para mobile
-  const handleTouchStart = (e: React.TouchEvent) => {
-    const touch = e.touches[0]
-    setTouchStart({ x: touch.clientX, y: touch.clientY })
-  }
-  
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    if (!touchStart) return
-    
-    const touch = e.changedTouches[0]
-    const deltaX = touch.clientX - touchStart.x
-    const deltaY = touch.clientY - touchStart.y
-    
-    // Swipe horizontal para navegação (mínimo 50px)
-    if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
-      if (deltaX > 0) {
-        playPrevious() // Swipe right = previous
-      } else {
-        playNext() // Swipe left = next
-      }
-    }
-    
-    // Tap para mostrar/esconder controles
-    if (Math.abs(deltaX) < 10 && Math.abs(deltaY) < 10) {
-      setShowMobileControls(!showMobileControls)
-    }
-    
-    setTouchStart(null)
-  }
-  
-  // Debug do tipo de arquivo
-  console.log('=== VIDEO PLAYER DEBUG ===')
-  console.log('Source:', src)
-  console.log('Is .ts file:', src.endsWith('.ts'))
-  console.log('Title:', title)
-  console.log('Playlist:', playlist.length, 'videos')
-  console.log('Current index:', currentIndex)
-  console.log('Previous disabled:', currentIndex === 0 || playlist.length === 0)
-  console.log('Next disabled:', currentIndex >= playlist.length - 1 || playlist.length === 0)
-
-  // Hls.js setup for .ts files
   useEffect(() => {
     const video = videoRef.current
     if (!video) return
-
-    // Cleanup previous HLS instance
-    if (hlsRef.current) {
-      hlsRef.current.destroy()
-      hlsRef.current = null
-    }
-
-    // Try native playback for .ts files
-    console.log('🎬 Loading video:', currentSrc)
-    video.src = currentSrc
 
     const updateTime = () => setCurrentTime(video.currentTime)
     const updateDuration = () => setDuration(video.duration)
 
     video.addEventListener('timeupdate', updateTime)
     video.addEventListener('loadedmetadata', updateDuration)
-    video.addEventListener('ended', () => {
-      setIsPlaying(false)
-      playNext()
-    })
-    
-    video.addEventListener('loadstart', () => console.log('📦 Video load started'))
-    video.addEventListener('canplay', () => console.log('✅ Video can play'))
-    video.addEventListener('error', (e) => {
-      console.error('❌ Video error:', e)
-      if (!currentSrc.endsWith('.ts')) {
-        setVideoError('Erro ao carregar vídeo')
-      }
-    })
-    video.addEventListener('loadeddata', () => console.log('📊 Video data loaded'))
 
     return () => {
       video.removeEventListener('timeupdate', updateTime)
       video.removeEventListener('loadedmetadata', updateDuration)
-      if (hlsRef.current) {
-        hlsRef.current.destroy()
-      }
     }
-  }, [currentSrc])
+  }, [])
 
   const togglePlay = () => {
     const video = videoRef.current
@@ -254,89 +133,6 @@ export default function VideoPlayer({ src, title, currentVideo, playlist = [], o
     }
   }
 
-  const skip = (seconds: number) => {
-    const video = videoRef.current
-    if (!video) return
-
-    video.currentTime = Math.max(0, Math.min(duration, video.currentTime + seconds))
-  }
-  
-  const playNext = async () => {
-    if (playlist.length === 0) return
-    
-    const nextIndex = currentIndex + 1
-    if (nextIndex < playlist.length) {
-      const nextVideo = playlist[nextIndex]
-      setCurrentIndex(nextIndex)
-      
-      // Get presigned URL for next video
-      try {
-        const token = localStorage.getItem('token')
-        const response = await fetch(`https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/view/${encodeURIComponent(nextVideo.key)}`, {
-          method: 'GET',
-          headers: { 
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          }
-        })
-        
-        if (response.ok) {
-          const data = await response.json()
-          if (data.success) {
-            onVideoChange?.({ ...nextVideo, url: data.viewUrl })
-            return
-          }
-        }
-      } catch (error) {
-        console.error('Error getting presigned URL:', error)
-      }
-      
-      // Fallback to original URL
-      onVideoChange?.(nextVideo)
-    }
-  }
-  
-  const playPrevious = async () => {
-    if (playlist.length === 0) return
-    
-    const prevIndex = currentIndex - 1
-    if (prevIndex >= 0) {
-      const prevVideo = playlist[prevIndex]
-      setCurrentIndex(prevIndex)
-      
-      // Get presigned URL for previous video
-      try {
-        const token = localStorage.getItem('token')
-        const response = await fetch(`https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/view/${encodeURIComponent(prevVideo.key)}`, {
-          method: 'GET',
-          headers: { 
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          }
-        })
-        
-        if (response.ok) {
-          const data = await response.json()
-          if (data.success) {
-            onVideoChange?.({ ...prevVideo, url: data.viewUrl })
-            return
-          }
-        }
-      } catch (error) {
-        console.error('Error getting presigned URL:', error)
-      }
-      
-      // Fallback to original URL
-      onVideoChange?.(prevVideo)
-    }
-  }
-
-  const formatTime = (time: number) => {
-    const minutes = Math.floor(time / 60)
-    const seconds = Math.floor(time % 60)
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`
-  }
-
   const toggleFullscreen = () => {
     const video = videoRef.current
     if (!video) return
@@ -348,147 +144,67 @@ export default function VideoPlayer({ src, title, currentVideo, playlist = [], o
     }
   }
 
+  const formatTime = (time: number) => {
+    const minutes = Math.floor(time / 60)
+    const seconds = Math.floor(time % 60)
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`
+  }
+
   return (
-    <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4">
-      <div className={`relative w-full bg-dark-900 overflow-hidden flex flex-col ${
-        isMobile ? 'h-full rounded-none' : 'max-w-6xl rounded-lg'
-      }`}>
+    <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
+      <div className="relative w-full max-w-6xl bg-dark-900 rounded-lg overflow-hidden">
         {/* Header */}
-        <div className="flex items-center p-4 bg-dark-800/50 border-b border-neon-cyan/20">
-          <div className="flex-1 min-w-0">
-            <h3 className="text-lg font-semibold text-white truncate" title={title}>{title}</h3>
-            {playlist.length > 0 && (
-              <p className="text-sm text-gray-400 truncate" title={currentVideo?.folder}>
-                {currentIndex + 1} de {playlist.length} • 📁 {currentVideo?.folder || 'Pasta'}
-              </p>
-            )}
-          </div>
+        <div className="flex items-center justify-between p-4 bg-dark-800/50 border-b border-neon-cyan/20">
+          <h3 className="text-lg font-semibold text-white truncate">{title}</h3>
+          <button
+            onClick={onClose}
+            className="text-white hover:text-neon-cyan p-2 rounded-full bg-gray-800/50"
+          >
+            <X className="w-6 h-6" />
+          </button>
         </div>
 
         {/* Video Container */}
-        <div 
-          className="relative bg-black group overflow-hidden" 
-          style={{ maxHeight: playlist.length > 1 ? '60vh' : '80vh' }}
-          onMouseMove={resetHideTimer}
-          onTouchStart={(e) => {
-            handleTouchStart(e)
-            resetHideTimer()
-          }}
-          onTouchEnd={handleTouchEnd}
-        >
-          {/* Close Button - Top Right */}
-          <button
-            onClick={onClose}
-            className={`absolute top-4 right-4 z-20 text-white hover:text-neon-cyan transition-opacity duration-300 p-3 rounded-full bg-gray-800/70 backdrop-blur-sm ${
-              (isMobile ? showMobileControls : showControls) ? 'opacity-100' : 'opacity-0'
-            } ${isMobile ? 'text-xl min-h-[48px] min-w-[48px]' : 'text-lg'}`}
-            title="Fechar (ESC)"
-          >
-            ✕
-          </button>
-          
-
-
-          <video
-            ref={videoRef}
-            className="w-full h-full object-contain"
-            style={{ maxHeight: playlist.length > 1 ? '60vh' : '80vh' }}
-            onClick={togglePlay}
-            crossOrigin="anonymous"
-            preload="metadata"
-            controls={false}
-          />
-
-          {/* Error Message */}
-          {videoError && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+        <div className="relative bg-black" style={{ maxHeight: '80vh' }}>
+          {loading && (
+            <div className="absolute inset-0 flex items-center justify-center">
               <div className="text-center text-white">
-                <p className="text-red-400 mb-2">{videoError}</p>
-                <p className="text-sm text-gray-400">
-                  {src.endsWith('.ts') ? 'Tentando reproduzir arquivo .ts nativamente' : 'Formato de vídeo não suportado'}
-                </p>
+                <div className="loading-shimmer w-16 h-16 rounded-full mx-auto mb-4"></div>
+                <p>Carregando vídeo...</p>
               </div>
             </div>
           )}
 
-
-
-          {/* Controls */}
-          <div className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent transition-opacity duration-300 ${
-            (isMobile ? showMobileControls : showControls) ? 'opacity-100' : 'opacity-0'
-          } ${isMobile ? 'p-2 pb-safe' : 'p-4'}`}>
-            {/* Control Buttons */}
-            <div className="flex items-center justify-between gap-1 mb-2">
-              <div className="flex items-center gap-2">
-                {/* Previous Video */}
-                <button
-                  onClick={playPrevious}
-                  disabled={currentIndex === 0 || playlist.length === 0}
-                  className={`text-white hover:text-neon-cyan transition-colors disabled:text-gray-500 disabled:cursor-not-allowed rounded bg-gray-800/50 backdrop-blur-sm ${
-                    isMobile ? 'p-2' : 'p-2'
-                  }`}
-                  title={`Vídeo Anterior ${currentIndex === 0 ? '(Primeiro vídeo)' : ''}`}
-                >
-                  <ChevronLeft className="w-5 h-5" />
-                </button>
-                
-                <button
-                  onClick={() => skip(-10)}
-                  className={`text-white hover:text-neon-cyan transition-colors rounded bg-gray-800/30 ${
-                    isMobile ? 'p-2' : 'p-2'
-                  }`}
-                  title="Voltar 10s"
-                >
-                  <SkipBack className="w-5 h-5" />
-                </button>
-
-                <button
-                  onClick={togglePlay}
-                  className={`bg-neon-cyan hover:bg-neon-cyan/80 rounded-full transition-colors ${
-                    isMobile ? 'p-3' : 'p-2'
-                  }`}
-                >
-                  {isPlaying ? (
-                    <Pause className="text-black w-5 h-5" />
-                  ) : (
-                    <Play className="text-black w-5 h-5 ml-0.5" />
-                  )}
-                </button>
-
-                <button
-                  onClick={() => skip(10)}
-                  className={`text-white hover:text-neon-cyan transition-colors rounded bg-gray-800/30 ${
-                    isMobile ? 'p-2' : 'p-2'
-                  }`}
-                  title="Avançar 10s"
-                >
-                  <SkipForward className="w-5 h-5" />
-                </button>
-                
-                {/* Next Video */}
-                <button
-                  onClick={playNext}
-                  disabled={currentIndex >= playlist.length - 1 || playlist.length === 0}
-                  className={`text-white hover:text-neon-cyan transition-colors disabled:text-gray-500 disabled:cursor-not-allowed rounded bg-gray-800/50 backdrop-blur-sm ${
-                    isMobile ? 'p-2' : 'p-2'
-                  }`}
-                  title={`Próximo Vídeo ${currentIndex >= playlist.length - 1 ? '(Último vídeo)' : ''}`}
-                >
-                  <ChevronRight className="w-5 h-5" />
-                </button>
-
+          {error && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="text-center text-white">
+                <p className="text-red-400 mb-2">{error}</p>
+                <button onClick={onClose} className="btn-secondary">Fechar</button>
               </div>
+            </div>
+          )}
 
-              {/* Volume + Time + Fullscreen */}
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={toggleMute}
-                  className="text-white hover:text-neon-cyan transition-colors rounded bg-gray-800/30 p-2"
-                >
-                  {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
-                </button>
-                
-                {!isMobile && (
+          {videoUrl && !loading && !error && (
+            <>
+              <video
+                ref={videoRef}
+                className="w-full h-full object-contain"
+                style={{ maxHeight: '80vh' }}
+                onClick={togglePlay}
+                src={videoUrl}
+              />
+
+              {/* Controls */}
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-4">
+                <div className="flex items-center gap-4 mb-2">
+                  <button onClick={togglePlay} className="bg-neon-cyan hover:bg-neon-cyan/80 rounded-full p-2">
+                    {isPlaying ? <Pause className="text-black w-5 h-5" /> : <Play className="text-black w-5 h-5 ml-0.5" />}
+                  </button>
+
+                  <button onClick={toggleMute} className="text-white hover:text-neon-cyan">
+                    {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
+                  </button>
+
                   <input
                     type="range"
                     min="0"
@@ -496,74 +212,30 @@ export default function VideoPlayer({ src, title, currentVideo, playlist = [], o
                     step="0.1"
                     value={isMuted ? 0 : volume}
                     onChange={handleVolumeChange}
-                    className="w-20 h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer slider"
+                    className="w-20 h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer"
                   />
-                )}
 
-                <span className="text-gray-300 whitespace-nowrap text-xs sm:text-sm">
-                  {formatTime(currentTime)} / {formatTime(duration)}
-                </span>
+                  <span className="text-gray-300 text-sm">
+                    {formatTime(currentTime)} / {formatTime(duration)}
+                  </span>
 
-                <button
-                  onClick={toggleFullscreen}
-                  className="text-white hover:text-neon-cyan transition-colors rounded bg-gray-800/30 p-2"
-                  title="Tela Cheia"
-                >
-                  <Maximize className="w-5 h-5" />
-                </button>
+                  <button onClick={toggleFullscreen} className="text-white hover:text-neon-cyan ml-auto">
+                    <Maximize className="w-5 h-5" />
+                  </button>
+                </div>
+
+                <input
+                  type="range"
+                  min="0"
+                  max={duration || 0}
+                  value={currentTime}
+                  onChange={handleSeek}
+                  className="w-full h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer"
+                />
               </div>
-            </div>
-
-            {/* Progress Bar */}
-            <div>
-              <input
-                type="range"
-                min="0"
-                max={duration || 0}
-                value={currentTime}
-                onChange={handleSeek}
-                className="w-full h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer slider"
-              />
-            </div>
-          </div>
+            </>
+          )}
         </div>
-        
-        {/* Playlist */}
-        {playlist.length > 1 && (
-          <div className={`bg-dark-800/30 border-t border-neon-cyan/20 overflow-y-auto ${
-            isMobile ? 'p-3 max-h-[30vh]' : 'p-4 max-h-[25vh]'
-          }`}>
-            <h4 className="text-sm font-semibold text-white mb-3">📋 Playlist ({playlist.length} vídeos)</h4>
-            <div className={isMobile ? 'space-y-1' : 'space-y-2'}>
-              {playlist.map((video, index) => (
-                <button
-                  key={video.key}
-                  onClick={() => {
-                    setCurrentIndex(index)
-                    onVideoChange?.(video)
-                  }}
-                  className={`w-full text-left rounded-lg transition-colors touch-manipulation ${
-                    isMobile ? 'p-3 min-h-[48px]' : 'p-2'
-                  } ${
-                    index === currentIndex
-                      ? 'bg-neon-cyan/20 text-neon-cyan'
-                      : 'bg-gray-800/50 text-gray-300 hover:bg-gray-700/50 active:bg-gray-600/50'
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <span className={`text-gray-400 w-6 flex-shrink-0 ${
-                      isMobile ? 'text-sm' : 'text-xs'
-                    }`}>{index + 1}</span>
-                    <span className={`truncate flex-1 min-w-0 ${
-                      isMobile ? 'text-base' : 'text-sm'
-                    }`} title={video.name}>{video.name}</span>
-                    {index === currentIndex && <span className="text-xs flex-shrink-0">▶️</span>}
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   )
