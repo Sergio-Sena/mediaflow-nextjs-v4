@@ -689,27 +689,7 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
                   <div className="flex gap-2">
                     {file.type === 'video' && (
                       <button
-                        onClick={async () => {
-                          try {
-                            const token = localStorage.getItem('token')
-                            const response = await fetch(`https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/view/${encodeURIComponent(file.key)}`, {
-                              method: 'GET',
-                              headers: { 
-                                'Content-Type': 'application/json',
-                                'Authorization': `Bearer ${token}`
-                              }
-                            })
-                            
-                            if (response.ok) {
-                              const data = await response.json()
-                              if (data.success) {
-                                onPlayVideo?.({ ...file, url: data.viewUrl })
-                              }
-                            }
-                          } catch (error) {
-                            onPlayVideo?.(file)
-                          }
-                        }}
+                        onClick={() => onPlayVideo?.(file)}
                         className="p-2 bg-neon-purple/20 hover:bg-neon-purple/30 text-neon-purple rounded-lg transition-colors"
                         title="Reproduzir"
                       >
@@ -719,27 +699,7 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
                     
                     {file.type === 'image' && (
                       <button
-                        onClick={async () => {
-                          try {
-                            const token = localStorage.getItem('token')
-                            const response = await fetch(`https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/view/${encodeURIComponent(file.key)}`, {
-                              method: 'GET',
-                              headers: { 
-                                'Content-Type': 'application/json',
-                                'Authorization': `Bearer ${token}`
-                              }
-                            })
-                            
-                            if (response.ok) {
-                              const data = await response.json()
-                              if (data.success) {
-                                onViewImage?.({ ...file, url: data.viewUrl })
-                              }
-                            }
-                          } catch (error) {
-                            onViewImage?.(file)
-                          }
-                        }}
+                        onClick={() => onViewImage?.(file)}
                         className="p-2 bg-green-500/20 hover:bg-green-500/30 text-green-400 rounded-lg transition-colors"
                         title="Visualizar"
                       >
@@ -749,27 +709,7 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
                     
                     {file.type === 'document' && (
                       <button
-                        onClick={async () => {
-                          try {
-                            const token = localStorage.getItem('token')
-                            const response = await fetch(`https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/view/${encodeURIComponent(file.key)}`, {
-                              method: 'GET',
-                              headers: { 
-                                'Content-Type': 'application/json',
-                                'Authorization': `Bearer ${token}`
-                              }
-                            })
-                            
-                            if (response.ok) {
-                              const data = await response.json()
-                              if (data.success) {
-                                onViewPDF?.({ ...file, url: data.viewUrl })
-                              }
-                            }
-                          } catch (error) {
-                            onViewPDF?.(file)
-                          }
-                        }}
+                        onClick={() => onViewPDF?.(file)}
                         className="p-2 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 rounded-lg transition-colors"
                         title="Visualizar PDF"
                       >
