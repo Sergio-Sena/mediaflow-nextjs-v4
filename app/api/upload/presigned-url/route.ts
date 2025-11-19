@@ -34,8 +34,7 @@ export async function POST(request: NextRequest) {
           filename: body.filename,
           contentType: body.contentType,
           fileSize: body.fileSize
-        }),
-        timeout: 30000
+        })
       })
     } catch (fetchError: any) {
       console.error(`❌ [PRESIGNED-URL] Erro ao conectar com Lambda:`, {

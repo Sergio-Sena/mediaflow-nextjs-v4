@@ -7,7 +7,8 @@ export const AWS_CONFIG = {
     FILES: '/files',
     UPLOAD: '/upload/presigned',
     CLEANUP: '/cleanup',
-    BULK_DELETE: '/files/bulk-delete'
+    BULK_DELETE: '/files/bulk-delete',
+    USERS: '/users/list'
   },
   
   BUCKETS: {
