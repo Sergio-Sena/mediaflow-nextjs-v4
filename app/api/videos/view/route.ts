@@ -14,7 +14,14 @@ export async function OPTIONS() {
 
 export async function GET(request: NextRequest, { params }: { params: { key: string } }) {
   try {
-    const key = params.key || request.nextUrl.searchParams.get('key')
+    const key = params.key || request.nextUrl.searchParams.get('key') || ''
+    
+    if (!key) {
+      return NextResponse.json(
+        { error: 'Key is required' },
+        { status: 400, headers: CORS_HEADERS }
+      )
+    }
     
     const response = await fetch(`${getApiUrl('VIEW')}/${encodeURIComponent(key)}`, {
       method: 'GET',
