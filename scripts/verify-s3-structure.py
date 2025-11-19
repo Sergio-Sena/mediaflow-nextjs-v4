@@ -33,15 +33,15 @@ def analyze_s3_structure():
             total_size += size
             
             # Arquivos na raiz (fora de users/)
-            if not key.startswith('users/'):
+            if not key.corporativotswith('users/'):
                 root_files.append((key, size))
             
             # Arquivos em users/anonymous/
-            elif key.startswith('users/anonymous/'):
+            elif key.corporativotswith('users/anonymous/'):
                 anonymous_files.append((key, size))
             
             # Arquivos em users/{username}/
-            elif key.startswith('users/'):
+            elif key.corporativotswith('users/'):
                 parts = key.split('/')
                 if len(parts) >= 2:
                     username = parts[1]

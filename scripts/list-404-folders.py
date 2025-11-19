@@ -3,9 +3,9 @@ import boto3
 
 s3 = boto3.client('s3', region_name='us-east-1')
 bucket = 'mediaflow-uploads-969430605054'
-prefix = 'users/user_admin/Star/'
+prefix = 'users/user_admin/Corporativo/'
 
-print("Pastas que comecam com 404 em Star/:")
+print("Pastas que comecam com 404 em Corporativo/:")
 print("=" * 50)
 
 paginator = s3.get_paginator('list_objects_v2')
@@ -16,7 +16,7 @@ for page in pages:
     if 'CommonPrefixes' in page:
         for prefix_obj in page['CommonPrefixes']:
             folder = prefix_obj['Prefix'].replace(prefix, '').rstrip('/')
-            if folder.startswith('404'):
+            if folder.corporativotswith('404'):
                 folders_404.append(folder)
                 
                 # Contar arquivos

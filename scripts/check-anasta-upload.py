@@ -11,12 +11,12 @@ def check_local_vs_s3():
     """Comparar arquivos locais vs S3"""
     try:
         # Pasta local
-        local_path = Path(r"C:\Users\dell 5557\Videos\IDM\Star\Anasta_angel")
+        local_path = Path(r"C:\Users\dell 5557\Videos\IDM\Corporativo\Anasta_angel")
         
         # S3
         s3 = boto3.client('s3', region_name='us-east-1')
         bucket = 'mediaflow-uploads-969430605054'
-        prefix = 'users/user_admin/Star/Anasta_angel/'
+        prefix = 'users/user_admin/Corporativo/Anasta_angel/'
         
         print("Comparando Local vs S3...")
         print("=" * 50)

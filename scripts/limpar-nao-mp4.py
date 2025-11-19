@@ -57,7 +57,7 @@ def limpar_s3(pasta_nome):
     prefix = f"users/{USER_ID}/{pasta_nome}/"
     
     try:
-        # Listar objetos
+        # Licorporativo objetos
         response = s3_client.list_objects_v2(
             Bucket=BUCKET,
             Prefix=prefix
@@ -97,7 +97,7 @@ def limpar_s3(pasta_nome):
         print(f"✅ S3: {removidos} arquivos removidos")
         
     except Exception as e:
-        print(f"❌ Erro ao listar S3: {e}")
+        print(f"❌ Erro ao licorporativo S3: {e}")
 
 def main():
     print("=" * 60)

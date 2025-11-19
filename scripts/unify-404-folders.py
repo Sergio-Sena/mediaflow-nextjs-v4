@@ -3,8 +3,8 @@ import boto3
 
 s3 = boto3.client('s3', region_name='us-east-1')
 bucket = 'mediaflow-uploads-969430605054'
-source_prefix = 'users/user_admin/Star/404 Hot Found/'
-dest_prefix = 'users/user_admin/Star/404HotFound/'
+source_prefix = 'users/user_admin/Corporativo/404 Hot Found/'
+dest_prefix = 'users/user_admin/Corporativo/404HotFound/'
 
 print("Unificando pastas 404...")
 print("=" * 50)
@@ -12,7 +12,7 @@ print(f"De: {source_prefix}")
 print(f"Para: {dest_prefix}")
 print()
 
-# Listar arquivos da pasta origem
+# Licorporativo arquivos da pasta origem
 paginator = s3.get_paginator('list_objects_v2')
 pages = paginator.paginate(Bucket=bucket, Prefix=source_prefix)
 

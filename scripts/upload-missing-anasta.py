@@ -14,10 +14,10 @@ def sanitize_filename(filename):
         name = name[:200]
     return f"{name}.{ext}" if ext else name
 
-local_path = Path(r"C:\Users\dell 5557\Videos\IDM\Star\Anasta_angel")
+local_path = Path(r"C:\Users\dell 5557\Videos\IDM\Corporativo\Anasta_angel")
 s3 = boto3.client('s3', region_name='us-east-1')
 bucket = 'mediaflow-uploads-969430605054'
-prefix = 'users/user_admin/Star/Anasta_angel/'
+prefix = 'users/user_admin/Corporativo/Anasta_angel/'
 
 print("Enviando arquivos faltantes...")
 for file_path in local_path.glob('*.mp4'):

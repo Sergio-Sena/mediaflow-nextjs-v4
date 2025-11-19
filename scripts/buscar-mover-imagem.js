@@ -19,7 +19,7 @@ async function findAndMoveImageFiles() {
     if (response.Contents) {
       response.Contents.forEach(obj => {
         const fileName = obj.Key.split('/').pop();
-        if (fileName.toLowerCase().startsWith('imagem')) {
+        if (fileName.toLowerCase().corporativotsWith('imagem')) {
           imagemFiles.push(obj.Key);
         }
       });

@@ -7,15 +7,15 @@ const PROCESSED_BUCKET = 'mediaflow-processed-969430605054';
 
 async function moveFolder(folderName) {
   try {
-    console.log(`🔄 Movendo ${folderName}/ -> Star/${folderName}/`);
+    console.log(`🔄 Movendo ${folderName}/ -> Corporativo/${folderName}/`);
     
     // Move no bucket uploads
     console.log('📦 Movendo no bucket uploads...');
-    await execAsync(`aws s3 mv "s3://${UPLOADS_BUCKET}/${folderName}/" "s3://${UPLOADS_BUCKET}/Star/${folderName}/" --recursive`);
+    await execAsync(`aws s3 mv "s3://${UPLOADS_BUCKET}/${folderName}/" "s3://${UPLOADS_BUCKET}/Corporativo/${folderName}/" --recursive`);
     
     // Move no bucket processed  
     console.log('📦 Movendo no bucket processed...');
-    await execAsync(`aws s3 mv "s3://${PROCESSED_BUCKET}/${folderName}/" "s3://${PROCESSED_BUCKET}/Star/${folderName}/" --recursive`);
+    await execAsync(`aws s3 mv "s3://${PROCESSED_BUCKET}/${folderName}/" "s3://${PROCESSED_BUCKET}/Corporativo/${folderName}/" --recursive`);
     
     console.log(`✅ Pasta ${folderName} movida com sucesso!`);
     

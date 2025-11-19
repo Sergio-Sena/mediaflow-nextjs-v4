@@ -17,8 +17,8 @@ export class SmallFileUpload implements UploadStrategy {
     console.log(`🚀 SmallFileUpload SIMPLE: ${filename} (${Math.round(file.size / 1024 / 1024)}MB)`)
     
     try {
-      // Usar AWS API diretamente (funciona local e produção)
-      const urlResponse = await fetch('https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/upload/presigned', {
+      // Usar Next.js API com CORS habilitado
+      const urlResponse = await fetch('/api/upload/presigned-url', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

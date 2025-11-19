@@ -4,8 +4,8 @@ from pathlib import Path
 
 s3 = boto3.client('s3', region_name='us-east-1')
 BUCKET = 'mediaflow-uploads-969430605054'
-LOCAL_PATH = r'C:\Users\dell 5557\Videos\IDM\Star\kate kuray'
-S3_PREFIX = 'users/user_admin/Star/kate kuray/'
+LOCAL_PATH = r'C:\Users\dell 5557\Videos\IDM\Corporativo\kate kuray'
+S3_PREFIX = 'users/user_admin/Corporativo/kate kuray/'
 
 def get_local_files():
     """Lista arquivos locais"""

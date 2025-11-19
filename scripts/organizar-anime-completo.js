@@ -84,7 +84,7 @@ async function deleteOldJiggly() {
   console.log('');
 }
 
-// 3. Listar fotos soltas em Anime/
+// 3. Licorporativo fotos soltas em Anime/
 async function listLooseFiles() {
   console.log('📸 ETAPA 3: Listando fotos soltas em Anime/...\n');
   

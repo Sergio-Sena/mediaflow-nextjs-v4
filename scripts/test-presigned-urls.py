@@ -59,7 +59,7 @@ def test_presigned_urls():
                         else:
                             print(f"   [ERRO] Erro ao acessar arquivo: {head_response.status_code}")
                     except Exception as e:
-                        print(f"   [ERRO] Erro ao testar URL: {str(e)}")
+                        print(f"   [ERRO] Erro ao tecorporativo URL: {str(e)}")
                 else:
                     print(f"   [ERRO] API retornou erro: {data.get('message', 'Erro desconhecido')}")
             else:

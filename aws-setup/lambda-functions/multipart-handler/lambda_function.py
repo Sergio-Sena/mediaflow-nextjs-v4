@@ -53,6 +53,9 @@ def lambda_handler(event, context):
             upload_id = body.get('uploadId')
             part_number = body.get('partNumber')
             
+            if not key or not upload_id or not part_number:
+                return cors_response(400, {'success': False, 'message': 'Missing key, uploadId or partNumber'})
+            
             url = s3.generate_presigned_url(
                 'upload_part',
                 Params={
@@ -65,7 +68,6 @@ def lambda_handler(event, context):
             )
             
             return cors_response(200, {
-                'success': True,
                 'uploadUrl': url
             })
         
@@ -146,11 +148,11 @@ def extract_user_id(event):
         
         # Extrair user_id (campo correto do JWT)
         user_id = payload_data.get('user_id', 'anonymous')
-        print(f"User ID extraído do JWT: {user_id}")
+        print(f"User ID extracted from JWT: {user_id}")
         return user_id
         
     except Exception as e:
-        print(f"Erro ao parsear JWT: {e}")
+        print(f"Error parsing JWT: {e}")
         return 'anonymous'
 
 def cors_response(status_code, body):

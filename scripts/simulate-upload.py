@@ -1,8 +1,8 @@
 import os
 import time
 
-LOCAL_DIR = r'C:\Users\dell 5557\Videos\IDM\Star\Comatozze'
-S3_PREFIX = 'users/user_admin/Star/Comatozze/'
+LOCAL_DIR = r'C:\Users\dell 5557\Videos\IDM\Corporativo\Comatozze'
+S3_PREFIX = 'users/user_admin/Corporativo/Comatozze/'
 
 def simulate_upload():
     files = []

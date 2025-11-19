@@ -17,7 +17,7 @@ async function testS3Connection() {
   console.log('🧪 Testando conexão S3...')
   
   try {
-    // Teste 1: Listar objetos
+    // Teste 1: Licorporativo objetos
     console.log('\n1️⃣ Testando listagem de objetos...')
     const listCommand = new ListObjectsV2Command({
       Bucket: BUCKET,

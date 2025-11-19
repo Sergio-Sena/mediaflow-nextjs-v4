@@ -10,7 +10,7 @@ async function listAll() {
   do {
     const response = await s3.send(new ListObjectsV2Command({
       Bucket: bucket,
-      Prefix: 'users/user_admin/Anime/NSFW2.1/',
+      Prefix: 'users/user_admin/Anime/Conteudo2.1/',
       ContinuationToken: continuationToken
     }));
     
@@ -28,7 +28,7 @@ async function listAll() {
 }
 
 async function main() {
-  console.log('📋 Listando todos os arquivos NSFW2.1 no S3...\n');
+  console.log('📋 Listando todos os arquivos Conteudo2.1 no S3...\n');
   
   const files = await listAll();
   

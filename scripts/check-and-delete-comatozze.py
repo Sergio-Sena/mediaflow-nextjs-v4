@@ -4,7 +4,7 @@ from pathlib import Path
 
 s3 = boto3.client('s3', region_name='us-east-1')
 BUCKET = 'mediaflow-uploads-969430605054'
-LOCAL_PATH = r'C:\Users\dell 5557\Videos\IDM\Star\Comatozze'
+LOCAL_PATH = r'C:\Users\dell 5557\Videos\IDM\Corporativo\Comatozze'
 
 def get_s3_files():
     """Pega todos os arquivos do S3 com tamanho"""

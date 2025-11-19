@@ -11,7 +11,7 @@ const BUCKET_UPLOADS = 'mediaflow-uploads-969430605054';
 const BUCKET_PROCESSED = 'mediaflow-processed-969430605054';
 
 // Pastas que NÃO devem ser movidas (case insensitive)
-const EXCLUDED_FOLDERS = ['anime', 'Anime', 'Raiz', 'captures', 'Captures', 'seart', 'Seart', 'video', 'Video', 'Star'];
+const EXCLUDED_FOLDERS = ['anime', 'Anime', 'Raiz', 'captures', 'Captures', 'seart', 'Seart', 'video', 'Video', 'Corporativo'];
 
 async function listAllFiles(bucket) {
   const files = [];
@@ -31,8 +31,8 @@ async function listAllFiles(bucket) {
   return files;
 }
 
-async function previewMoveToStar() {
-  console.log('🔍 PREVIEW: O que será movido para pasta Star...\n');
+async function previewMoveToCorporativo() {
+  console.log('🔍 PREVIEW: O que será movido para pasta Corporativo...\n');
   
   const toMove = [];
   const excluded = [];
@@ -67,7 +67,7 @@ async function previewMoveToStar() {
       toMove.push({
         bucket,
         from: key,
-        to: `Star/${key}`,
+        to: `Corporativo/${key}`,
         folder: mainFolder,
         size: file.Size
       });
@@ -108,8 +108,8 @@ async function previewMoveToStar() {
     });
   }
   
-  console.log('\n🚀 Para executar a movimentação, rode: node move-to-star.js');
+  console.log('\n🚀 Para executar a movimentação, rode: node move-to-corporativo.js');
 }
 
 // Executar preview
-previewMoveToStar().catch(console.error);
+previewMoveToCorporativo().catch(console.error);

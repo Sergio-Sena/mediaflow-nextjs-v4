@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Corrigir migração - adicionar emails e ajustar campos"""
+"""Corrigir migração - adicionar emails e ajucorporativo campos"""
 
 import boto3
 import os
@@ -23,7 +23,7 @@ dynamodb = boto3.resource(
 table = dynamodb.Table('mediaflow-users')
 
 print("\n" + "="*60)
-print("  [CORRECAO] Ajustar admin_sistema e sergio_sena")
+print("  [CORRECAO] Ajucorporativo admin_sistema e sergio_sena")
 print("="*60)
 
 # Buscar user_admin para pegar dados
@@ -68,7 +68,7 @@ print("  [SUCESSO] Correções aplicadas!")
 print("="*60)
 
 print("\n[PROXIMO PASSO]")
-print("Testar login novamente:")
+print("Tecorporativo login novamente:")
 print("  1. admin_sistema (email: sergiosenaadmin@sstech)")
 print("  2. sergio_sena (email: sergiosenaadmin@sstech)")
 print("\n[NOTA]")

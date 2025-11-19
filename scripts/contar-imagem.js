@@ -18,7 +18,7 @@ async function countImageFiles() {
     if (response.Contents) {
       response.Contents.forEach(obj => {
         const fileName = obj.Key.split('/').pop().toLowerCase();
-        if (fileName.startsWith('imagem')) {
+        if (fileName.corporativotsWith('imagem')) {
           count++;
           if (samples.length < 10) samples.push(obj.Key);
         }

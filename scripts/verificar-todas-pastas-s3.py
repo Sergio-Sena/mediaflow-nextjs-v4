@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Verificar todas as pastas Star vs S3 sergio_sena para evitar uploads desnecessarios
+Verificar todas as pastas Corporativo vs S3 sergio_sena para evitar uploads desnecessarios
 """
 
 import boto3
@@ -42,15 +42,15 @@ def get_s3_files():
     
     return s3_files
 
-def get_local_files_by_folder(star_path):
+def get_local_files_by_folder(corporativo_path):
     """Obter arquivos locais organizados por pasta"""
     folders = {}
     
-    if not os.path.exists(star_path):
+    if not os.path.exists(corporativo_path):
         return folders
     
-    for item in os.listdir(star_path):
-        folder_path = os.path.join(star_path, item)
+    for item in os.listdir(corporativo_path):
+        folder_path = os.path.join(corporativo_path, item)
         if os.path.isdir(folder_path):
             files = []
             
@@ -75,21 +75,21 @@ def get_local_files_by_folder(star_path):
     return folders
 
 def main():
-    print("Verificando TODAS as pastas Star vs S3 sergio_sena")
+    print("Verificando TODAS as pastas Corporativo vs S3 sergio_sena")
     print("=" * 60)
     
-    star_path = r"C:\Users\dell 5557\Videos\IDM\Star"
+    corporativo_path = r"C:\Users\dell 5557\Videos\IDM\Corporativo"
     
     # Obter arquivos
     print("Carregando arquivos S3 sergio_sena...")
     s3_files = get_s3_files()
     s3_normalized = {f['normalized'] for f in s3_files}
     
-    print("Carregando pastas locais Star...")
-    local_folders = get_local_files_by_folder(star_path)
+    print("Carregando pastas locais Corporativo...")
+    local_folders = get_local_files_by_folder(corporativo_path)
     
     print(f"S3 sergio_sena: {len(s3_files)} arquivos")
-    print(f"Pastas Star: {len(local_folders)} pastas")
+    print(f"Pastas Corporativo: {len(local_folders)} pastas")
     print()
     
     # Analisar cada pasta

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Upload completo da pasta Star com sanitizacao e verificacao
+Upload completo da pasta Corporativo com sanitizacao e verificacao
 Padrao para uploads via CLI
 """
 
@@ -10,9 +10,9 @@ import unicodedata
 import re
 
 # Configuracoes
-LOCAL_PATH = Path(r"C:\Users\dell 5557\Videos\IDM\Star")
+LOCAL_PATH = Path(r"C:\Users\dell 5557\Videos\IDM\Corporativo")
 S3_BUCKET = 'mediaflow-uploads-969430605054'
-S3_PREFIX = 'users/user_admin/Star/'
+S3_PREFIX = 'users/user_admin/Corporativo/'
 
 def sanitize_filename(filename):
     """Sanitizar nome do arquivo"""

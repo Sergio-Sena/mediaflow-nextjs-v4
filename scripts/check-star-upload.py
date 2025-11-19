@@ -1,22 +1,22 @@
 #!/usr/bin/env python3
 """
-Verificar upload da pasta Star no S3
+Verificar upload da pasta Corporativo no S3
 """
 
 import boto3
 from datetime import datetime
 
 def check_s3_folder():
-    """Verificar conteúdo da pasta Star no S3"""
+    """Verificar conteúdo da pasta Corporativo no S3"""
     try:
         s3 = boto3.client('s3', region_name='us-east-1')
         bucket = 'mediaflow-uploads-969430605054'
-        prefix = 'users/user_admin/Star/'
+        prefix = 'users/user_admin/Corporativo/'
         
-        print("Verificando upload da pasta Star...")
+        print("Verificando upload da pasta Corporativo...")
         print("=" * 50)
         
-        # Listar objetos
+        # Licorporativo objetos
         paginator = s3.get_paginator('list_objects_v2')
         pages = paginator.paginate(Bucket=bucket, Prefix=prefix)
         

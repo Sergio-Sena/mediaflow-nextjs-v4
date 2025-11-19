@@ -25,11 +25,11 @@ function checkAWS() {
     
     if (res.statusCode === 200) {
       console.log(`✅ [${timestamp}] AWS NORMALIZADA! Status: ${res.statusCode}`);
-      console.log('\n🎉 Lambda funcionando! Pode testar produção agora.\n');
+      console.log('\n🎉 Lambda funcionando! Pode tecorporativo produção agora.\n');
       process.exit(0);
     } else if (res.statusCode === 401) {
       console.log(`✅ [${timestamp}] AWS NORMALIZADA! Lambda respondeu (credenciais inválidas, mas funcionando)`);
-      console.log('\n🎉 Lambda funcionando! Pode testar produção agora.\n');
+      console.log('\n🎉 Lambda funcionando! Pode tecorporativo produção agora.\n');
       process.exit(0);
     } else {
       console.log(`⏳ [${timestamp}] Ainda com problema. Status: ${res.statusCode}`);

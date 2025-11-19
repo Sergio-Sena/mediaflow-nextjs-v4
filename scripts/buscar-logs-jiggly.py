@@ -10,7 +10,7 @@ lambda_groups = [
 ]
 
 # Buscar últimos 30 dias
-start_time = int((datetime.now() - timedelta(days=30)).timestamp() * 1000)
+corporativot_time = int((datetime.now() - timedelta(days=30)).timestamp() * 1000)
 end_time = int(datetime.now().timestamp() * 1000)
 
 print('Buscando logs de upload com "Jiggly" nos ultimos 30 dias...\n')
@@ -21,7 +21,7 @@ for group in lambda_groups:
     try:
         response = logs.filter_log_events(
             logGroupName=group,
-            startTime=start_time,
+            corporativotTime=corporativot_time,
             endTime=end_time,
             filterPattern='Jiggly'
         )

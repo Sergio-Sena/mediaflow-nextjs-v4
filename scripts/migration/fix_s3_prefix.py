@@ -58,4 +58,4 @@ print("  admin_sistema verá: Tudo (sem filtro)")
 
 print("\n[PROXIMO PASSO]")
 print("  1. Fazer deploy da Lambda files-handler")
-print("  2. Testar login novamente")
+print("  2. Tecorporativo login novamente")

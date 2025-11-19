@@ -15,7 +15,7 @@ cmd = [
     '-c:v', 'copy',
     '-c:a', 'aac',
     '-b:a', '192k',
-    '-movflags', '+faststart',
+    '-movflags', '+fastcorporativot',
     output_file
 ]
 

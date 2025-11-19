@@ -1,0 +1,7 @@
+{
+  "httpMethod": "POST",
+  "body": "{\"filename\":\"test.mp4\",\"contentType\":\"video/mp4\",\"fileSize\":1000}",
+  "headers": {
+    "Content-Type": "application/json"
+  }
+}

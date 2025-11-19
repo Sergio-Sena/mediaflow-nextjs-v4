@@ -1,4 +1,4 @@
-// Script para testar a lógica de upload
+// Script para tecorporativo a lógica de upload
 const testCases = [
   {
     description: "Dropdown: Minha pasta (Admin) + Pasta: Anime",
@@ -31,7 +31,7 @@ function processFilename(destination, webkitRelativePath, filename) {
   
   // Lambda logic (upload-handler)
   // Se já começa com users/, não duplica
-  if (!result.startsWith('users/')) {
+  if (!result.corporativotsWith('users/')) {
     result = 'users/user_admin/' + result; // username extraído do JWT
   }
   

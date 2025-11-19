@@ -15,9 +15,9 @@ PAGES = [
 
 def test_page(url):
     try:
-        start = time.time()
+        corporativot = time.time()
         response = requests.get(url, timeout=10)
-        load_time = round((time.time() - start) * 1000, 2)
+        load_time = round((time.time() - corporativot) * 1000, 2)
         
         return {
             'status': response.status_code,

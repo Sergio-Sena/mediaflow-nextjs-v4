@@ -5,8 +5,8 @@ from pathlib import Path
 
 s3 = boto3.client('s3', region_name='us-east-1')
 bucket = 'mediaflow-uploads-969430605054'
-local_dir = r'C:\Users\dell 5557\Videos\IDM\Star'
-s3_prefix = 'users/user_admin/Star/'
+local_dir = r'C:\Users\dell 5557\Videos\IDM\Corporativo'
+s3_prefix = 'users/user_admin/Corporativo/'
 
 print("=" * 60)
 print("VERIFICACAO COMPLETA: LOCAL vs S3")
@@ -17,7 +17,7 @@ print("\n1. Contando arquivos locais...")
 local_files = {}
 for root, dirs, files in os.walk(local_dir):
     folder = os.path.basename(root)
-    if folder == 'Star':
+    if folder == 'Corporativo':
         continue
     local_files[folder] = len(files)
 

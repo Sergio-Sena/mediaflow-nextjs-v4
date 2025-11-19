@@ -4,7 +4,7 @@ import os
 
 s3 = boto3.client('s3', region_name='us-east-1')
 bucket = 'mediaflow-uploads-969430605054'
-local_dir = r'C:\Users\dell 5557\Videos\IDM\Star'
+local_dir = r'C:\Users\dell 5557\Videos\IDM\Corporativo'
 
 folders_to_check = ['Little Angel', 'MIRARI HUB']
 
@@ -23,7 +23,7 @@ for folder in folders_to_check:
     # Arquivos S3
     s3_files = set()
     paginator = s3.get_paginator('list_objects_v2')
-    pages = paginator.paginate(Bucket=bucket, Prefix=f'users/user_admin/Star/{folder}/')
+    pages = paginator.paginate(Bucket=bucket, Prefix=f'users/user_admin/Corporativo/{folder}/')
     
     for page in pages:
         for obj in page.get('Contents', []):

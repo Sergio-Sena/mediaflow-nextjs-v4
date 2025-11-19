@@ -15,19 +15,19 @@ const foldersToMove = [
 
 async function moveFolder(folderName) {
   try {
-    console.log(`\nMovendo ${folderName}/ -> Star/${folderName}/`);
+    console.log(`\nMovendo ${folderName}/ -> Corporativo/${folderName}/`);
     
-    // 1. Listar arquivos da pasta
+    // 1. Licorporativo arquivos da pasta
     const response = await fetch(API_URL);
     const data = await response.json();
     
     if (!data.success) {
-      throw new Error('Erro ao listar arquivos');
+      throw new Error('Erro ao licorporativo arquivos');
     }
     
     // 2. Filtrar arquivos da pasta específica
     const folderFiles = data.files.filter(file => 
-      file.key.startsWith(folderName + '/') && file.key !== folderName + '/'
+      file.key.corporativotsWith(folderName + '/') && file.key !== folderName + '/'
     );
     
     console.log(`  Encontrados ${folderFiles.length} arquivos`);
@@ -41,7 +41,7 @@ async function moveFolder(folderName) {
     let moved = 0;
     for (const file of folderFiles) {
       const oldKey = file.key;
-      const newKey = `Star/${oldKey}`;
+      const newKey = `Corporativo/${oldKey}`;
       
       try {
         // Copiar arquivo
@@ -87,7 +87,7 @@ async function moveFolder(folderName) {
 }
 
 async function moveAllFolders() {
-  console.log('🔄 INICIANDO MOVIMENTAÇÃO DE PASTAS PARA Star/');
+  console.log('🔄 INICIANDO MOVIMENTAÇÃO DE PASTAS PARA Corporativo/');
   console.log('='.repeat(60));
   
   let totalMoved = 0;
@@ -114,9 +114,9 @@ async function moveAllFolders() {
 
 // Confirmar antes de executar
 console.log('⚠️  CONFIRMAÇÃO NECESSÁRIA');
-console.log('Este script irá mover as seguintes pastas para Star/:');
+console.log('Este script irá mover as seguintes pastas para Corporativo/:');
 foldersToMove.forEach((folder, i) => {
-  console.log(`${i+1}. ${folder}/ -> Star/${folder}/`);
+  console.log(`${i+1}. ${folder}/ -> Corporativo/${folder}/`);
 });
 
 console.log('\nPara executar, descomente a linha abaixo:');

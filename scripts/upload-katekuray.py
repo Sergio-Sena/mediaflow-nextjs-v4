@@ -3,8 +3,8 @@ import boto3
 
 s3 = boto3.client('s3', region_name='us-east-1')
 BUCKET = 'mediaflow-uploads-969430605054'
-LOCAL_DIR = r'C:\Users\dell 5557\Videos\IDM\Star\Kate kuray'
-S3_PREFIX = 'users/user_admin/Star/Kate kuray/'
+LOCAL_DIR = r'C:\Users\dell 5557\Videos\IDM\Corporativo\Kate kuray'
+S3_PREFIX = 'users/user_admin/Corporativo/Kate kuray/'
 
 def upload():
     files = []

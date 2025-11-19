@@ -4,8 +4,8 @@ import re
 
 s3 = boto3.client('s3', region_name='us-east-1')
 BUCKET = 'mediaflow-uploads-969430605054'
-LOCAL_DIR = r'C:\Users\dell 5557\Videos\IDM\Star\kate kuray'
-S3_PREFIX = 'users/user_admin/Star/kate kuray/'
+LOCAL_DIR = r'C:\Users\dell 5557\Videos\IDM\Corporativo\kate kuray'
+S3_PREFIX = 'users/user_admin/Corporativo/kate kuray/'
 
 def sanitize(name):
     name, ext = os.path.splitext(name)

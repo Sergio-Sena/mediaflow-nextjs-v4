@@ -7,7 +7,7 @@ bucket = 'mediaflow-uploads-969430605054'
 print("Reorganizando pastas Moana...")
 print("=" * 60)
 
-# Listar arquivos atuais
+# Licorporativo arquivos atuais
 print("\nEstrutura atual:")
 response = s3.list_objects_v2(Bucket=bucket, Prefix='users/lid_lima/Moana')
 if 'Contents' in response:

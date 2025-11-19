@@ -47,7 +47,7 @@ def test_multipart_lambda():
             
             print(f"Key retornada: {key}")
             
-            if key.startswith('users/user_admin/'):
+            if key.corporativotswith('users/user_admin/'):
                 print("\n[OK] Lambda corrigida! Upload vai para users/user_admin/")
                 return True
             else:

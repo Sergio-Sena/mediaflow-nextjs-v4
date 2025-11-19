@@ -1,22 +1,22 @@
 #!/usr/bin/env python3
 """
-Verificar arquivos kate kuray no S3 sergio_sena vs pasta local Star
+Verificar arquivos kate kuray no S3 sergio_sena vs pasta local Corporativo
 """
 
 import boto3
 import os
 
 def get_kate_kuray_local():
-    """Obter arquivos kate kuray da pasta Star local"""
-    star_path = r"C:\Users\dell 5557\Videos\IDM\Star\kate kuray"
+    """Obter arquivos kate kuray da pasta Corporativo local"""
+    corporativo_path = r"C:\Users\dell 5557\Videos\IDM\Corporativo\kate kuray"
     local_files = []
     
-    if not os.path.exists(star_path):
+    if not os.path.exists(corporativo_path):
         return local_files
     
-    for filename in os.listdir(star_path):
+    for filename in os.listdir(corporativo_path):
         if filename.lower().endswith(('.mp4', '.avi', '.mkv', '.mov')):
-            full_path = os.path.join(star_path, filename)
+            full_path = os.path.join(corporativo_path, filename)
             try:
                 normalized_name = filename.lower().replace(' ', '').replace('_', '').replace('-', '')
                 normalized_name = ''.join(c for c in normalized_name if c.isalnum() or c == '.')
@@ -73,7 +73,7 @@ def main():
     print("=" * 60)
     
     # Obter arquivos
-    print("Carregando arquivos locais (Star/kate kuray)...")
+    print("Carregando arquivos locais (Corporativo/kate kuray)...")
     local_files = get_kate_kuray_local()
     
     print("Carregando arquivos S3 sergio_sena (kate kuray)...")

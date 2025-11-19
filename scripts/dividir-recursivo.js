@@ -39,9 +39,9 @@ for (let i = 0; i < totalParts; i++) {
     fs.mkdirSync(partDir);
   }
   
-  const start = i * maxItems;
-  const end = Math.min(start + maxItems, allFiles.length);
-  const partFiles = allFiles.slice(start, end);
+  const corporativot = i * maxItems;
+  const end = Math.min(corporativot + maxItems, allFiles.length);
+  const partFiles = allFiles.slice(corporativot, end);
   
   console.log(`${partName}: ${partFiles.length} arquivos`);
   

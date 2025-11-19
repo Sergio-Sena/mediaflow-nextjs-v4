@@ -5,7 +5,7 @@ import unicodedata
 import re
 from collections import defaultdict
 
-local_dir = r'C:\Users\dell 5557\Videos\IDM\Star\Comatozze'
+local_dir = r'C:\Users\dell 5557\Videos\IDM\Corporativo\Comatozze'
 
 def sanitize_filename(filename):
     nfkd = unicodedata.normalize('NFKD', filename)

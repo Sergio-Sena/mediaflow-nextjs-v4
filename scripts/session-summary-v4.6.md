@@ -110,7 +110,7 @@ docs: Add CHANGELOG.md com historico completo de versoes
 ## Proximos Passos
 
 ### Imediato
-1. Testar upload multipart real (>100MB)
+1. Tecorporativo upload multipart real (>100MB)
 2. Verificar conversao H.264
 3. Validar estrutura de pastas preservada
 
@@ -139,7 +139,7 @@ python scripts/verify-s3-structure.py
 python scripts/cleanup-s3-anonymous.py
 ```
 
-### Testar Lambda
+### Tecorporativo Lambda
 ```bash
 python scripts/test-multipart-lambda.py
 ```
@@ -183,7 +183,7 @@ Sessao v4.6 concluida com sucesso! Sistema em producao com:
 - S3 limpo e organizado
 - Documentacao completa e atualizada
 
-**Proxima sessao**: Testar uploads multipart e iniciar v4.7
+**Proxima sessao**: Tecorporativo uploads multipart e iniciar v4.7
 
 ---
 

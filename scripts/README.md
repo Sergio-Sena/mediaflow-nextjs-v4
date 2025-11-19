@@ -20,12 +20,12 @@ Scripts para operações de movimentação e organização de arquivos no S3.
 - `copy_folder.js` - Copia pastas entre buckets
 - `list_folders_via_api.js` - Lista pastas via API Gateway
 - `list_root_folders.js` - Lista pastas no root do S3
-- `move_folders_to_star.js` - Move múltiplas pastas para Star/
+- `move_folders_to_corporativo.js` - Move múltiplas pastas para Corporativo/
 - `move_s3_direct.js` - Movimentação direta no S3
 - `move_single_folder.js` - Move uma pasta específica
 - `move_with_auth.js` - Movimentação com autenticação
-- `move-to-star.js` - Move para pasta Star
-- `preview-move-to-star.js` - Preview de movimentação
+- `move-to-corporativo.js` - Move para pasta Corporativo
+- `preview-move-to-corporativo.js` - Preview de movimentação
 
 ### Uso Típico
 
@@ -78,7 +78,7 @@ node test-production.js
 
 1. **Ambiente**: Configure .env.local corretamente
 2. **Credenciais**: Verifique AWS credentials
-3. **Produção**: Cuidado ao testar em produção
+3. **Produção**: Cuidado ao tecorporativo em produção
 4. **Cleanup**: Limpe arquivos de teste após uso
 
 ---
@@ -108,7 +108,7 @@ npm install  # Instala todas as dependências necessárias
 
 1. Criar arquivo na pasta apropriada (s3-operations/ ou testing/)
 2. Adicionar documentação neste README
-3. Testar em ambiente de desenvolvimento primeiro
+3. Tecorporativo em ambiente de desenvolvimento primeiro
 4. Commitar com mensagem descritiva
 
 ### Remover Script Obsoleto

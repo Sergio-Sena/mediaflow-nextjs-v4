@@ -20,7 +20,7 @@ if login_data.get('success'):
     
     print(f"\nUser: {user}")
     
-    # 2. Listar arquivos
+    # 2. Licorporativo arquivos
     print("\n2. Listando arquivos...")
     files_response = requests.get(
         f"{API_URL}/files",

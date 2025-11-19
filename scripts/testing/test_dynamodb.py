@@ -15,7 +15,7 @@ REGION = os.getenv('AWS_REGION', 'us-east-1')
 print(f"Region: {REGION}")
 print(f"Access Key: {AWS_ACCESS_KEY[:10]}...")
 
-# Listar tabelas
+# Licorporativo tabelas
 dynamodb = boto3.client(
     'dynamodb',
     region_name=REGION,
