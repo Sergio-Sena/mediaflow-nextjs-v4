@@ -7,36 +7,36 @@ bucket = 'mediaflow-uploads-969430605054'
 print("Verificando estrutura de pastas em user_admin")
 print("=" * 60)
 
-# Listar arquivos em users/user_admin/ (nivel raiz)
+# Licorporativo arquivos em users/user_admin/ (nivel raiz)
 paginator = s3.get_paginator('list_objects_v2')
 
-# Verificar se existem arquivos diretos em users/user_admin/Star/
-print("\n1. Arquivos DIRETOS em users/user_admin/Star/ (sem subpasta):")
+# Verificar se existem arquivos diretos em users/user_admin/Corporativo/
+print("\n1. Arquivos DIRETOS em users/user_admin/Corporativo/ (sem subpasta):")
 print("-" * 60)
-pages = paginator.paginate(Bucket=bucket, Prefix='users/user_admin/Star/', Delimiter='/')
+pages = paginator.paginate(Bucket=bucket, Prefix='users/user_admin/Corporativo/', Delimiter='/')
 
 direct_files = 0
 for page in pages:
     if 'Contents' in page:
         for obj in page['Contents']:
             key = obj['Key']
-            # Arquivo direto = nao tem / depois de Star/
-            if key.count('/') == 3:  # users/user_admin/Star/arquivo.mp4
+            # Arquivo direto = nao tem / depois de Corporativo/
+            if key.count('/') == 3:  # users/user_admin/Corporativo/arquivo.mp4
                 direct_files += 1
                 print(f"  {key}")
 
 print(f"\nTotal de arquivos diretos: {direct_files}")
 
 # Verificar subpastas
-print("\n2. Subpastas em users/user_admin/Star/:")
+print("\n2. Subpastas em users/user_admin/Corporativo/:")
 print("-" * 60)
-pages = paginator.paginate(Bucket=bucket, Prefix='users/user_admin/Star/', Delimiter='/')
+pages = paginator.paginate(Bucket=bucket, Prefix='users/user_admin/Corporativo/', Delimiter='/')
 
 subfolders = []
 for page in pages:
     if 'CommonPrefixes' in page:
         for prefix in page['CommonPrefixes']:
-            folder = prefix['Prefix'].replace('users/user_admin/Star/', '').rstrip('/')
+            folder = prefix['Prefix'].replace('users/user_admin/Corporativo/', '').rstrip('/')
             subfolders.append(folder)
 
 for folder in sorted(subfolders):

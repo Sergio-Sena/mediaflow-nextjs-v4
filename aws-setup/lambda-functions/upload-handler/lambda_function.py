@@ -183,10 +183,10 @@ def extract_user_id(event):
         token = auth_header.replace('Bearer ', '').strip()
         decoded = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
         user_id = decoded.get('user_id', 'anonymous')
-        print(f"User ID extraído: {user_id}")
+        print(f"User ID extracted: {user_id}")
         return user_id
     except Exception as e:
-        print(f"Erro JWT: {e}")
+        print(f"JWT Error: {e}")
         return 'anonymous'
 
 def cors_response(status_code, body):

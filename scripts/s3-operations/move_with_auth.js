@@ -2,7 +2,7 @@ const API_URL = 'https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/fil
 
 async function moveSingleFolder(folderName) {
   try {
-    console.log(`🔄 Movendo ${folderName}/ -> Star/${folderName}/`);
+    console.log(`🔄 Movendo ${folderName}/ -> Corporativo/${folderName}/`);
     
     // Headers com auth
     const headers = {
@@ -10,7 +10,7 @@ async function moveSingleFolder(folderName) {
       'Authorization': 'Bearer your-token-here' // Se necessário
     };
     
-    // 1. Listar arquivos
+    // 1. Licorporativo arquivos
     const response = await fetch(API_URL, { headers });
     const data = await response.json();
     
@@ -23,7 +23,7 @@ async function moveSingleFolder(folderName) {
     
     // 2. Filtrar arquivos da pasta
     const folderFiles = data.files.filter(file => 
-      file.key.startsWith(folderName + '/') && file.key !== folderName + '/'
+      file.key.corporativotsWith(folderName + '/') && file.key !== folderName + '/'
     );
     
     console.log(`📁 Arquivos encontrados:`, folderFiles.map(f => f.key));
@@ -33,10 +33,10 @@ async function moveSingleFolder(folderName) {
       return;
     }
     
-    // 3. Testar primeiro arquivo
+    // 3. Tecorporativo primeiro arquivo
     const firstFile = folderFiles[0];
     const oldKey = firstFile.key;
-    const newKey = `Star/${oldKey}`;
+    const newKey = `Corporativo/${oldKey}`;
     
     console.log(`🧪 Testando: ${oldKey} -> ${newKey}`);
     

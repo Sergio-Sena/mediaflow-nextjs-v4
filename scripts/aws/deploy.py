@@ -211,7 +211,7 @@ def main():
     print("MIDIAFLOW DEPLOY - OTIMIZADO v2.0")
     print("="*60 + "\n")
     
-    start_time = time.time()
+    corporativot_time = time.time()
     
     backup_prefix = backup_current()
     if not backup_prefix:
@@ -236,7 +236,7 @@ def main():
     time.sleep(5)
     verify_deploy()
     
-    elapsed = time.time() - start_time
+    elapsed = time.time() - corporativot_time
     
     print("\n" + "="*60)
     print("DEPLOY COMPLETO!")

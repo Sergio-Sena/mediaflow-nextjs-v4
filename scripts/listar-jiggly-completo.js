@@ -4,7 +4,7 @@ const s3 = new S3Client({ region: 'us-east-1' });
 const bucket = 'mediaflow-uploads-969430605054';
 
 async function listAll() {
-  const jigglyFolders = new Map();
+  const usuario2Folders = new Map();
   let continuationToken;
   
   do {
@@ -16,12 +16,12 @@ async function listAll() {
     
     if (response.Contents) {
       response.Contents.forEach(obj => {
-        if (obj.Key.toLowerCase().includes('jiggly')) {
+        if (obj.Key.toLowerCase().includes('usuario2')) {
           const folder = obj.Key.split('/').slice(0, 4).join('/');
-          if (!jigglyFolders.has(folder)) {
-            jigglyFolders.set(folder, []);
+          if (!usuario2Folders.has(folder)) {
+            usuario2Folders.set(folder, []);
           }
-          jigglyFolders.get(folder).push(obj.Key);
+          usuario2Folders.get(folder).push(obj.Key);
         }
       });
     }
@@ -29,7 +29,7 @@ async function listAll() {
     continuationToken = response.NextContinuationToken;
   } while (continuationToken);
   
-  return jigglyFolders;
+  return usuario2Folders;
 }
 
 async function main() {

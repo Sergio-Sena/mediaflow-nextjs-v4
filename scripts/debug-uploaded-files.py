@@ -3,13 +3,13 @@ import boto3
 
 s3 = boto3.client('s3', region_name='us-east-1')
 bucket = 'mediaflow-uploads-969430605054'
-prefix = 'users/user_admin/Star/'
+prefix = 'users/user_admin/Corporativo/'
 
 print("=" * 60)
 print("DEBUG: Arquivos enviados recentemente")
 print("=" * 60)
 
-# Listar arquivos das pastas enviadas
+# Licorporativo arquivos das pastas enviadas
 test_folders = ['Anasta_angel', 'arina fox', 'Lil Karina', 'litle dragon', 'Little Angel', 'MIRARI HUB']
 
 for folder in test_folders:

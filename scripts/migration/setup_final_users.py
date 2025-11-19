@@ -112,4 +112,4 @@ print("   2FA: [mesmo Google Authenticator]")
 print("   Acesso: users/sergio_sena/ apenas")
 
 print("\n[PROXIMO PASSO]")
-print("Testar login com os novos emails!")
+print("Tecorporativo login com os novos emails!")

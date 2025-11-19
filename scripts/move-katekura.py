@@ -3,8 +3,8 @@ import boto3
 s3 = boto3.client('s3', region_name='us-east-1')
 BUCKET = 'mediaflow-uploads-969430605054'
 
-source = 'users/anonymous/Star/kate_kuray/EPORNER.COM_-_Katekura....mp4'
-dest = 'users/user_admin/Star/Kate kuray/EPORNER.COM_-_Katekura....mp4'
+source = 'users/anonymous/Corporativo/kate_kuray/EPORNER.COM_-_Katekura....mp4'
+dest = 'users/user_admin/Corporativo/Kate kuray/EPORNER.COM_-_Katekura....mp4'
 
 # Copiar
 s3.copy_object(

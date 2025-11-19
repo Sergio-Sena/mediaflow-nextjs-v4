@@ -20,9 +20,19 @@ export class LargeFileUpload implements UploadStrategy {
     console.log('LargeFileUpload: Presigned URL com timeout estendido')
     
     try {
-      // Upload único para arquivos 50-200MB
-      const urlData = await mediaflowClient.getUploadUrl(filename, file.type, file.size)
-      if (!urlData.success) throw new Error(urlData.message)
+      // Usar Next.js API com CORS habilitado
+      const urlResponse = await fetch('/api/upload/presigned-url', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          filename: filename,
+          contentType: file.type,
+          fileSize: file.size
+        })
+      })
+
+      const urlData = await urlResponse.json()
+      if (!urlData.success) throw new Error(urlData.error || 'Falha ao obter URL')
       
       const result = await this.uploadWithExtendedTimeout(file, urlData.uploadUrl, onProgress)
       

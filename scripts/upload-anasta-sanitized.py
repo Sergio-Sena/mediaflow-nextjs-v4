@@ -31,11 +31,11 @@ def sanitize_filename(filename):
 def upload_with_sanitization():
     """Upload com sanitizacao de nomes"""
     try:
-        local_path = Path(r"C:\Users\dell 5557\Videos\IDM\Star\Anasta_angel")
+        local_path = Path(r"C:\Users\dell 5557\Videos\IDM\Corporativo\Anasta_angel")
         
         s3 = boto3.client('s3', region_name='us-east-1')
         bucket = 'mediaflow-uploads-969430605054'
-        prefix = 'users/user_admin/Star/Anasta_angel/'
+        prefix = 'users/user_admin/Corporativo/Anasta_angel/'
         
         print("Upload com sanitizacao de nomes")
         print("=" * 50)
@@ -48,7 +48,7 @@ def upload_with_sanitization():
             print("Erro: Pasta local nao encontrada!")
             return False
         
-        # Listar arquivos locais
+        # Licorporativo arquivos locais
         files_to_upload = []
         for file_path in local_path.rglob('*'):
             if file_path.is_file():

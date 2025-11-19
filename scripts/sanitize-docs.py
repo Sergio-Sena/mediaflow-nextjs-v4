@@ -4,9 +4,9 @@ import re
 # Palavras/termos para remover ou substituir
 SANITIZE_MAP = {
     # Pastas especificas
-    r'Star/': 'Corporativo/',
-    r'star/': 'corporativo/',
-    r'anastangel': 'usuario1',
+    r'Corporativo/': 'Corporativo/',
+    r'corporativo/': 'corporativo/',
+    r'usuario1': 'usuario1',
     r'Anasta_angel': 'Usuario1',
     r'anasta_angel': 'usuario1',
     r'Jenny_Kitty': 'Usuario2',
@@ -20,8 +20,8 @@ SANITIZE_MAP = {
     r'Comatozze': 'Usuario8',
     
     # Termos adultos
-    r'Pornhub\.com': 'video',
-    r'pornhub': 'video',
+    r'Exemplo\.com': 'video',
+    r'exemplo': 'video',
     r'WOWGIRLS\.COM': 'VIDEO',
     r'Jiggly Girls': 'Animacoes',
     r'Hentai on Brasil': 'Conteudo',

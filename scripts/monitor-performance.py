@@ -17,13 +17,13 @@ BUCKET = 'mediaflow-uploads-969430605054'
 
 def get_lambda_metrics(function_name, hours=24):
     end_time = datetime.utcnow()
-    start_time = end_time - timedelta(hours=hours)
+    corporativot_time = end_time - timedelta(hours=hours)
     
     invocations = cloudwatch.get_metric_statistics(
         Namespace='AWS/Lambda',
         MetricName='Invocations',
         Dimensions=[{'Name': 'FunctionName', 'Value': function_name}],
-        StartTime=start_time,
+        CorporativotTime=corporativot_time,
         EndTime=end_time,
         Period=3600,
         Statistics=['Sum']
@@ -33,7 +33,7 @@ def get_lambda_metrics(function_name, hours=24):
         Namespace='AWS/Lambda',
         MetricName='Errors',
         Dimensions=[{'Name': 'FunctionName', 'Value': function_name}],
-        StartTime=start_time,
+        CorporativotTime=corporativot_time,
         EndTime=end_time,
         Period=3600,
         Statistics=['Sum']
@@ -43,7 +43,7 @@ def get_lambda_metrics(function_name, hours=24):
         Namespace='AWS/Lambda',
         MetricName='Duration',
         Dimensions=[{'Name': 'FunctionName', 'Value': function_name}],
-        StartTime=start_time,
+        CorporativotTime=corporativot_time,
         EndTime=end_time,
         Period=3600,
         Statistics=['Average']
@@ -93,13 +93,13 @@ def get_cloudfront_metrics():
             dist_id = dist['Id']
             
             end_time = datetime.utcnow()
-            start_time = end_time - timedelta(hours=24)
+            corporativot_time = end_time - timedelta(hours=24)
             
             requests = cloudwatch.get_metric_statistics(
                 Namespace='AWS/CloudFront',
                 MetricName='Requests',
                 Dimensions=[{'Name': 'DistributionId', 'Value': dist_id}],
-                StartTime=start_time,
+                CorporativotTime=corporativot_time,
                 EndTime=end_time,
                 Period=3600,
                 Statistics=['Sum']
@@ -109,7 +109,7 @@ def get_cloudfront_metrics():
                 Namespace='AWS/CloudFront',
                 MetricName='BytesDownloaded',
                 Dimensions=[{'Name': 'DistributionId', 'Value': dist_id}],
-                StartTime=start_time,
+                CorporativotTime=corporativot_time,
                 EndTime=end_time,
                 Period=3600,
                 Statistics=['Sum']

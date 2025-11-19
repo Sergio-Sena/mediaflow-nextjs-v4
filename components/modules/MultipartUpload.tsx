@@ -18,7 +18,7 @@ export default function MultipartUpload({ file, destination = '', onComplete, on
   const [uploadId, setUploadId] = useState<string | null>(null)
   const [key, setKey] = useState<string | null>(null)
 
-  const CHUNK_SIZE = 50 * 1024 * 1024 // 50MB
+  const CHUNK_SIZE = 50 * 1024 * 1024
   const API_URL = 'https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod'
 
   const uploadChunk = async (
@@ -30,7 +30,6 @@ export default function MultipartUpload({ file, destination = '', onComplete, on
   ): Promise<{ PartNumber: number; ETag: string }> => {
     for (let i = 0; i < retries; i++) {
       try {
-        // Obter presigned URL
         const token = localStorage.getItem('token')
         const partResponse = await fetch(`${API_URL}/multipart/part`, {
           method: 'POST',
@@ -41,9 +40,10 @@ export default function MultipartUpload({ file, destination = '', onComplete, on
           body: JSON.stringify({ key, uploadId, partNumber })
         })
 
+        if (!partResponse.ok) throw new Error(`Part URL failed: ${partResponse.status}`)
+        
         const { uploadUrl } = await partResponse.json()
 
-        // Upload do chunk
         const uploadResponse = await fetch(uploadUrl, {
           method: 'PUT',
           body: chunk
@@ -68,19 +68,15 @@ export default function MultipartUpload({ file, destination = '', onComplete, on
       const token = localStorage.getItem('token')
       const chunks = Math.ceil(file.size / CHUNK_SIZE)
 
-      console.log(`🚀 Iniciando multipart upload: ${file.name} (${(file.size / (1024 * 1024)).toFixed(2)} MB, ${chunks} chunks)`)
+      console.log(`🚀 Iniciando multipart upload: ${file.name}`)
 
-      // 1. Iniciar multipart
-      console.log('📡 Chamando /multipart/init...')
-      
-      // Processar filename com destino
       let filename = (file as any).webkitRelativePath || file.name
       if (destination) {
-        // Manter estrutura completa da pasta selecionada
         filename = destination + filename
       }
       
-      console.log(`📝 Filename final: ${filename}`)
+      console.log(`📝 Filename: ${filename}`)
+      console.log('📡 Chamando /multipart/init...')
       
       const initResponse = await fetch(`${API_URL}/multipart/init`, {
         method: 'POST',
@@ -94,11 +90,20 @@ export default function MultipartUpload({ file, destination = '', onComplete, on
         })
       })
 
-      const { uploadId: newUploadId, key: newKey } = await initResponse.json()
+      console.log(`Init status: ${initResponse.status}`)
+      
+      if (!initResponse.ok) {
+        const errText = await initResponse.text()
+        throw new Error(`Init failed: ${initResponse.status} - ${errText}`)
+      }
+
+      const initData = await initResponse.json()
+      console.log('Init OK:', initData)
+      
+      const { uploadId: newUploadId, key: newKey } = initData
       setUploadId(newUploadId)
       setKey(newKey)
 
-      // 2. Upload chunks em paralelo (4 simultâneos)
       const parts: { PartNumber: number; ETag: string }[] = []
       
       for (let i = 0; i < chunks; i += 4) {
@@ -116,11 +121,9 @@ export default function MultipartUpload({ file, destination = '', onComplete, on
         const batchResults = await Promise.all(batch)
         parts.push(...batchResults)
 
-        // Atualizar progress
         setProgress(Math.round((parts.length / chunks) * 100))
       }
 
-      // 3. Completar upload
       await fetch(`${API_URL}/multipart/complete`, {
         method: 'POST',
         headers: {
@@ -138,6 +141,7 @@ export default function MultipartUpload({ file, destination = '', onComplete, on
       setProgress(100)
       onComplete(newKey)
     } catch (err) {
+      console.error('Upload error:', err)
       setStatus('error')
       setError(err instanceof Error ? err.message : 'Upload failed')
     }
@@ -162,7 +166,6 @@ export default function MultipartUpload({ file, destination = '', onComplete, on
     onCancel()
   }
 
-  // Auto-start if enabled
   useEffect(() => {
     if (autoStart) {
       startUpload()
@@ -195,7 +198,6 @@ export default function MultipartUpload({ file, destination = '', onComplete, on
         )}
       </div>
 
-      {/* Progress Bar */}
       <div className="mb-2">
         <div className="w-full bg-gray-700 rounded-full h-2">
           <div
@@ -209,7 +211,6 @@ export default function MultipartUpload({ file, destination = '', onComplete, on
         </div>
       </div>
 
-      {/* Status */}
       <div className="flex justify-between items-center text-sm">
         <span className="text-gray-400">
           {status === 'uploading' && `Enviando... ${progress}%`}

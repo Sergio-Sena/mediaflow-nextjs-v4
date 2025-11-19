@@ -40,15 +40,15 @@ for page in pages:
                 parts = []
                 part_num = 1
                 
-                for start in range(0, size, part_size):
-                    end = min(start + part_size - 1, size - 1)
+                for corporativot in range(0, size, part_size):
+                    end = min(corporativot + part_size - 1, size - 1)
                     part = s3.upload_part_copy(
                         Bucket=bucket,
                         Key=dest_key,
                         CopySource={'Bucket': bucket, 'Key': source_key},
                         PartNumber=part_num,
                         UploadId=mpu['UploadId'],
-                        CopySourceRange=f'bytes={start}-{end}'
+                        CopySourceRange=f'bytes={corporativot}-{end}'
                     )
                     parts.append({'PartNumber': part_num, 'ETag': part['CopyPartResult']['ETag']})
                     part_num += 1

@@ -37,7 +37,7 @@ mediaflow-uploads-969430605054/
 └── users/                      # Arquivos dos usuarios
     ├── user_admin/             # 964 arquivos
     │   ├── Anime/
-    │   ├── Star/
+    │   ├── Corporativo/
     │   ├── Documentos/
     │   ├── Fotos/
     │   ├── Seart/
@@ -72,7 +72,7 @@ Status: PASSOU
 ```
 
 ### Proximos Passos
-1. Testar upload multipart real (>100MB)
+1. Tecorporativo upload multipart real (>100MB)
 2. Verificar se estrutura de pastas e preservada
 3. Confirmar conversao H.264 funciona
 

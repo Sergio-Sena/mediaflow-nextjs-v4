@@ -10,7 +10,7 @@ async function deleteTruncated() {
   do {
     const response = await s3.send(new ListObjectsV2Command({
       Bucket: bucket,
-      Prefix: 'users/user_admin/Anime/NSFW2.1/',
+      Prefix: 'users/user_admin/Anime/Conteudo2.1/',
       ContinuationToken: continuationToken
     }));
     

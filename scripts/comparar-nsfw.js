@@ -4,7 +4,7 @@ const path = require('path');
 
 const s3 = new S3Client({ region: 'us-east-1' });
 const bucket = 'mediaflow-uploads-969430605054';
-const localPath = 'C:\\Users\\dell 5557\\Videos\\IDM\\Anime\\NSFW2.1';
+const localPath = 'C:\\Users\\dell 5557\\Videos\\IDM\\Anime\\Conteudo2.1';
 
 async function getS3Files() {
   const files = new Set();
@@ -13,7 +13,7 @@ async function getS3Files() {
   do {
     const response = await s3.send(new ListObjectsV2Command({
       Bucket: bucket,
-      Prefix: 'users/user_admin/Anime/NSFW2.1/',
+      Prefix: 'users/user_admin/Anime/Conteudo2.1/',
       ContinuationToken: continuationToken
     }));
     
@@ -52,7 +52,7 @@ function getLocalFiles(dir) {
 }
 
 async function main() {
-  console.log('🔍 Comparando NSFW2.1...\n');
+  console.log('🔍 Comparando Conteudo2.1...\n');
   
   const s3Files = await getS3Files();
   const localFiles = getLocalFiles(localPath);

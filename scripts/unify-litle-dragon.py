@@ -7,9 +7,9 @@ bucket = 'mediaflow-uploads-969430605054'
 print("Unificando litle_dragon -> litle dragon")
 print("=" * 60)
 
-# Listar arquivos em litle_dragon
+# Licorporativo arquivos em litle_dragon
 paginator = s3.get_paginator('list_objects_v2')
-pages = paginator.paginate(Bucket=bucket, Prefix='users/user_admin/Star/litle_dragon/')
+pages = paginator.paginate(Bucket=bucket, Prefix='users/user_admin/Corporativo/litle_dragon/')
 
 moved = 0
 for page in pages:

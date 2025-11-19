@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Verificar se arquivos faltantes estao na pasta Star
+Verificar se arquivos faltantes estao na pasta Corporativo
 """
 
 import os
@@ -35,20 +35,20 @@ def get_files_from_folder(folder_path):
     return files
 
 def main():
-    print("Verificando se arquivos faltantes estao na pasta Star")
+    print("Verificando se arquivos faltantes estao na pasta Corporativo")
     print("=" * 60)
     
     # Pastas
     idm_path = r"C:\Users\dell 5557\Videos\IDM"
-    star_path = r"C:\Users\dell 5557\Videos\IDM\Star"
+    corporativo_path = r"C:\Users\dell 5557\Videos\IDM\Corporativo"
     
     # Obter arquivos
-    print("Carregando arquivos IDM (exceto Star)...")
+    print("Carregando arquivos IDM (exceto Corporativo)...")
     idm_files = []
     
     for dirpath, dirnames, filenames in os.walk(idm_path):
-        # Pular pasta Star
-        if "Star" in dirpath:
+        # Pular pasta Corporativo
+        if "Corporativo" in dirpath:
             continue
             
         for filename in filenames:
@@ -69,48 +69,48 @@ def main():
                 except:
                     continue
     
-    print("Carregando arquivos da pasta Star...")
-    star_files = get_files_from_folder(star_path)
+    print("Carregando arquivos da pasta Corporativo...")
+    corporativo_files = get_files_from_folder(corporativo_path)
     
-    print(f"Arquivos IDM (sem Star): {len(idm_files)}")
-    print(f"Arquivos Star: {len(star_files)}")
+    print(f"Arquivos IDM (sem Corporativo): {len(idm_files)}")
+    print(f"Arquivos Corporativo: {len(corporativo_files)}")
     print()
     
     # Criar indices
-    star_normalized = {f['normalized'] for f in star_files}
+    corporativo_normalized = {f['normalized'] for f in corporativo_files}
     idm_normalized = {f['normalized'] for f in idm_files}
     
     # Verificar sobreposicao
-    overlap = idm_normalized.intersection(star_normalized)
-    only_idm = idm_normalized - star_normalized
-    only_star = star_normalized - idm_normalized
+    overlap = idm_normalized.intersection(corporativo_normalized)
+    only_idm = idm_normalized - corporativo_normalized
+    only_corporativo = corporativo_normalized - idm_normalized
     
     print("ANALISE DE SOBREPOSICAO:")
     print("-" * 40)
     print(f"Arquivos em ambas as pastas: {len(overlap)}")
-    print(f"Apenas em IDM (sem Star): {len(only_idm)}")
-    print(f"Apenas em Star: {len(only_star)}")
+    print(f"Apenas em IDM (sem Corporativo): {len(only_idm)}")
+    print(f"Apenas em Corporativo: {len(only_corporativo)}")
     print()
     
-    # Mostrar arquivos apenas em Star (candidatos para upload)
-    if only_star:
+    # Mostrar arquivos apenas em Corporativo (candidatos para upload)
+    if only_corporativo:
         print("ARQUIVOS APENAS EM STAR (CANDIDATOS PARA UPLOAD):")
         print("-" * 50)
         
         # Agrupar por pasta
-        star_by_folder = defaultdict(list)
-        for file in star_files:
-            if file['normalized'] in only_star:
+        corporativo_by_folder = defaultdict(list)
+        for file in corporativo_files:
+            if file['normalized'] in only_corporativo:
                 folder = os.path.dirname(file['path'])
                 if not folder:
                     folder = 'root'
-                star_by_folder[folder].append(file)
+                corporativo_by_folder[folder].append(file)
         
         total_size = 0
         total_count = 0
         
-        for folder, files in star_by_folder.items():
-            print(f"\nPasta Star/{folder} ({len(files)} arquivos)")
+        for folder, files in corporativo_by_folder.items():
+            print(f"\nPasta Corporativo/{folder} ({len(files)} arquivos)")
             folder_size = 0
             
             for file in files:
@@ -131,12 +131,12 @@ def main():
     # Resumo final
     print(f"\nRESUMO:")
     print(f"IDM tem {len(idm_files)} arquivos unicos")
-    print(f"Star tem {len(star_files)} arquivos ({len(only_star)} exclusivos)")
+    print(f"Corporativo tem {len(corporativo_files)} arquivos ({len(only_corporativo)} exclusivos)")
     print(f"Sobreposicao: {len(overlap)} arquivos")
     
-    if len(only_star) > 0:
+    if len(only_corporativo) > 0:
         print(f"\nRECOMENDACAO:")
-        print(f"Fazer upload dos {len(only_star)} arquivos exclusivos da pasta Star")
+        print(f"Fazer upload dos {len(only_corporativo)} arquivos exclusivos da pasta Corporativo")
         print(f"para completar a colecao do sergio_sena")
 
 if __name__ == "__main__":

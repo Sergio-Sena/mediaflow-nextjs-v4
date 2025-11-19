@@ -2,19 +2,19 @@ const API_URL = 'https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/fil
 
 async function moveSingleFolder(folderName) {
   try {
-    console.log(`🔄 Movendo ${folderName}/ -> Star/${folderName}/`);
+    console.log(`🔄 Movendo ${folderName}/ -> Corporativo/${folderName}/`);
     
-    // 1. Listar arquivos
+    // 1. Licorporativo arquivos
     const response = await fetch(API_URL);
     const data = await response.json();
     
     if (!data.success) {
-      throw new Error('Erro ao listar arquivos');
+      throw new Error('Erro ao licorporativo arquivos');
     }
     
     // 2. Filtrar arquivos da pasta
     const folderFiles = data.files.filter(file => 
-      file.key.startsWith(folderName + '/') && file.key !== folderName + '/'
+      file.key.corporativotsWith(folderName + '/') && file.key !== folderName + '/'
     );
     
     console.log(`📁 Encontrados ${folderFiles.length} arquivos`);
@@ -28,7 +28,7 @@ async function moveSingleFolder(folderName) {
     let moved = 0;
     for (const file of folderFiles) {
       const oldKey = file.key;
-      const newKey = `Star/${oldKey}`;
+      const newKey = `Corporativo/${oldKey}`;
       
       try {
         // Copy

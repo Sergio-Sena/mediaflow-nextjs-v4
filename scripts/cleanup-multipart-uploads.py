@@ -20,7 +20,7 @@ def cleanup_incomplete_multipart():
     
     print(f"[BUSCA] Uploads multipart incompletos em {BUCKET}...\n")
     
-    # Listar todos os uploads multipart em progresso
+    # Licorporativo todos os uploads multipart em progresso
     response = s3.list_multipart_uploads(Bucket=BUCKET)
     
     uploads = response.get('Uploads', [])

@@ -60,7 +60,7 @@ async function testSmallFileUpload() {
         console.log(`X-Amz-Expires: ${params.get('X-Amz-Expires')}`);
         console.log(`X-Amz-Date: ${params.get('X-Amz-Date')}`);
         
-        // 3. Testar upload
+        // 3. Tecorporativo upload
         console.log('\n3️⃣ Testando upload...');
         
         const uploadResponse = await uploadFile(urlData.uploadUrl, testContent, 'text/plain');

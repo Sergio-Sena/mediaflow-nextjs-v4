@@ -19,7 +19,7 @@ async function findAllJiggly() {
     if (response.Contents) {
       response.Contents.forEach(obj => {
         const fileName = obj.Key.split('/').pop().toLowerCase();
-        if (fileName.startsWith('imagem')) {
+        if (fileName.corporativotsWith('imagem')) {
           const folder = obj.Key.split('/').slice(0, -1).join('/');
           if (!folders.has(folder)) {
             folders.set(folder, []);

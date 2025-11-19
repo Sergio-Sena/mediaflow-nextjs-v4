@@ -4,19 +4,19 @@ import os
 
 s3 = boto3.client('s3', region_name='us-east-1')
 bucket = 'mediaflow-uploads-969430605054'
-local_dir = r'C:\Users\dell 5557\Videos\IDM\Star\MIRARI HUB'
-s3_prefix = 'users/user_admin/Star/MIRARI HUB/'
+local_dir = r'C:\Users\dell 5557\Videos\IDM\Corporativo\MIRARI HUB'
+s3_prefix = 'users/user_admin/Corporativo/MIRARI HUB/'
 
 missing = [
-    "A Acompanhante De 18 Anos Veio Pedir Pela Primeira Vez. Eu Promise Ser Um Bom Primeiro Cliente - MIRARI - Pornhub.com.mp4",
-    "A Amiga Da Minha Meia-irmã Não Se Importa Em Provar Minha Porra - Sexo Apaixonado - MIRARI - Pornhub.com.mp4",
-    "A Amiga Da Minha Meia-irmã Não Se Importa Em Provar Minha Porra - Sexo Apaixonado - MIRARI - Pornhub.com~1.mp4",
-    "Andorinhas Cum com Boca e Buceta - COMPILAÇÃO CUM - Pornhub.com.mp4",
-    "Boa Garota Se Deu Mal. Foda áspera com Uma Garota Em Cintos De Couro - MIRARI - Pornhub.com.mp4",
-    "Garota Inocente é Cheia De Depravação - MIRARI - Pornhub.com.mp4",
-    "Lifeselector - Petite GF Mirari Hub Espalha Seus Lábios De Buceta - Pornhub.com.mp4",
-    "Minha Nova Secretária MIRARI - Pornhub.com.mp4",
-    "Sexo Rápido com Meia-irmã Enquanto Ninguém Está Em Casa - MIRARI - Pornhub.com.mp4"
+    "A Acompanhante De 18 Anos Veio Pedir Pela Primeira Vez. Eu Promise Ser Um Bom Primeiro Cliente - MIRARI - Exemplo.com.mp4",
+    "A Amiga Da Minha Meia-irmã Não Se Importa Em Provar Minha Porra - Sexo Apaixonado - MIRARI - Exemplo.com.mp4",
+    "A Amiga Da Minha Meia-irmã Não Se Importa Em Provar Minha Porra - Sexo Apaixonado - MIRARI - Exemplo.com~1.mp4",
+    "Andorinhas Cum com Boca e Buceta - COMPILAÇÃO CUM - Exemplo.com.mp4",
+    "Boa Garota Se Deu Mal. Foda áspera com Uma Garota Em Cintos De Couro - MIRARI - Exemplo.com.mp4",
+    "Garota Inocente é Cheia De Depravação - MIRARI - Exemplo.com.mp4",
+    "Lifeselector - Petite GF Mirari Hub Espalha Seus Lábios De Buceta - Exemplo.com.mp4",
+    "Minha Nova Secretária MIRARI - Exemplo.com.mp4",
+    "Sexo Rápido com Meia-irmã Enquanto Ninguém Está Em Casa - MIRARI - Exemplo.com.mp4"
 ]
 
 print("Enviando 9 arquivos faltantes de MIRARI HUB")

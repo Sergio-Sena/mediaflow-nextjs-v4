@@ -4,7 +4,7 @@ from pathlib import Path
 
 s3 = boto3.client('s3')
 BUCKET = 'mediaflow-uploads-969430605054'
-LOCAL_PATH = r'C:\Users\dell 5557\Videos\IDM\Star'
+LOCAL_PATH = r'C:\Users\dell 5557\Videos\IDM\Corporativo'
 
 def upload_folder():
     print(f"Escaneando: {LOCAL_PATH}\n")
@@ -14,7 +14,7 @@ def upload_folder():
         for filename in filenames:
             local_file = os.path.join(root, filename)
             rel_path = os.path.relpath(local_file, LOCAL_PATH)
-            s3_key = f"users/user_admin/Star/{rel_path}".replace('\\', '/')
+            s3_key = f"users/user_admin/Corporativo/{rel_path}".replace('\\', '/')
             files.append((local_file, s3_key))
     
     print(f"Total: {len(files)} arquivos\n")

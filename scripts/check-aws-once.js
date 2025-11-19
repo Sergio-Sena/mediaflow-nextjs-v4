@@ -24,7 +24,7 @@ const req = https.request(API_URL, options, (res) => {
   if (res.statusCode === 200 || res.statusCode === 401) {
     console.log('✅ AWS NORMALIZADA!');
     console.log('🎉 Lambda funcionando!');
-    console.log('📝 Pode testar produção agora.\n');
+    console.log('📝 Pode tecorporativo produção agora.\n');
   } else if (res.statusCode === 500) {
     console.log('🔴 AWS ainda com problema (500)');
     console.log('⏳ Aguarde mais um pouco.\n');

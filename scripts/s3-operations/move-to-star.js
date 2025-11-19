@@ -11,7 +11,7 @@ const BUCKET_UPLOADS = 'mediaflow-uploads-969430605054';
 const BUCKET_PROCESSED = 'mediaflow-processed-969430605054';
 
 // Pastas que NÃO devem ser movidas (case insensitive)
-const EXCLUDED_FOLDERS = ['anime', 'Anime', 'Raiz', 'captures', 'Captures', 'seart', 'Seart', 'video', 'Video', 'Star'];
+const EXCLUDED_FOLDERS = ['anime', 'Anime', 'Raiz', 'captures', 'Captures', 'seart', 'Seart', 'video', 'Video', 'Corporativo'];
 
 async function listAllFiles(bucket) {
   const files = [];
@@ -47,8 +47,8 @@ async function deleteFile(bucket, key) {
   console.log(`🗑️ Deletado: ${key}`);
 }
 
-async function moveFilesToStar() {
-  console.log('🚀 Iniciando movimentação para pasta Star...\n');
+async function moveFilesToCorporativo() {
+  console.log('🚀 Iniciando movimentação para pasta Corporativo...\n');
   
   // Processar ambos os buckets
   for (const bucket of [BUCKET_UPLOADS, BUCKET_PROCESSED]) {
@@ -76,8 +76,8 @@ async function moveFilesToStar() {
         continue;
       }
       
-      // Criar novo caminho dentro de Star
-      const newKey = `Star/${key}`;
+      // Criar novo caminho dentro de Corporativo
+      const newKey = `Corporativo/${key}`;
       
       try {
         // Copiar arquivo
@@ -98,4 +98,4 @@ async function moveFilesToStar() {
 }
 
 // Executar
-moveFilesToStar().catch(console.error);
+moveFilesToCorporativo().catch(console.error);

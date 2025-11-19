@@ -1,5 +1,5 @@
 """
-Script para ajustar permissoes:
+Script para ajucorporativo permissoes:
 - Users comuns veem apenas users/user_admin/
 - Sergio Sena (media_owner) ve tudo
 """

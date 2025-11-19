@@ -9,7 +9,7 @@ async function testUploadStatus() {
     console.log('=' * 40);
     
     try {
-        // Testar geração de URL presigned
+        // Tecorporativo geração de URL presigned
         const response = await makeRequest('POST', '/upload/presigned', {
             filename: 'test_status_check.txt',
             contentType: 'text/plain',

@@ -37,11 +37,11 @@ const testCases = [
     expected: "users/user_admin/Anime/Temporada1/ep01.mp4"
   },
   {
-    description: "Pasta local Star/Anime COM destino Admin (C:\\Videos\\Star\\Anime)",
-    webkitRelativePath: "Star/Anime/video.mp4",
+    description: "Pasta local Corporativo/Anime COM destino Admin (C:\\Videos\\Corporativo\\Anime)",
+    webkitRelativePath: "Corporativo/Anime/video.mp4",
     filename: "video.mp4",
     destination: "users/user_admin/",
-    expected: "users/user_admin/Star/Anime/video.mp4"
+    expected: "users/user_admin/Corporativo/Anime/video.mp4"
   },
   {
     description: "Pasta local IDM/Anime COM destino Admin (C:\\Videos\\IDM\\Anime)",

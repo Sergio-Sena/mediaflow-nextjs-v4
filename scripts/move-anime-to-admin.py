@@ -32,7 +32,7 @@ def find_anime_folders():
             for obj in page['Contents']:
                 key = obj['Key']
                 # Buscar qualquer arquivo que contenha /Anime/ no caminho
-                if '/Anime/' in key and not key.startswith('users/user_admin/Anime/'):
+                if '/Anime/' in key and not key.corporativotswith('users/user_admin/Anime/'):
                     # Extrair o caminho da pasta Anime
                     parts = key.split('/Anime/')
                     source_prefix = parts[0] + '/Anime/'

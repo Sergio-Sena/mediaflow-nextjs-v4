@@ -6,10 +6,10 @@ BUCKET = 'mediaflow-uploads-969430605054'
 
 # Arquivos para deletar
 DELETE_FILES = [
-    'users/user_admin/Star/Captures/V_deo_de_show_musical_na_cidade.mp4',
+    'users/user_admin/Corporativo/Captures/V_deo_de_show_musical_na_cidade.mp4',
     'users/user_admin/Video/SergioSenaTeste.mp4',
     'users/user_admin/Anime/Street_Fighter/....mp4',
-    'users/user_admin/Star/angelica/WOWGIRLS.COM_Two_horny_h....mp4',
+    'users/user_admin/Corporativo/angelica/WOWGIRLS.COM_Two_horny_h....mp4',
     'users/user_admin/Anime/Jiggly Girls [Hentai on Brasil]/Imagem (3).jpg',
     'users/user_admin/Anime/Jiggly Girls [Hentai on Brasil]/Imagem (4).jpg',
     'users/user_admin/Anime/Jiggly Girls [Hentai on Brasil]/Imagem (5).jpg',

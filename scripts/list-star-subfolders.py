@@ -3,7 +3,7 @@ import boto3
 
 s3 = boto3.client('s3', region_name='us-east-1')
 bucket = 'mediaflow-uploads-969430605054'
-prefix = 'users/user_admin/Star/'
+prefix = 'users/user_admin/Corporativo/'
 
 print(f"Listando subpastas em {prefix}")
 print("=" * 60)

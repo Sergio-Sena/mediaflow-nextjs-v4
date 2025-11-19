@@ -6,7 +6,7 @@ client = boto3.client('apigateway', region_name='us-east-1')
 # API Gateway ID (extraído da URL)
 api_id = 'gdb962d234'
 
-# Listar recursos
+# Licorporativo recursos
 resources = client.get_resources(restApiId=api_id)
 
 print("Recursos encontrados:")

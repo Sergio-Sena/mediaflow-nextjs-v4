@@ -19,7 +19,7 @@ async function searchDeep() {
         const parts = obj.Key.split('/');
         for (let i = 0; i < parts.length - 1; i++) {
           const folder = parts.slice(0, i + 1).join('/');
-          if (folder.toLowerCase().includes('jiggly')) {
+          if (folder.toLowerCase().includes('usuario2')) {
             folders.add(folder);
           }
         }

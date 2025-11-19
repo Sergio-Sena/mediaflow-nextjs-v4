@@ -74,8 +74,8 @@ def main():
         print("\nMudancas:")
         print("- Corrigida duplicacao do prefixo users/ no path")
         print("- Lambda agora verifica se filename ja tem prefixo users/")
-        print("- Path correto: users/user_admin/Star/arquivo.mp4")
-        print("- Sem duplicacao: users/user_admin/users/user_admin/Star/arquivo.mp4")
+        print("- Path correto: users/user_admin/Corporativo/arquivo.mp4")
+        print("- Sem duplicacao: users/user_admin/users/user_admin/Corporativo/arquivo.mp4")
     else:
         print("\nErro: Falha no deploy!")
         sys.exit(1)

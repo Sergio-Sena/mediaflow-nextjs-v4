@@ -5,7 +5,7 @@ import re
 
 s3 = boto3.client('s3', region_name='us-east-1')
 bucket = 'mediaflow-uploads-969430605054'
-prefix = 'users/user_admin/Star/'
+prefix = 'users/user_admin/Corporativo/'
 
 def sanitize_filename(filename):
     # Remover acentos

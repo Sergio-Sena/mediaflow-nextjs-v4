@@ -33,7 +33,7 @@ def check_sergio_files():
                 print("Nenhum arquivo encontrado")
                 
         except Exception as e:
-            print(f"Erro ao listar arquivos: {str(e)}")
+            print(f"Erro ao licorporativo arquivos: {str(e)}")
 
 if __name__ == "__main__":
     check_sergio_files()

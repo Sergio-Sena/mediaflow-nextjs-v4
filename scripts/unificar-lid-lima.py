@@ -18,7 +18,7 @@ BUCKET = 'mediaflow-uploads-969430605054'
 
 print("=== UNIFICANDO LID LIMA ===\n")
 
-# Listar arquivos de lid-lima
+# Licorporativo arquivos de lid-lima
 resp = s3.list_objects_v2(Bucket=BUCKET, Prefix='users/lid-lima/')
 
 if 'Contents' not in resp:

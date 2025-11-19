@@ -11,7 +11,7 @@ bucket = 'mediaflow-uploads-969430605054'
 print("Arvore de pastas no S3:")
 print("=" * 60)
 
-# Listar pastas no nivel raiz
+# Licorporativo pastas no nivel raiz
 paginator = s3.get_paginator('list_objects_v2')
 pages = paginator.paginate(Bucket=bucket, Delimiter='/')
 

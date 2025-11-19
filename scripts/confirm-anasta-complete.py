@@ -23,11 +23,11 @@ def sanitize_filename(filename):
 def confirm_upload():
     """Confirmar upload completo"""
     try:
-        local_path = Path(r"C:\Users\dell 5557\Videos\IDM\Star\Anasta_angel")
+        local_path = Path(r"C:\Users\dell 5557\Videos\IDM\Corporativo\Anasta_angel")
         
         s3 = boto3.client('s3', region_name='us-east-1')
         bucket = 'mediaflow-uploads-969430605054'
-        prefix = 'users/user_admin/Star/Anasta_angel/'
+        prefix = 'users/user_admin/Corporativo/Anasta_angel/'
         
         print("Confirmando upload completo...")
         print("=" * 50)

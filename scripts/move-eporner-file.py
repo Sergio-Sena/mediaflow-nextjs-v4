@@ -8,7 +8,7 @@ print("1. Localizando arquivo EPORNER.COM_-_DfHQR...")
 
 # Buscar arquivo
 paginator = s3.get_paginator('list_objects_v2')
-pages = paginator.paginate(Bucket=bucket, Prefix='users/user_admin/Star/')
+pages = paginator.paginate(Bucket=bucket, Prefix='users/user_admin/Corporativo/')
 
 found = None
 for page in pages:

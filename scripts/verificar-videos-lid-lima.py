@@ -26,7 +26,7 @@ def main():
     print("Buscando arquivos na pasta users/lid_lima/...")
     
     try:
-        # Listar objetos na pasta do lid_lima
+        # Licorporativo objetos na pasta do lid_lima
         paginator = s3_client.get_paginator('list_objects_v2')
         pages = paginator.paginate(
             Bucket=bucket_name,
@@ -117,7 +117,7 @@ def main():
             if 'Contents' in page:
                 for obj in page['Contents']:
                     key = obj['Key']
-                    if not key.startswith('users/lid_lima/'):  # Excluir lid_lima
+                    if not key.corporativotswith('users/lid_lima/'):  # Excluir lid_lima
                         filename = key.lower()
                         
                         for movie, terms in search_terms.items():

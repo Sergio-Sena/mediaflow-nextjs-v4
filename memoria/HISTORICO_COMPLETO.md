@@ -42,8 +42,8 @@
 - Performance 10x (carregamento <1s)
 - URL assinada no player
 - 2FA bypass localhost
-- Sanitizacao S3 (26 arquivos corrigidos)
-- Upload Corporativo/ (111 arquivos, 30+ GB)
+- Limpeza S3 (26 arquivos organizados)
+- Upload de conteúdo empresarial (111 arquivos, 30+ GB)
 
 ### v4.8: Sistema de Aprovacao
 **Data**: 27/01/2025  

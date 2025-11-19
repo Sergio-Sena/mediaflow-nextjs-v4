@@ -49,7 +49,7 @@ except Exception as e:
     print(f"[ERRO] {e}")
     exit(1)
 
-# Listar arquivos origem e destino
+# Licorporativo arquivos origem e destino
 print("\n[2/3] Verificando arquivos...")
 
 print("Listando arquivos de origem (user_admin)...")
@@ -119,13 +119,13 @@ for i, old_key in enumerate(faltantes_list, 1):
                 part_size = 100 * 1024**2
                 part_num = 1
                 
-                for start in range(0, size, part_size):
-                    end = min(start + part_size - 1, size - 1)
+                for corporativot in range(0, size, part_size):
+                    end = min(corporativot + part_size - 1, size - 1)
                     part = s3.upload_part_copy(
                         Bucket=bucket,
                         Key=new_key,
                         CopySource={'Bucket': bucket, 'Key': old_key},
-                        CopySourceRange=f'bytes={start}-{end}',
+                        CopySourceRange=f'bytes={corporativot}-{end}',
                         PartNumber=part_num,
                         UploadId=upload_id
                     )

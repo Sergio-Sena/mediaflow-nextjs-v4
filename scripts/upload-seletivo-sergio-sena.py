@@ -11,26 +11,26 @@ def get_missing_files():
     """Lista dos 23 arquivos faltantes identificados"""
     missing_files = [
         # Aidra Fox (6 arquivos)
-        "Aidra Fox/NubileFilms - Intensamente Ardente Trindade Sexual - Pornhub.com.mp4",
-        "Aidra Fox/TUSHY - Primeira Dupla Penetração De Riley Reid - Pornhub.com.mp4", 
-        "Aidra Fox/Tushy Sendo Reiley Capitulo 2 - Pornhub.com.mp4",
-        "Aidra Fox/VIXEN Eu Fiquei Pelada Para o Meu Meio-Irmão e Ele Não Resistiu - Pornhub.com.mp4",
+        "Aidra Fox/NubileFilms - Intensamente Ardente Trindade Sexual - Exemplo.com.mp4",
+        "Aidra Fox/TUSHY - Primeira Dupla Penetração De Riley Reid - Exemplo.com.mp4", 
+        "Aidra Fox/Tushy Sendo Reiley Capitulo 2 - Exemplo.com.mp4",
+        "Aidra Fox/VIXEN Eu Fiquei Pelada Para o Meu Meio-Irmão e Ele Não Resistiu - Exemplo.com.mp4",
         "Aidra Fox/Vídeo completo - PORNPROS Meu melhor amigo montou seu pau enquanto eu emprestava seu rosto.mp4",
         "Aidra Fox/Vídeo completo - Twistys - Duas colegas de quarto sexy Aidra Fox e Tru Kait têm um momento íntimo juntos.mp4",
         
         # Asian (2 arquivos)
-        "Asian/Cute Menina Asiática Ao Lado me Deixa Gozar Em Todos Os Três Buracos - Lucy Mochi - Anal - Pornhub.com.mp4",
-        "Asian/Pequena Asiática Lucy Mochi Adora Anal Demais - Compilação - Pornhub.com.mp4",
+        "Asian/Cute Menina Asiática Ao Lado me Deixa Gozar Em Todos Os Três Buracos - Lucy Mochi - Anal - Exemplo.com.mp4",
+        "Asian/Pequena Asiática Lucy Mochi Adora Anal Demais - Compilação - Exemplo.com.mp4",
         
         # Comatozze (2 arquivos) 
-        "Comatozze/Virgin Step Sister Quer Aprender a Foder ... - Pornhub.com.mp4",
+        "Comatozze/Virgin Step Sister Quer Aprender a Foder ... - Exemplo.com.mp4",
         
         # Diana Rider (5 arquivos)
-        "Diana Rider/Babe Candidata Massagem, Acaba Em Salão Handjob! Gozada Facial! - Pornhub.com.mp4",
-        "Diana Rider/Black Mirror- Sweetie Fox Pegou O Corpo Da Diana Rider E Fodeu Comigo - Pornhub.com.mp4",
-        "Diana Rider/Creampied a Buceta Da Minha Ex no Seu Casamento! Ela Gozou Tanto Que Esqueceu Do Marido! - Pornhub.com.mp4",
-        "Diana Rider/Mana, Roubaste Meu Dinheiro Pra Labubu. Vou Foder Tua Buceta Como Castigo! - Pornhub.com.mp4",
-        "Diana Rider/Ovulação Transforma Minha Mana De Tímida Em Máquina De Sexo Horny! Pede Foda Dura E CumShot! - Pornhub.com.mp4",
+        "Diana Rider/Babe Candidata Massagem, Acaba Em Salão Handjob! Gozada Facial! - Exemplo.com.mp4",
+        "Diana Rider/Black Mirror- Sweetie Fox Pegou O Corpo Da Diana Rider E Fodeu Comigo - Exemplo.com.mp4",
+        "Diana Rider/Creampied a Buceta Da Minha Ex no Seu Casamento! Ela Gozou Tanto Que Esqueceu Do Marido! - Exemplo.com.mp4",
+        "Diana Rider/Mana, Roubaste Meu Dinheiro Pra Labubu. Vou Foder Tua Buceta Como Castigo! - Exemplo.com.mp4",
+        "Diana Rider/Ovulação Transforma Minha Mana De Tímida Em Máquina De Sexo Horny! Pede Foda Dura E CumShot! - Exemplo.com.mp4",
         
         # Little Caprice (3 arquivos)
         "Little Caprice/EPORNER.COM - [BoN3COJE2ub] Caprice and angelica are sharing a cock (1080).mp4",
@@ -38,10 +38,10 @@ def get_missing_files():
         "Little Caprice/EPORNER.COM - [lmGr9vokhQ1] Hqcollect 1814 (1440).mp4",
         
         # Megan Rain (1 arquivo)
-        "Megan Rain/TUSHY Megan Rain Namorada Traidora Faz Dupla Penetração com Outros Caras - Pornhub.com.mp4",
+        "Megan Rain/TUSHY Megan Rain Namorada Traidora Faz Dupla Penetração com Outros Caras - Exemplo.com.mp4",
         
         # sweetfox (1 arquivo)
-        "sweetfox/Eu Transei com a Meia-Irmã Da Minha Esposa no Banheiro Enquanto Minha Esposa Foi À Loja. - Pornhub.com.mp4",
+        "sweetfox/Eu Transei com a Meia-Irmã Da Minha Esposa no Banheiro Enquanto Minha Esposa Foi À Loja. - Exemplo.com.mp4",
         
         # kate kuray (3 arquivos)
         "kate kuray/EPORNER.COM - [2NArHQyVzYf] Kate Kuray  Fucked (1440).mp4",
@@ -93,9 +93,9 @@ def main():
     print("- Progresso geral da operacao")
     print("=" * 60)
     
-    star_path = r"C:\Users\dell 5557\Videos\IDM\Star"
+    corporativo_path = r"C:\Users\dell 5557\Videos\IDM\Corporativo"
     bucket_name = 'mediaflow-uploads-969430605054'
-    s3_prefix = 'users/sergio_sena/Star'
+    s3_prefix = 'users/sergio_sena/Corporativo'
     
     missing_files = get_missing_files()
     
@@ -107,7 +107,7 @@ def main():
     total_size = 0
     
     for i, relative_path in enumerate(missing_files, 1):
-        local_file = os.path.join(star_path, relative_path)
+        local_file = os.path.join(corporativo_path, relative_path)
         
         # Verificar se arquivo existe
         if not os.path.exists(local_file):
@@ -127,10 +127,10 @@ def main():
         
         # Upload com tempo
         import time
-        start_time = time.time()
+        corporativot_time = time.time()
         
         if upload_file_to_s3(local_file, s3_key, bucket_name):
-            elapsed = time.time() - start_time
+            elapsed = time.time() - corporativot_time
             speed = size_mb / elapsed if elapsed > 0 else 0
             uploaded += 1
             print(f"  OK - {elapsed:.1f}s ({speed:.1f} MB/s)")

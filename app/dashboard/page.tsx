@@ -98,7 +98,7 @@ export default function DashboardPage() {
 
   const fetchUserData = async (userId: string) => {
     try {
-      const res = await fetch('https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/users')
+      const res = await fetch('/api/users/list')
       const data = await res.json()
       if (data.success) {
         const updatedUser = data.users.find((u: any) => u.user_id === userId)
@@ -393,7 +393,7 @@ export default function DashboardPage() {
                 if (firstVideo) {
                   // Buscar URL assinada
                   try {
-                    const response = await fetch(`https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/view/${encodeURIComponent(firstVideo.key)}`, {
+                    const response = await fetch(`/api/videos/view?key=${encodeURIComponent(firstVideo.key)}`, {
                       method: 'GET',
                       headers: { 'Content-Type': 'application/json' }
                     })

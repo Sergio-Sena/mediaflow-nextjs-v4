@@ -5,8 +5,8 @@ from pathlib import Path
 
 s3 = boto3.client('s3', region_name='us-east-1')
 bucket = 'mediaflow-uploads-969430605054'
-local_dir = r'C:\Users\dell 5557\Videos\IDM\Star'
-s3_prefix = 'users/user_admin/Star/'
+local_dir = r'C:\Users\dell 5557\Videos\IDM\Corporativo'
+s3_prefix = 'users/user_admin/Corporativo/'
 
 print(f"Uploading {local_dir} -> s3://{bucket}/{s3_prefix}")
 print("=" * 60)

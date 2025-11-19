@@ -26,7 +26,7 @@ const userToken = jwt.sign({
 console.log('🧪 Testando Filtro de Usuários')
 console.log('=' * 50)
 
-// Função para testar API
+// Função para tecorporativo API
 async function testAPI(token, userType) {
   console.log(`\n📋 Testando como ${userType}:`)
   

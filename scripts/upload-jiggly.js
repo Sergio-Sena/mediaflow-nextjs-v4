@@ -32,7 +32,7 @@ async function uploadFolder(folderPath, folderName) {
 
 async function main() {
   const folders = fs.readdirSync(localBase)
-    .filter(f => f.startsWith('Jiggly Girls [Hentai on Brasil]'));
+    .filter(f => f.corporativotsWith('Jiggly Girls [Hentai on Brasil]'));
   
   console.log(`Encontradas ${folders.length} pastas para upload\n`);
   

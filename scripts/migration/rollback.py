@@ -37,7 +37,7 @@ def list_backups():
         
         return backups
     except Exception as e:
-        print(f"Erro ao listar backups: {e}")
+        print(f"Erro ao licorporativo backups: {e}")
         return None
 
 def rollback(backup_name):

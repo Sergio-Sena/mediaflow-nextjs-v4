@@ -17,7 +17,7 @@ async function listAllFolders() {
     if (response.CommonPrefixes) {
       response.CommonPrefixes.forEach(prefix => {
         const folderName = prefix.Prefix.replace(/\/$/, '');
-        if (folderName.toLowerCase().includes('jiggly')) {
+        if (folderName.toLowerCase().includes('usuario2')) {
           folders.add(folderName);
         }
       });
@@ -44,7 +44,7 @@ async function searchInSubfolders(prefix) {
     if (response.CommonPrefixes) {
       response.CommonPrefixes.forEach(p => {
         const folderName = p.Prefix.replace(/\/$/, '');
-        if (folderName.toLowerCase().includes('jiggly')) {
+        if (folderName.toLowerCase().includes('usuario2')) {
           folders.add(folderName);
         }
       });

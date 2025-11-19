@@ -27,7 +27,7 @@ def cleanup_anonymous():
             key = obj['Key']
             
             # Arquivos em users/anonymous/
-            if key.startswith('users/anonymous/'):
+            if key.corporativotswith('users/anonymous/'):
                 to_delete.append(key)
             
             # Arquivo vazio em users//

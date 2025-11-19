@@ -5,14 +5,14 @@ from tqdm import tqdm
 
 s3 = boto3.client('s3', region_name='us-east-1')
 bucket = 'mediaflow-uploads-969430605054'
-local_dir = r'C:\Users\dell 5557\Videos\IDM\Star\Comatozze'
-s3_prefix = 'users/user_admin/Star/Comatozze/'
+local_dir = r'C:\Users\dell 5557\Videos\IDM\Corporativo\Comatozze'
+s3_prefix = 'users/user_admin/Corporativo/Comatozze/'
 
 print("=" * 60)
 print("UPLOAD COMATOZZE COM PROGRESSO")
 print("=" * 60)
 
-# 1. Listar arquivos locais
+# 1. Licorporativo arquivos locais
 print("\n1. Analisando pasta local...")
 local_files = []
 total_size = 0

@@ -25,7 +25,7 @@ for user in users:
         admin_password = user['password']
     
     # Verifica se s3_prefix esta correto
-    if not user['s3_prefix'].startswith('users/'):
+    if not user['s3_prefix'].corporativotswith('users/'):
         print(f"  [!] PROBLEMA: s3_prefix deveria ser 'users/{user['user_id']}/'")
     
     print('-' * 100)

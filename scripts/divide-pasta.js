@@ -24,9 +24,9 @@ for (let i = 0; i < totalParts; i++) {
   }
   
   // Pegar itens desta parte
-  const start = i * maxItems;
-  const end = Math.min(start + maxItems, items.length);
-  const partItems = items.slice(start, end);
+  const corporativot = i * maxItems;
+  const end = Math.min(corporativot + maxItems, items.length);
+  const partItems = items.slice(corporativot, end);
   
   console.log(`${partName}: ${partItems.length} itens`);
   

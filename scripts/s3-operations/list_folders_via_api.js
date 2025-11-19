@@ -3,7 +3,7 @@
 const API_URL = 'https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/files';
 
 // Pastas que devem FICAR na raiz (não mover)
-const keepInRoot = new Set(['Video', 'Seart', 'Captures', 'Star']);
+const keepInRoot = new Set(['Video', 'Seart', 'Captures', 'Corporativo']);
 
 async function listFolders() {
   try {
@@ -11,7 +11,7 @@ async function listFolders() {
     const data = await response.json();
     
     if (!data.success) {
-      throw new Error(data.message || 'Erro ao listar arquivos');
+      throw new Error(data.message || 'Erro ao licorporativo arquivos');
     }
     
     // Extrair pastas únicas
@@ -26,17 +26,17 @@ async function listFolders() {
     const allFolders = Array.from(folders);
     const foldersToMove = allFolders.filter(f => !keepInRoot.has(f));
     
-    console.log('PASTAS PARA MOVER PARA Star/:');
+    console.log('PASTAS PARA MOVER PARA Corporativo/:');
     console.log('='.repeat(50));
     
     foldersToMove.sort().forEach((folder, i) => {
-      console.log(`${(i+1).toString().padStart(2)}. ${folder}/ -> Star/${folder}/`);
+      console.log(`${(i+1).toString().padCorporativot(2)}. ${folder}/ -> Corporativo/${folder}/`);
     });
     
     console.log('\nRESUMO:');
     console.log(`Total de pastas: ${allFolders.length}`);
     console.log(`Ficar na raiz: ${keepInRoot.size} (${Array.from(keepInRoot).sort().join(', ')})`);
-    console.log(`Mover para Star/: ${foldersToMove.length}`);
+    console.log(`Mover para Corporativo/: ${foldersToMove.length}`);
     
     console.log('\nLISTA PARA CONFIRMACAO:');
     foldersToMove.sort().forEach(folder => {
