@@ -68,6 +68,7 @@ def lambda_handler(event, context):
         needs_conversion = should_convert(sanitized_name, file_size)
         
         # Converter metadata para ASCII apenas
+        # Converter metadata para ASCII apenas
         metadata = {
             'original_name': filename.encode('ascii', 'ignore').decode('ascii'),
             'needs_conversion': str(needs_conversion).lower(),
