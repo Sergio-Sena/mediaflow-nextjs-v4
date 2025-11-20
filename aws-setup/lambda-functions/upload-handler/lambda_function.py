@@ -67,8 +67,9 @@ def lambda_handler(event, context):
 
         needs_conversion = should_convert(sanitized_name, file_size)
         
+        # Converter metadata para ASCII apenas
         metadata = {
-            'original_name': sanitized_name,
+            'original_name': filename.encode('ascii', 'ignore').decode('ascii'),
             'needs_conversion': str(needs_conversion).lower(),
             'file_type': get_file_type(sanitized_name),
             'upload_timestamp': datetime.now().isoformat()
@@ -112,7 +113,14 @@ def check_file_exists(key):
         return False
 
 def sanitize_filename(filename):
-    """Sanitize filename: remove emojis, special chars, limit to 45 chars"""
+    """Sanitize filename: remove emojis, accents, special chars, limit to 45 chars"""
+    import unicodedata
+    
+    # Remove acentos
+    filename = unicodedata.normalize('NFKD', filename)
+    filename = filename.encode('ascii', 'ignore').decode('ascii')
+    
+    # Remove emojis
     emoji_pattern = re.compile("["
         u"\U0001F600-\U0001F64F"
         u"\U0001F300-\U0001F5FF"
