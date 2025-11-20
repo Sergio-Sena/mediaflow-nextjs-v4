@@ -25,10 +25,12 @@ export async function POST(request: NextRequest) {
     const lambdaStart = Date.now()
     let response
     try {
+      const authHeader = request.headers.get('Authorization') || ''
       response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': authHeader
         },
         body: JSON.stringify({
           filename: body.filename,
