@@ -30,6 +30,8 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string>('')
   const [showPlaylist, setShowPlaylist] = useState(false)
+  const [showControls, setShowControls] = useState(true)
+  const hideControlsTimeout = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
     const fetchPresignedUrl = async () => {
@@ -76,19 +78,36 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
 
   useEffect(() => {
     const video = videoRef.current
-    if (!video) return
+    if (!video || !videoUrl) return
 
     const updateTime = () => setCurrentTime(video.currentTime)
-    const updateDuration = () => setDuration(video.duration)
+    const updateDuration = () => {
+      if (video.duration && !isNaN(video.duration)) {
+        setDuration(video.duration)
+      }
+    }
+    const handlePlay = () => setIsPlaying(true)
+    const handlePause = () => setIsPlaying(false)
 
     video.addEventListener('timeupdate', updateTime)
     video.addEventListener('loadedmetadata', updateDuration)
+    video.addEventListener('durationchange', updateDuration)
+    video.addEventListener('play', handlePlay)
+    video.addEventListener('pause', handlePause)
+
+    // Força atualização da duração se já estiver carregada
+    if (video.duration && !isNaN(video.duration)) {
+      setDuration(video.duration)
+    }
 
     return () => {
       video.removeEventListener('timeupdate', updateTime)
       video.removeEventListener('loadedmetadata', updateDuration)
+      video.removeEventListener('durationchange', updateDuration)
+      video.removeEventListener('play', handlePlay)
+      video.removeEventListener('pause', handlePause)
     }
-  }, [])
+  }, [videoUrl])
 
   const togglePlay = () => {
     const video = videoRef.current
@@ -138,10 +157,13 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
     const video = videoRef.current
     if (!video) return
 
+    const container = video.parentElement
+    if (!container) return
+
     if (document.fullscreenElement) {
       document.exitFullscreen()
     } else {
-      video.requestFullscreen()
+      container.requestFullscreen()
     }
   }
 
@@ -149,6 +171,24 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
     const minutes = Math.floor(time / 60)
     const seconds = Math.floor(time % 60)
     return `${minutes}:${seconds.toString().padStart(2, '0')}`
+  }
+
+  const handleMouseMove = () => {
+    setShowControls(true)
+    if (hideControlsTimeout.current) {
+      clearTimeout(hideControlsTimeout.current)
+    }
+    hideControlsTimeout.current = setTimeout(() => {
+      if (isPlaying) {
+        setShowControls(false)
+      }
+    }, 3000)
+  }
+
+  const handleMouseLeave = () => {
+    if (isPlaying) {
+      setShowControls(false)
+    }
   }
 
   const handlePrevious = () => {
@@ -186,7 +226,12 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
         </div>
 
         {/* Video Container */}
-        <div className="relative bg-black" style={{ maxHeight: '80vh' }}>
+        <div 
+          className="relative bg-black fullscreen:h-screen" 
+          style={{ maxHeight: '80vh' }}
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
+        >
           {loading && (
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="text-center text-white">
@@ -209,14 +254,16 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
             <>
               <video
                 ref={videoRef}
-                className="w-full h-full object-contain"
+                className="w-full h-full object-contain fullscreen:object-cover"
                 style={{ maxHeight: '80vh' }}
                 onClick={togglePlay}
                 src={videoUrl}
               />
 
               {/* Controls */}
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-4">
+              <div className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-4 transition-opacity duration-300 ${
+                showControls ? 'opacity-100' : 'opacity-0'
+              }`}>
                 <div className="flex items-center gap-4 mb-2">
                   {playlist && playlist.length > 1 && (
                     <button 
