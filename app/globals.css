@@ -151,3 +151,15 @@ body {
     background-position: -200% 0;
   }
 }
+
+/* Fullscreen Video */
+:fullscreen .relative {
+  height: 100vh !important;
+  max-height: 100vh !important;
+}
+
+:fullscreen video {
+  height: 100vh !important;
+  max-height: 100vh !important;
+  object-fit: contain;
+}
