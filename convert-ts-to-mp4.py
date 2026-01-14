@@ -82,8 +82,7 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         folder = sys.argv[1]
     else:
-        print(f"Caminho padrao: {default_path}")
-        custom = input("Pressione ENTER para usar ou digite outro caminho: ").strip()
-        folder = custom if custom else default_path
+        folder = default_path
+        print(f"Usando caminho padrao: {folder}")
     
     convert_ts_to_mp4(folder)

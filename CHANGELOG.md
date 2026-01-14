@@ -1,53 +1,70 @@
-# Changelog - Mídiaflow
+# 📝 Changelog - Mídiaflow
 
-## [4.8.3] - 2025-11-18
+## [2.1.0] - 2026-01-13
 
-### 🎬 Video Player - Correção Crítica
-- **FIXED**: Player não reproduzia vídeos (erro 403/502)
-- **FIXED**: CORS bloqueando requisições
-- **FIXED**: Lambda sem dependências necessárias
-- **ADDED**: API proxy local para desenvolvimento
-- **IMPROVED**: VideoPlayer recriado do zero (código limpo)
-- **IMPROVED**: Error handling e loading states
+### ✨ Adicionado
+- **Player com Controles Avançados**
+  - Botão de vídeo anterior (⏮️)
+  - Botão de próximo vídeo (⏭️)
+  - Sidebar de playlist com lista completa
+  - Navegação por clique na playlist
+  - Destaque visual do vídeo atual
+  - Numeração sequencial dos vídeos
+  - Auto-desabilitar botões quando não há mais vídeos
 
-### 🔧 Infraestrutura
-- **FIXED**: API Gateway com greedy path `{key+}`
-- **FIXED**: Lambda `mediaflow-view-handler` simplificado
-- **ADDED**: Scripts de deploy e teste automatizados
-- **IMPROVED**: CORS configurado corretamente
+### 🔧 Melhorado
+- Interface do player mais intuitiva
+- Melhor experiência de navegação entre vídeos
+- Design responsivo da sidebar de playlist
 
-### 📝 Documentação
-- **ADDED**: `memoria/VIDEO_PLAYER_FIX.md` com detalhes técnicos
-- **UPDATED**: README com status do player
-
----
-
-## [4.8.2] - 2025-11-17
-
-### 🎨 UI/UX
-- **IMPROVED**: Dashboard responsivo mobile
-- **IMPROVED**: FileList com paginação
-- **ADDED**: Avatar upload para usuários
-
-### 🔐 Segurança
-- **ADDED**: Autenticação 2FA para admin
-- **IMPROVED**: Validação de tokens JWT
+### 📚 Documentação
+- Adicionado `PLAYER_ADVANCED_CONTROLS.md` na pasta memoria
+- Documentação completa dos novos controles
+- Exemplos de uso e implementação
 
 ---
 
-## [4.8.1] - 2025-11-16
+## [2.0.0] - 2025-12-15
 
-### 📁 Gerenciamento de Arquivos
-- **ADDED**: FolderManagerV2 com navegação hierárquica
-- **IMPROVED**: FileList com filtros avançados
-- **ADDED**: Bulk operations (delete, convert)
+### ✨ Adicionado
+- Sistema de autenticação com 2FA
+- Upload de vídeos com conversão automática
+- Player de vídeo profissional
+- Sistema de usuários multi-tenant
+- Dashboard administrativo
+- Analytics em tempo real
+- CDN CloudFront integrado
 
-### 🎥 Conversão de Vídeos
-- **ADDED**: Conversão para MP4 720p/1080p
-- **ADDED**: Estimativa de custo de conversão
-- **IMPROVED**: Status de conversão em tempo real
+### 🔒 Segurança
+- Autenticação JWT
+- 2FA com TOTP
+- Vídeos privados por padrão
+- Presigned URLs para acesso seguro
+
+### 🚀 Performance
+- Conversão automática para múltiplas resoluções
+- Streaming otimizado via CloudFront
+- Cache inteligente de vídeos
+- Upload multipart para arquivos grandes
 
 ---
 
-## Versões Anteriores
-Ver `memoria/` para histórico completo
+## [1.0.0] - 2025-09-02
+
+### 🎉 Lançamento Inicial
+- Plataforma de hospedagem de vídeos
+- Sistema básico de upload
+- Player simples
+- Armazenamento S3
+
+---
+
+**Legenda**:
+- ✨ Adicionado: Novas funcionalidades
+- 🔧 Melhorado: Melhorias em funcionalidades existentes
+- 🐛 Corrigido: Correções de bugs
+- 🔒 Segurança: Melhorias de segurança
+- 🚀 Performance: Otimizações de performance
+- 📚 Documentação: Atualizações na documentação
+- ⚠️ Depreciado: Funcionalidades que serão removidas
+- 🗑️ Removido: Funcionalidades removidas

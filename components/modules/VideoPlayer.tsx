@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { Play, Pause, Volume2, VolumeX, Maximize, X } from 'lucide-react'
+import { Play, Pause, Volume2, VolumeX, Maximize, X, SkipBack, SkipForward, List } from 'lucide-react'
 
 interface VideoFile {
   key: string
@@ -19,7 +19,7 @@ interface VideoPlayerProps {
   onVideoChange?: (video: VideoFile) => void
 }
 
-export default function VideoPlayer({ src, title, onClose }: VideoPlayerProps) {
+export default function VideoPlayer({ src, title, onClose, currentVideo, playlist, onVideoChange }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentTime, setCurrentTime] = useState(0)
@@ -29,6 +29,7 @@ export default function VideoPlayer({ src, title, onClose }: VideoPlayerProps) {
   const [videoUrl, setVideoUrl] = useState<string>('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string>('')
+  const [showPlaylist, setShowPlaylist] = useState(false)
 
   useEffect(() => {
     const fetchPresignedUrl = async () => {
@@ -150,6 +151,26 @@ export default function VideoPlayer({ src, title, onClose }: VideoPlayerProps) {
     return `${minutes}:${seconds.toString().padStart(2, '0')}`
   }
 
+  const handlePrevious = () => {
+    if (!playlist || !currentVideo || !onVideoChange) return
+    const currentIndex = playlist.findIndex(v => v.key === currentVideo.key)
+    if (currentIndex > 0) {
+      onVideoChange(playlist[currentIndex - 1])
+    }
+  }
+
+  const handleNext = () => {
+    if (!playlist || !currentVideo || !onVideoChange) return
+    const currentIndex = playlist.findIndex(v => v.key === currentVideo.key)
+    if (currentIndex < playlist.length - 1) {
+      onVideoChange(playlist[currentIndex + 1])
+    }
+  }
+
+  const currentIndex = playlist && currentVideo ? playlist.findIndex(v => v.key === currentVideo.key) : -1
+  const hasPrevious = currentIndex > 0
+  const hasNext = playlist && currentIndex < playlist.length - 1
+
   return (
     <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
       <div className="relative w-full max-w-6xl bg-dark-900 rounded-lg overflow-hidden">
@@ -197,9 +218,29 @@ export default function VideoPlayer({ src, title, onClose }: VideoPlayerProps) {
               {/* Controls */}
               <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-4">
                 <div className="flex items-center gap-4 mb-2">
+                  {playlist && playlist.length > 1 && (
+                    <button 
+                      onClick={handlePrevious} 
+                      disabled={!hasPrevious}
+                      className="text-white hover:text-neon-cyan disabled:opacity-30 disabled:cursor-not-allowed"
+                    >
+                      <SkipBack className="w-5 h-5" />
+                    </button>
+                  )}
+
                   <button onClick={togglePlay} className="bg-neon-cyan hover:bg-neon-cyan/80 rounded-full p-2">
                     {isPlaying ? <Pause className="text-black w-5 h-5" /> : <Play className="text-black w-5 h-5 ml-0.5" />}
                   </button>
+
+                  {playlist && playlist.length > 1 && (
+                    <button 
+                      onClick={handleNext} 
+                      disabled={!hasNext}
+                      className="text-white hover:text-neon-cyan disabled:opacity-30 disabled:cursor-not-allowed"
+                    >
+                      <SkipForward className="w-5 h-5" />
+                    </button>
+                  )}
 
                   <button onClick={toggleMute} className="text-white hover:text-neon-cyan">
                     {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
@@ -219,6 +260,15 @@ export default function VideoPlayer({ src, title, onClose }: VideoPlayerProps) {
                     {formatTime(currentTime)} / {formatTime(duration)}
                   </span>
 
+                  {playlist && playlist.length > 1 && (
+                    <button 
+                      onClick={() => setShowPlaylist(!showPlaylist)} 
+                      className="text-white hover:text-neon-cyan"
+                    >
+                      <List className="w-5 h-5" />
+                    </button>
+                  )}
+
                   <button onClick={toggleFullscreen} className="text-white hover:text-neon-cyan ml-auto">
                     <Maximize className="w-5 h-5" />
                   </button>
@@ -236,6 +286,49 @@ export default function VideoPlayer({ src, title, onClose }: VideoPlayerProps) {
             </>
           )}
         </div>
+
+        {/* Playlist Sidebar */}
+        {showPlaylist && playlist && playlist.length > 1 && (
+          <div className="absolute right-0 top-0 bottom-0 w-80 bg-dark-900/95 backdrop-blur-sm border-l border-neon-cyan/20 overflow-y-auto">
+            <div className="p-4">
+              <div className="flex items-center justify-between mb-4">
+                <h4 className="text-white font-semibold">Playlist ({playlist.length})</h4>
+                <button onClick={() => setShowPlaylist(false)} className="text-gray-400 hover:text-white">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <div className="space-y-2">
+                {playlist.map((video, index) => (
+                  <button
+                    key={video.key}
+                    onClick={() => onVideoChange && onVideoChange(video)}
+                    className={`w-full text-left p-3 rounded-lg transition-colors ${
+                      currentVideo?.key === video.key
+                        ? 'bg-neon-cyan/20 border border-neon-cyan/50'
+                        : 'bg-dark-800/50 hover:bg-dark-800 border border-transparent'
+                    }`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <span className={`text-sm font-mono ${
+                        currentVideo?.key === video.key ? 'text-neon-cyan' : 'text-gray-400'
+                      }`}>
+                        {(index + 1).toString().padStart(2, '0')}
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <p className={`text-sm truncate ${
+                          currentVideo?.key === video.key ? 'text-white font-semibold' : 'text-gray-300'
+                        }`}>
+                          {video.name}
+                        </p>
+                        <p className="text-xs text-gray-500 truncate">{video.folder}</p>
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
