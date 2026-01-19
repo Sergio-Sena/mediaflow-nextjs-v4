@@ -1,5 +1,29 @@
 # 📝 Changelog - Mídiaflow
 
+## [2.2.0] - 2026-01-14
+
+### ✨ Adicionado
+- **Página Inicial Mobile-First**
+  - UI/UX completamente responsivo
+  - Header sticky com 2 botões (Preços + Login)
+  - Grid responsivo (1→2→3 colunas)
+  - Tabela comparativa com scroll horizontal
+  - Tipografia adaptativa por breakpoint
+  - Touch-friendly buttons (44x44px mínimo)
+
+### 🔧 Melhorado
+- Header mais limpo (removido botão "Grátis")
+- Espaçamentos otimizados para mobile
+- Leitura facilitada em telas pequenas
+- Performance mantida sem impacto
+
+### 📚 Documentação
+- Adicionado `MOBILE_OPTIMIZATION.md` na pasta memoria
+- Padrões de responsividade documentados
+- Breakpoints e testes realizados
+
+---
+
 ## [2.1.0] - 2026-01-13
 
 ### ✨ Adicionado
