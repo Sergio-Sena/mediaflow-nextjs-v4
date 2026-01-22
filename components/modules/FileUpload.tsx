@@ -50,8 +50,19 @@ export default function FileUpload({
   }
 
   const sanitizeFilename = (filename: string): string => {
-    // Remove caracteres especiais e limita tamanho
-    let sanitized = filename.replace(/[^a-zA-Z0-9.-À-ſ\s]/g, '_')
+    let sanitized = filename
+    
+    // Remove "EPORNER.COM - "
+    sanitized = sanitized.replace(/EPORNER\.COM\s*-\s*/gi, '')
+    
+    // Remove códigos entre colchetes [abc123]
+    sanitized = sanitized.replace(/\[.*?\]/g, '')
+    
+    // Remove caracteres especiais (mantém letras, números, ponto, hífen, espaço e acentos)
+    sanitized = sanitized.replace(/[^a-zA-Z0-9.-À-ſ\s]/g, '_')
+    
+    // Remove espaços extras
+    sanitized = sanitized.replace(/\s+/g, ' ').trim()
     
     // Se nome muito longo, trunca mantendo extensão
     if (sanitized.length > 100) {
