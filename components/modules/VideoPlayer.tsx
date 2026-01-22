@@ -40,13 +40,14 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
       
       try {
         const isDev = process.env.NODE_ENV === 'development'
+        const encodedSrc = encodeURIComponent(src)
         const response = isDev 
           ? await fetch('/api/proxy-view', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ key: src })
             })
-          : await fetch(`https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/view/${src}`, {
+          : await fetch(`https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/view/${encodedSrc}`, {
               headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`,
                 'Content-Type': 'application/json'

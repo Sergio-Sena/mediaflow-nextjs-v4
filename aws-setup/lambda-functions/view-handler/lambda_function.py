@@ -2,7 +2,7 @@ import json
 import boto3
 import os
 import jwt
-from urllib.parse import unquote
+from urllib.parse import unquote, unquote_plus
 
 s3 = boto3.client('s3')
 dynamodb = boto3.resource('dynamodb')
@@ -36,7 +36,11 @@ def lambda_handler(event, context):
             print(f"JWT decode error: {str(e)}")
             return cors_response(401, {'success': False, 'message': 'Token inválido'})
         
-        key = unquote(event['pathParameters']['key'])
+        # Decodificar key com tratamento para caracteres especiais
+        raw_key = event['pathParameters']['key']
+        # Tentar unquote_plus primeiro (trata + como espaço)
+        key = unquote_plus(raw_key)
+        print(f"Raw key: {raw_key}")
         print(f"Decoded key: {key}")
         
         # Verificar permissões
