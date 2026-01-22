@@ -68,3 +68,8 @@ logs/
 tmp/
 temp/
 *.tmp
+
+# Memoria - arquivos privados
+memoria/videos-qualidade-suspeita.txt
+memoria/*-qualidade-*.txt
+memoria/*-privado*.txt
