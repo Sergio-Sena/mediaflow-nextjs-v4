@@ -135,12 +135,14 @@ export default function FileUpload({
       const { UploadFactory } = await import('../upload/strategies/UploadFactory')
       console.log('UploadFactory imported successfully')
       
-      // Preparar filename com estrutura de pasta
-      let uploadFilename = uploadFile.file.name
+      // Preparar filename com estrutura de pasta e sanitização
+      let uploadFilename = sanitizeFilename(uploadFile.file.name)
       if (uploadFile.relativePath) {
-        uploadFilename = uploadFile.relativePath
+        // Sanitizar cada parte do path
+        const parts = uploadFile.relativePath.split('/')
+        uploadFilename = parts.map(p => sanitizeFilename(p)).join('/')
       } else if (uploadFile.folder) {
-        uploadFilename = `${uploadFile.folder}/${uploadFile.file.name}`
+        uploadFilename = `${sanitizeFilename(uploadFile.folder)}/${sanitizeFilename(uploadFile.file.name)}`
       }
       
       console.log('Upload filename with path:', uploadFilename)

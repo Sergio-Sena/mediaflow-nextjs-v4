@@ -58,10 +58,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: build-artifacts
-          path: |
-            .next/
-            out/
-            public/
+          path: out/
           retention-days: 7
 
   deploy-frontend:
@@ -83,10 +80,13 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
       
+      - name: Clear S3 bucket (prevent stale chunks)
+        run: |
+          aws s3 rm s3://${{ secrets.S3_BUCKET_FRONTEND }}/ --recursive
+      
       - name: Sync to S3
         run: |
           aws s3 sync out/ s3://${{ secrets.S3_BUCKET_FRONTEND }}/ \
-            --delete \
             --cache-control "public, max-age=31536000, immutable" \
             --exclude "*.html" \
             --exclude "*.json"
