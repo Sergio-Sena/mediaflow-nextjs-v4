@@ -120,6 +120,7 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
       video.play()
     }
     setIsPlaying(!isPlaying)
+    resetControlsTimer()
   }
 
   const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -174,23 +175,52 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
     return `${minutes}:${seconds.toString().padStart(2, '0')}`
   }
 
-  const handleMouseMove = () => {
+  const resetControlsTimer = () => {
     setShowControls(true)
     if (hideControlsTimeout.current) {
       clearTimeout(hideControlsTimeout.current)
     }
-    hideControlsTimeout.current = setTimeout(() => {
-      if (isPlaying) {
+    
+    if (isPlaying) {
+      hideControlsTimeout.current = setTimeout(() => {
         setShowControls(false)
-      }
-    }, 3000)
+      }, 3000)
+    }
+  }
+
+  const handleMouseMove = () => {
+    resetControlsTimer()
   }
 
   const handleMouseLeave = () => {
-    if (isPlaying) {
-      setShowControls(false)
+    if (isPlaying && hideControlsTimeout.current) {
+      clearTimeout(hideControlsTimeout.current)
+      hideControlsTimeout.current = setTimeout(() => {
+        setShowControls(false)
+      }, 1000) // Esconde mais rápido quando sai da área
     }
   }
+
+  // Auto-hide quando o vídeo começa a tocar
+  useEffect(() => {
+    if (isPlaying) {
+      resetControlsTimer()
+    } else {
+      setShowControls(true)
+      if (hideControlsTimeout.current) {
+        clearTimeout(hideControlsTimeout.current)
+      }
+    }
+  }, [isPlaying])
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (hideControlsTimeout.current) {
+        clearTimeout(hideControlsTimeout.current)
+      }
+    }
+  }, [])
 
   const handlePrevious = () => {
     if (!playlist || !currentVideo || !onVideoChange) return
@@ -257,7 +287,7 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
                 ref={videoRef}
                 className="w-full h-full object-contain fullscreen:object-cover"
                 style={{ maxHeight: '80vh' }}
-                onClick={togglePlay}
+                onClick={resetControlsTimer}
                 src={videoUrl}
               />
 

@@ -1,3 +1,56 @@
+# 📋 Changelog v4.9.2 - 30/01/2025
+
+## 🎥 Video Player Melhorado
+
+### Auto-Hide Controls
+- **Adicionado:** Controles se escondem automaticamente após 3 segundos
+- **Mobile:** Otimização específica para dispositivos móveis
+- **UX:** Experiência mais limpa e profissional
+
+### Melhorias Mobile
+- **Touch:** Controles otimizados para touch
+- **Responsivo:** Layout adaptativo
+- **Performance:** Carregamento otimizado
+
+## 💰 Página de Pricing Atualizada
+
+### Design
+- **Cards:** Layout mais atrativo e moderno
+- **Responsivo:** Melhor experiência em todos os dispositivos
+- **CTA:** Call-to-actions mais efetivos
+
+### Funcionalidades
+- **Planos:** Estrutura clara de preços
+- **Features:** Destaque das funcionalidades
+- **Conversão:** Otimizado para vendas
+
+## 🔧 Scripts de Monitoramento
+
+### Novos Scripts
+- `analyze-video-quality.py` - Análise de qualidade de vídeos
+- `check-s3-usage.py` - Monitoramento de uso do S3
+- `check-star-upload.py` - Verificação de uploads
+- `rename-star-folders.py` - Organização de pastas
+
+## 📦 Arquivos Modificados
+
+### Frontend
+- `components/modules/VideoPlayer.tsx` (auto-hide controls)
+- `components/modules/MobileVideoPlayer.tsx` (mobile optimization)
+- `app/pricing/page.tsx` (layout atualizado)
+- `app/globals.css` (estilos melhorados)
+
+### Scripts
+- `scripts/upload-star-sergio.py` (novo)
+- `scripts/verificar-star-sergio.py` (novo)
+- `upload-star-cli.bat` (novo)
+
+### Documentação
+- `memoria/PLAYER_AUTO_HIDE_CONTROLS.md` (nova)
+- `DEPLOY_FINAL.md` (nova)
+
+---
+
 # 📋 Changelog v4.9.1 - 30/01/2025
 
 ## 🔧 Correções Críticas
