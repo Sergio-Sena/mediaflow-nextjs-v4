@@ -1,8 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { Button, Input, Card } from '@/components/ui'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -74,7 +75,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="glass-card p-8 md:p-12 w-full max-w-md animate-fade-in">
+      <Card variant="glass" padding="lg" className="w-full max-w-md animate-fade-in">
         <div className="text-center mb-8">
           <div className="text-5xl mb-4 animate-float">🎬</div>
           <h1 className="text-3xl font-bold mb-2">
@@ -85,14 +86,11 @@ export default function LoginPage() {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="animate-fade-in">
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              Email
-            </label>
-            <input
+            <Input
               type="email"
+              label="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="input-neon"
               placeholder="seu@email.com"
               autoComplete="email"
               required
@@ -101,14 +99,11 @@ export default function LoginPage() {
           </div>
 
           <div className="animate-fade-in">
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              Senha
-            </label>
-            <input
+            <Input
               type="password"
+              label="Senha"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="input-neon"
               placeholder="••••••••"
               autoComplete="current-password"
               required
@@ -123,32 +118,27 @@ export default function LoginPage() {
           )}
 
           <div className="animate-fade-in">
-            <button
+            <Button
               type="submit"
+              variant="primary"
+              size="lg"
+              loading={isLoading}
               disabled={isLoading}
-              className="btn-neon w-full text-lg py-4 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full"
             >
-              {isLoading ? (
-                <div className="flex items-center justify-center gap-2">
-                  <div className="w-4 h-4 border-2 border-dark-900 border-t-transparent rounded-full animate-spin"></div>
-                  Entrando...
-                </div>
-              ) : (
-                <>🚀 Entrar</>
-              )}
-            </button>
+              🚀 Entrar
+            </Button>
           </div>
         </form>
 
         <div className="mt-8 text-center space-y-4">
           <div className="border-t border-gray-700 pt-6">
             <p className="text-sm text-gray-400 mb-3">Não tem uma conta?</p>
-            <Link 
-              href="/register" 
-              className="btn-secondary px-6 py-3 inline-flex items-center gap-2"
-            >
-              <span>👤</span>
-              Criar Conta
+            <Link href="/register">
+              <Button variant="secondary" size="md">
+                <span>👤</span>
+                Criar Conta
+              </Button>
             </Link>
           </div>
           
@@ -159,7 +149,7 @@ export default function LoginPage() {
             ← Voltar ao início
           </Link>
         </div>
-      </div>
+      </Card>
     </div>
   )
 }
