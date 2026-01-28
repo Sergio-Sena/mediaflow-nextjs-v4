@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { Check } from 'lucide-react'
+import { Button, Card } from '@/components/ui'
 
 export default function PricingPage() {
   const plans = [
@@ -111,11 +112,11 @@ export default function PricingPage() {
             🎬 <span className="neon-text">Mídiaflow</span>
           </Link>
           <div className="flex gap-2 sm:gap-4">
-            <Link href="/login" className="btn-secondary px-3 py-2 text-sm sm:px-6 sm:text-base">
-              Login
+            <Link href="/login">
+              <Button variant="secondary" size="sm">Login</Button>
             </Link>
-            <Link href="/register" className="btn-neon px-3 py-2 text-sm sm:px-6 sm:text-base">
-              Começar Grátis
+            <Link href="/register">
+              <Button variant="primary" size="sm">Começar Grátis</Button>
             </Link>
           </div>
         </div>
@@ -138,9 +139,11 @@ export default function PricingPage() {
       <section className="max-w-7xl mx-auto px-4 pb-8 sm:pb-16">
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {plans.map((plan) => (
-            <div
+            <Card
               key={plan.name}
-              className={`glass-card p-4 sm:p-6 relative ${
+              variant={plan.popular ? 'glass' : 'elevated'}
+              padding="md"
+              className={`relative ${
                 plan.popular ? 'border-2 border-neon-cyan' : ''
               }`}
             >
@@ -168,15 +171,15 @@ export default function PricingPage() {
                 ))}
               </ul>
 
-              <Link
-                href={plan.href}
-                className={`block text-center py-2 sm:py-3 rounded-lg text-sm sm:text-base font-semibold transition-all ${
-                  plan.popular ? 'btn-neon' : 'btn-secondary'
-                }`}
-              >
-                {plan.cta}
+              <Link href={plan.href}>
+                <Button
+                  variant={plan.popular ? 'primary' : 'secondary'}
+                  className="w-full"
+                >
+                  {plan.cta}
+                </Button>
               </Link>
-            </div>
+            </Card>
           ))}
         </div>
       </section>
@@ -319,9 +322,11 @@ export default function PricingPage() {
           <p className="text-base sm:text-xl text-gray-400 mb-6 sm:mb-8">
             15 dias grátis. Sem cartão de crédito. Cancele quando quiser.
           </p>
-          <Link href="/register" className="btn-neon px-6 py-3 sm:px-8 sm:py-4 text-base sm:text-lg inline-block">
+        <Link href="/register">
+          <Button variant="primary" size="lg">
             🚀 Começar Grátis Agora
-          </Link>
+          </Button>
+        </Link>
         </div>
       </section>
 
