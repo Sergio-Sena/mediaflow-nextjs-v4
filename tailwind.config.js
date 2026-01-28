@@ -10,16 +10,26 @@ module.exports = {
       colors: {
         neon: {
           cyan: '#00ffff',
-          purple: '#bf00ff',
+          purple: '#bf00ff', 
           pink: '#ff0080',
           blue: '#0080ff',
           green: '#00ff80',
+          orange: '#ff8000',
+          yellow: '#ffff00',
         },
         dark: {
-          900: '#0a0a0f',
-          800: '#1a1a2e',
-          700: '#16213e',
-          600: '#0f3460',
+          900: '#0a0a0a',
+          800: '#1a1a1a', 
+          700: '#2a2a2a',
+          600: '#3a3a3a',
+          500: '#4a4a4a',
+        },
+        accent: {
+          primary: '#00ffff',
+          secondary: '#bf00ff',
+          success: '#00ff80',
+          warning: '#ffff00',
+          error: '#ff0080',
         }
       },
       boxShadow: {

@@ -20,7 +20,7 @@ aws s3 sync out/ s3://mediaflow-frontend-969430605054/ --exclude "*" --include "
 
 echo.
 echo [4/4] Invalidando CloudFront...
-aws cloudfront create-invalidation --distribution-id E2H9YJWVZ8YZQO --paths "/*"
+aws cloudfront create-invalidation --distribution-id E2HZKZ9ZJK18IU --paths "/*"
 
 echo.
 echo ========================================
