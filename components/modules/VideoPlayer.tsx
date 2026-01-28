@@ -306,8 +306,12 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
                     </button>
                   )}
 
-                  <button onClick={togglePlay} className="bg-neon-cyan hover:bg-neon-cyan/80 rounded-full p-2">
-                    {isPlaying ? <Pause className="text-black w-5 h-5" /> : <Play className="text-black w-5 h-5 ml-0.5" />}
+                  <button onClick={togglePlay} className="bg-neon-cyan hover:bg-neon-cyan/80 rounded-full p-3 shadow-neon-cyan">
+                    {isPlaying ? (
+                      <Pause className="w-6 h-6" style={{ color: 'black' }} />
+                    ) : (
+                      <Play className="w-6 h-6" style={{ color: 'black', marginLeft: '2px' }} />
+                    )}
                   </button>
 
                   {playlist && playlist.length > 1 && (
