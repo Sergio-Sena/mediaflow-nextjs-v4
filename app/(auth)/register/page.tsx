@@ -3,7 +3,8 @@
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Upload, X } from 'lucide-react'
+import { Upload } from 'lucide-react'
+import { Button, Input, Card } from '@/components/ui'
 
 export default function RegisterPage() {
   const [newUser, setNewUser] = useState({ 
@@ -114,7 +115,7 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="glass-card p-8 md:p-12 w-full max-w-md animate-fade-in">
+      <Card variant="glass" padding="lg" className="w-full max-w-md animate-fade-in">
         <div className="text-center mb-8">
           <div className="text-5xl mb-4 animate-float">👤</div>
           <h1 className="text-3xl font-bold mb-2">
@@ -136,18 +137,12 @@ export default function RegisterPage() {
               className="mx-auto mb-4"
             />
             <div className="space-y-3">
-              <button 
-                onClick={() => router.push('/login')} 
-                className="btn-neon w-full"
-              >
+              <Button onClick={() => router.push('/login')} variant="primary" className="w-full">
                 Configurar 2FA e Fazer Login
-              </button>
-              <button 
-                onClick={() => router.push('/login')} 
-                className="btn-secondary w-full"
-              >
+              </Button>
+              <Button onClick={() => router.push('/login')} variant="secondary" className="w-full">
                 Pular 2FA e Fazer Login
-              </button>
+              </Button>
             </div>
             <p className="text-xs text-gray-400 mt-3">
               📝 Você pode configurar o 2FA depois no seu perfil
@@ -182,62 +177,50 @@ export default function RegisterPage() {
               <p className="text-xs text-gray-400 mt-2">Clique para enviar avatar (opcional)</p>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Nome Completo</label>
-              <input
-                type="text"
-                value={newUser.name}
-                onChange={(e) => {
-                  const name = e.target.value
-                  const userId = generateUserId(name)
-                  setNewUser({...newUser, name, user_id: userId, s3_prefix: `users/${userId}/`})
-                }}
-                className="input-neon"
-                placeholder="João Silva"
-                required
-                disabled={createLoading}
-              />
-            </div>
+            <Input
+              type="text"
+              label="Nome Completo"
+              value={newUser.name}
+              onChange={(e) => {
+                const name = e.target.value
+                const userId = generateUserId(name)
+                setNewUser({...newUser, name, user_id: userId, s3_prefix: `users/${userId}/`})
+              }}
+              placeholder="João Silva"
+              required
+              disabled={createLoading}
+            />
 
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Email</label>
-              <input
-                type="email"
-                value={newUser.email}
-                onChange={(e) => setNewUser({...newUser, email: e.target.value})}
-                className="input-neon"
-                placeholder="joao@email.com"
-                required
-                disabled={createLoading}
-              />
-            </div>
+            <Input
+              type="email"
+              label="Email"
+              value={newUser.email}
+              onChange={(e) => setNewUser({...newUser, email: e.target.value})}
+              placeholder="joao@email.com"
+              required
+              disabled={createLoading}
+            />
 
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Senha (mínimo 6 caracteres)</label>
-              <input
-                type="password"
-                value={newUser.password}
-                onChange={(e) => setNewUser({...newUser, password: e.target.value})}
-                className="input-neon"
-                placeholder="••••••••"
-                required
-                disabled={createLoading}
-                minLength={6}
-              />
-            </div>
+            <Input
+              type="password"
+              label="Senha (mínimo 6 caracteres)"
+              value={newUser.password}
+              onChange={(e) => setNewUser({...newUser, password: e.target.value})}
+              placeholder="••••••••"
+              required
+              disabled={createLoading}
+              minLength={6}
+            />
 
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Confirmar Senha</label>
-              <input
-                type="password"
-                value={newUser.confirmPassword}
-                onChange={(e) => setNewUser({...newUser, confirmPassword: e.target.value})}
-                className="input-neon"
-                placeholder="••••••••"
-                required
-                disabled={createLoading}
-              />
-            </div>
+            <Input
+              type="password"
+              label="Confirmar Senha"
+              value={newUser.confirmPassword}
+              onChange={(e) => setNewUser({...newUser, confirmPassword: e.target.value})}
+              placeholder="••••••••"
+              required
+              disabled={createLoading}
+            />
 
             <div className="flex items-start gap-3 p-4 bg-dark-800/50 rounded-lg border border-gray-700">
               <input
@@ -260,32 +243,27 @@ export default function RegisterPage() {
               </label>
             </div>
 
-            <button 
-              onClick={handleCreateUser} 
-              className="btn-neon w-full text-lg py-4 disabled:opacity-50 disabled:cursor-not-allowed"
+            <Button
+              onClick={handleCreateUser}
+              variant="primary"
+              size="lg"
+              loading={createLoading}
               disabled={createLoading || !newUser.name || !newUser.email || !newUser.password || !newUser.confirmPassword || !acceptedTerms}
+              className="w-full"
             >
-              {createLoading ? (
-                <div className="flex items-center justify-center gap-2">
-                  <div className="w-4 h-4 border-2 border-dark-900 border-t-transparent rounded-full animate-spin"></div>
-                  Criando conta...
-                </div>
-              ) : (
-                <>🚀 Criar Conta</>
-              )}
-            </button>
+              🚀 Criar Conta
+            </Button>
           </div>
         )}
 
         <div className="mt-8 text-center space-y-4">
           <div className="border-t border-gray-700 pt-6">
             <p className="text-sm text-gray-400 mb-3">Já tem uma conta?</p>
-            <Link 
-              href="/login" 
-              className="btn-secondary px-6 py-3 inline-flex items-center gap-2"
-            >
-              <span>🔑</span>
-              Fazer Login
+            <Link href="/login">
+              <Button variant="secondary" size="md">
+                <span>🔑</span>
+                Fazer Login
+              </Button>
             </Link>
           </div>
           
@@ -301,7 +279,7 @@ export default function RegisterPage() {
             ← Voltar ao início
           </Link>
         </div>
-      </div>
+      </Card>
     </div>
   )
 }
