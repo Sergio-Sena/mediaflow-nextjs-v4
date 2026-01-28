@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { Button, Card } from '@/components/ui'
 
 export default function SLAPage() {
   return (
@@ -11,8 +12,12 @@ export default function SLAPage() {
             🎬 <span className="neon-text">Mídiaflow</span>
           </Link>
           <div className="flex gap-4">
-            <Link href="/pricing" className="btn-secondary px-6 py-2">Ver Planos</Link>
-            <Link href="/register" className="btn-neon px-6 py-2">Começar Grátis</Link>
+            <Link href="/pricing">
+              <Button variant="secondary" size="md">Ver Planos</Button>
+            </Link>
+            <Link href="/register">
+              <Button variant="primary" size="md">Começar Grátis</Button>
+            </Link>
           </div>
         </div>
       </header>
@@ -115,8 +120,12 @@ export default function SLAPage() {
           <h2 className="text-3xl font-bold mb-4">Pronto para <span className="neon-text">começar</span>?</h2>
           <p className="text-xl text-gray-400 mb-8">15 dias grátis. Sem cartão. Cancele quando quiser.</p>
           <div className="flex gap-4 justify-center">
-            <Link href="/register" className="btn-neon px-8 py-4 text-lg">🚀 Começar Grátis</Link>
-            <Link href="/pricing" className="btn-secondary px-8 py-4 text-lg">Ver Planos</Link>
+            <Link href="/register">
+              <Button variant="primary" size="lg">🚀 Começar Grátis</Button>
+            </Link>
+            <Link href="/pricing">
+              <Button variant="secondary" size="lg">Ver Planos</Button>
+            </Link>
           </div>
         </div>
       </section>
