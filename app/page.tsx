@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { Button, Card } from '@/components/ui'
 
 export default function HomePage() {
   return (
@@ -13,11 +14,11 @@ export default function HomePage() {
             </span>
           </div>
           <div className="flex gap-3">
-            <Link href="/pricing" className="btn-ghost px-6 py-2.5 text-sm font-medium">
-              Preços
+            <Link href="/pricing">
+              <Button variant="ghost" size="md">Preços</Button>
             </Link>
-            <Link href="/login" className="btn-primary px-6 py-2.5 text-sm font-medium">
-              Entrar
+            <Link href="/login">
+              <Button variant="primary" size="md">Entrar</Button>
             </Link>
           </div>
         </div>
@@ -53,11 +54,15 @@ export default function HomePage() {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-            <Link href="/register" className="btn-primary px-8 py-4 text-lg font-semibold">
-              🚀 Começar Grátis - 15 dias
+            <Link href="/register">
+              <Button variant="primary" size="lg">
+                🚀 Começar Grátis - 15 dias
+              </Button>
             </Link>
-            <Link href="/pricing" className="btn-secondary px-8 py-4 text-lg font-semibold">
-              Ver Preços
+            <Link href="/pricing">
+              <Button variant="secondary" size="lg">
+                Ver Preços
+              </Button>
             </Link>
           </div>
           
@@ -81,21 +86,21 @@ export default function HomePage() {
       {/* Features */}
       <section className="max-w-7xl mx-auto px-4 py-12 sm:py-16">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-8">
-          <div className="glass-card p-5 sm:p-6 text-center">
+          <Card variant="elevated" padding="md" className="text-center">
             <div className="text-3xl sm:text-4xl mb-3 sm:mb-4">📤</div>
             <h3 className="text-lg sm:text-xl font-bold mb-2">Upload Inteligente</h3>
             <p className="text-sm sm:text-base text-gray-400">Até 5GB por arquivo com drag & drop</p>
-          </div>
-          <div className="glass-card p-5 sm:p-6 text-center">
+          </Card>
+          <Card variant="elevated" padding="md" className="text-center">
             <div className="text-3xl sm:text-4xl mb-3 sm:mb-4">🔄</div>
             <h3 className="text-lg sm:text-xl font-bold mb-2">Conversão 4K</h3>
             <p className="text-sm sm:text-base text-gray-400">H.264 automático em 1080p e 4K</p>
-          </div>
-          <div className="glass-card p-5 sm:p-6 text-center sm:col-span-2 md:col-span-1">
+          </Card>
+          <Card variant="elevated" padding="md" className="text-center sm:col-span-2 md:col-span-1">
             <div className="text-3xl sm:text-4xl mb-3 sm:mb-4">🌍</div>
             <h3 className="text-lg sm:text-xl font-bold mb-2">CDN Global</h3>
             <p className="text-sm sm:text-base text-gray-400">400+ edge locations, 99.9% uptime</p>
-          </div>
+          </Card>
         </div>
       </section>
 
@@ -210,8 +215,10 @@ export default function HomePage() {
         <p className="text-base sm:text-xl text-gray-400 mb-6 sm:mb-8 px-2">
           15 dias grátis. Sem cartão de crédito. Cancele quando quiser.
         </p>
-        <Link href="/register" className="btn-neon px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg inline-block">
-          🚀 Começar Grátis Agora
+        <Link href="/register">
+          <Button variant="primary" size="lg">
+            🚀 Começar Grátis Agora
+          </Button>
         </Link>
       </section>
 
