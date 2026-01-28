@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useState } from 'react'
 import { Book, Upload, Share2, HelpCircle, FileText } from 'lucide-react'
+import { Button, Card } from '@/components/ui'
 
 export default function DocsPage() {
   const [activeSection, setActiveSection] = useState('inicio-rapido')
@@ -268,8 +269,12 @@ aws lambda update-function-code --function-name NAME --zip-file fileb://function
             🎬 <span className="neon-text">Mídiaflow</span>
           </Link>
           <div className="flex gap-4">
-            <Link href="/pricing" className="btn-secondary px-6 py-2">Ver Planos</Link>
-            <Link href="/register" className="btn-neon px-6 py-2">Começar Grátis</Link>
+            <Link href="/pricing">
+              <Button variant="secondary" size="md">Ver Planos</Button>
+            </Link>
+            <Link href="/register">
+              <Button variant="primary" size="md">Começar Grátis</Button>
+            </Link>
           </div>
         </div>
       </header>
@@ -328,22 +333,22 @@ aws lambda update-function-code --function-name NAME --zip-file fileb://function
               <div className="mt-12 pt-8 border-t border-gray-700 flex justify-between">
                 <div>
                   {sections.findIndex(s => s.id === activeSection) > 0 && (
-                    <button
+                    <Button
                       onClick={() => setActiveSection(sections[sections.findIndex(s => s.id === activeSection) - 1].id)}
-                      className="btn-secondary px-6 py-3"
+                      variant="secondary"
                     >
                       ← Anterior
-                    </button>
+                    </Button>
                   )}
                 </div>
                 <div>
                   {sections.findIndex(s => s.id === activeSection) < sections.length - 1 && (
-                    <button
+                    <Button
                       onClick={() => setActiveSection(sections[sections.findIndex(s => s.id === activeSection) + 1].id)}
-                      className="btn-neon px-6 py-3"
+                      variant="primary"
                     >
                       Próximo →
-                    </button>
+                    </Button>
                   )}
                 </div>
               </div>
