@@ -28,30 +28,70 @@ export default function MobileVideoPlayer({ src, title, currentVideo, playlist =
   const [isMuted, setIsMuted] = useState(false)
   const [showControls, setShowControls] = useState(true)
   const [currentIndex, setCurrentIndex] = useState(0)
-  const [currentSrc, setCurrentSrc] = useState(src)
+  const [videoUrl, setVideoUrl] = useState<string>('')
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string>('')
   const [touchStart, setTouchStart] = useState<{ x: number; y: number; time: number } | null>(null)
   const [isFullscreen, setIsFullscreen] = useState(false)
   
   // Auto-hide controls timer
   const controlsTimeoutRef = useRef<NodeJS.Timeout>()
   
+  useEffect(() => {
+    const fetchPresignedUrl = async () => {
+      setLoading(true)
+      setError('')
+      
+      try {
+        const isDev = process.env.NODE_ENV === 'development'
+        const encodedSrc = encodeURIComponent(src)
+        const response = isDev 
+          ? await fetch('/api/proxy-view', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ key: src })
+            })
+          : await fetch(`https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/view/${encodedSrc}`, {
+              headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                'Content-Type': 'application/json'
+              }
+            })
+
+        if (response.ok) {
+          const data = await response.json()
+          if (data.success && data.viewUrl) {
+            setVideoUrl(data.viewUrl)
+          } else {
+            setError('Erro ao obter URL do vídeo')
+          }
+        } else {
+          setError(`Erro ${response.status}: ${response.statusText}`)
+        }
+      } catch (err) {
+        setError('Erro ao conectar com servidor')
+        console.error(err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    if (src) {
+      fetchPresignedUrl()
+    }
+  }, [src])
+
   // Update current index when currentVideo changes
   useEffect(() => {
     if (currentVideo && playlist.length > 0) {
       const index = playlist.findIndex(v => v.key === currentVideo.key)
       if (index !== -1) {
         setCurrentIndex(index)
-        setCurrentSrc(currentVideo.url)
         setCurrentTime(0)
         setIsPlaying(false)
       }
     }
   }, [currentVideo, playlist])
-  
-  // Update source when src prop changes
-  useEffect(() => {
-    setCurrentSrc(src)
-  }, [src])
   
   // Auto-hide controls after 3 seconds
   const resetControlsTimer = () => {
@@ -288,28 +328,36 @@ export default function MobileVideoPlayer({ src, title, currentVideo, playlist =
           </div>
         )}
 
+        {loading && (
+          <div className="absolute inset-0 flex items-center justify-center z-30">
+            <div className="text-center text-white">
+              <div className="loading-shimmer w-16 h-16 rounded-full mx-auto mb-4"></div>
+              <p>Carregando vídeo...</p>
+            </div>
+          </div>
+        )}
+
+        {error && (
+          <div className="absolute inset-0 flex items-center justify-center z-30">
+            <div className="text-center text-white">
+              <p className="text-red-400 mb-2">{error}</p>
+              <button onClick={onClose} className="bg-neon-cyan text-black px-4 py-2 rounded">Fechar</button>
+            </div>
+          </div>
+        )}
+
         {/* Video Element */}
-        <video
-          ref={videoRef}
-          className="absolute inset-0 w-full h-full object-contain"
-          onClick={resetControlsTimer}
-          crossOrigin="anonymous"
-          preload="metadata"
-          key={currentSrc}
-          playsInline
-        >
-          {currentSrc.endsWith('.ts') ? (
-            <>
-              <source src={currentSrc} type="video/mp2t" />
-              <source src={currentSrc.replace('.ts', '.mp4')} type="video/mp4" />
-            </>
-          ) : (
-            <>
-              <source src={currentSrc} type="video/mp4" />
-              <source src={currentSrc} type="video/webm" />
-            </>
-          )}
-        </video>
+        {videoUrl && !loading && !error && (
+          <video
+            ref={videoRef}
+            className="absolute inset-0 w-full h-full object-contain"
+            onClick={resetControlsTimer}
+            src={videoUrl}
+            crossOrigin="anonymous"
+            preload="metadata"
+            playsInline
+          />
+        )}
 
 
 
