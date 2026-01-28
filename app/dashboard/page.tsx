@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { Button, Card, Skeleton } from '@/components/ui'
 
 import DirectUpload from '@/components/modules/DirectUpload'
 import FileList from '@/components/modules/FileList'
@@ -143,10 +144,10 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="glass-card p-8 text-center">
-          <div className="loading-shimmer w-16 h-16 rounded-full mx-auto mb-4"></div>
+        <Card variant="glass" padding="lg" className="text-center">
+          <Skeleton variant="avatar" className="mx-auto mb-4" />
           <p className="text-gray-400">Carregando...</p>
-        </div>
+        </Card>
       </div>
     )
   }
@@ -205,20 +206,22 @@ export default function DashboardPage() {
                 </div>
               )}
               {(currentUser?.role === 'admin') && (
-                <button
+                <Button
                   onClick={() => router.push('/admin')}
-                  className="btn-neon px-4 py-2 text-sm flex items-center gap-2"
+                  variant="primary"
+                  size="sm"
                 >
                   <span>👥</span>
                   Gerenciamento
-                </button>
+                </Button>
               )}
-              <button
+              <Button
                 onClick={logout}
-                className="btn-secondary px-4 py-2 text-sm"
+                variant="secondary"
+                size="sm"
               >
                 Sair
-              </button>
+              </Button>
             </div>
 
             {/* Mobile Hamburger */}
@@ -422,12 +425,13 @@ export default function DashboardPage() {
           <div className="space-y-6">
             <div className="flex justify-between items-center">
               <h2 className="text-xl font-semibold text-white">Upload de Arquivos</h2>
-              <button
+              <Button
                 onClick={() => setActiveTab('files')}
-                className="btn-secondary px-4 py-3 text-sm min-h-[44px]"
+                variant="secondary"
+                size="md"
               >
                 📁 Ver Arquivos
-              </button>
+              </Button>
             </div>
             
             <DirectUpload
