@@ -1,143 +1,177 @@
-# 📋 Changelog v4.9.2 - 30/01/2025
+# 📝 Changelog - Mídiaflow
 
-## 🎥 Video Player Melhorado
-
-### Auto-Hide Controls
-- **Adicionado:** Controles se escondem automaticamente após 3 segundos
-- **Mobile:** Otimização específica para dispositivos móveis
-- **UX:** Experiência mais limpa e profissional
-
-### Melhorias Mobile
-- **Touch:** Controles otimizados para touch
-- **Responsivo:** Layout adaptativo
-- **Performance:** Carregamento otimizado
-
-## 💰 Página de Pricing Atualizada
-
-### Design
-- **Cards:** Layout mais atrativo e moderno
-- **Responsivo:** Melhor experiência em todos os dispositivos
-- **CTA:** Call-to-actions mais efetivos
-
-### Funcionalidades
-- **Planos:** Estrutura clara de preços
-- **Features:** Destaque das funcionalidades
-- **Conversão:** Otimizado para vendas
-
-## 🔧 Scripts de Monitoramento
-
-### Novos Scripts
-- `analyze-video-quality.py` - Análise de qualidade de vídeos
-- `check-s3-usage.py` - Monitoramento de uso do S3
-- `check-star-upload.py` - Verificação de uploads
-- `rename-star-folders.py` - Organização de pastas
-
-## 📦 Arquivos Modificados
-
-### Frontend
-- `components/modules/VideoPlayer.tsx` (auto-hide controls)
-- `components/modules/MobileVideoPlayer.tsx` (mobile optimization)
-- `app/pricing/page.tsx` (layout atualizado)
-- `app/globals.css` (estilos melhorados)
-
-### Scripts
-- `scripts/upload-star-sergio.py` (novo)
-- `scripts/verificar-star-sergio.py` (novo)
-- `upload-star-cli.bat` (novo)
-
-### Documentação
-- `memoria/PLAYER_AUTO_HIDE_CONTROLS.md` (nova)
-- `DEPLOY_FINAL.md` (nova)
+Todas as mudanças notáveis do projeto serão documentadas neste arquivo.
 
 ---
 
-# 📋 Changelog v4.9.1 - 30/01/2025
+## [4.8.3] - 2025-01-31
 
-## 🔧 Correções Críticas
+### ✨ Adicionado
+- **VideoPlayer:** Controle de velocidade de reprodução (0.5x - 2x)
+- **VideoPlayer:** Modo Picture-in-Picture (PiP)
+- **VideoPlayer:** 7 atalhos de teclado (Espaço, Setas, F, M, K)
+- **FileList:** Botão X para limpar campo de busca
+- **FileList:** Altura fixa (42px) em todos elementos do grid de filtros
 
-### JWT Authentication Fix
-- **Problema:** Erro 401 em visualização de vídeos
-- **Causa:** JWT_SECRET incompatível entre Lambdas
-- **Solução:** Sincronizado JWT_SECRET entre auth-handler e view-handler
-- **Impacto:** Funcionalidade crítica restaurada com 100% sucesso
+### 🔧 Corrigido
+- **VideoPlayer:** Botão Play/Pause agora visível (fundo branco)
+- **FileList:** Sobreposição do botão "Buscar" com select "Ir para pasta"
+- **FileList:** Cores dos botões de ação (Play, Download, Delete) agora visíveis
+- **FileList:** "Limpar Filtros" não reseta mais a pasta atual
 
-### Sanitização de Arquivos
-- **Adicionado:** Sanitização automática de nomes de arquivos no upload
-- **Proteção:** Remove caracteres especiais, limita tamanho (100 chars)
-- **Segurança:** Previne path traversal e nomes inválidos
-
-## 📊 Melhorias
-
-### Performance
-- ✅ Tempo de resposta view-handler: ~250ms
-- ✅ Taxa de sucesso: 100%
-- ✅ Zero downtime na correção
-
-### Documentação
-- ✅ Documentação da correção JWT
-- ✅ Script de backup automatizado
-- ✅ Changelog atualizado
-
-## 🛡️ Segurança
-
-### Backups
-- ✅ Configuração Lambda view-handler
-- ✅ Configuração Lambda auth-handler
-- ✅ Arquivos críticos locais
-
-### Validações
-- ✅ JWT validation funcionando
-- ✅ Sanitização de filenames ativa
-- ✅ CORS configurado corretamente
-
-## 📦 Arquivos Modificados
-
-### Backend
-- `aws-setup/lambda-functions/view-handler/` (env vars)
-
-### Frontend
-- `components/modules/FileUpload.tsx` (sanitização ativada)
-
-### Documentação
-- `docs/CORRECAO_JWT_2025-01-30.md` (nova)
-- `CHANGELOG.md` (atualizado)
-
-### Scripts
-- `backup-stable-version.bat` (novo)
-
-## 🚀 Deploy
-
-### Comandos Executados
-```bash
-# Atualização Lambda
-aws lambda update-function-configuration \
-  --function-name mediaflow-view-handler \
-  --environment Variables={JWT_SECRET=17b8312c...}
-
-# Backup
-backup-stable-version.bat
-
-# Commit
-git add .
-git commit -m "fix: JWT secret sync + file sanitization v4.9.1"
-git push origin main
-```
-
-## ✅ Testes Realizados
-
-- ✅ Visualização de vídeos (múltiplos arquivos testados)
-- ✅ Upload com sanitização
-- ✅ Autenticação JWT
-- ✅ Performance < 300ms
-
-## 📝 Próximos Passos
-
-- [ ] Monitorar logs por 24h
-- [ ] Validar sanitização em produção
-- [ ] Continuar desenvolvimento v4.9 (sistema de planos)
+### 🎨 Melhorado
+- **FileList:** Botões de ação com cores distintas e bordas
+  - Vídeo: Roxo
+  - Imagem: Verde
+  - PDF: Azul
+  - Download: Ciano
+  - Delete: Vermelho
+- **FileList:** Grid de filtros uniforme e alinhado
+- **VideoPlayer:** Controles mais profissionais e acessíveis
 
 ---
 
-**Versão:** v4.9.1  
-**Status:** ✅ PRODUÇÃO ESTÁVEL  
-**Data:** 30/01/2025
+## [4.8.2] - 2025-01-30
+
+### 🔧 Corrigido
+- Correção crítica no JWT para autenticação
+- Fix em chunks 404 error
+
+### 📚 Documentação
+- Atualização de documentação de deploy
+- Guia de correção JWT
+
+---
+
+## [4.8.0] - 2025-01-28
+
+### ✨ Adicionado
+- FolderManagerV2 com navegação hierárquica
+- Suporte a pastas vazias com placeholders
+- Duplo clique para navegar/abrir arquivos
+- Ordenação por nome, arquivos, subpastas
+
+### 🔧 Corrigido
+- Listagem de todas as subpastas (incluindo vazias)
+- Permissões de admin vs user
+- Navegação entre pastas
+
+---
+
+## [4.7.4] - 2025-01-25
+
+### ✨ Adicionado
+- Sistema de trial (14 dias)
+- Limites de storage e bandwidth
+- Indicadores de uso no dashboard
+
+### 🎨 Melhorado
+- UI do dashboard com progress bars
+- Alertas de limite de trial
+
+---
+
+## [4.7.0] - 2025-01-20
+
+### ✨ Adicionado
+- Sistema de autenticação 2FA para admin
+- Sessão de 30 minutos para admin
+- AvatarUpload component
+- Multi-usuário com seleção de perfil
+
+### 🔧 Corrigido
+- Segurança de rotas admin
+- Validação de sessão
+
+---
+
+## [4.6.0] - 2025-01-15
+
+### ✨ Adicionado
+- VideoPlayer com playlist
+- ImageViewer com galeria
+- PDFViewer
+- Auto-hide de controles do player
+
+### 🎨 Melhorado
+- Player responsivo
+- Controles touch-friendly
+- Transições suaves
+
+---
+
+## [4.5.0] - 2025-01-10
+
+### ✨ Adicionado
+- DirectUpload com multipart
+- Progress bar em tempo real
+- Conversão automática de vídeos
+- Thumbnails automáticas
+
+### 🔧 Corrigido
+- Upload de arquivos grandes (>5GB)
+- Timeout em uploads longos
+
+---
+
+## [4.0.0] - 2025-01-01
+
+### ✨ Adicionado
+- Migração para Next.js 14
+- App Router
+- Server Components
+- Tailwind CSS com tema neon/cyberpunk
+
+### 🗑️ Removido
+- Pages Router (legado)
+- Styled Components
+
+---
+
+## [3.0.0] - 2024-12-15
+
+### ✨ Adicionado
+- Integração completa com AWS
+- S3 para storage
+- Lambda para processamento
+- CloudFront CDN
+- MediaConvert para conversão
+
+---
+
+## [2.0.0] - 2024-12-01
+
+### ✨ Adicionado
+- Sistema de pastas
+- Gerenciamento de usuários
+- Roles (admin/user/viewer)
+
+---
+
+## [1.0.0] - 2024-11-15
+
+### ✨ Inicial
+- Upload básico de arquivos
+- Listagem de arquivos
+- Player de vídeo simples
+- Autenticação básica
+
+---
+
+## 📋 Formato
+
+O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/),
+e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
+
+### Tipos de Mudanças
+- **Adicionado** para novas funcionalidades
+- **Modificado** para mudanças em funcionalidades existentes
+- **Descontinuado** para funcionalidades que serão removidas
+- **Removido** para funcionalidades removidas
+- **Corrigido** para correções de bugs
+- **Segurança** para vulnerabilidades corrigidas
+
+---
+
+**Última Atualização:** 31/01/2025  
+**Versão Atual:** 4.8.3
