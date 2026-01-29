@@ -256,12 +256,14 @@ export default function DashboardPage() {
                 </div>
               )}
               {(currentUser?.role === 'admin') && (
-                <button
+                <Button
                   onClick={() => {
                     router.push('/admin')
                     setMobileMenuOpen(false)
                   }}
-                  className="btn-neon w-full px-4 py-3 text-sm flex items-center justify-center gap-2"
+                  variant="primary"
+                  size="md"
+                  className="w-full"
                 >
                   {currentUser.avatar_url ? (
                     <img 
@@ -273,17 +275,19 @@ export default function DashboardPage() {
                     <span>👥</span>
                   )}
                   Painel Admin
-                </button>
+                </Button>
               )}
-              <button
+              <Button
                 onClick={() => {
                   logout()
                   setMobileMenuOpen(false)
                 }}
-                className="btn-secondary w-full px-4 py-3 text-sm"
+                variant="secondary"
+                size="md"
+                className="w-full"
               >
                 🚪 Sair do Sistema
-              </button>
+              </Button>
             </div>
           )}
         </div>
@@ -324,10 +328,10 @@ export default function DashboardPage() {
       <main className="max-w-7xl mx-auto px-2 sm:px-4 py-4 sm:py-8">
         {/* Trial Progress */}
         {currentUser?.plan === 'trial' && (
-          <div className="mb-6 glass-card p-4 border border-yellow-500/30">
+          <Card variant="glass" padding="md" className="mb-6 border border-yellow-500/30">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-semibold text-yellow-400">📊 Uso do Trial</h3>
-              <button className="btn-neon px-3 py-1 text-xs">Fazer Upgrade</button>
+              <Button variant="primary" size="sm">Fazer Upgrade</Button>
             </div>
             <div className="space-y-3">
               <div>
@@ -355,7 +359,7 @@ export default function DashboardPage() {
                 </div>
               </div>
             </div>
-          </div>
+          </Card>
         )}
 
 
