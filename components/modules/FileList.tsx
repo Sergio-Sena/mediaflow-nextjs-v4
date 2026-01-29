@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Play, Download, Trash2, Search, Filter, Grid, List, RefreshCw, Settings } from 'lucide-react'
+import { Play, Download, Trash2, Search, Filter, Grid, List, RefreshCw, Settings, X } from 'lucide-react'
 
 interface S3File {
   key: string
@@ -565,17 +565,23 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
       <div className="glass-card p-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Search */}
-          <div className="flex gap-2">
+          <div className="relative flex items-center">
             <input
               type="text"
               placeholder="Buscar arquivos..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="flex-1 px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-neon-cyan focus:outline-none"
+              className="w-full h-[42px] px-4 py-2 pr-10 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-neon-cyan focus:outline-none"
             />
-            <button className="btn-secondary p-2 flex items-center justify-center" title="Buscar">
-              <Search className="w-4 h-4" />
-            </button>
+            {searchTerm && (
+              <button
+                onClick={() => setSearchTerm('')}
+                className="absolute right-2 p-1 text-gray-400 hover:text-white transition-colors"
+                title="Limpar busca"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
           </div>
 
           {/* Quick Folder Jump */}
@@ -591,7 +597,7 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
                 }
               }
             }}
-            className="px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:border-neon-cyan focus:outline-none"
+            className="h-[42px] px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:border-neon-cyan focus:outline-none"
           >
             <option value="">🚀 Ir para pasta...</option>
             {folders.map(folder => (
@@ -603,7 +609,7 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
           <select
             value={selectedType}
             onChange={(e) => setSelectedType(e.target.value)}
-            className="px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:border-neon-cyan focus:outline-none"
+            className="h-[42px] px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:border-neon-cyan focus:outline-none"
           >
             <option value="all">Todos os tipos</option>
             <option value="video">Vídeos</option>
@@ -617,12 +623,10 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
             onClick={() => {
               setSearchTerm('')
               setSelectedType('all')
-              setSelectedFolder('all')
-              setCurrentPath([''])
               setSelectedFiles(new Set())
               setSelectAll(false)
             }}
-            className="btn-secondary"
+            className="h-[42px] btn-secondary flex items-center justify-center"
           >
             <Filter className="w-4 h-4 mr-2" />
             Limpar Filtros
@@ -690,7 +694,7 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
                     {file.type === 'video' && (
                       <button
                         onClick={() => onPlayVideo?.(file)}
-                        className="p-2 bg-neon-purple/20 hover:bg-neon-purple/30 text-neon-purple rounded-lg transition-colors"
+                        className="p-2 bg-purple-600/30 hover:bg-purple-600/50 text-purple-300 rounded-lg transition-colors border border-purple-500/30"
                         title="Reproduzir"
                       >
                         <Play className="w-4 h-4" />
@@ -700,7 +704,7 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
                     {file.type === 'image' && (
                       <button
                         onClick={() => onViewImage?.(file)}
-                        className="p-2 bg-green-500/20 hover:bg-green-500/30 text-green-400 rounded-lg transition-colors"
+                        className="p-2 bg-green-600/30 hover:bg-green-600/50 text-green-300 rounded-lg transition-colors border border-green-500/30"
                         title="Visualizar"
                       >
                         <Play className="w-4 h-4" />
@@ -710,7 +714,7 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
                     {file.type === 'document' && (
                       <button
                         onClick={() => onViewPDF?.(file)}
-                        className="p-2 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 rounded-lg transition-colors"
+                        className="p-2 bg-blue-600/30 hover:bg-blue-600/50 text-blue-300 rounded-lg transition-colors border border-blue-500/30"
                         title="Visualizar PDF"
                       >
                         <Play className="w-4 h-4" />
@@ -719,7 +723,7 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
                     
                     <button
                       onClick={() => handleDownload(file)}
-                      className="p-2 bg-neon-cyan/20 hover:bg-neon-cyan/30 text-neon-cyan rounded-lg transition-colors"
+                      className="p-2 bg-cyan-600/30 hover:bg-cyan-600/50 text-cyan-300 rounded-lg transition-colors border border-cyan-500/30"
                       title="Download"
                     >
                       <Download className="w-4 h-4" />
@@ -727,7 +731,7 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
                     
                     <button
                       onClick={() => handleDelete(file)}
-                      className="p-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg transition-colors"
+                      className="p-2 bg-red-600/30 hover:bg-red-600/50 text-red-300 rounded-lg transition-colors border border-red-500/30"
                       title="Excluir"
                     >
                       <Trash2 className="w-4 h-4" />

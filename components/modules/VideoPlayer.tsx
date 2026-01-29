@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { Play, Pause, Volume2, VolumeX, Maximize, X, SkipBack, SkipForward, List } from 'lucide-react'
+import { Play, Pause, Volume2, VolumeX, Maximize, X, SkipBack, SkipForward, List, PictureInPicture } from 'lucide-react'
 
 interface VideoFile {
   key: string
@@ -31,6 +31,7 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
   const [error, setError] = useState<string>('')
   const [showPlaylist, setShowPlaylist] = useState(false)
   const [showControls, setShowControls] = useState(true)
+  const [playbackRate, setPlaybackRate] = useState(1)
   const hideControlsTimeout = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
@@ -169,6 +170,33 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
     }
   }
 
+  const togglePictureInPicture = async () => {
+    const video = videoRef.current
+    if (!video) return
+
+    try {
+      if (document.pictureInPictureElement) {
+        await document.exitPictureInPicture()
+      } else {
+        await video.requestPictureInPicture()
+      }
+    } catch (err) {
+      console.error('PiP error:', err)
+    }
+  }
+
+  const changePlaybackRate = () => {
+    const video = videoRef.current
+    if (!video) return
+
+    const rates = [0.5, 0.75, 1, 1.25, 1.5, 2]
+    const currentIndex = rates.indexOf(playbackRate)
+    const nextRate = rates[(currentIndex + 1) % rates.length]
+    
+    video.playbackRate = nextRate
+    setPlaybackRate(nextRate)
+  }
+
   const formatTime = (time: number) => {
     const minutes = Math.floor(time / 60)
     const seconds = Math.floor(time % 60)
@@ -221,6 +249,51 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
       }
     }
   }, [])
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      const video = videoRef.current
+      if (!video) return
+
+      switch(e.key) {
+        case ' ':
+        case 'k':
+          e.preventDefault()
+          togglePlay()
+          break
+        case 'ArrowLeft':
+          e.preventDefault()
+          video.currentTime = Math.max(0, video.currentTime - 5)
+          break
+        case 'ArrowRight':
+          e.preventDefault()
+          video.currentTime = Math.min(duration, video.currentTime + 5)
+          break
+        case 'ArrowUp':
+          e.preventDefault()
+          video.volume = Math.min(1, video.volume + 0.1)
+          setVolume(video.volume)
+          break
+        case 'ArrowDown':
+          e.preventDefault()
+          video.volume = Math.max(0, video.volume - 0.1)
+          setVolume(video.volume)
+          break
+        case 'f':
+          e.preventDefault()
+          toggleFullscreen()
+          break
+        case 'm':
+          e.preventDefault()
+          toggleMute()
+          break
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyPress)
+    return () => window.removeEventListener('keydown', handleKeyPress)
+  }, [isPlaying, duration])
 
   const handlePrevious = () => {
     if (!playlist || !currentVideo || !onVideoChange) return
@@ -306,11 +379,11 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
                     </button>
                   )}
 
-                  <button onClick={togglePlay} className="bg-neon-cyan hover:bg-neon-cyan/80 rounded-full p-3 shadow-neon-cyan">
+                  <button onClick={togglePlay} className="bg-white hover:bg-gray-200 rounded-full p-3 transition-colors">
                     {isPlaying ? (
-                      <Pause className="w-6 h-6" style={{ color: 'black' }} />
+                      <Pause className="w-6 h-6 text-black" />
                     ) : (
-                      <Play className="w-6 h-6" style={{ color: 'black', marginLeft: '2px' }} />
+                      <Play className="w-6 h-6 text-black" style={{ marginLeft: '2px' }} />
                     )}
                   </button>
 
@@ -341,6 +414,22 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
                   <span className="text-gray-300 text-sm">
                     {formatTime(currentTime)} / {formatTime(duration)}
                   </span>
+
+                  <button 
+                    onClick={changePlaybackRate}
+                    className="text-white hover:text-neon-cyan px-2 py-1 bg-gray-800/50 rounded text-sm font-mono"
+                    title="Velocidade de reprodução"
+                  >
+                    {playbackRate}x
+                  </button>
+
+                  <button 
+                    onClick={togglePictureInPicture}
+                    className="text-white hover:text-neon-cyan"
+                    title="Picture-in-Picture"
+                  >
+                    <PictureInPicture className="w-5 h-5" />
+                  </button>
 
                   {playlist && playlist.length > 1 && (
                     <button 
