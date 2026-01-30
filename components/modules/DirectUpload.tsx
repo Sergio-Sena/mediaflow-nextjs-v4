@@ -60,13 +60,20 @@ export default function DirectUpload({
     try {
       let filename = (file as any).webkitRelativePath || file.name
       
-      if (destination) {
+      // Auto-adicionar pasta do usuário se não for admin
+      if (!destination && currentUser && currentUser.role !== 'admin') {
+        const userPrefix = currentUser.s3_prefix || `users/${currentUser.user_id}/`
+        filename = userPrefix + filename
+      } else if (destination) {
         filename = destination + filename
       }
       
       const token = localStorage.getItem('token')
       
-      const urlResponse = await fetch('/api/upload/presigned-url', {
+      const { getApiUrl } = await import('@/lib/aws-config')
+      const apiUrl = getApiUrl('UPLOAD')
+      
+      const urlResponse = await fetch(apiUrl, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -97,8 +104,11 @@ export default function DirectUpload({
 
         xhr.addEventListener('load', () => {
           if (xhr.status >= 200 && xhr.status < 300) {
-            setResults(prev => ({ ...prev, [file.name]: 'success' }))
-            setProgress(prev => ({ ...prev, [file.name]: 100 }))
+            // Delay mínimo de 500ms para mostrar 100%
+            setTimeout(() => {
+              setResults(prev => ({ ...prev, [file.name]: 'success' }))
+              setProgress(prev => ({ ...prev, [file.name]: 100 }))
+            }, 500)
             resolve()
           } else if (xhr.status === 503 && retryCount < 3) {
             const delay = Math.pow(2, retryCount) * 1000
@@ -141,6 +151,11 @@ export default function DirectUpload({
     setUploading(true)
     setProgress({})
     setResults({})
+
+    // Inicializar progresso em 0% para todos os arquivos
+    const initialProgress: {[key: string]: number} = {}
+    normalFiles.forEach(f => initialProgress[f.name] = 0)
+    setProgress(initialProgress)
 
     try {
       const batchSize = 2
@@ -470,12 +485,17 @@ export default function DirectUpload({
                   </div>
                   
                   {progress[file.name] !== undefined && results[file.name] !== 'success' && results[file.name] !== 'error' && (
-                    <div className="w-full bg-gray-700 rounded-full h-2">
-                      <div 
-                        className="bg-gradient-to-r from-neon-cyan to-neon-purple h-2 rounded-full transition-all duration-300"
-                        style={{ width: `${progress[file.name]}%` }}
-                      />
-                    </div>
+                    <>
+                      <div className="w-full bg-gray-700 rounded-full h-2 mb-1">
+                        <div 
+                          className="bg-gradient-to-r from-neon-cyan to-neon-purple h-2 rounded-full transition-all duration-300"
+                          style={{ width: `${progress[file.name]}%` }}
+                        />
+                      </div>
+                      <div className="text-xs text-neon-cyan text-right">
+                        {progress[file.name]}%
+                      </div>
+                    </>
                   )}
                 </div>
 

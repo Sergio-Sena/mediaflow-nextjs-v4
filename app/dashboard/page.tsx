@@ -60,6 +60,9 @@ export default function DashboardPage() {
       const user = JSON.parse(currentUserData)
       if (user.role === 'admin') {
         setActiveTab('folders')
+      } else {
+        // User: definir pasta inicial
+        setCurrentFolderPath(user.s3_prefix || '')
       }
     }
     

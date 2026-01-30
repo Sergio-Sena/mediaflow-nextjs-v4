@@ -191,7 +191,7 @@ export default function AdminPage() {
         body.password = editUser.password
       }
 
-      const res = await fetch('https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/users/update', {
+      const res = await fetch('https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/update-user', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)
