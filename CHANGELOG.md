@@ -4,6 +4,25 @@ Todas as mudanças notáveis do projeto serão documentadas neste arquivo.
 
 ---
 
+## [4.8.4] - 2025-01-29
+
+### 🔧 Corrigido
+- **Upload JWT**: Lambda agora extrai `user_id` do JWT corretamente
+- **Upload Path**: Arquivos salvos automaticamente em `users/{user_id}/`
+- **Lambda**: Instalado PyJWT no `mediaflow-upload-handler`
+- **API Gateway**: Integração corrigida para Lambda correto
+- **DirectUpload**: Chama Lambda diretamente via `aws-config.ts`
+
+### ✨ Melhorado
+- **Barra de Progresso**: Inicia em 0%, mostra percentual numérico
+- **Feedback Visual**: Delay de 500ms em 100% antes de marcar sucesso
+- **Upload UX**: Melhor visualização do progresso de upload
+
+### 🗑️ Removido
+- Lambda duplicado `midiaflow-upload-handler` (nome incorreto)
+
+---
+
 ## [4.8.3] - 2025-01-31
 
 ### ✨ Adicionado

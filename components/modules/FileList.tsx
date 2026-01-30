@@ -298,9 +298,10 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
     }
     
     // Admin vê apenas admin/, user vê apenas suas pastas
+    const normalizedPrefix = userPrefix.replace(/\/$/, '')
     const hasPermission = userRole === 'admin' 
       ? (file.folder.startsWith('admin/') || file.folder === 'admin')
-      : (file.folder.startsWith(userPrefix) || file.folder === 'root')
+      : (file.folder.startsWith(normalizedPrefix) || file.folder === 'root')
     
     return matchesSearch && matchesType && hasPermission
   })
