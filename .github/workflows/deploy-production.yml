@@ -194,13 +194,13 @@ jobs:
       - name: Deployment Success
         if: needs.health-check.result == 'success'
         run: |
-          echo "✅ Deployment successful!"
-          echo "🌐 URL: https://midiaflow.sstechnologies-cloud.com"
-          echo "📦 Version: ${{ github.sha }}"
+          echo "Deployment successful!"
+          echo "URL: https://midiaflow.sstechnologies-cloud.com"
+          echo "Version: ${{ github.sha }}"
       
       - name: Deployment Failed
         if: needs.health-check.result != 'success'
         run: |
-          echo "❌ Deployment failed!"
-          echo "📦 Version: ${{ github.sha }}"
+          echo "Deployment failed!"
+          echo "Version: ${{ github.sha }}"
           exit 1
