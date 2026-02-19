@@ -21,10 +21,18 @@ Todas as mudanças notáveis do projeto serão documentadas neste arquivo.
   - Botão fullscreen visível em portrait
 - **Button Component**: Loading centralizado com justify-center
 
+### ⚡ Performance - VideoPlayer
+- **Throttle timeupdate**: Redução de 50% nos re-renders (500ms)
+- **Preload metadata**: Carrega apenas metadados inicialmente
+- **PlaysInline**: Evita fullscreen automático no iOS
+- **Buffer indicator**: Feedback visual durante carregamento
+- **Memory optimization**: Event listeners otimizados
+
 ### 🔧 Corrigido
 - **VideoPlayer**: Controles aparecem ao passar mouse (onMouseEnter)
 - **VideoPlayer**: Botões não são mais cortados em telas pequenas
 - **VideoPlayer**: Picture-in-Picture oculto no mobile
+- **VideoPlayer**: Travamentos em vídeos longos no mobile
 
 ---
 
