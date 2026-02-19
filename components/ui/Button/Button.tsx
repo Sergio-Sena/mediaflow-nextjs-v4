@@ -31,7 +31,7 @@ export function Button({
       {...props}
     >
       {loading ? (
-        <span className="flex items-center gap-2">
+        <span className="flex items-center justify-center gap-2">
           <span className="animate-spin">⏳</span>
           {children}
         </span>

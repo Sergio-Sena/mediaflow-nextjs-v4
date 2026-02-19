@@ -4,6 +4,30 @@ Todas as mudanças notáveis do projeto serão documentadas neste arquivo.
 
 ---
 
+## [4.8.5] - 2025-02-01
+
+### 🎨 Melhorado - UI/UX Mobile
+- **Login**: Botão de loading centralizado
+- **Login**: Espaçamentos responsivos (mobile vs desktop)
+- **Login**: Textos e botões com tamanhos adaptativos
+- **VideoPlayer**: Controles otimizados para mobile
+  - Área de toque aumentada (44x44px mínimo)
+  - Espaçamento compacto (gap-1) para evitar corte de botões
+  - Feedback tátil (active:scale-95) em todos os botões
+  - Controles visíveis por 5s no mobile (vs 3s desktop)
+  - Slider de volume aparece ao clicar no botão
+  - Playlist responsiva (w-full max-w-xs no mobile)
+  - Header com auto-hide junto com controles
+  - Botão fullscreen visível em portrait
+- **Button Component**: Loading centralizado com justify-center
+
+### 🔧 Corrigido
+- **VideoPlayer**: Controles aparecem ao passar mouse (onMouseEnter)
+- **VideoPlayer**: Botões não são mais cortados em telas pequenas
+- **VideoPlayer**: Picture-in-Picture oculto no mobile
+
+---
+
 ## [4.8.4] - 2025-01-29
 
 ### 🔧 Corrigido
@@ -192,5 +216,5 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
-**Última Atualização:** 31/01/2025  
-**Versão Atual:** 4.8.3
+**Última Atualização:** 01/02/2025  
+**Versão Atual:** 4.8.5

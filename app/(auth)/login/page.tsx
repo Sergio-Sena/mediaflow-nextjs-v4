@@ -131,11 +131,11 @@ export default function LoginPage() {
           </div>
         </form>
 
-        <div className="mt-8 text-center space-y-4">
-          <div className="border-t border-gray-700 pt-6">
-            <p className="text-sm text-gray-400 mb-3">Não tem uma conta?</p>
-            <Link href="/register">
-              <Button variant="secondary" size="md">
+        <div className="mt-6 sm:mt-8 text-center space-y-3 sm:space-y-4">
+          <div className="border-t border-gray-700 pt-4 sm:pt-6">
+            <p className="text-xs sm:text-sm text-gray-400 mb-2 sm:mb-3">Não tem uma conta?</p>
+            <Link href="/register" className="block">
+              <Button variant="secondary" size="md" className="w-full sm:w-auto">
                 <span>👤</span>
                 Criar Conta
               </Button>
@@ -144,7 +144,7 @@ export default function LoginPage() {
           
           <Link 
             href="/" 
-            className="text-sm text-gray-400 hover:text-neon-cyan transition-colors"
+            className="block text-xs sm:text-sm text-gray-400 hover:text-neon-cyan transition-colors py-2"
           >
             ← Voltar ao início
           </Link>
