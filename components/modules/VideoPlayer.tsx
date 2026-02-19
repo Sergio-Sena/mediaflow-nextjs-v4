@@ -104,6 +104,12 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
     const handleWaiting = () => setIsBuffering(true)
     const handleCanPlay = () => setIsBuffering(false)
     const handlePlaying = () => setIsBuffering(false)
+    
+    // Sincroniza volume quando alterado por botões físicos
+    const handleVolumeChange = () => {
+      setVolume(video.volume)
+      setIsMuted(video.muted || video.volume === 0)
+    }
 
     video.addEventListener('timeupdate', updateTime)
     video.addEventListener('loadedmetadata', updateDuration)
@@ -113,6 +119,7 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
     video.addEventListener('waiting', handleWaiting)
     video.addEventListener('canplay', handleCanPlay)
     video.addEventListener('playing', handlePlaying)
+    video.addEventListener('volumechange', handleVolumeChange)
 
     // Força atualização da duração se já estiver carregada
     if (video.duration && !isNaN(video.duration)) {
@@ -128,6 +135,7 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
       video.removeEventListener('waiting', handleWaiting)
       video.removeEventListener('canplay', handleCanPlay)
       video.removeEventListener('playing', handlePlaying)
+      video.removeEventListener('volumechange', handleVolumeChange)
     }
   }, [videoUrl])
 
