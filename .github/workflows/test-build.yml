@@ -1,4 +1,4 @@
-name: Test Build Only
+name: Deploy Production
 
 on:
   push:
@@ -33,7 +33,7 @@ jobs:
           retention-days: 1
   
   deploy:
-    name: Deploy to S3
+    name: Deploy to Production
     needs: build
     runs-on: ubuntu-latest
     steps:
@@ -50,9 +50,25 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
       
-      - name: Deploy to S3
+      - name: Sync to S3
         run: |
-          aws s3 sync out/ s3://mediaflow-frontend-969430605054/ --delete
+          aws s3 sync out/ s3://mediaflow-frontend-969430605054/ \
+            --cache-control "public, max-age=31536000, immutable" \
+            --exclude "*.html"
+          
+          aws s3 sync out/ s3://mediaflow-frontend-969430605054/ \
+            --exclude "*" \
+            --include "*.html" \
+            --cache-control "public, max-age=0, must-revalidate"
       
-      - name: Success
-        run: echo "Deploy completed!"
+      - name: Invalidate CloudFront
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id E2HZKZ9ZJK18IU \
+            --paths "/*"
+      
+      - name: Deployment Success
+        run: |
+          echo "Deployment successful!"
+          echo "URL: https://midiaflow.sstechnologies-cloud.com"
+          echo "Version: ${{ github.sha }}"
