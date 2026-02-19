@@ -32,6 +32,7 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
   const [showPlaylist, setShowPlaylist] = useState(false)
   const [showControls, setShowControls] = useState(true)
   const [playbackRate, setPlaybackRate] = useState(1)
+  const [showVolumeSlider, setShowVolumeSlider] = useState(false)
   const hideControlsTimeout = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
@@ -147,6 +148,8 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
     const video = videoRef.current
     if (!video) return
 
+    setShowVolumeSlider(!showVolumeSlider)
+
     if (isMuted) {
       video.volume = volume
       setIsMuted(false)
@@ -210,9 +213,11 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
     }
     
     if (isPlaying) {
+      // 5s no mobile, 3s no desktop
+      const isMobile = window.innerWidth < 640
       hideControlsTimeout.current = setTimeout(() => {
         setShowControls(false)
-      }, 3000)
+      }, isMobile ? 5000 : 3000)
     }
   }
 
@@ -319,13 +324,15 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
     <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
       <div className="relative w-full max-w-6xl bg-dark-900 rounded-lg overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 bg-dark-800/50 border-b border-neon-cyan/20">
-          <h3 className="text-lg font-semibold text-white truncate">{title}</h3>
+        <div className={`flex items-center justify-between p-2 sm:p-4 bg-dark-800/50 border-b border-neon-cyan/20 transition-opacity duration-300 ${
+          showControls ? 'opacity-100' : 'opacity-0'
+        }`}>
+          <h3 className="text-sm sm:text-lg font-semibold text-white truncate">{title}</h3>
           <button
             onClick={onClose}
-            className="text-white hover:text-neon-cyan p-2 rounded-full bg-gray-800/50"
+            className="text-white hover:text-neon-cyan p-1.5 sm:p-2 rounded-full bg-gray-800/50"
           >
-            <X className="w-6 h-6" />
+            <X className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>
         </div>
 
@@ -334,6 +341,7 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
           className="relative bg-black fullscreen:h-screen" 
           style={{ maxHeight: '80vh' }}
           onMouseMove={handleMouseMove}
+          onMouseEnter={handleMouseMove}
           onMouseLeave={handleMouseLeave}
         >
           {loading && (
@@ -365,25 +373,25 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
               />
 
               {/* Controls */}
-              <div className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-4 transition-opacity duration-300 ${
+              <div className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-3 sm:p-4 transition-opacity duration-300 ${
                 showControls ? 'opacity-100' : 'opacity-0'
               }`}>
-                <div className="flex items-center gap-4 mb-2">
+                <div className="flex items-center gap-1 sm:gap-4 mb-2">
                   {playlist && playlist.length > 1 && (
                     <button 
                       onClick={handlePrevious} 
                       disabled={!hasPrevious}
-                      className="text-white hover:text-neon-cyan disabled:opacity-30 disabled:cursor-not-allowed"
+                      className="text-white hover:text-neon-cyan disabled:opacity-30 disabled:cursor-not-allowed p-2 active:scale-95 transition-transform"
                     >
                       <SkipBack className="w-5 h-5" />
                     </button>
                   )}
 
-                  <button onClick={togglePlay} className="bg-white hover:bg-gray-200 rounded-full p-3 transition-colors">
+                  <button onClick={togglePlay} className="bg-white hover:bg-gray-200 rounded-full p-3 transition-all active:scale-95">
                     {isPlaying ? (
-                      <Pause className="w-6 h-6 text-black" />
+                      <Pause className="w-5 h-5 sm:w-6 sm:h-6 text-black" />
                     ) : (
-                      <Play className="w-6 h-6 text-black" style={{ marginLeft: '2px' }} />
+                      <Play className="w-5 h-5 sm:w-6 sm:h-6 text-black" style={{ marginLeft: '2px' }} />
                     )}
                   </button>
 
@@ -391,33 +399,35 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
                     <button 
                       onClick={handleNext} 
                       disabled={!hasNext}
-                      className="text-white hover:text-neon-cyan disabled:opacity-30 disabled:cursor-not-allowed"
+                      className="text-white hover:text-neon-cyan disabled:opacity-30 disabled:cursor-not-allowed p-2 active:scale-95 transition-transform"
                     >
                       <SkipForward className="w-5 h-5" />
                     </button>
                   )}
 
-                  <button onClick={toggleMute} className="text-white hover:text-neon-cyan">
+                  <button onClick={toggleMute} className="text-white hover:text-neon-cyan p-2 active:scale-95 transition-transform">
                     {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
                   </button>
 
-                  <input
-                    type="range"
-                    min="0"
-                    max="1"
-                    step="0.1"
-                    value={isMuted ? 0 : volume}
-                    onChange={handleVolumeChange}
-                    className="w-20 h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer"
-                  />
+                  {showVolumeSlider && (
+                    <input
+                      type="range"
+                      min="0"
+                      max="1"
+                      step="0.1"
+                      value={isMuted ? 0 : volume}
+                      onChange={handleVolumeChange}
+                      className="w-16 sm:w-20 h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer"
+                    />
+                  )}
 
-                  <span className="text-gray-300 text-sm">
+                  <span className="text-gray-300 text-xs sm:text-sm whitespace-nowrap">
                     {formatTime(currentTime)} / {formatTime(duration)}
                   </span>
 
                   <button 
                     onClick={changePlaybackRate}
-                    className="text-white hover:text-neon-cyan px-2 py-1 bg-gray-800/50 rounded text-sm font-mono"
+                    className="text-white hover:text-neon-cyan px-2 py-1 bg-gray-800/50 rounded text-xs sm:text-sm font-mono active:scale-95 transition-transform"
                     title="Velocidade de reprodução"
                   >
                     {playbackRate}x
@@ -425,7 +435,7 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
 
                   <button 
                     onClick={togglePictureInPicture}
-                    className="text-white hover:text-neon-cyan"
+                    className="hidden sm:block text-white hover:text-neon-cyan p-2 active:scale-95 transition-transform"
                     title="Picture-in-Picture"
                   >
                     <PictureInPicture className="w-5 h-5" />
@@ -434,13 +444,13 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
                   {playlist && playlist.length > 1 && (
                     <button 
                       onClick={() => setShowPlaylist(!showPlaylist)} 
-                      className="text-white hover:text-neon-cyan"
+                      className="text-white hover:text-neon-cyan p-2 active:scale-95 transition-transform"
                     >
                       <List className="w-5 h-5" />
                     </button>
                   )}
 
-                  <button onClick={toggleFullscreen} className="text-white hover:text-neon-cyan ml-auto">
+                  <button onClick={toggleFullscreen} className="text-white hover:text-neon-cyan ml-auto p-2 active:scale-95 transition-transform">
                     <Maximize className="w-5 h-5" />
                   </button>
                 </div>
@@ -460,11 +470,11 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
 
         {/* Playlist Sidebar */}
         {showPlaylist && playlist && playlist.length > 1 && (
-          <div className="absolute right-0 top-0 bottom-0 w-80 bg-dark-900/95 backdrop-blur-sm border-l border-neon-cyan/20 overflow-y-auto">
-            <div className="p-4">
-              <div className="flex items-center justify-between mb-4">
-                <h4 className="text-white font-semibold">Playlist ({playlist.length})</h4>
-                <button onClick={() => setShowPlaylist(false)} className="text-gray-400 hover:text-white">
+          <div className="absolute right-0 top-0 bottom-0 w-full max-w-xs sm:w-80 bg-dark-900/95 backdrop-blur-sm border-l border-neon-cyan/20 overflow-y-auto">
+            <div className="p-3 sm:p-4">
+              <div className="flex items-center justify-between mb-3 sm:mb-4">
+                <h4 className="text-sm sm:text-base text-white font-semibold">Playlist ({playlist.length})</h4>
+                <button onClick={() => setShowPlaylist(false)} className="text-gray-400 hover:text-white p-2 active:scale-95 transition-transform">
                   <X className="w-5 h-5" />
                 </button>
               </div>
