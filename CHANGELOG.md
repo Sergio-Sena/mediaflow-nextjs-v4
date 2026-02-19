@@ -19,6 +19,7 @@ Todas as mudanças notáveis do projeto serão documentadas neste arquivo.
   - Playlist responsiva (w-full max-w-xs no mobile)
   - Header com auto-hide junto com controles
   - Botão fullscreen visível em portrait
+  - **Sincronização com botões físicos do celular (volume +/-)**
 - **Button Component**: Loading centralizado com justify-center
 
 ### ⚡ Performance - VideoPlayer
@@ -27,12 +28,14 @@ Todas as mudanças notáveis do projeto serão documentadas neste arquivo.
 - **PlaysInline**: Evita fullscreen automático no iOS
 - **Buffer indicator**: Feedback visual durante carregamento
 - **Memory optimization**: Event listeners otimizados
+- **Volume sync**: Event listener volumechange para botões físicos
 
 ### 🔧 Corrigido
 - **VideoPlayer**: Controles aparecem ao passar mouse (onMouseEnter)
 - **VideoPlayer**: Botões não são mais cortados em telas pequenas
 - **VideoPlayer**: Picture-in-Picture oculto no mobile
 - **VideoPlayer**: Travamentos em vídeos longos no mobile
+- **VideoPlayer**: UI sincroniza com volume alterado por botões físicos
 
 ---
 
