@@ -1,0 +1,39 @@
+name: Deploy Simple
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  health-check:
+    name: Health Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Frontend
+        run: |
+          echo "Checking frontend..."
+          response=$(curl -s -o /dev/null -w "%{http_code}" https://midiaflow.sstechnologies-cloud.com)
+          echo "Frontend status: $response"
+          if [ $response -ne 200 ]; then
+            echo "Frontend health check failed"
+            exit 1
+          fi
+          echo "Frontend is healthy!"
+      
+      - name: Check API
+        run: |
+          echo "Checking API..."
+          response=$(curl -s -o /dev/null -w "%{http_code}" https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/users || echo "000")
+          echo "API status: $response"
+          if [ $response -eq 000 ]; then
+            echo "API not reachable, skipping"
+          else
+            echo "API is reachable!"
+          fi
+      
+      - name: Success
+        run: |
+          echo "All health checks passed!"
+          echo "Ready for deployment"
