@@ -33,6 +33,7 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
   const [showControls, setShowControls] = useState(true)
   const [playbackRate, setPlaybackRate] = useState(1)
   const [showVolumeSlider, setShowVolumeSlider] = useState(false)
+  const [isBuffering, setIsBuffering] = useState(false)
   const hideControlsTimeout = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
@@ -83,7 +84,16 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
     const video = videoRef.current
     if (!video || !videoUrl) return
 
-    const updateTime = () => setCurrentTime(video.currentTime)
+    // Throttle timeupdate para reduzir re-renders
+    let lastUpdate = 0
+    const updateTime = () => {
+      const now = Date.now()
+      if (now - lastUpdate > 500) {
+        setCurrentTime(video.currentTime)
+        lastUpdate = now
+      }
+    }
+
     const updateDuration = () => {
       if (video.duration && !isNaN(video.duration)) {
         setDuration(video.duration)
@@ -91,12 +101,18 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
     }
     const handlePlay = () => setIsPlaying(true)
     const handlePause = () => setIsPlaying(false)
+    const handleWaiting = () => setIsBuffering(true)
+    const handleCanPlay = () => setIsBuffering(false)
+    const handlePlaying = () => setIsBuffering(false)
 
     video.addEventListener('timeupdate', updateTime)
     video.addEventListener('loadedmetadata', updateDuration)
     video.addEventListener('durationchange', updateDuration)
     video.addEventListener('play', handlePlay)
     video.addEventListener('pause', handlePause)
+    video.addEventListener('waiting', handleWaiting)
+    video.addEventListener('canplay', handleCanPlay)
+    video.addEventListener('playing', handlePlaying)
 
     // Força atualização da duração se já estiver carregada
     if (video.duration && !isNaN(video.duration)) {
@@ -109,6 +125,9 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
       video.removeEventListener('durationchange', updateDuration)
       video.removeEventListener('play', handlePlay)
       video.removeEventListener('pause', handlePause)
+      video.removeEventListener('waiting', handleWaiting)
+      video.removeEventListener('canplay', handleCanPlay)
+      video.removeEventListener('playing', handlePlaying)
     }
   }, [videoUrl])
 
@@ -370,7 +389,19 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
                 style={{ maxHeight: '80vh' }}
                 onClick={resetControlsTimer}
                 src={videoUrl}
+                preload="metadata"
+                playsInline
+                crossOrigin="anonymous"
               />
+
+              {/* Buffer Indicator */}
+              {isBuffering && (
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <div className="bg-black/70 rounded-full p-4">
+                    <div className="animate-spin text-neon-cyan text-4xl">⏳</div>
+                  </div>
+                </div>
+              )}
 
               {/* Controls */}
               <div className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-3 sm:p-4 transition-opacity duration-300 ${
