@@ -7,6 +7,9 @@ module.exports = {
   ],
   theme: {
     extend: {
+      screens: {
+        'landscape': {'raw': '(orientation: landscape) and (max-height: 500px)'},
+      },
       colors: {
         neon: {
           cyan: '#00ffff',
