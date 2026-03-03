@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { Play, Pause, Volume2, VolumeX, Maximize, X, SkipBack, SkipForward, List, PictureInPicture } from 'lucide-react'
+import { Play, Pause, Volume2, VolumeX, X, SkipBack, SkipForward, List, ArrowLeft, Camera, Maximize2, Languages, MoreVertical, RotateCw } from 'lucide-react'
 
 interface VideoFile {
   key: string
@@ -32,9 +32,17 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
   const [showPlaylist, setShowPlaylist] = useState(false)
   const [showControls, setShowControls] = useState(true)
   const [playbackRate, setPlaybackRate] = useState(1)
-  const [showVolumeSlider, setShowVolumeSlider] = useState(false)
   const [isBuffering, setIsBuffering] = useState(false)
+  const [showVolumeIndicator, setShowVolumeIndicator] = useState(false)
+  const [showSeekIndicator, setShowSeekIndicator] = useState<{show: boolean, text: string}>({show: false, text: ''})
+  const [showClickFeedback, setShowClickFeedback] = useState(false)
+  const [showKeyboardHelp, setShowKeyboardHelp] = useState(false)
+  const [touchStart, setTouchStart] = useState<number | null>(null)
   const hideControlsTimeout = useRef<NodeJS.Timeout | null>(null)
+  const volumeIndicatorTimeout = useRef<NodeJS.Timeout | null>(null)
+  const seekIndicatorTimeout = useRef<NodeJS.Timeout | null>(null)
+  const clickFeedbackTimeout = useRef<NodeJS.Timeout | null>(null)
+  const keyboardHelpTimeout = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
     const fetchPresignedUrl = async () => {
@@ -84,7 +92,6 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
     const video = videoRef.current
     if (!video || !videoUrl) return
 
-    // Throttle timeupdate para reduzir re-renders
     let lastUpdate = 0
     const updateTime = () => {
       const now = Date.now()
@@ -104,8 +111,6 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
     const handleWaiting = () => setIsBuffering(true)
     const handleCanPlay = () => setIsBuffering(false)
     const handlePlaying = () => setIsBuffering(false)
-    
-    // Sincroniza volume quando alterado por botões físicos
     const handleVolumeChange = () => {
       setVolume(video.volume)
       setIsMuted(video.muted || video.volume === 0)
@@ -121,7 +126,6 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
     video.addEventListener('playing', handlePlaying)
     video.addEventListener('volumechange', handleVolumeChange)
 
-    // Força atualização da duração se já estiver carregada
     if (video.duration && !isNaN(video.duration)) {
       setDuration(video.duration)
     }
@@ -142,41 +146,32 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
   const togglePlay = () => {
     const video = videoRef.current
     if (!video) return
-
     if (isPlaying) {
       video.pause()
     } else {
       video.play()
     }
     setIsPlaying(!isPlaying)
+    
+    // Feedback visual
+    setShowClickFeedback(true)
+    if (clickFeedbackTimeout.current) clearTimeout(clickFeedbackTimeout.current)
+    clickFeedbackTimeout.current = setTimeout(() => setShowClickFeedback(false), 500)
+    
     resetControlsTimer()
   }
 
   const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
     const video = videoRef.current
     if (!video) return
-
     const time = parseFloat(e.target.value)
     video.currentTime = time
     setCurrentTime(time)
   }
 
-  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const video = videoRef.current
-    if (!video) return
-
-    const vol = parseFloat(e.target.value)
-    video.volume = vol
-    setVolume(vol)
-    setIsMuted(vol === 0)
-  }
-
   const toggleMute = () => {
     const video = videoRef.current
     if (!video) return
-
-    setShowVolumeSlider(!showVolumeSlider)
-
     if (isMuted) {
       video.volume = volume
       setIsMuted(false)
@@ -184,15 +179,18 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
       video.volume = 0
       setIsMuted(true)
     }
+    
+    // Mostrar indicador de volume
+    setShowVolumeIndicator(true)
+    if (volumeIndicatorTimeout.current) clearTimeout(volumeIndicatorTimeout.current)
+    volumeIndicatorTimeout.current = setTimeout(() => setShowVolumeIndicator(false), 1500)
   }
 
   const toggleFullscreen = () => {
     const video = videoRef.current
     if (!video) return
-
-    const container = video.parentElement
+    const container = video.parentElement?.parentElement
     if (!container) return
-
     if (document.fullscreenElement) {
       document.exitFullscreen()
     } else {
@@ -200,29 +198,16 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
     }
   }
 
-  const togglePictureInPicture = async () => {
-    const video = videoRef.current
-    if (!video) return
-
-    try {
-      if (document.pictureInPictureElement) {
-        await document.exitPictureInPicture()
-      } else {
-        await video.requestPictureInPicture()
-      }
-    } catch (err) {
-      console.error('PiP error:', err)
-    }
+  const handleDoubleClick = () => {
+    toggleFullscreen()
   }
 
   const changePlaybackRate = () => {
     const video = videoRef.current
     if (!video) return
-
     const rates = [0.5, 0.75, 1, 1.25, 1.5, 2]
     const currentIndex = rates.indexOf(playbackRate)
     const nextRate = rates[(currentIndex + 1) % rates.length]
-    
     video.playbackRate = nextRate
     setPlaybackRate(nextRate)
   }
@@ -238,30 +223,50 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
     if (hideControlsTimeout.current) {
       clearTimeout(hideControlsTimeout.current)
     }
-    
     if (isPlaying) {
-      // 5s no mobile, 3s no desktop
-      const isMobile = window.innerWidth < 640
       hideControlsTimeout.current = setTimeout(() => {
         setShowControls(false)
-      }, isMobile ? 5000 : 3000)
+      }, 3000)
     }
   }
 
   const handleMouseMove = () => {
     resetControlsTimer()
-  }
-
-  const handleMouseLeave = () => {
-    if (isPlaying && hideControlsTimeout.current) {
-      clearTimeout(hideControlsTimeout.current)
-      hideControlsTimeout.current = setTimeout(() => {
-        setShowControls(false)
-      }, 1000) // Esconde mais rápido quando sai da área
+    if (!showKeyboardHelp) {
+      setShowKeyboardHelp(true)
+      if (keyboardHelpTimeout.current) clearTimeout(keyboardHelpTimeout.current)
+      keyboardHelpTimeout.current = setTimeout(() => setShowKeyboardHelp(false), 3000)
     }
   }
 
-  // Auto-hide quando o vídeo começa a tocar
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStart(e.touches[0].clientX)
+  }
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (!touchStart) return
+    const touchEnd = e.changedTouches[0].clientX
+    const diff = touchStart - touchEnd
+    if (Math.abs(diff) > 50) {
+      const video = videoRef.current
+      if (!video) return
+      if (diff > 0) {
+        video.currentTime = Math.min(duration, video.currentTime + 10)
+        showSeekFeedback('+10s')
+      } else {
+        video.currentTime = Math.max(0, video.currentTime - 10)
+        showSeekFeedback('-10s')
+      }
+    }
+    setTouchStart(null)
+  }
+
+  const showSeekFeedback = (text: string) => {
+    setShowSeekIndicator({show: true, text})
+    if (seekIndicatorTimeout.current) clearTimeout(seekIndicatorTimeout.current)
+    seekIndicatorTimeout.current = setTimeout(() => setShowSeekIndicator({show: false, text: ''}), 800)
+  }
+
   useEffect(() => {
     if (isPlaying) {
       resetControlsTimer()
@@ -273,7 +278,6 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
     }
   }, [isPlaying])
 
-  // Cleanup timer on unmount
   useEffect(() => {
     return () => {
       if (hideControlsTimeout.current) {
@@ -282,7 +286,6 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
     }
   }, [])
 
-  // Keyboard shortcuts
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
       const video = videoRef.current
@@ -296,21 +299,31 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
           break
         case 'ArrowLeft':
           e.preventDefault()
-          video.currentTime = Math.max(0, video.currentTime - 5)
+          video.currentTime = Math.max(0, video.currentTime - 10)
+          showSeekFeedback('-10s')
           break
         case 'ArrowRight':
           e.preventDefault()
-          video.currentTime = Math.min(duration, video.currentTime + 5)
+          video.currentTime = Math.min(duration, video.currentTime + 10)
+          showSeekFeedback('+10s')
           break
         case 'ArrowUp':
           e.preventDefault()
-          video.volume = Math.min(1, video.volume + 0.1)
-          setVolume(video.volume)
+          const newVolumeUp = Math.min(1, video.volume + 0.1)
+          video.volume = newVolumeUp
+          setVolume(newVolumeUp)
+          setShowVolumeIndicator(true)
+          if (volumeIndicatorTimeout.current) clearTimeout(volumeIndicatorTimeout.current)
+          volumeIndicatorTimeout.current = setTimeout(() => setShowVolumeIndicator(false), 1500)
           break
         case 'ArrowDown':
           e.preventDefault()
-          video.volume = Math.max(0, video.volume - 0.1)
-          setVolume(video.volume)
+          const newVolumeDown = Math.max(0, video.volume - 0.1)
+          video.volume = newVolumeDown
+          setVolume(newVolumeDown)
+          setShowVolumeIndicator(true)
+          if (volumeIndicatorTimeout.current) clearTimeout(volumeIndicatorTimeout.current)
+          volumeIndicatorTimeout.current = setTimeout(() => setShowVolumeIndicator(false), 1500)
           break
         case 'f':
           e.preventDefault()
@@ -325,7 +338,7 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
 
     window.addEventListener('keydown', handleKeyPress)
     return () => window.removeEventListener('keydown', handleKeyPress)
-  }, [isPlaying, duration])
+  }, [isPlaying, duration, volume])
 
   const handlePrevious = () => {
     if (!playlist || !currentVideo || !onVideoChange) return
@@ -348,28 +361,14 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
   const hasNext = playlist && currentIndex < playlist.length - 1
 
   return (
-    <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
-      <div className="relative w-full max-w-6xl bg-dark-900 rounded-lg overflow-hidden">
-        {/* Header */}
-        <div className={`flex items-center justify-between p-2 sm:p-4 bg-dark-800/50 border-b border-neon-cyan/20 transition-opacity duration-300 ${
-          showControls ? 'opacity-100' : 'opacity-0'
-        }`}>
-          <h3 className="text-sm sm:text-lg font-semibold text-white truncate">{title}</h3>
-          <button
-            onClick={onClose}
-            className="text-white hover:text-neon-cyan p-1.5 sm:p-2 rounded-full bg-gray-800/50"
-          >
-            <X className="w-5 h-5 sm:w-6 sm:h-6" />
-          </button>
-        </div>
-
+    <div className="fixed inset-0 bg-black z-50 flex items-center justify-center">
+      <div className="relative w-full h-full">
         {/* Video Container */}
         <div 
-          className="relative bg-black fullscreen:h-screen" 
-          style={{ maxHeight: '80vh' }}
+          className="relative w-full h-full bg-black" 
           onMouseMove={handleMouseMove}
-          onMouseEnter={handleMouseMove}
-          onMouseLeave={handleMouseLeave}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
         >
           {loading && (
             <div className="absolute inset-0 flex items-center justify-center">
@@ -393,14 +392,45 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
             <>
               <video
                 ref={videoRef}
-                className="w-full h-full object-contain fullscreen:object-cover"
-                style={{ maxHeight: '80vh' }}
-                onClick={resetControlsTimer}
+                className="w-full h-full object-contain"
+                onClick={togglePlay}
+                onDoubleClick={handleDoubleClick}
                 src={videoUrl}
                 preload="metadata"
                 playsInline
                 crossOrigin="anonymous"
               />
+
+              {/* Header Premium */}
+              <div className={`absolute top-0 left-0 right-0 z-10 bg-gradient-to-b from-black/80 via-black/40 to-transparent backdrop-blur-sm transition-opacity duration-300 ${
+                showControls ? 'opacity-100' : 'opacity-0'
+              }`}>
+                <div className="flex items-center justify-between p-2 sm:p-4">
+                  <button
+                    onClick={onClose}
+                    className="text-white hover:text-neon-cyan p-1.5 sm:p-2 rounded-full hover:bg-white/10 transition-all active:scale-95"
+                  >
+                    <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6" strokeWidth={1.5} />
+                  </button>
+                  
+                  <h3 className="flex-1 text-center text-white text-xs sm:text-sm font-medium truncate px-2 sm:px-4">{title}</h3>
+                  
+                  <div className="flex items-center gap-1 sm:gap-2">
+                    <button 
+                      onClick={toggleFullscreen}
+                      className="text-white hover:text-neon-cyan p-1.5 sm:p-2 rounded-full hover:bg-white/10 transition-all active:scale-95"
+                    >
+                      <Maximize2 className="w-4 h-4 sm:w-5 sm:h-5" strokeWidth={1.5} />
+                    </button>
+                    <button 
+                      onClick={toggleMute}
+                      className="text-white hover:text-neon-cyan p-1.5 sm:p-2 rounded-full hover:bg-white/10 transition-all active:scale-95"
+                    >
+                      {isMuted ? <VolumeX className="w-4 h-4 sm:w-5 sm:h-5" strokeWidth={1.5} /> : <Volume2 className="w-4 h-4 sm:w-5 sm:h-5" strokeWidth={1.5} />}
+                    </button>
+                  </div>
+                </div>
+              </div>
 
               {/* Buffer Indicator */}
               {isBuffering && (
@@ -411,97 +441,143 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
                 </div>
               )}
 
-              {/* Controls */}
-              <div className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-3 sm:p-4 transition-opacity duration-300 ${
+              {/* Click Feedback */}
+              {showClickFeedback && (
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <div className="bg-black/70 rounded-full p-6 animate-ping">
+                    {isPlaying ? (
+                      <Pause className="w-12 h-12 text-white" strokeWidth={2} />
+                    ) : (
+                      <Play className="w-12 h-12 text-white" strokeWidth={2} />
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Seek Indicator */}
+              {showSeekIndicator.show && (
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <div className="bg-black/80 rounded-lg px-4 py-2 sm:px-6 sm:py-3">
+                    <span className="text-white text-xl sm:text-2xl font-bold">{showSeekIndicator.text}</span>
+                  </div>
+                </div>
+              )}
+
+              {/* Keyboard Help */}
+              {showKeyboardHelp && (
+                <div className="absolute top-16 sm:top-20 left-2 sm:left-4 bg-black/80 rounded-lg p-2 sm:p-3 backdrop-blur-sm">
+                  <div className="space-y-1 text-xs sm:text-sm text-white">
+                    <div className="flex items-center gap-2"><kbd className="px-1.5 py-0.5 bg-white/20 rounded">Space</kbd> Play/Pause</div>
+                    <div className="flex items-center gap-2"><kbd className="px-1.5 py-0.5 bg-white/20 rounded">←→</kbd> ±10s</div>
+                    <div className="flex items-center gap-2"><kbd className="px-1.5 py-0.5 bg-white/20 rounded">↑↓</kbd> Volume</div>
+                    <div className="flex items-center gap-2"><kbd className="px-1.5 py-0.5 bg-white/20 rounded">F</kbd> Fullscreen</div>
+                  </div>
+                </div>
+              )}
+
+              {/* Volume Indicator */}
+              {showVolumeIndicator && (
+                <div className="absolute top-16 sm:top-20 right-2 sm:right-4 bg-black/80 rounded-lg p-2 sm:p-4 backdrop-blur-sm">
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    {isMuted ? <VolumeX className="w-4 h-4 sm:w-6 sm:h-6 text-white" /> : <Volume2 className="w-4 h-4 sm:w-6 sm:h-6 text-white" />}
+                    <div className="w-16 sm:w-24 h-1.5 sm:h-2 bg-gray-600 rounded-full">
+                      <div 
+                        className="h-full bg-white rounded-full transition-all"
+                        style={{ width: `${isMuted ? 0 : volume * 100}%` }}
+                      />
+                    </div>
+                    <span className="text-white text-xs sm:text-sm font-medium w-6 sm:w-8">{Math.round((isMuted ? 0 : volume) * 100)}%</span>
+                  </div>
+                </div>
+              )}
+
+              {/* Controls Premium */}
+              <div className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent backdrop-blur-sm p-3 sm:p-4 transition-opacity duration-300 ${
                 showControls ? 'opacity-100' : 'opacity-0'
               }`}>
-                <div className="flex items-center gap-1 sm:gap-4 mb-2">
-                  {playlist && playlist.length > 1 && (
-                    <button 
-                      onClick={handlePrevious} 
-                      disabled={!hasPrevious}
-                      className="text-white hover:text-neon-cyan disabled:opacity-30 disabled:cursor-not-allowed p-2 active:scale-95 transition-transform"
-                    >
-                      <SkipBack className="w-5 h-5" />
-                    </button>
-                  )}
-
-                  <button onClick={togglePlay} className="bg-white hover:bg-gray-200 rounded-full p-3 transition-all active:scale-95">
-                    {isPlaying ? (
-                      <Pause className="w-5 h-5 sm:w-6 sm:h-6 text-black" />
-                    ) : (
-                      <Play className="w-5 h-5 sm:w-6 sm:h-6 text-black" style={{ marginLeft: '2px' }} />
-                    )}
-                  </button>
-
-                  {playlist && playlist.length > 1 && (
-                    <button 
-                      onClick={handleNext} 
-                      disabled={!hasNext}
-                      className="text-white hover:text-neon-cyan disabled:opacity-30 disabled:cursor-not-allowed p-2 active:scale-95 transition-transform"
-                    >
-                      <SkipForward className="w-5 h-5" />
-                    </button>
-                  )}
-
-                  <button onClick={toggleMute} className="text-white hover:text-neon-cyan p-2 active:scale-95 transition-transform">
-                    {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
-                  </button>
-
-                  {showVolumeSlider && (
-                    <input
-                      type="range"
-                      min="0"
-                      max="1"
-                      step="0.1"
-                      value={isMuted ? 0 : volume}
-                      onChange={handleVolumeChange}
-                      className="w-16 sm:w-20 h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer"
-                    />
-                  )}
-
-                  <span className="text-gray-300 text-xs sm:text-sm whitespace-nowrap">
-                    {formatTime(currentTime)} / {formatTime(duration)}
-                  </span>
-
-                  <button 
-                    onClick={changePlaybackRate}
-                    className="text-white hover:text-neon-cyan px-2 py-1 bg-gray-800/50 rounded text-xs sm:text-sm font-mono active:scale-95 transition-transform"
-                    title="Velocidade de reprodução"
-                  >
-                    {playbackRate}x
-                  </button>
-
-                  <button 
-                    onClick={togglePictureInPicture}
-                    className="hidden sm:block text-white hover:text-neon-cyan p-2 active:scale-95 transition-transform"
-                    title="Picture-in-Picture"
-                  >
-                    <PictureInPicture className="w-5 h-5" />
-                  </button>
-
-                  {playlist && playlist.length > 1 && (
-                    <button 
-                      onClick={() => setShowPlaylist(!showPlaylist)} 
-                      className="text-white hover:text-neon-cyan p-2 active:scale-95 transition-transform"
-                    >
-                      <List className="w-5 h-5" />
-                    </button>
-                  )}
-
-                  <button onClick={toggleFullscreen} className="text-white hover:text-neon-cyan ml-auto p-2 active:scale-95 transition-transform">
-                    <Maximize className="w-5 h-5" />
-                  </button>
+                {/* Progress Bar */}
+                <div className="mb-2 sm:mb-3">
+                  <input
+                    type="range"
+                    min="0"
+                    max={duration || 0}
+                    value={currentTime}
+                    onChange={handleSeek}
+                    className="w-full h-1 bg-gray-600/50 rounded-full appearance-none cursor-pointer"
+                    style={{
+                      background: `linear-gradient(to right, #00A8FF 0%, #00A8FF ${(currentTime / duration) * 100}%, rgba(255,255,255,0.2) ${(currentTime / duration) * 100}%, rgba(255,255,255,0.2) 100%)`
+                    }}
+                  />
                 </div>
 
-                <input
-                  type="range"
-                  min="0"
-                  max={duration || 0}
-                  value={currentTime}
-                  onChange={handleSeek}
-                  className="w-full h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer"
-                />
+                {/* Center Play Button */}
+                <div className="flex items-center justify-center mb-3 sm:mb-4">
+                  <div className="flex items-center gap-4 sm:gap-8">
+                    {playlist && playlist.length > 1 && hasPrevious && (
+                      <button 
+                        onClick={handlePrevious}
+                        className="text-white hover:text-neon-cyan p-2 sm:p-4 rounded-full hover:bg-white/10 transition-all active:scale-95"
+                      >
+                        <SkipBack className="w-6 h-6 sm:w-8 sm:h-8" strokeWidth={1.5} fill="currentColor" />
+                      </button>
+                    )}
+                    
+                    <button 
+                      onClick={togglePlay} 
+                      className="bg-white/90 hover:bg-white rounded-full p-4 sm:p-6 transition-all active:scale-95 shadow-2xl"
+                    >
+                      {isPlaying ? (
+                        <Pause className="w-8 h-8 sm:w-10 sm:h-10 text-black" strokeWidth={2} fill="currentColor" />
+                      ) : (
+                        <Play className="w-8 h-8 sm:w-10 sm:h-10 text-black" strokeWidth={2} fill="currentColor" style={{ marginLeft: '2px' }} />
+                      )}
+                    </button>
+                    
+                    {playlist && playlist.length > 1 && hasNext && (
+                      <button 
+                        onClick={handleNext}
+                        className="text-white hover:text-neon-cyan p-2 sm:p-4 rounded-full hover:bg-white/10 transition-all active:scale-95"
+                      >
+                        <SkipForward className="w-6 h-6 sm:w-8 sm:h-8" strokeWidth={1.5} fill="currentColor" />
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Bottom Controls */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 sm:gap-3">
+                    <span className="text-white text-xs sm:text-sm font-medium">
+                      {formatTime(currentTime)}
+                    </span>
+                    <span className="text-gray-400 text-xs sm:text-sm">/</span>
+                    <span className="text-gray-400 text-xs sm:text-sm">
+                      {formatTime(duration)}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-1 sm:gap-3">
+                    <button 
+                      onClick={changePlaybackRate}
+                      className="text-white hover:text-neon-cyan text-xs sm:text-sm font-medium px-2 py-1 sm:px-3 rounded-full hover:bg-white/10 transition-all active:scale-95"
+                    >
+                      {playbackRate}x
+                    </button>
+                    
+                    {playlist && playlist.length > 1 && (
+                      <button 
+                        onClick={() => setShowPlaylist(!showPlaylist)} 
+                        className="text-white hover:text-neon-cyan p-1.5 sm:p-2 rounded-full hover:bg-white/10 transition-all active:scale-95"
+                      >
+                        <List className="w-4 h-4 sm:w-5 sm:h-5" strokeWidth={1.5} />
+                      </button>
+                    )}
+                    
+                    <button className="hidden sm:block text-white hover:text-neon-cyan p-2 rounded-full hover:bg-white/10 transition-all active:scale-95">
+                      <RotateCw className="w-5 h-5" strokeWidth={1.5} />
+                    </button>
+                  </div>
+                </div>
               </div>
             </>
           )}
@@ -509,11 +585,11 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
 
         {/* Playlist Sidebar */}
         {showPlaylist && playlist && playlist.length > 1 && (
-          <div className="absolute right-0 top-0 bottom-0 w-full max-w-xs sm:w-80 bg-dark-900/95 backdrop-blur-sm border-l border-neon-cyan/20 overflow-y-auto">
+          <div className="absolute right-0 top-0 bottom-0 w-full sm:w-80 bg-dark-900/95 backdrop-blur-sm border-l border-neon-cyan/20 overflow-y-auto z-20">
             <div className="p-3 sm:p-4">
               <div className="flex items-center justify-between mb-3 sm:mb-4">
-                <h4 className="text-sm sm:text-base text-white font-semibold">Playlist ({playlist.length})</h4>
-                <button onClick={() => setShowPlaylist(false)} className="text-gray-400 hover:text-white p-2 active:scale-95 transition-transform">
+                <h4 className="text-white font-semibold text-sm sm:text-base">Playlist ({playlist.length})</h4>
+                <button onClick={() => setShowPlaylist(false)} className="text-gray-400 hover:text-white p-2 active:scale-95 transition-all">
                   <X className="w-5 h-5" />
                 </button>
               </div>
@@ -525,7 +601,7 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
                     className={`w-full text-left p-3 rounded-lg transition-colors ${
                       currentVideo?.key === video.key
                         ? 'bg-neon-cyan/20 border border-neon-cyan/50'
-                        : 'bg-dark-800/50 hover:bg-dark-800 border border-transparent'
+                        : 'bg-dark-800/50 hover:bg-dark-800'
                     }`}
                   >
                     <div className="flex items-start gap-3">
