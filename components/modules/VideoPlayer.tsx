@@ -501,34 +501,34 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
                 </div>
 
                 {/* Center Play Button */}
-                <div className="flex items-center justify-center mb-1 sm:mb-4 max-h-[500px]:mb-1">
-                  <div className="flex items-center gap-2 sm:gap-8 max-h-[500px]:gap-2">
+                <div className="flex items-center justify-center mb-1 sm:mb-4">
+                  <div className="flex items-center gap-1.5 sm:gap-8">
                     {playlist && playlist.length > 1 && hasPrevious && (
                       <button 
                         onClick={handlePrevious}
-                        className="text-white hover:text-neon-cyan p-1 sm:p-4 max-h-[500px]:p-1 rounded-full hover:bg-white/10 transition-all active:scale-95"
+                        className="text-white hover:text-neon-cyan p-0.5 sm:p-4 landscape:!p-0.5 rounded-full hover:bg-white/10 transition-all active:scale-95"
                       >
-                        <SkipBack className="w-4 h-4 sm:w-8 sm:h-8 max-h-[500px]:w-4 max-h-[500px]:h-4" strokeWidth={1.5} fill="currentColor" />
+                        <SkipBack className="w-3 h-3 sm:w-8 sm:h-8 landscape:!w-3 landscape:!h-3" strokeWidth={1.5} fill="currentColor" />
                       </button>
                     )}
                     
                     <button 
                       onClick={togglePlay} 
-                      className="bg-white/90 hover:bg-white rounded-full p-2 sm:p-6 max-h-[500px]:p-2 transition-all active:scale-95 shadow-2xl"
+                      className="bg-white/90 hover:bg-white rounded-full p-1.5 sm:p-6 landscape:!p-1.5 transition-all active:scale-95 shadow-2xl"
                     >
                       {isPlaying ? (
-                        <Pause className="w-5 h-5 sm:w-10 sm:h-10 max-h-[500px]:w-5 max-h-[500px]:h-5 text-black" strokeWidth={2} fill="currentColor" />
+                        <Pause className="w-4 h-4 sm:w-10 sm:h-10 landscape:!w-4 landscape:!h-4 text-black" strokeWidth={2} fill="currentColor" />
                       ) : (
-                        <Play className="w-5 h-5 sm:w-10 sm:h-10 max-h-[500px]:w-5 max-h-[500px]:h-5 text-black" strokeWidth={2} fill="currentColor" style={{ marginLeft: '2px' }} />
+                        <Play className="w-4 h-4 sm:w-10 sm:h-10 landscape:!w-4 landscape:!h-4 text-black" strokeWidth={2} fill="currentColor" style={{ marginLeft: '1px' }} />
                       )}
                     </button>
                     
                     {playlist && playlist.length > 1 && hasNext && (
                       <button 
                         onClick={handleNext}
-                        className="text-white hover:text-neon-cyan p-1 sm:p-4 max-h-[500px]:p-1 rounded-full hover:bg-white/10 transition-all active:scale-95"
+                        className="text-white hover:text-neon-cyan p-0.5 sm:p-4 landscape:!p-0.5 rounded-full hover:bg-white/10 transition-all active:scale-95"
                       >
-                        <SkipForward className="w-4 h-4 sm:w-8 sm:h-8 max-h-[500px]:w-4 max-h-[500px]:h-4" strokeWidth={1.5} fill="currentColor" />
+                        <SkipForward className="w-3 h-3 sm:w-8 sm:h-8 landscape:!w-3 landscape:!h-3" strokeWidth={1.5} fill="currentColor" />
                       </button>
                     )}
                   </div>
