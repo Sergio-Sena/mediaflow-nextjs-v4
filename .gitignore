@@ -28,6 +28,23 @@ yarn-error.log*
 # local env files
 .env*.local
 .env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# AWS Credentials - NUNCA COMMITAR
+AWS_ACCESS_KEY_ID
+AWS_SECRET_ACCESS_KEY
+*.pem
+*.key
+credentials
+config
+
+# Secrets
+JWT_SECRET
+*.secret
+secrets/
 
 # vercel
 .vercel
