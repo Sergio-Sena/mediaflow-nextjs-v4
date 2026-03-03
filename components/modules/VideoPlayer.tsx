@@ -482,7 +482,7 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
               )}
 
               {/* Controls Premium */}
-              <div className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent backdrop-blur-sm p-2 sm:p-4 transition-opacity duration-300 ${
+              <div className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent backdrop-blur-sm p-2 sm:p-3 md:p-3.5 lg:p-4 transition-opacity duration-300 ${
                 showControls ? 'opacity-100' : 'opacity-0'
               }`}>
                 {/* Progress Bar */}
@@ -502,33 +502,33 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
 
                 {/* Center Play Button */}
                 <div className="flex items-center justify-center mb-1 sm:mb-4">
-                  <div className="flex items-center gap-1.5 sm:gap-8">
+                  <div className="flex items-center gap-1.5 sm:gap-4 md:gap-6 lg:gap-8">
                     {playlist && playlist.length > 1 && hasPrevious && (
                       <button 
                         onClick={handlePrevious}
-                        className="text-white hover:text-neon-cyan p-0.5 sm:p-4 landscape:!p-0.5 rounded-full hover:bg-white/10 transition-all active:scale-95"
+                        className="text-white hover:text-neon-cyan p-0.5 sm:p-2 md:p-3 lg:p-4 landscape:p-0.5 rounded-full hover:bg-white/10 transition-all active:scale-95"
                       >
-                        <SkipBack className="w-3 h-3 sm:w-8 sm:h-8 landscape:!w-3 landscape:!h-3" strokeWidth={1.5} fill="currentColor" />
+                        <SkipBack className="w-3 h-3 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-8 lg:h-8 landscape:w-3 landscape:h-3" strokeWidth={1.5} fill="currentColor" />
                       </button>
                     )}
                     
                     <button 
                       onClick={togglePlay} 
-                      className="bg-white/90 hover:bg-white rounded-full p-1.5 sm:p-6 landscape:!p-1.5 transition-all active:scale-95 shadow-2xl"
+                      className="bg-white/90 hover:bg-white rounded-full p-1.5 sm:p-3 md:p-4 lg:p-6 landscape:p-1.5 transition-all active:scale-95 shadow-2xl"
                     >
                       {isPlaying ? (
-                        <Pause className="w-5 h-5 sm:w-10 sm:h-10 landscape:!w-4 landscape:!h-4 text-black" strokeWidth={2} fill="currentColor" />
+                        <Pause className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 lg:w-10 lg:h-10 landscape:w-4 landscape:h-4 text-black" strokeWidth={2} fill="currentColor" />
                       ) : (
-                        <Play className="w-5 h-5 sm:w-10 sm:h-10 landscape:!w-4 landscape:!h-4 text-black" strokeWidth={2} fill="currentColor" style={{ marginLeft: '1px' }} />
+                        <Play className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 lg:w-10 lg:h-10 landscape:w-4 landscape:h-4 text-black" strokeWidth={2} fill="currentColor" style={{ marginLeft: '1px' }} />
                       )}
                     </button>
                     
                     {playlist && playlist.length > 1 && hasNext && (
                       <button 
                         onClick={handleNext}
-                        className="text-white hover:text-neon-cyan p-0.5 sm:p-4 landscape:!p-0.5 rounded-full hover:bg-white/10 transition-all active:scale-95"
+                        className="text-white hover:text-neon-cyan p-0.5 sm:p-2 md:p-3 lg:p-4 landscape:p-0.5 rounded-full hover:bg-white/10 transition-all active:scale-95"
                       >
-                        <SkipForward className="w-3 h-3 sm:w-8 sm:h-8 landscape:!w-3 landscape:!h-3" strokeWidth={1.5} fill="currentColor" />
+                        <SkipForward className="w-3 h-3 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-8 lg:h-8 landscape:w-3 landscape:h-3" strokeWidth={1.5} fill="currentColor" />
                       </button>
                     )}
                   </div>
