@@ -482,11 +482,11 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
               )}
 
               {/* Controls Premium */}
-              <div className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent backdrop-blur-sm p-3 sm:p-4 transition-opacity duration-300 ${
+              <div className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent backdrop-blur-sm p-2 sm:p-4 transition-opacity duration-300 ${
                 showControls ? 'opacity-100' : 'opacity-0'
               }`}>
                 {/* Progress Bar */}
-                <div className="mb-2 sm:mb-3">
+                <div className="mb-1 sm:mb-3">
                   <input
                     type="range"
                     min="0"
@@ -517,9 +517,9 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
                       className="bg-white/90 hover:bg-white rounded-full p-1.5 sm:p-6 landscape:!p-1.5 transition-all active:scale-95 shadow-2xl"
                     >
                       {isPlaying ? (
-                        <Pause className="w-4 h-4 sm:w-10 sm:h-10 landscape:!w-4 landscape:!h-4 text-black" strokeWidth={2} fill="currentColor" />
+                        <Pause className="w-5 h-5 sm:w-10 sm:h-10 landscape:!w-4 landscape:!h-4 text-black" strokeWidth={2} fill="currentColor" />
                       ) : (
-                        <Play className="w-4 h-4 sm:w-10 sm:h-10 landscape:!w-4 landscape:!h-4 text-black" strokeWidth={2} fill="currentColor" style={{ marginLeft: '1px' }} />
+                        <Play className="w-5 h-5 sm:w-10 sm:h-10 landscape:!w-4 landscape:!h-4 text-black" strokeWidth={2} fill="currentColor" style={{ marginLeft: '1px' }} />
                       )}
                     </button>
                     
