@@ -3,9 +3,6 @@ import boto3
 import os
 import re
 import jwt
-import sys
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../lib'))
-from logger import Logger
 from datetime import datetime
 
 s3 = boto3.client('s3')
@@ -13,11 +10,8 @@ UPLOADS_BUCKET = os.environ.get('UPLOADS_BUCKET', 'mediaflow-uploads-96943060505
 SECRET_KEY = os.environ.get('JWT_SECRET', '17b8312c72fdcffbff89f2f4a564fb26e936002d344717ab7753a237fcd57aea')
 
 def lambda_handler(event, context):
-    correlation_id = event.get('headers', {}).get('x-correlation-id', None)
-    logger = Logger('upload-handler', correlation_id)
-    
     try:
-        logger.info("Upload request received", method=event['httpMethod'], path=event.get('path', ''))
+        print(f"Upload request: {event['httpMethod']} {event.get('path', '')}")
         
         if event['httpMethod'] == 'OPTIONS':
             return cors_response(200, {})
@@ -26,7 +20,7 @@ def lambda_handler(event, context):
         if event.get('path', '').endswith('/check'):
             body = json.loads(event.get('body', '{}'))
             filenames = body.get('filenames', [])
-            logger.info("File check request", file_count=len(filenames))
+            print(f"File check request: {len(filenames)} files")
             
             results = []
             for filename in filenames:
@@ -38,7 +32,7 @@ def lambda_handler(event, context):
                     'exists': exists
                 })
             
-            logger.info("File check completed", results_count=len(results))
+            print(f"File check completed: {len(results)} results")
             return cors_response(200, {'success': True, 'files': results})
         
         # Upload route (existing logic)
@@ -48,12 +42,12 @@ def lambda_handler(event, context):
         content_type = body.get('contentType', 'application/octet-stream')
         
         if not filename:
-            logger.warn("Upload failed - no filename")
+            print(f"Upload failed - no filename")
             return cors_response(400, {'success': False, 'message': 'Filename required'})
         
         # Extrair user_id do JWT
         user_id = extract_user_id(event)
-        logger.info("Upload initiated", filename=filename, user_id=user_id, size_mb=round(file_size/(1024*1024), 2))
+        print(f"Upload initiated: {filename}, user: {user_id}, size: {round(file_size/(1024*1024), 2)}MB")
         
         sanitized_name = sanitize_filename(filename)
         
@@ -67,10 +61,13 @@ def lambda_handler(event, context):
 
         needs_conversion = should_convert(sanitized_name, file_size)
         
-        # Converter metadata para ASCII apenas
-        # Converter metadata para ASCII apenas
+        # Sanitizar metadata para ASCII
+        import unicodedata
+        safe_original = unicodedata.normalize('NFKD', filename)
+        safe_original = safe_original.encode('ascii', 'ignore').decode('ascii')
+        
         metadata = {
-            'original_name': filename.encode('ascii', 'ignore').decode('ascii'),
+            'original_name': safe_original,
             'needs_conversion': str(needs_conversion).lower(),
             'file_type': get_file_type(sanitized_name),
             'upload_timestamp': datetime.now().isoformat()
@@ -87,8 +84,7 @@ def lambda_handler(event, context):
             ExpiresIn=7200
         )
         
-        logger.info("Presigned URL generated", key=sanitized_name, needs_conversion=needs_conversion)
-        logger.metric("upload_initiated", 1)
+        print(f"Presigned URL generated: {sanitized_name}, needs_conversion: {needs_conversion}")
         
         return cors_response(200, {
             'success': True,
@@ -101,8 +97,7 @@ def lambda_handler(event, context):
         })
         
     except Exception as e:
-        logger.error("Upload handler error", error=str(e))
-        logger.metric("upload_error", 1)
+        print(f"Upload handler error: {str(e)}")
         return cors_response(500, {'success': False, 'message': str(e)})
 
 def check_file_exists(key):
@@ -204,7 +199,7 @@ def cors_response(status_code, body):
         'headers': {
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Headers': 'Content-Type,Authorization',
-            'Access-Control-Allow-Methods': 'POST,OPTIONS'
+            'Access-Control-Allow-Methods': 'GET,POST,OPTIONS'
         },
         'body': json.dumps(body)
     }

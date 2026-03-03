@@ -102,7 +102,12 @@ export default function DashboardPage() {
 
   const fetchUserData = async (userId: string) => {
     try {
-      const res = await fetch('/api/users/list')
+      const token = localStorage.getItem('token')
+      const res = await fetch('/api/users/list', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
       const data = await res.json()
       if (data.success) {
         const updatedUser = data.users.find((u: any) => u.user_id === userId)

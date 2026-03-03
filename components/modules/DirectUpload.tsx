@@ -30,7 +30,12 @@ export default function DirectUpload({
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const res = await fetch('/api/users/list')
+        const token = localStorage.getItem('token')
+        const res = await fetch('/api/users/list', {
+          headers: {
+            'Authorization': token ? `Bearer ${token}` : ''
+          }
+        })
         const data = await res.json()
         if (data.success) {
           setUsers(data.users)
@@ -73,7 +78,7 @@ export default function DirectUpload({
       const { getApiUrl } = await import('@/lib/aws-config')
       const apiUrl = getApiUrl('UPLOAD')
       
-      const urlResponse = await fetch(apiUrl, {
+      const urlResponse = await fetch('/api/upload/presigned', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
