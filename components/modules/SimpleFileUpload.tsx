@@ -68,7 +68,7 @@ export default function SimpleFileUpload({
       ))
 
       // 1. Obter URL presigned
-      const urlResponse = await fetch('https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/upload/presigned', {
+      const urlResponse = await fetch('/api/upload/presigned', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
