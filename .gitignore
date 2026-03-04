@@ -90,3 +90,9 @@ temp/
 memoria/videos-qualidade-suspeita.txt
 memoria/*-qualidade-*.txt
 memoria/*-privado*.txt
+
+# Scripts com nomes sensíveis
+scripts/utils/*kate*
+scripts/utils/*lilo*
+scripts/utils/*moana*
+scripts/utils/upload-*-one-by-one.bat
