@@ -306,3 +306,21 @@ body {
   max-height: 100vh !important;
   object-fit: contain;
 }
+
+/* Video Player Desktop Controls */
+@media (min-width: 1024px) {
+  .video-controls-desktop .play-button {
+    padding: 1.25rem !important;
+  }
+  .video-controls-desktop .play-button svg {
+    width: 2.5rem !important;
+    height: 2.5rem !important;
+  }
+  .video-controls-desktop .skip-button {
+    padding: 1rem !important;
+  }
+  .video-controls-desktop .skip-button svg {
+    width: 2rem !important;
+    height: 2rem !important;
+  }
+}

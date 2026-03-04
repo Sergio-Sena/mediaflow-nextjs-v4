@@ -38,6 +38,7 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
   const [showClickFeedback, setShowClickFeedback] = useState(false)
   const [showKeyboardHelp, setShowKeyboardHelp] = useState(false)
   const [touchStart, setTouchStart] = useState<number | null>(null)
+  const [bufferedProgress, setBufferedProgress] = useState(0)
   const hideControlsTimeout = useRef<NodeJS.Timeout | null>(null)
   const volumeIndicatorTimeout = useRef<NodeJS.Timeout | null>(null)
   const seekIndicatorTimeout = useRef<NodeJS.Timeout | null>(null)
@@ -115,6 +116,12 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
       setVolume(video.volume)
       setIsMuted(video.muted || video.volume === 0)
     }
+    const handleProgress = () => {
+      if (video.buffered.length > 0) {
+        const buffered = video.buffered.end(video.buffered.length - 1)
+        setBufferedProgress((buffered / video.duration) * 100)
+      }
+    }
 
     video.addEventListener('timeupdate', updateTime)
     video.addEventListener('loadedmetadata', updateDuration)
@@ -125,6 +132,7 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
     video.addEventListener('canplay', handleCanPlay)
     video.addEventListener('playing', handlePlaying)
     video.addEventListener('volumechange', handleVolumeChange)
+    video.addEventListener('progress', handleProgress)
 
     if (video.duration && !isNaN(video.duration)) {
       setDuration(video.duration)
@@ -140,6 +148,7 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
       video.removeEventListener('canplay', handleCanPlay)
       video.removeEventListener('playing', handlePlaying)
       video.removeEventListener('volumechange', handleVolumeChange)
+      video.removeEventListener('progress', handleProgress)
     }
   }, [videoUrl])
 
@@ -402,20 +411,20 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
               />
 
               {/* Header Premium */}
-              <div className={`absolute top-0 left-0 right-0 z-10 bg-gradient-to-b from-black/80 via-black/40 to-transparent backdrop-blur-sm transition-opacity duration-300 ${
+              <div className={`absolute top-0 left-0 right-0 z-10 transition-opacity duration-300 ${
                 showControls ? 'opacity-100' : 'opacity-0'
               }`}>
                 <div className="flex items-center justify-between p-2 sm:p-4">
                   <button
                     onClick={onClose}
-                    className="text-white hover:text-neon-cyan p-1.5 sm:p-2 rounded-full hover:bg-white/10 transition-all active:scale-95"
+                    className="text-white hover:text-neon-cyan p-1.5 sm:p-2 rounded-full bg-black/60 backdrop-blur-md hover:bg-black/80 transition-all active:scale-95"
                   >
                     <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6" strokeWidth={1.5} />
                   </button>
                   
-                  <h3 className="flex-1 text-center text-white text-xs sm:text-sm font-medium truncate px-2 sm:px-4">{title}</h3>
+                  <h3 className="flex-1 text-center text-white text-xs sm:text-sm font-medium truncate px-2 sm:px-4 py-2 bg-black/60 backdrop-blur-md rounded-full mx-2">{title}</h3>
                   
-                  <div className="flex items-center gap-1 sm:gap-2">
+                  <div className="flex items-center gap-1 sm:gap-2 bg-black/60 backdrop-blur-md rounded-full p-1">
                     <button 
                       onClick={toggleFullscreen}
                       className="text-white hover:text-neon-cyan p-1.5 sm:p-2 rounded-full hover:bg-white/10 transition-all active:scale-95"
@@ -482,53 +491,63 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
               )}
 
               {/* Controls Premium */}
-              <div className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent backdrop-blur-sm p-2 sm:p-3 md:p-3.5 lg:p-4 transition-opacity duration-300 ${
+              <div className={`absolute bottom-0 left-0 right-0 p-2 sm:p-3 md:p-3.5 lg:p-4 transition-opacity duration-300 ${
                 showControls ? 'opacity-100' : 'opacity-0'
               }`}>
                 {/* Progress Bar */}
-                <div className="mb-1 sm:mb-3">
-                  <input
-                    type="range"
-                    min="0"
-                    max={duration || 0}
-                    value={currentTime}
-                    onChange={handleSeek}
-                    className="w-full h-1 bg-gray-600/50 rounded-full appearance-none cursor-pointer"
-                    style={{
-                      background: `linear-gradient(to right, #00A8FF 0%, #00A8FF ${(currentTime / duration) * 100}%, rgba(255,255,255,0.2) ${(currentTime / duration) * 100}%, rgba(255,255,255,0.2) 100%)`
-                    }}
-                  />
+                <div className="mb-1 sm:mb-3 bg-black/60 backdrop-blur-md rounded-full px-3 py-2">
+                  <div className="relative w-full h-1 bg-[#1a1a1a] rounded-full overflow-hidden">
+                    {/* Buffered Progress (cinza médio) */}
+                    <div 
+                      className="absolute top-0 left-0 h-full bg-[#4a4a4a] rounded-full transition-all z-10"
+                      style={{ width: `${bufferedProgress}%` }}
+                    />
+                    {/* Current Progress (cyan brilhante) */}
+                    <div 
+                      className="absolute top-0 left-0 h-full bg-[#00ffff] rounded-full transition-all z-20"
+                      style={{ width: `${(currentTime / duration) * 100}%` }}
+                    />
+                    {/* Input Range (invisível mas funcional) */}
+                    <input
+                      type="range"
+                      min="0"
+                      max={duration || 0}
+                      value={currentTime}
+                      onChange={handleSeek}
+                      className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer z-30"
+                    />
+                  </div>
                 </div>
 
                 {/* Center Play Button */}
-                <div className="flex items-center justify-center mb-1 sm:mb-4">
+                <div className="flex items-center justify-center mb-1 sm:mb-4 video-controls-desktop">
                   <div className="flex items-center gap-1.5 sm:gap-4 md:gap-6 lg:gap-8">
                     {playlist && playlist.length > 1 && hasPrevious && (
                       <button 
                         onClick={handlePrevious}
-                        className="text-white hover:text-neon-cyan p-0.5 sm:p-2 md:p-3 lg:p-4 landscape:p-0.5 rounded-full hover:bg-white/10 transition-all active:scale-95"
+                        className="skip-button text-white hover:text-neon-cyan p-0.5 sm:p-2 md:p-3 landscape:p-0.5 rounded-full hover:bg-white/10 transition-all active:scale-95"
                       >
-                        <SkipBack className="w-3 h-3 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-8 lg:h-8 landscape:w-3 landscape:h-3" strokeWidth={1.5} fill="currentColor" />
+                        <SkipBack className="w-3 h-3 sm:w-5 sm:h-5 md:w-6 md:h-6 landscape:w-3 landscape:h-3" strokeWidth={1.5} fill="currentColor" />
                       </button>
                     )}
                     
                     <button 
                       onClick={togglePlay} 
-                      className="bg-white/90 hover:bg-white rounded-full p-1.5 sm:p-3 md:p-4 lg:p-6 landscape:p-1.5 transition-all active:scale-95 shadow-2xl"
+                      className="play-button bg-white/90 hover:bg-white rounded-full p-1.5 sm:p-3 md:p-4 landscape:p-1.5 transition-all active:scale-95 shadow-2xl"
                     >
                       {isPlaying ? (
-                        <Pause className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 lg:w-10 lg:h-10 landscape:w-4 landscape:h-4 text-black" strokeWidth={2} fill="currentColor" />
+                        <Pause className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 landscape:w-4 landscape:h-4 text-black" strokeWidth={2} fill="currentColor" />
                       ) : (
-                        <Play className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 lg:w-10 lg:h-10 landscape:w-4 landscape:h-4 text-black" strokeWidth={2} fill="currentColor" style={{ marginLeft: '1px' }} />
+                        <Play className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 landscape:w-4 landscape:h-4 text-black" strokeWidth={2} fill="currentColor" style={{ marginLeft: '1px' }} />
                       )}
                     </button>
                     
                     {playlist && playlist.length > 1 && hasNext && (
                       <button 
                         onClick={handleNext}
-                        className="text-white hover:text-neon-cyan p-0.5 sm:p-2 md:p-3 lg:p-4 landscape:p-0.5 rounded-full hover:bg-white/10 transition-all active:scale-95"
+                        className="skip-button text-white hover:text-neon-cyan p-0.5 sm:p-2 md:p-3 landscape:p-0.5 rounded-full hover:bg-white/10 transition-all active:scale-95"
                       >
-                        <SkipForward className="w-3 h-3 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-8 lg:h-8 landscape:w-3 landscape:h-3" strokeWidth={1.5} fill="currentColor" />
+                        <SkipForward className="w-3 h-3 sm:w-5 sm:h-5 md:w-6 md:h-6 landscape:w-3 landscape:h-3" strokeWidth={1.5} fill="currentColor" />
                       </button>
                     )}
                   </div>
@@ -536,7 +555,7 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
 
                 {/* Bottom Controls */}
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1.5 sm:gap-3">
+                  <div className="flex items-center gap-1.5 sm:gap-3 bg-black/60 backdrop-blur-md rounded-full px-3 py-1.5">
                     <span className="text-white text-xs sm:text-sm font-medium">
                       {formatTime(currentTime)}
                     </span>
@@ -546,7 +565,7 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-1 sm:gap-3">
+                  <div className="flex items-center gap-1 sm:gap-3 bg-black/60 backdrop-blur-md rounded-full p-1">
                     <button 
                       onClick={changePlaybackRate}
                       className="text-white hover:text-neon-cyan text-xs sm:text-sm font-medium px-2 py-1 sm:px-3 rounded-full hover:bg-white/10 transition-all active:scale-95"
