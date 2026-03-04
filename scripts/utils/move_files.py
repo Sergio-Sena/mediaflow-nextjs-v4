@@ -4,7 +4,7 @@ import re
 
 s3 = boto3.client('s3')
 bucket = 'mediaflow-uploads-969430605054'
-prefix = 'users/sergio_sena/Star/'
+prefix = 'users/sergio_sena/Category/'
 
 # Listar objetos
 response = s3.list_objects_v2(Bucket=bucket, Prefix=prefix, Delimiter='/')
@@ -12,10 +12,10 @@ response = s3.list_objects_v2(Bucket=bucket, Prefix=prefix, Delimiter='/')
 if 'Contents' in response:
     for obj in response['Contents']:
         key = obj['Key']
-        if 'EmiliaBunny' in key and key.endswith('.mp4'):
+        if 'SpecificFolder' in key and key.endswith('.mp4'):
             # Extrair nome do arquivo
             filename = key.split('/')[-1]
-            new_key = f'{prefix}emillya_Bunny/{filename}'
+            new_key = f'{prefix}target_folder/{filename}'
             
             # Copiar e deletar
             s3.copy_object(

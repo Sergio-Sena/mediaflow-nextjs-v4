@@ -39,6 +39,7 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
   const [folderStructure, setFolderStructure] = useState<{[key: string]: string[]}>({})
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage] = useState(50)
+  const [deleting, setDeleting] = useState<Set<string>>(new Set())
 
   const fetchFiles = async () => {
     try {
@@ -347,14 +348,17 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
   }
 
   const handleDelete = async (file: S3File) => {
+    if (deleting.has(file.key)) return
     if (!confirm(`Deseja excluir "${file.name}"?`)) return
 
+    setDeleting(prev => new Set(prev).add(file.key))
     try {
-      // Direct API call to avoid client issues
-      const response = await fetch('https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/files', {
+      const token = localStorage.getItem('token')
+      const response = await fetch('/api/videos/delete', {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({ key: file.key })
       })
@@ -372,6 +376,12 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
     } catch (err) {
       console.error('Delete error:', err)
       alert('Erro ao excluir arquivo')
+    } finally {
+      setDeleting(prev => {
+        const next = new Set(prev)
+        next.delete(file.key)
+        return next
+      })
     }
   }
 
@@ -397,16 +407,19 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
   }
 
   const handleBulkDelete = async () => {
-    if (selectedFiles.size === 0) return
+    if (selectedFiles.size === 0 || deleting.size > 0) return
     if (!confirm(`Deseja excluir ${selectedFiles.size} arquivo(s)?`)) return
 
+    const keysToDelete = Array.from(selectedFiles)
+    setDeleting(new Set(keysToDelete))
     try {
-      // Delete files one by one
-      const promises = Array.from(selectedFiles).map(key =>
-        fetch('https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/files', {
+      const token = localStorage.getItem('token')
+      const promises = keysToDelete.map(key =>
+        fetch('/api/videos/delete', {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
           },
           body: JSON.stringify({ key })
         })
@@ -418,6 +431,8 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
     } catch (err) {
       console.error('Bulk delete error:', err)
       alert('Erro ao excluir arquivos')
+    } finally {
+      setDeleting(new Set())
     }
   }
 
@@ -732,10 +747,11 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
                     
                     <button
                       onClick={() => handleDelete(file)}
-                      className="p-2 bg-red-600/30 hover:bg-red-600/50 text-red-300 rounded-lg transition-colors border border-red-500/30"
-                      title="Excluir"
+                      disabled={deleting.has(file.key)}
+                      className="p-2 bg-red-600/30 hover:bg-red-600/50 text-red-300 rounded-lg transition-colors border border-red-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
+                      title={deleting.has(file.key) ? 'Excluindo...' : 'Excluir'}
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className={`w-4 h-4 ${deleting.has(file.key) ? 'animate-pulse' : ''}`} />
                     </button>
                   </div>
                 </div>
