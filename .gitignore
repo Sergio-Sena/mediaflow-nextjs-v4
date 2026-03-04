@@ -96,3 +96,8 @@ scripts/utils/*kate*
 scripts/utils/*lilo*
 scripts/utils/*moana*
 scripts/utils/upload-*-one-by-one.bat
+
+# Arquivos de documentação interna
+GUIA-PERSONAS.md
+manual IA.md
+GITHUB_PROFILE_README.md

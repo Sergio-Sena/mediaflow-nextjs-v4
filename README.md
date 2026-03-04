@@ -1,294 +1,308 @@
-# 🎬 Mídiaflow - Hospedagem de Vídeos Profissional
-
-> **Hospede, converta e distribua seus vídeos com CDN global. Simples, rápido e seguro.**
+# 🎬 MidiaFlow - Plataforma Profissional de Hospedagem de Vídeos
 
 [![Status](https://img.shields.io/badge/Status-✅%20Online-brightgreen)](https://midiaflow.sstechnologies-cloud.com)
-[![Uptime](https://img.shields.io/badge/Uptime-99.9%25-brightgreen)](https://midiaflow.sstechnologies-cloud.com)
-[![Performance](https://img.shields.io/badge/Performance-95+-brightgreen)](https://midiaflow.sstechnologies-cloud.com)
+[![Next.js](https://img.shields.io/badge/Next.js-14-black)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)](https://www.typescriptlang.org/)
+[![AWS](https://img.shields.io/badge/AWS-Serverless-orange)](https://aws.amazon.com/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-**[🚀 Começar Grátis - 14 dias](https://midiaflow.sstechnologies-cloud.com/register)** | **[📺 Ver Demo](https://midiaflow.sstechnologies-cloud.com)** | **[💬 Contato](#contato)**
+> Hospede, converta e distribua seus vídeos com CDN global. Simples, rápido e seguro.
 
----
-
-## 💼 Para Quem é o Mídiaflow?
-
-### ✅ Criadores de Cursos Online
-Hospede seus cursos em plataformas como Hotmart, Eduzz e Monetizze sem depender de players limitados.
-
-### ✅ Empresas e Corporações
-Treinamentos internos, onboarding de funcionários e comunicação corporativa com segurança e privacidade.
-
-### ✅ Agências de Marketing
-Vídeos para landing pages, campanhas e anúncios sem preocupação com limites ou marcas d'água.
-
-### ✅ Produtores de Conteúdo
-Alternativa profissional ao YouTube com controle total sobre seu conteúdo e monetização.
+**[🚀 Ver Demo](https://midiaflow.sstechnologies-cloud.com)** | **[📖 Documentação](docs/)** | **[🐛 Reportar Bug](issues)**
 
 ---
 
-## 🆚 Por Que Escolher o Mídiaflow?
+## ✨ Features
 
-### vs YouTube (Grátis)
-| Mídiaflow | YouTube |
-|-----------|---------|
-| ✅ Sem anúncios dos concorrentes | ❌ Anúncios incontroláveis |
-| ✅ Sem recomendações externas | ❌ Recomenda concorrentes |
-| ✅ Privacidade total | ❌ Dados públicos |
-| ✅ Player personalizável | ❌ Player padrão |
-
-### vs Vimeo ($20/mês)
-| Mídiaflow | Vimeo |
-|-----------|-------|
-| ✅ $9.99/mês (50% mais barato) | ❌ $20/mês |
-| ✅ Conversão 4K incluída | ❌ Paga extra por 4K |
-| ✅ Vídeos ilimitados | ❌ Limite de vídeos |
-| ✅ API sem custo extra | ❌ API apenas em planos caros |
-
-### vs Wistia ($99/mês)
-| Mídiaflow | Wistia |
-|-----------|--------|
-| ✅ $19.99/mês (80% mais barato) | ❌ $99/mês |
-| ✅ Mesmas funcionalidades | ✅ Funcionalidades avançadas |
-| ✅ Interface mais simples | ❌ Interface complexa |
-
----
-
-## 🎯 Como Funciona?
-
-### 1️⃣ Cadastre-se
-Crie sua conta em menos de 1 minuto. **14 dias grátis**, sem cartão de crédito.
-
-### 2️⃣ Faça Upload
-Arraste seus vídeos (até 5GB cada). Conversão automática para melhor qualidade.
-
-### 3️⃣ Compartilhe
-Copie o link ou código embed. Funciona em qualquer site ou plataforma.
-
-### 4️⃣ Acompanhe
-Veja quantas pessoas assistiram, de onde e por quanto tempo.
-
-**[🚀 Começar Agora](https://midiaflow.sstechnologies-cloud.com/register)**
-
----
-
-## 💰 Planos e Preços
-
-### 🆓 Grátis (Trial)
-**14 dias para testar**
-- 1 GB de armazenamento
-- 10 vídeos
-- Conversão até 720p
-- Marca d'água Mídiaflow
-
-**[Começar Grátis →](https://midiaflow.sstechnologies-cloud.com/register)**
-
----
-
-### 💼 Basic - $9.99/mês
-**Ideal para criadores e pequenas empresas**
-- 50 GB de armazenamento
-- Vídeos ilimitados
-- Conversão até 1080p
-- Sem marca d'água
-- Suporte por email
-
-**[Escolher Basic →](https://midiaflow.sstechnologies-cloud.com/register)**
-
----
-
-### 🚀 Pro - $19.99/mês
-**Para profissionais e agências**
-- 500 GB de armazenamento
-- Vídeos ilimitados
-- Conversão até 4K
-- API completa
-- Analytics avançado
-- Suporte prioritário
-
-**[Escolher Pro →](https://midiaflow.sstechnologies-cloud.com/register)**
-
----
-
-### 🏢 Enterprise - Sob Consulta
-**Para grandes empresas**
-- Armazenamento ilimitado
-- White-label completo
-- SLA 99.99%
-- Suporte 24/7
-- Gerente de conta dedicado
-- Integração personalizada
-
-**[Falar com Vendas →](#contato)**
-
----
-
-## ⚡ Recursos Principais
-
-### 📤 Upload Inteligente
-- Arraste e solte até 5GB por vídeo
-- Barra de progresso em tempo real
-- Conversão automática para melhor qualidade
-- Thumbnails geradas automaticamente
-
-### 🎬 Player Profissional
-- Design moderno e responsivo
-- Funciona em mobile, tablet e desktop
-- Controles personalizáveis
-- Modo fullscreen
+### 🎥 **Player de Vídeo Premium**
+- Player moderno com controles avançados
+- Barra de progresso em 3 camadas (fundo, buffer, reprodução)
+- Controles responsivos (mobile, tablet, desktop)
+- Atalhos de teclado (Space, K, F, M, setas)
+- Gestos touch para mobile (swipe para avançar/voltar)
+- Fullscreen com double-click
 - Velocidade de reprodução ajustável
 
-### 🌍 CDN Global
-- Entrega rápida em 400+ localizações
-- Streaming sem travamentos
-- 99.9% de disponibilidade
-- SSL/HTTPS incluído
+### 📤 **Upload Inteligente**
+- Upload multipart para arquivos grandes (até 5GB)
+- Barra de progresso em tempo real
+- Suporte a múltiplos formatos (MP4, AVI, MOV, MKV, WebM)
+- Thumbnails geradas automaticamente
+- Organização por pastas
 
-### 📊 Analytics em Tempo Real
-- Visualizações por vídeo
-- Tempo médio assistido
-- Localização dos espectadores
-- Dispositivos utilizados
-
-### 🔒 Segurança e Privacidade
+### 🔐 **Autenticação & Segurança**
+- JWT + 2FA (Two-Factor Authentication)
+- Controle de acesso por usuário
 - Vídeos privados por padrão
-- Controle de acesso por senha
-- Domínio personalizado
-- Backup automático
+- Presigned URLs com expiração
+- CORS configurado
+
+### 📊 **Analytics & Gestão**
+- Dashboard administrativo completo
+- Gestão de usuários (admin/user roles)
+- Listagem e busca de vídeos
+- Estatísticas de uso
+- Logs de atividades
+
+### ☁️ **Infraestrutura AWS**
+- **S3**: Armazenamento escalável
+- **CloudFront**: CDN global (400+ POPs)
+- **Lambda**: Processamento serverless
+- **API Gateway**: REST API
+- **DynamoDB**: Banco de dados NoSQL
 
 ---
 
-## 📈 Números que Impressionam
+## 🛠️ Tech Stack
 
-- **99.9%** de uptime garantido
-- **< 2s** de carregamento global
-- **400+** pontos de distribuição mundial
-- **95+** pontos no Lighthouse (Google)
+### **Frontend**
+- **Next.js 14** - Framework React com SSR/SSG
+- **TypeScript** - Type safety
+- **TailwindCSS** - Utility-first CSS
+- **Lucide Icons** - Ícones modernos
 
----
+### **Backend**
+- **Node.js 18+** - Runtime
+- **Python 3.11** - Lambda functions
+- **AWS SDK** - Integração AWS
+- **JWT** - Autenticação
 
-## ❓ Perguntas Frequentes
-
-### Posso cancelar a qualquer momento?
-Sim! Sem multas ou taxas. Cancele quando quiser.
-
-### Preciso de cartão de crédito no trial?
-Não! 14 dias grátis sem precisar de cartão.
-
-### Meus vídeos ficam públicos?
-Não! Todos os vídeos são privados por padrão. Você controla quem pode assistir.
-
-### Qual o limite de upload?
-Até 5GB por vídeo. Sem limite de quantidade no plano Basic e Pro.
-
-### Vocês convertem os vídeos automaticamente?
-Sim! Convertemos para a melhor qualidade (720p, 1080p ou 4K dependendo do plano).
-
-### Posso usar meu próprio domínio?
-Sim! No plano Pro e Enterprise você pode usar seu domínio personalizado.
-
-### Tem suporte em português?
-Sim! Suporte completo em português por email e chat.
-
-### Qual a forma de pagamento?
-Cartão de crédito, boleto e PIX (apenas planos anuais).
-
-### Tem desconto para pagamento anual?
-Sim! 20% de desconto pagando anualmente.
-
-### Posso fazer upgrade ou downgrade?
-Sim! Mude de plano a qualquer momento. Ajustamos o valor proporcionalmente.
+### **AWS Services**
+- **S3** - Uploads & Processed buckets
+- **CloudFront** - CDN (E2HZKZ9ZJK18IU)
+- **Lambda** - Upload handler, conversão
+- **API Gateway** - REST endpoints
+- **DynamoDB** - Usuários, logs
 
 ---
 
-## 🎓 Casos de Uso
+## 🚀 Quick Start
 
-### Cursos Online
-"Uso o Mídiaflow para hospedar meus cursos na Hotmart. Player rápido, sem travamentos e meus alunos adoram!"
-— **João Silva**, Produtor Digital
+### **Pré-requisitos**
+- Node.js 18+
+- AWS Account
+- Git
 
-### Treinamento Corporativo
-"Migramos todos os treinamentos internos para o Mídiaflow. Economia de 70% comparado ao Vimeo."
-— **Maria Santos**, RH da TechCorp
+### **1. Clone o repositório**
+```bash
+git clone https://github.com/Sergio-Sena/mediaflow-nextjs-v4.git
+cd mediaflow-nextjs-v4
+```
 
-### Marketing Digital
-"Nossos vídeos de vendas carregam 3x mais rápido. Taxa de conversão aumentou 40%!"
-— **Pedro Costa**, Agência XYZ
+### **2. Instale as dependências**
+```bash
+npm install
+```
 
----
+### **3. Configure as variáveis de ambiente**
+```bash
+cp .env.example .env.local
+```
 
-## 🚀 Comece Agora
+Edite `.env.local`:
+```env
+# AWS
+NEXT_PUBLIC_AWS_REGION=us-east-1
+NEXT_PUBLIC_S3_UPLOADS_BUCKET=mediaflow-uploads-969430605054
+NEXT_PUBLIC_S3_PROCESSED_BUCKET=mediaflow-processed-969430605054
+NEXT_PUBLIC_CLOUDFRONT_DOMAIN=d3xxxxxxxxxx.cloudfront.net
 
-### 1. Crie sua conta grátis
-**[Cadastrar Agora →](https://midiaflow.sstechnologies-cloud.com/register)**
+# API
+NEXT_PUBLIC_API_URL=https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod
 
-### 2. Faça upload do primeiro vídeo
-Arraste e solte. Simples assim.
+# Auth
+JWT_SECRET=your-super-secret-key-here
+```
 
-### 3. Compartilhe com o mundo
-Copie o link e cole onde quiser.
+### **4. Execute em desenvolvimento**
+```bash
+npm run dev
+```
 
-**14 dias grátis. Sem cartão de crédito. Cancele quando quiser.**
-
----
-
-## 📞 Contato
-
-### 💬 Suporte
-- **Email**: suporte@midiaflow.com
-- **Chat**: Disponível no site
-- **Horário**: Segunda a Sexta, 9h às 18h
-
-### 🏢 Vendas Enterprise
-- **Email**: vendas@midiaflow.com
-- **WhatsApp**: +55 (11) 9999-9999
-
-### 🌐 Redes Sociais
-- [LinkedIn](https://linkedin.com/company/midiaflow)
-- [Twitter](https://twitter.com/midiaflow)
-- [Instagram](https://instagram.com/midiaflow)
+Acesse: http://localhost:3000
 
 ---
 
-## 📄 Links Úteis
+## 📦 Deploy
 
-- [Documentação](https://docs.midiaflow.com)
-- [Status do Sistema](https://status.midiaflow.com)
-- [Blog](https://blog.midiaflow.com)
-- [Termos de Serviço](https://midiaflow.com/termos)
-- [Política de Privacidade](https://midiaflow.com/privacidade)
+### **Build de Produção**
+```bash
+npm run build
+```
 
----
+### **Deploy na AWS**
+```bash
+# Sync static files
+aws s3 sync .next/static s3://mediaflow-frontend-969430605054/_next/static --delete
 
-## 🔐 Segurança e Conformidade
+# Sync HTML
+aws s3 sync out s3://mediaflow-frontend-969430605054 --delete --exclude "_next/*"
 
-- ✅ SSL/HTTPS em todos os vídeos
-- ✅ Backup automático diário
-- ✅ Conformidade com LGPD
-- ✅ Servidores na AWS (Amazon)
-- ✅ Certificações ISO 27001
-
----
-
-## 🏆 Garantias
-
-### ✅ 30 Dias de Garantia
-Não gostou? Devolvemos 100% do seu dinheiro. Sem perguntas.
-
-### ✅ 99.9% de Uptime
-Se ficarmos offline, você ganha créditos proporcionais.
-
-### ✅ Suporte Rápido
-Respondemos em até 24h (plano Basic) ou 4h (plano Pro).
+# Invalidate CloudFront
+aws cloudfront create-invalidation --distribution-id E2HZKZ9ZJK18IU --paths "/*"
+```
 
 ---
 
-**🎬 Mídiaflow - Hospedagem de Vídeos Profissional**  
-*Simples, rápido e seguro. Usado por milhares de criadores e empresas.*
+## 📁 Estrutura do Projeto
 
-**[🚀 Começar Grátis Agora](https://midiaflow.sstechnologies-cloud.com/register)**
+```
+mediaflow-nextjs-v4/
+├── app/                      # Next.js App Router
+│   ├── api/                  # API Routes (proxies)
+│   ├── (auth)/              # Páginas de autenticação
+│   ├── dashboard/           # Dashboard principal
+│   └── globals.css          # Estilos globais
+├── components/
+│   ├── modules/             # Componentes principais
+│   │   ├── VideoPlayer.tsx  # Player premium
+│   │   ├── FileList.tsx     # Lista de vídeos
+│   │   └── UploadForm.tsx   # Upload multipart
+│   └── ui/                  # Componentes UI
+├── lib/
+│   ├── aws-client.ts        # Cliente AWS
+│   └── auth.ts              # Autenticação JWT
+├── aws-setup/               # Infraestrutura AWS
+│   └── lambda-functions/    # Funções Lambda
+├── public/                  # Assets estáticos
+└── types/                   # TypeScript types
+```
 
 ---
 
-<sub>© 2025 Mídiaflow. Todos os direitos reservados. | [Termos](https://midiaflow.com/termos) | [Privacidade](https://midiaflow.com/privacidade)</sub>
-     
- 
+## 🎯 Funcionalidades Principais
+
+### **Upload de Vídeos**
+```typescript
+// Upload multipart com progresso
+const uploadVideo = async (file: File) => {
+  const presignedUrl = await getPresignedUrl(file.name);
+  await uploadToS3(presignedUrl, file, onProgress);
+};
+```
+
+### **Player de Vídeo**
+```typescript
+// Player com controles avançados
+<VideoPlayer
+  src={videoKey}
+  title={videoName}
+  playlist={videos}
+  onVideoChange={handleVideoChange}
+/>
+```
+
+### **Autenticação**
+```typescript
+// Login com JWT + 2FA
+const login = async (email: string, password: string, code?: string) => {
+  const response = await fetch('/api/auth/login', {
+    method: 'POST',
+    body: JSON.stringify({ email, password, code })
+  });
+  return response.json();
+};
+```
+
+---
+
+## 🔒 Segurança
+
+### **Boas Práticas Implementadas**
+- ✅ JWT com expiração
+- ✅ 2FA obrigatório para admin
+- ✅ Presigned URLs com TTL
+- ✅ CORS configurado
+- ✅ Validação de input
+- ✅ Rate limiting (recomendado)
+- ✅ HTTPS em produção
+
+### **Variáveis Sensíveis**
+Nunca commite:
+- `.env.local`
+- Credenciais AWS
+- JWT secrets
+- API keys
+
+---
+
+## 📊 Performance
+
+- **Lighthouse Score**: 95+
+- **First Contentful Paint**: < 1.5s
+- **Time to Interactive**: < 3s
+- **CDN**: 400+ POPs globais
+- **Uptime**: 99.9%
+
+---
+
+## 🐛 Troubleshooting
+
+### **Vídeo não carrega**
+- Verificar presigned URL válida
+- Confirmar bucket S3 acessível
+- Checar CORS configurado
+
+### **Upload falha**
+- Verificar tamanho do arquivo (< 5GB)
+- Confirmar formato suportado
+- Checar credenciais AWS
+
+### **Erro 403 ao deletar**
+- Usar endpoint `/files/bulk-delete`
+- Verificar permissões IAM
+- Confirmar token JWT válido
+
+---
+
+## 🗺️ Roadmap
+
+- [ ] Conversão automática para múltiplas resoluções
+- [ ] Legendas e closed captions
+- [ ] Live streaming
+- [ ] Analytics avançado
+- [ ] API pública
+- [ ] Mobile app (React Native)
+
+---
+
+## 🤝 Contribuição
+
+1. Fork o projeto
+2. Crie uma branch (`git checkout -b feature/nova-funcionalidade`)
+3. Commit suas mudanças (`git commit -m 'feat: nova funcionalidade'`)
+4. Push para a branch (`git push origin feature/nova-funcionalidade`)
+5. Abra um Pull Request
+
+---
+
+## 📄 Licença
+
+Este projeto está sob a licença MIT. Veja [LICENSE](LICENSE) para detalhes.
+
+---
+
+## 👨‍💻 Autor
+
+**Sergio Sena**
+- GitHub: [@Sergio-Sena](https://github.com/Sergio-Sena)
+- LinkedIn: [Sergio Sena](https://linkedin.com/in/sergio-sena)
+- Portfolio: [dev-cloud.sstechnologies-cloud.com](https://dev-cloud.sstechnologies-cloud.com)
+
+---
+
+## 🙏 Agradecimentos
+
+- AWS pela infraestrutura robusta
+- Next.js team pelo framework incrível
+- Comunidade open source
+
+---
+
+<div align="center">
+
+**⭐ Se este projeto foi útil, deixe uma estrela!**
+
+[🚀 Ver Demo](https://midiaflow.sstechnologies-cloud.com) • [📖 Docs](docs/) • [🐛 Issues](issues)
+
+</div>
