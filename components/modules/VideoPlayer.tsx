@@ -165,14 +165,14 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
   const togglePlay = () => {
     const video = videoRef.current
     if (!video) return
+    
     if (isPlaying) {
       video.pause()
     } else {
-      video.play()
+      video.play().catch(err => console.log('Play interrupted:', err))
     }
     setIsPlaying(!isPlaying)
     
-    // Feedback visual
     setShowClickFeedback(true)
     if (clickFeedbackTimeout.current) clearTimeout(clickFeedbackTimeout.current)
     clickFeedbackTimeout.current = setTimeout(() => setShowClickFeedback(false), 500)
@@ -486,7 +486,6 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
               <video
                 ref={videoRef}
                 className="w-full h-full object-contain"
-                onClick={togglePlay}
                 onDoubleClick={handleDoubleClick}
                 src={videoUrl}
                 preload="metadata"
@@ -595,12 +594,12 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
                   <div className="relative w-full h-1 bg-[#1a1a1a] rounded-full overflow-hidden">
                     {/* Buffered Progress (cinza médio) */}
                     <div 
-                      className="absolute top-0 left-0 h-full bg-[#4a4a4a] rounded-full transition-all z-10"
+                      className="absolute top-0 left-0 h-full bg-[#4a4a4a] rounded-full transition-all z-10 pointer-events-none"
                       style={{ width: `${bufferedProgress}%` }}
                     />
                     {/* Current Progress (cyan brilhante) */}
                     <div 
-                      className="absolute top-0 left-0 h-full bg-[#00ffff] rounded-full transition-all z-20"
+                      className="absolute top-0 left-0 h-full bg-[#00ffff] rounded-full transition-all z-20 pointer-events-none"
                       style={{ width: `${(currentTime / duration) * 100}%` }}
                     />
                     {/* Input Range (invisível mas funcional) */}
@@ -611,6 +610,7 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
                       value={currentTime}
                       onChange={handleSeek}
                       className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer z-30"
+                      style={{ pointerEvents: 'auto' }}
                     />
                   </div>
                 </div>
