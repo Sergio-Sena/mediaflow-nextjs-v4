@@ -317,7 +317,7 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
     const video = videoRef.current
     if (!video) return
 
-    const screenWidth = window.innerWidth
+    const screenWidth = document.fullscreenElement ? window.screen.width : window.innerWidth
     const touchX = touchStart.x
     
     // Swipe horizontal (avançar/retroceder) - apenas nas laterais
