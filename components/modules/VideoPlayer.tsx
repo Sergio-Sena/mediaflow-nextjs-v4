@@ -317,7 +317,10 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
     const video = videoRef.current
     if (!video) return
 
-    const screenWidth = document.fullscreenElement ? window.screen.width : window.innerWidth
+    // Usar dimensões reais da tela em qualquer modo
+    const screenWidth = document.fullscreenElement 
+      ? (window.screen.orientation?.type.includes('landscape') ? Math.max(window.screen.width, window.screen.height) : Math.min(window.screen.width, window.screen.height))
+      : window.innerWidth
     const touchX = touchStart.x
     
     // Swipe horizontal (avançar/retroceder) - apenas nas laterais
