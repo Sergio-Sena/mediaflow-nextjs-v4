@@ -10,31 +10,38 @@ export async function DELETE(request: NextRequest) {
     }
 
     const token = request.headers.get('authorization')?.replace('Bearer ', '')
+    if (!token) {
+      return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 })
+    }
     
-    // Tentar endpoint de user primeiro, depois bulk-delete
-    const endpoints = [
-      'https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/files/delete',
-      'https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/files/bulk-delete'
-    ]
-    
-    for (const endpoint of endpoints) {
-      const body = endpoint.includes('bulk-delete') 
-        ? JSON.stringify({ keys: [key] })
-        : JSON.stringify({ key })
-        
-      const response = await fetch(endpoint, {
-        method: endpoint.includes('bulk-delete') ? 'POST' : 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body
-      })
+    // Tentar endpoint de user primeiro
+    const deleteResponse = await fetch('https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/files/delete', {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ key })
+    })
 
-      if (response.ok) {
-        const data = await response.json()
-        return NextResponse.json(data, { status: response.status })
-      }
+    if (deleteResponse.ok) {
+      const data = await deleteResponse.json()
+      return NextResponse.json(data)
+    }
+    
+    // Se falhar, tentar bulk-delete (admin)
+    const bulkResponse = await fetch('https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/files/bulk-delete', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ keys: [key] })
+    })
+
+    if (bulkResponse.ok) {
+      const data = await bulkResponse.json()
+      return NextResponse.json(data)
     }
     
     return NextResponse.json({ success: false, message: 'Delete failed' }, { status: 403 })

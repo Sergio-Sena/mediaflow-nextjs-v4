@@ -171,7 +171,6 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
     } else {
       video.play().catch(err => console.log('Play interrupted:', err))
     }
-    setIsPlaying(!isPlaying)
     
     setShowClickFeedback(true)
     if (clickFeedbackTimeout.current) clearTimeout(clickFeedbackTimeout.current)
