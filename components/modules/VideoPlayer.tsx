@@ -37,13 +37,15 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
   const [showSeekIndicator, setShowSeekIndicator] = useState<{show: boolean, text: string}>({show: false, text: ''})
   const [showClickFeedback, setShowClickFeedback] = useState(false)
   const [showKeyboardHelp, setShowKeyboardHelp] = useState(false)
-  const [touchStart, setTouchStart] = useState<number | null>(null)
+  const [touchStart, setTouchStart] = useState<{x: number, y: number} | null>(null)
   const [bufferedProgress, setBufferedProgress] = useState(0)
+  const [isDraggingVolume, setIsDraggingVolume] = useState(false)
   const hideControlsTimeout = useRef<NodeJS.Timeout | null>(null)
   const volumeIndicatorTimeout = useRef<NodeJS.Timeout | null>(null)
   const seekIndicatorTimeout = useRef<NodeJS.Timeout | null>(null)
   const clickFeedbackTimeout = useRef<NodeJS.Timeout | null>(null)
   const keyboardHelpTimeout = useRef<NodeJS.Timeout | null>(null)
+  const volumeBarRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const fetchPresignedUrl = async () => {
@@ -51,6 +53,14 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
       setError('')
       
       try {
+        // Modo local: vídeos da pasta public/test-videos/
+        if (src.startsWith('local:')) {
+          const localPath = src.replace('local:', '/test-videos/')
+          setVideoUrl(localPath)
+          setLoading(false)
+          return
+        }
+
         const isDev = process.env.NODE_ENV === 'development'
         const encodedSrc = encodeURIComponent(src)
         const response = isDev 
@@ -195,6 +205,51 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
     volumeIndicatorTimeout.current = setTimeout(() => setShowVolumeIndicator(false), 1500)
   }
 
+  const handleVolumeMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    setIsDraggingVolume(true)
+    updateVolume(e)
+  }
+
+  const updateVolume = (e: React.MouseEvent<HTMLDivElement> | MouseEvent) => {
+    const video = videoRef.current
+    const bar = volumeBarRef.current
+    if (!video || !bar) return
+    
+    const rect = bar.getBoundingClientRect()
+    const y = e.clientY - rect.top
+    const height = rect.height
+    const newVolume = Math.max(0, Math.min(1, 1 - (y / height)))
+    
+    video.volume = newVolume
+    setVolume(newVolume)
+    setIsMuted(newVolume === 0)
+    setShowVolumeIndicator(true)
+    if (volumeIndicatorTimeout.current) clearTimeout(volumeIndicatorTimeout.current)
+    volumeIndicatorTimeout.current = setTimeout(() => setShowVolumeIndicator(false), 1500)
+  }
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (isDraggingVolume) {
+        updateVolume(e)
+      }
+    }
+
+    const handleMouseUp = () => {
+      setIsDraggingVolume(false)
+    }
+
+    if (isDraggingVolume) {
+      window.addEventListener('mousemove', handleMouseMove)
+      window.addEventListener('mouseup', handleMouseUp)
+    }
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove)
+      window.removeEventListener('mouseup', handleMouseUp)
+    }
+  }, [isDraggingVolume])
+
   const toggleFullscreen = () => {
     const video = videoRef.current
     if (!video) return
@@ -249,24 +304,53 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
   }
 
   const handleTouchStart = (e: React.TouchEvent) => {
-    setTouchStart(e.touches[0].clientX)
+    const touch = e.touches[0]
+    setTouchStart({ x: touch.clientX, y: touch.clientY })
   }
 
   const handleTouchEnd = (e: React.TouchEvent) => {
     if (!touchStart) return
-    const touchEnd = e.changedTouches[0].clientX
-    const diff = touchStart - touchEnd
-    if (Math.abs(diff) > 50) {
-      const video = videoRef.current
-      if (!video) return
-      if (diff > 0) {
-        video.currentTime = Math.min(duration, video.currentTime + 10)
-        showSeekFeedback('+10s')
-      } else {
-        video.currentTime = Math.max(0, video.currentTime - 10)
-        showSeekFeedback('-10s')
+    
+    const touch = e.changedTouches[0]
+    const deltaX = touch.clientX - touchStart.x
+    const deltaY = touch.clientY - touchStart.y
+    const video = videoRef.current
+    if (!video) return
+
+    const screenWidth = window.innerWidth
+    const touchX = touchStart.x
+    
+    // Swipe horizontal (avançar/retroceder) - apenas nas laterais
+    if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
+      // Lateral esquerda (30% da tela)
+      if (touchX < screenWidth * 0.3) {
+        if (deltaX > 0) {
+          video.currentTime = Math.min(duration, video.currentTime + 10)
+          showSeekFeedback('+10s')
+        } else {
+          video.currentTime = Math.max(0, video.currentTime - 10)
+          showSeekFeedback('-10s')
+        }
+      }
+      // Lateral direita (30% da tela)
+      else if (touchX > screenWidth * 0.7) {
+        if (deltaX > 0) {
+          video.currentTime = Math.min(duration, video.currentTime + 10)
+          showSeekFeedback('+10s')
+        } else {
+          video.currentTime = Math.max(0, video.currentTime - 10)
+          showSeekFeedback('-10s')
+        }
       }
     }
+    // Tap no centro (play/pause)
+    else if (Math.abs(deltaX) < 10 && Math.abs(deltaY) < 10) {
+      // Centro da tela (40% do meio)
+      if (touchX > screenWidth * 0.3 && touchX < screenWidth * 0.7) {
+        togglePlay()
+      }
+    }
+    
     setTouchStart(null)
   }
 
@@ -479,7 +563,19 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
                 <div className="absolute top-16 sm:top-20 right-2 sm:right-4 bg-black/80 rounded-lg p-2 sm:p-4 backdrop-blur-sm">
                   <div className="flex items-center gap-2 sm:gap-3">
                     {isMuted ? <VolumeX className="w-4 h-4 sm:w-6 sm:h-6 text-white" /> : <Volume2 className="w-4 h-4 sm:w-6 sm:h-6 text-white" />}
-                    <div className="w-16 sm:w-24 h-1.5 sm:h-2 bg-gray-600 rounded-full">
+                    <div className="hidden lg:flex flex-col items-center gap-2">
+                      <div 
+                        ref={volumeBarRef}
+                        onMouseDown={handleVolumeMouseDown}
+                        className="w-1.5 h-24 bg-gray-600 rounded-full cursor-pointer relative"
+                      >
+                        <div 
+                          className="absolute bottom-0 w-full bg-white rounded-full transition-all"
+                          style={{ height: `${isMuted ? 0 : volume * 100}%` }}
+                        />
+                      </div>
+                    </div>
+                    <div className="lg:hidden w-16 sm:w-24 h-1.5 sm:h-2 bg-gray-600 rounded-full">
                       <div 
                         className="h-full bg-white rounded-full transition-all"
                         style={{ width: `${isMuted ? 0 : volume * 100}%` }}
