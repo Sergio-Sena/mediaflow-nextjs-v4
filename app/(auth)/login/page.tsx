@@ -31,28 +31,34 @@ export default function LoginPage() {
           const usersRes = await fetch('https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/users')
           const usersData = await usersRes.json()
           if (usersData.success) {
-            const fullUser = usersData.users.find((u: any) => u.user_id === data.user_id)
+            const fullUser = usersData.users.find((u: any) => u.user_id === data.user_id || u.email === email)
             if (fullUser) {
+              console.log('✅ Current user saved:', fullUser)
               localStorage.setItem('current_user', JSON.stringify(fullUser))
             } else {
+              console.warn('⚠️ User not found in list, using fallback')
               // Fallback se não encontrar
-              localStorage.setItem('current_user', JSON.stringify({
+              const fallbackUser = {
                 user_id: data.user_id,
-                name: data.user.name,
-                email: data.user.email,
-                role: data.user.role
-              }))
+                name: data.user?.name || email.split('@')[0],
+                email: email,
+                role: data.user?.role || 'user'
+              }
+              console.log('Fallback user:', fallbackUser)
+              localStorage.setItem('current_user', JSON.stringify(fallbackUser))
             }
           }
         } catch (err) {
-          console.error('Erro ao buscar dados do usuário:', err)
+          console.error('❌ Erro ao buscar dados do usuário:', err)
           // Fallback
-          localStorage.setItem('current_user', JSON.stringify({
+          const fallbackUser = {
             user_id: data.user_id,
-            name: data.user.name,
-            email: data.user.email,
-            role: data.user.role
-          }))
+            name: data.user?.name || email.split('@')[0],
+            email: email,
+            role: data.user?.role || 'user'
+          }
+          console.log('Fallback user (error):', fallbackUser)
+          localStorage.setItem('current_user', JSON.stringify(fallbackUser))
         }
         
         // 2FA apenas para admin

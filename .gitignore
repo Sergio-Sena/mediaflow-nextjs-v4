@@ -101,3 +101,11 @@ scripts/utils/upload-*-one-by-one.bat
 GUIA-PERSONAS.md
 manual IA.md
 GITHUB_PROFILE_README.md
+
+# Arquivos temporários com dados sensíveis
+token.txt
+login-response.json
+presigned-response.json
+test-upload-curl.bat
+check-admin.py
+DIAGNOSTICO_PROBLEMAS.md

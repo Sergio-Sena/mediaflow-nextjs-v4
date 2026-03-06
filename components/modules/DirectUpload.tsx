@@ -78,9 +78,7 @@ export default function DirectUpload({
         throw new Error('Token de autenticação não encontrado')
       }
       
-      const { getApiUrl } = await import('@/lib/aws-config')
-      const apiUrl = getApiUrl('UPLOAD')
-      
+      // Usar proxy Next.js para evitar CORS
       const urlResponse = await fetch('/api/upload/presigned', {
         method: 'POST',
         headers: { 
