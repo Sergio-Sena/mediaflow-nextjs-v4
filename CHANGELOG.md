@@ -1,30 +1,60 @@
 # Changelog
 
-## [4.8.2] - 2026-03-04
+## [5.0.0] - 2026-03-06
+
+### 🎨 UI Redesign - Video Player Premium
+Redesign completo do player de vídeo seguindo especificações modernas de design.
+
+#### Added
+- **Play/Pause Button**: Botão circular branco (48px) com ícone escuro, seguindo spec profissional
+- **Volume Control**: Controle em cápsula horizontal com borda transparente, ícone 16px e slider expansível
+- **Progress Bar**: Barra vermelha (#FF3B30) com 6px de altura e knob circular
+- **Timer Display**: Texto branco (14px, peso 500) em container com borda transparente
+- **Grouped Controls**: Controles agrupados em containers com bordas `rgba(255,255,255,0.25)`
+  - Playlist controls (prev/play/next) em grupo único
+  - Right controls (speed/pip/list/fullscreen) em grupo único
+- **Responsive Design**: Breakpoints mobile/tablet/desktop
+  - Mobile (< 640px): Botões e ícones menores, gaps reduzidos
+  - Tablet (640px-768px): Tamanhos intermediários
+  - Desktop (≥ 768px): Tamanhos da especificação original
+- **Mobile Portrait**: Suporte otimizado para telas verticais com flex-wrap
+
+#### Changed
+- Gradient de controles: `from-black/90` → `from-black/60`
+- Botões com backdrop-blur e bordas semi-transparentes
+- Ícones com tamanhos responsivos (w-3.5 a w-5)
+- Padding e gaps adaptativos por breakpoint
+- Texto do timer com tamanho responsivo (10px a 14px)
+
+#### Technical
+- Especificação baseada em `video_player_ui_spec.md`
+- Cores exatas: Play button `rgba(255,255,255,0.9)`, Progress `#FF3B30`
+- Bordas: `rgba(255,255,255,0.25)` para todos os containers
+- Backgrounds: `rgba(255,255,255,0.18)` para controles agrupados
+
+### 📦 Build & Deploy
+- Build size: 895.9 KB HTML + 1.4 MB static assets
+- CloudFront invalidation: I6C9JD674MHE7Z10KNXQR1MVXY
+- Deployed to: https://midiaflow.sstechnologies-cloud.com
+
+---
+
+## [4.9.0] - 2025-01-30
 
 ### Added
-- Barra de progresso em 3 camadas no video player (fundo escuro, buffer cinza, reprodução cyan)
-- Loading state nos botões de delete para prevenir múltiplos cliques
-- Z-index nas camadas da barra de progresso para garantir visibilidade correta
-- Controles de vídeo com desfoque apenas em "caixinhas" individuais (não em faixa completa)
-- Botões de controle maiores para desktop (≥1024px)
-- CSS customizado para tamanhos de botões no desktop via classe `.video-controls-desktop`
+- Modern rounded controls inspired by professional video players
+- Expandable horizontal volume bar with visual indicator
+- Cross-browser fullscreen support (webkit/moz/MS prefixes)
+- ARIA labels for accessibility (WCAG AA compliant)
+- Prefers-reduced-motion support
+- Memory leak fixes and performance optimizations
 
 ### Changed
-- Cores da barra de progresso: fundo #1a1a1a, buffer #4a4a4a, reprodução #00ffff
-- Tamanho do botão play no desktop reduzido para 2.5rem (40px)
-- Botões skip no desktop ajustados para 2rem (32px)
-- Header e controles do player agora usam backdrop-blur apenas em elementos individuais
+- Throttled mouse events (100ms limit)
+- Improved button contrast with ring styling
+- Fullscreen mode uses simple mute button
 
-### Fixed
-- Erro 403 ao deletar arquivos (endpoint correto: `/files/bulk-delete`)
-- CORS errors em operações de delete via proxy Next.js
-- Violations de performance em operações de delete (adicionado loading state)
-- Barra de reprodução cyan não aparecendo (z-index corrigido)
-- Tamanhos de botões inconsistentes entre mobile/tablet/desktop
+---
 
-### Technical
-- Proxy `/api/videos/delete` usa POST para `/files/bulk-delete` com formato `keys: [array]`
-- Estado `deleting` previne múltiplos cliques durante operações
-- Estado `bufferedProgress` rastreia progresso de buffer do vídeo
-- Breakpoint landscape limitado a < 1024px para não afetar desktop widescreen
+## [4.8.2] - Previous Release
+- Initial stable release with basic player functionality

@@ -14,14 +14,17 @@
 
 ## ✨ Features
 
-### 🎥 **Player de Vídeo Premium**
+### 🎥 **Player de Vídeo Premium** (v4.9.0)
 - Player moderno com controles avançados
+- Barra de volume expansível horizontal com indicador visual
 - Barra de progresso em 3 camadas (fundo, buffer, reprodução)
 - Controles responsivos (mobile, tablet, desktop)
 - Atalhos de teclado (Space, K, F, M, setas)
-- Gestos touch para mobile (swipe para avançar/voltar)
+- Gestos touch para mobile (swipe vertical para volume, horizontal para seek)
 - Fullscreen com double-click
 - Velocidade de reprodução ajustável
+- WCAG AA compliant (acessibilidade)
+- Cross-browser support (Chrome, Firefox, Safari, Edge)
 
 ### 📤 **Upload Inteligente**
 - Upload multipart para arquivos grandes (até 5GB)
@@ -229,10 +232,12 @@ Nunca commite:
 ## 📊 Performance
 
 - **Lighthouse Score**: 95+
+- **Lighthouse Accessibility**: 90+
 - **First Contentful Paint**: < 1.5s
 - **Time to Interactive**: < 3s
 - **CDN**: 400+ POPs globais
 - **Uptime**: 99.9%
+- **WCAG**: AA Compliant
 
 ---
 
