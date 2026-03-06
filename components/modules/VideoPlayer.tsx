@@ -35,6 +35,7 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
   const [showVolumeSlider, setShowVolumeSlider] = useState(false)
   const [isBuffering, setIsBuffering] = useState(false)
   const hideControlsTimeout = useRef<NodeJS.Timeout | null>(null)
+  const hideVolumeTimeout = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
     const fetchPresignedUrl = async () => {
@@ -169,6 +170,14 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
     video.volume = vol
     setVolume(vol)
     setIsMuted(vol === 0)
+    
+    // Resetar timer ao ajustar volume (2s)
+    if (hideVolumeTimeout.current) {
+      clearTimeout(hideVolumeTimeout.current)
+    }
+    hideVolumeTimeout.current = setTimeout(() => {
+      setShowVolumeSlider(false)
+    }, 2000)
   }
 
   const toggleMute = () => {
@@ -176,6 +185,16 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
     if (!video) return
 
     setShowVolumeSlider(!showVolumeSlider)
+
+    // Auto-hide volume slider após 2s (padrão YouTube/Netflix)
+    if (hideVolumeTimeout.current) {
+      clearTimeout(hideVolumeTimeout.current)
+    }
+    if (!showVolumeSlider) {
+      hideVolumeTimeout.current = setTimeout(() => {
+        setShowVolumeSlider(false)
+      }, 2000)
+    }
 
     if (isMuted) {
       video.volume = volume
@@ -240,11 +259,10 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
     }
     
     if (isPlaying) {
-      // 5s no mobile, 3s no desktop
-      const isMobile = window.innerWidth < 640
+      // 3s para esconder controles (padrão da indústria)
       hideControlsTimeout.current = setTimeout(() => {
         setShowControls(false)
-      }, isMobile ? 5000 : 3000)
+      }, 3000)
     }
   }
 
@@ -257,7 +275,7 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
       clearTimeout(hideControlsTimeout.current)
       hideControlsTimeout.current = setTimeout(() => {
         setShowControls(false)
-      }, 1000) // Esconde mais rápido quando sai da área
+      }, 500)
     }
   }
 
@@ -273,11 +291,14 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
     }
   }, [isPlaying])
 
-  // Cleanup timer on unmount
+  // Cleanup timers on unmount
   useEffect(() => {
     return () => {
       if (hideControlsTimeout.current) {
         clearTimeout(hideControlsTimeout.current)
+      }
+      if (hideVolumeTimeout.current) {
+        clearTimeout(hideVolumeTimeout.current)
       }
     }
   }, [])
@@ -357,7 +378,7 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
           <h3 className="text-sm sm:text-lg font-semibold text-white truncate">{title}</h3>
           <button
             onClick={onClose}
-            className="flex items-center justify-center w-10 h-10 rounded-lg bg-black/45 backdrop-blur-md text-white/90 hover:text-white transition-all active:scale-95"
+            className="flex items-center justify-center w-10 h-10 rounded-lg bg-black/45 backdrop-blur-md text-white/90 hover:text-white transition-all duration-200 active:scale-95"
           >
             <X className="w-[18px] h-[18px]" />
           </button>
@@ -433,18 +454,18 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
                 <div className="flex items-center gap-1.5 sm:gap-2 md:gap-3 flex-wrap">
                   {/* Playlist Controls Group */}
                   {playlist && playlist.length > 1 ? (
-                    <div className="flex items-center gap-1 sm:gap-1.5 md:gap-2 h-9 sm:h-10 md:h-12 px-1 sm:px-1.5 md:px-2 rounded-full bg-white/[0.18] border border-white/25">
+                    <div className="flex items-center gap-1 sm:gap-1.5 md:gap-2 h-9 sm:h-10 md:h-12 px-1 sm:px-1.5 md:px-2 rounded-full bg-white/[0.18] border border-white/25 transition-all duration-300">
                       <button 
                         onClick={handlePrevious} 
                         disabled={!hasPrevious}
-                        className="text-white/90 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all active:scale-95"
+                        className="text-white/90 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200 active:scale-95"
                       >
                         <SkipBack className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5" />
                       </button>
 
                       <button 
                         onClick={togglePlay} 
-                        className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full bg-white/90 hover:bg-white transition-all active:scale-95 shadow-lg"
+                        className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full bg-white/90 hover:bg-white transition-all duration-200 active:scale-95 shadow-lg"
                       >
                         {isPlaying ? (
                           <Pause className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-[#2F2F2F]" fill="#2F2F2F" />
@@ -456,7 +477,7 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
                       <button 
                         onClick={handleNext} 
                         disabled={!hasNext}
-                        className="text-white/90 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all active:scale-95"
+                        className="text-white/90 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200 active:scale-95"
                       >
                         <SkipForward className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5" />
                       </button>
@@ -464,7 +485,7 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
                   ) : (
                     <button 
                       onClick={togglePlay} 
-                      className="flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full bg-white/90 hover:bg-white border border-white/25 transition-all active:scale-95 shadow-lg"
+                      className="flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full bg-white/90 hover:bg-white border border-white/25 transition-all duration-200 active:scale-95 shadow-lg"
                     >
                       {isPlaying ? (
                         <Pause className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-[#2F2F2F]" fill="#2F2F2F" />
@@ -475,36 +496,52 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
                   )}
 
                   {/* Volume Control */}
-                  <div className="flex items-center gap-1 sm:gap-1.5 md:gap-2 h-7 sm:h-7 md:h-8 px-1.5 sm:px-2 md:px-3 rounded-full bg-white/[0.18] border border-white/25">
-                    <button onClick={toggleMute} className="text-white/85 hover:text-white transition-all active:scale-95">
+                  <div 
+                    className="flex items-center gap-1 sm:gap-1.5 md:gap-2 h-7 sm:h-7 md:h-8 px-1.5 sm:px-2 md:px-3 rounded-full bg-white/[0.18] border border-white/25 transition-all duration-300"
+                    onMouseEnter={() => {
+                      setShowVolumeSlider(true)
+                      if (hideVolumeTimeout.current) {
+                        clearTimeout(hideVolumeTimeout.current)
+                      }
+                    }}
+                    onMouseLeave={() => {
+                      if (hideVolumeTimeout.current) {
+                        clearTimeout(hideVolumeTimeout.current)
+                      }
+                      hideVolumeTimeout.current = setTimeout(() => {
+                        setShowVolumeSlider(false)
+                      }, 300)
+                    }}
+                  >
+                    <button onClick={toggleMute} className="text-white/85 hover:text-white transition-all duration-200 active:scale-95">
                       {isMuted ? <VolumeX className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4" /> : <Volume2 className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4" />}
                     </button>
-                    {showVolumeSlider && (
-                      <input
-                        type="range"
-                        min="0"
-                        max="1"
-                        step="0.1"
-                        value={isMuted ? 0 : volume}
-                        onChange={handleVolumeChange}
-                        className="w-12 sm:w-16 md:w-20 h-1 bg-white/35 rounded-full appearance-none cursor-pointer"
-                        style={{
-                          background: `linear-gradient(to right, #FFFFFF 0%, #FFFFFF ${volume * 100}%, rgba(255,255,255,0.35) ${volume * 100}%, rgba(255,255,255,0.35) 100%)`
-                        }}
-                      />
-                    )}
+                    <input
+                      type="range"
+                      min="0"
+                      max="1"
+                      step="0.1"
+                      value={isMuted ? 0 : volume}
+                      onChange={handleVolumeChange}
+                      className={`h-1 bg-white/35 rounded-full appearance-none cursor-pointer transition-all duration-300 ${
+                        showVolumeSlider ? 'w-12 sm:w-16 md:w-20 opacity-100' : 'w-0 opacity-0'
+                      }`}
+                      style={{
+                        background: `linear-gradient(to right, #FFFFFF 0%, #FFFFFF ${volume * 100}%, rgba(255,255,255,0.35) ${volume * 100}%, rgba(255,255,255,0.35) 100%)`
+                      }}
+                    />
                   </div>
 
                   {/* Timer */}
-                  <span className="text-white/85 text-[10px] sm:text-xs md:text-sm font-medium whitespace-nowrap px-1.5 sm:px-2 md:px-3 py-1 sm:py-1 md:py-1.5 rounded-full bg-white/[0.18] border border-white/25">
+                  <span className="text-white/85 text-[10px] sm:text-xs md:text-sm font-medium whitespace-nowrap px-1.5 sm:px-2 md:px-3 py-1 sm:py-1 md:py-1.5 rounded-full bg-white/[0.18] border border-white/25 transition-all duration-300">
                     {formatTime(currentTime)} / {formatTime(duration)}
                   </span>
 
                   {/* Right Controls Group */}
-                  <div className="flex items-center gap-1 sm:gap-1.5 md:gap-2 h-7 sm:h-8 md:h-10 px-1 sm:px-1.5 md:px-2 rounded-full bg-white/[0.18] border border-white/25 ml-auto">
+                  <div className="flex items-center gap-1 sm:gap-1.5 md:gap-2 h-7 sm:h-8 md:h-10 px-1 sm:px-1.5 md:px-2 rounded-full bg-white/[0.18] border border-white/25 ml-auto transition-all duration-300">
                     <button 
                       onClick={changePlaybackRate}
-                      className="text-white/85 hover:text-white px-1 sm:px-1.5 md:px-2 text-[10px] sm:text-xs md:text-sm font-medium transition-all active:scale-95"
+                      className="text-white/85 hover:text-white px-1 sm:px-1.5 md:px-2 text-[10px] sm:text-xs md:text-sm font-medium transition-all duration-200 active:scale-95"
                       title="Velocidade de reprodução"
                     >
                       {playbackRate}x
@@ -512,7 +549,7 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
 
                     <button 
                       onClick={togglePictureInPicture}
-                      className="hidden sm:flex items-center justify-center text-white/90 hover:text-white transition-all active:scale-95"
+                      className="hidden sm:flex items-center justify-center text-white/90 hover:text-white transition-all duration-200 active:scale-95"
                       title="Picture-in-Picture"
                     >
                       <PictureInPicture className="w-4 h-4 md:w-[18px] md:h-[18px]" />
@@ -521,7 +558,7 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
                     {playlist && playlist.length > 1 && (
                       <button 
                         onClick={() => setShowPlaylist(!showPlaylist)} 
-                        className="flex items-center justify-center text-white/90 hover:text-white transition-all active:scale-95"
+                        className="flex items-center justify-center text-white/90 hover:text-white transition-all duration-200 active:scale-95"
                       >
                         <List className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-[18px] md:h-[18px]" />
                       </button>
@@ -529,7 +566,7 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
 
                     <button 
                       onClick={toggleFullscreen} 
-                      className="flex items-center justify-center text-white/90 hover:text-white transition-all active:scale-95"
+                      className="flex items-center justify-center text-white/90 hover:text-white transition-all duration-200 active:scale-95"
                     >
                       <Maximize className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-[18px] md:h-[18px]" />
                     </button>
@@ -546,7 +583,7 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
             <div className="p-3 sm:p-4">
               <div className="flex items-center justify-between mb-3 sm:mb-4">
                 <h4 className="text-sm sm:text-base text-white font-semibold">Playlist ({playlist.length})</h4>
-                <button onClick={() => setShowPlaylist(false)} className="text-gray-400 hover:text-white p-2 active:scale-95 transition-transform">
+                <button onClick={() => setShowPlaylist(false)} className="text-gray-400 hover:text-white p-2 transition-all duration-200 active:scale-95">
                   <X className="w-5 h-5" />
                 </button>
               </div>
@@ -555,7 +592,7 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
                   <button
                     key={video.key}
                     onClick={() => onVideoChange && onVideoChange(video)}
-                    className={`w-full text-left p-3 rounded-lg transition-colors ${
+                    className={`w-full text-left p-3 rounded-lg transition-all duration-200 ${
                       currentVideo?.key === video.key
                         ? 'bg-neon-cyan/20 border border-neon-cyan/50'
                         : 'bg-dark-800/50 hover:bg-dark-800 border border-transparent'

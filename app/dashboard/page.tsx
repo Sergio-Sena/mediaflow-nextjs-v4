@@ -55,6 +55,14 @@ export default function DashboardPage() {
     const userData = localStorage.getItem('user')
     const currentUserData = localStorage.getItem('current_user')
     
+    // Validar token - se tiver caracteres HTML encoded, limpar
+    if (token && (token.includes('&#') || token.includes('&amp;') || token.includes('&lt;') || token.includes('&gt;'))) {
+      console.error('❌ Token corrompido detectado! Limpando...')
+      localStorage.clear()
+      router.push('/login')
+      return
+    }
+    
     // Admin começa em Pastas, users em Biblioteca
     if (currentUserData) {
       const user = JSON.parse(currentUserData)
