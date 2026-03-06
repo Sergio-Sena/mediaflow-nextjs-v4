@@ -354,6 +354,10 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
     setDeleting(prev => new Set(prev).add(file.key))
     try {
       const token = localStorage.getItem('token')
+      if (!token) {
+        throw new Error('Token de autenticação não encontrado. Faça login novamente.')
+      }
+      
       const response = await fetch('/api/videos/delete', {
         method: 'DELETE',
         headers: {
@@ -370,12 +374,14 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
         } else {
           throw new Error(data.message || 'Erro ao excluir arquivo')
         }
+      } else if (response.status === 403) {
+        throw new Error('Sessão expirada. Faça login novamente.')
       } else {
         throw new Error(`Delete failed: ${response.status}`)
       }
     } catch (err) {
       console.error('Delete error:', err)
-      alert('Erro ao excluir arquivo')
+      alert(err instanceof Error ? err.message : 'Erro ao excluir arquivo')
     } finally {
       setDeleting(prev => {
         const next = new Set(prev)
@@ -414,6 +420,10 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
     setDeleting(new Set(keysToDelete))
     try {
       const token = localStorage.getItem('token')
+      if (!token) {
+        throw new Error('Token de autenticação não encontrado. Faça login novamente.')
+      }
+      
       const promises = keysToDelete.map(key =>
         fetch('/api/videos/delete', {
           method: 'DELETE',
@@ -425,12 +435,18 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
         })
       )
 
-      await Promise.all(promises)
+      const results = await Promise.all(promises)
+      const failedDeletes = results.filter(r => !r.ok)
+      
+      if (failedDeletes.length > 0 && failedDeletes[0].status === 403) {
+        throw new Error('Sessão expirada. Faça login novamente.')
+      }
+      
       setFiles(prev => prev.filter(f => !selectedFiles.has(f.key)))
       setSelectedFiles(new Set())
     } catch (err) {
       console.error('Bulk delete error:', err)
-      alert('Erro ao excluir arquivos')
+      alert(err instanceof Error ? err.message : 'Erro ao excluir arquivos')
     } finally {
       setDeleting(new Set())
     }

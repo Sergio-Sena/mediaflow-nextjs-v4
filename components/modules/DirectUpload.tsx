@@ -74,6 +74,9 @@ export default function DirectUpload({
       }
       
       const token = localStorage.getItem('token')
+      if (!token) {
+        throw new Error('Token de autenticação não encontrado')
+      }
       
       const { getApiUrl } = await import('@/lib/aws-config')
       const apiUrl = getApiUrl('UPLOAD')
@@ -82,7 +85,7 @@ export default function DirectUpload({
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          'Authorization': token ? `Bearer ${token}` : ''
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
           filename: filename,
