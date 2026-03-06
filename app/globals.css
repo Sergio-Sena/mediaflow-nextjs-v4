@@ -324,3 +324,16 @@ body {
     height: 2rem !important;
   }
 }
+
+
+/* Respeitar preferências de movimento reduzido (acessibilidade) */
+@media (prefers-reduced-motion: reduce) {
+  .transition-all,
+  .transition-opacity,
+  .animate-spin,
+  .animate-ping {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
