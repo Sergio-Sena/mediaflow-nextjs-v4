@@ -262,6 +262,12 @@ Nunca commite:
 
 ## 🗺️ Roadmap
 
+### ⚠️ Correções Prioritárias (v4.8.6)
+- [ ] Corrigir upload de arquivos pequenos
+- [ ] Corrigir foto de perfil que não aparece
+- [ ] Corrigir delete de arquivos
+
+### Área Pública (v4.10)
 - [ ] Conversão automática para múltiplas resoluções
 - [ ] Legendas e closed captions
 - [ ] Live streaming
