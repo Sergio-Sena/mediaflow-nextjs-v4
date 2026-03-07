@@ -347,6 +347,52 @@ TOTAL: ~$85.00/mês (+3600% vs atual)
 
 ## 🚀 PLANO DE AÇÃO RECOMENDADO
 
+### ⚠️ CORREÇÕES PRIORITÁRIAS (Antes da Área Pública)
+
+**CRÍTICO - Resolver Antes de Prosseguir:**
+
+**1. Upload de Arquivos Pequenos com Erro**
+- **Problema**: Upload de arquivos pequenos apresenta erro
+- **Impacto**: Usuários não conseguem fazer upload básico
+- **Prioridade**: 🔴 CRÍTICA
+- **Tempo Estimado**: 2-3 horas
+- **Ações**:
+  - [ ] Identificar erro específico (console/logs)
+  - [ ] Verificar Lambda upload-handler
+  - [ ] Testar presigned URLs
+  - [ ] Validar headers e CORS
+  - [ ] Testar com diferentes tamanhos de arquivo
+
+**2. Foto de Perfil Não Aparece**
+- **Problema**: Avatar do usuário não carrega no dashboard
+- **Impacto**: UX ruim, usuários não veem foto de perfil
+- **Prioridade**: 🟡 ALTA
+- **Tempo Estimado**: 1-2 horas
+- **Ações**:
+  - [ ] Verificar endpoint /users/me
+  - [ ] Validar avatar_url no DynamoDB
+  - [ ] Checar presigned URLs de avatares
+  - [ ] Testar fallback de avatar
+  - [ ] Validar cache CloudFront
+
+**3. Delete de Arquivos Não Funciona**
+- **Problema**: Botão de delete não remove arquivos
+- **Impacto**: Usuários não conseguem gerenciar storage
+- **Prioridade**: 🟡 ALTA
+- **Tempo Estimado**: 1-2 horas
+- **Ações**:
+  - [ ] Verificar endpoint DELETE /files/delete
+  - [ ] Validar permissões IAM da Lambda
+  - [ ] Testar bulk-delete
+  - [ ] Verificar token JWT nas requisições
+  - [ ] Validar resposta da API
+
+**Total Estimado**: 4-7 horas (1 dia)
+
+**Observação**: Com acesso completo à infraestrutura AWS agora, podemos diagnosticar e corrigir esses problemas de forma mais eficiente.
+
+---
+
 ### Semana 1: Preparação
 - [ ] Revisar e aprovar especificação técnica
 - [ ] Criar branch `feature/public-media`
