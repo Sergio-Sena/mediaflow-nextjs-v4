@@ -40,11 +40,19 @@ export default function AvatarUpload({
     setUploading(true)
     try {
       const ext = file.name.split('.').pop()
+      const token = localStorage.getItem('token')
       
-      // Obter presigned URL
+      if (!token) {
+        throw new Error('Token não encontrado. Faça login novamente.')
+      }
+      
+      // Obter presigned URL com token
       const presignedRes = await fetch('https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/avatar-presigned', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({ userId, fileExt: ext })
       })
       
@@ -63,11 +71,15 @@ export default function AvatarUpload({
       // Atualizar preview com cache-busting
       const avatarUrlWithCache = `${presignedData.avatarUrl}?t=${Date.now()}`
       setPreview(avatarUrlWithCache)
+      setImageError(false)
       
-      // Atualizar DynamoDB
+      // Atualizar DynamoDB com token
       await fetch('https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/update-user', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({
           user_id: userId,
           avatar_url: presignedData.avatarUrl
@@ -77,7 +89,7 @@ export default function AvatarUpload({
       onAvatarUpdate?.(presignedData.avatarUrl)
     } catch (error) {
       console.error('Avatar upload failed:', error)
-      alert('Erro ao fazer upload. Verifique as credenciais AWS.')
+      alert(error instanceof Error ? error.message : 'Erro ao fazer upload do avatar')
     } finally {
       setUploading(false)
     }
@@ -109,13 +121,14 @@ export default function AvatarUpload({
         className={`
           ${sizeClasses[size]} 
           rounded-full overflow-hidden cursor-pointer
-          border-2 border-cyan-400/50 hover:border-cyan-400
+          border-2 border-cyan-400/50 hover:border-cyan-400 hover:scale-110
           transition-all duration-300 group relative
           bg-gradient-to-br from-purple-900/30 to-blue-900/30
         `}
         style={{
           boxShadow: '0 0 15px rgba(6, 182, 212, 0.3)'
         }}
+        title="Clique para alterar foto de perfil"
       >
         {preview && !imageError ? (
           <img 
@@ -138,10 +151,12 @@ export default function AvatarUpload({
         )}
 
         {/* Upload Overlay */}
-        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-1">
           <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
           </svg>
+          <span className="text-xs text-white font-semibold">Alterar</span>
         </div>
 
         {/* Loading */}

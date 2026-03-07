@@ -1,5 +1,28 @@
 # Changelog
 
+## [4.8.3] - 2026-03-07
+
+### Fixed
+- **Upload List Refresh**: SimpleFileUpload agora atualiza lista automaticamente após upload
+- **Avatar Display**: Avatar agora aparece no header usando dados do JWT
+- **Folder Placeholder**: Removido objeto 0 bytes `users/sergio_sena/` do S3
+
+### Changed
+- **Avatar Upload**: Melhorado feedback visual (hover scale, tooltip, ícone de câmera)
+- **Avatar Auth**: Token JWT agora enviado em requisições de avatar
+- **Current User**: Criado automaticamente a partir do JWT no dashboard
+
+### Added
+- Script `scripts/delete-folder-placeholder.py` para limpar placeholders S3
+- Lambda `mediaflow-get-user-me` com tags de organização (não utilizada)
+- Política inline `DynamoDBAccess` para role Lambda
+
+### Infrastructure
+- Padronização de nomes: prefixo `mediaflow-` em todas as Lambdas
+- Tags AWS: `Project=MidiaFlow`, `Environment=Production`
+
+---
+
 ## [5.0.0] - 2026-03-06
 
 ### 🎨 UI Redesign - Video Player Premium

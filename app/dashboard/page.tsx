@@ -63,13 +63,30 @@ export default function DashboardPage() {
       return
     }
     
-    // Admin começa em Pastas, users em Biblioteca
+    // Se não tem current_user, criar a partir do JWT
+    if (token && !currentUserData) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]))
+        const fallbackUser = {
+          user_id: payload.user_id,
+          name: payload.email?.split('@')[0] || 'Usuário',
+          email: payload.email,
+          role: payload.role || 'user',
+          s3_prefix: payload.s3_prefix || ''
+        }
+        localStorage.setItem('current_user', JSON.stringify(fallbackUser))
+        setCurrentUser(fallbackUser)
+      } catch (e) {
+        console.error('Erro ao decodificar JWT:', e)
+      }
+    }
+    
+    // Todos começam em Biblioteca (files)
     if (currentUserData) {
       const user = JSON.parse(currentUserData)
-      if (user.role === 'admin') {
-        setActiveTab('folders')
-      } else {
-        // User: definir pasta inicial
+      setCurrentUser(user)
+      // User: definir pasta inicial
+      if (user.role !== 'admin') {
         setCurrentFolderPath(user.s3_prefix || '')
       }
     }
@@ -90,16 +107,6 @@ export default function DashboardPage() {
       router.push('/2fa')
       return
     }
-
-    // Priorizar current_user (multi-usuário) sobre user (legado)
-    if (currentUserData) {
-      const user = JSON.parse(currentUserData)
-      setCurrentUser(user)
-      // NÃO definir pasta inicial - deixar vazio para viewer ver tudo de user_admin
-      // O filtro já é feito pela Lambda baseado no JWT
-      // Recarregar dados do usuário para pegar avatar atualizado
-      fetchUserData(user.user_id || user.id)
-    }
     
     if (userData) {
       setUser(JSON.parse(userData))
@@ -109,25 +116,8 @@ export default function DashboardPage() {
   }, [router])
 
   const fetchUserData = async (userId: string) => {
-    try {
-      const token = localStorage.getItem('token')
-      const res = await fetch('/api/users/list', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
-      const data = await res.json()
-      if (data.success) {
-        const updatedUser = data.users.find((u: any) => u.user_id === userId)
-        if (updatedUser) {
-          console.log('User data loaded:', updatedUser)
-          setCurrentUser(updatedUser)
-          localStorage.setItem('current_user', JSON.stringify(updatedUser))
-        }
-      }
-    } catch (error) {
-      console.error('Error fetching user data:', error)
-    }
+    // TODO: Implementar busca de avatar do S3 ou DynamoDB
+    console.log('fetchUserData chamado para:', userId)
   }
 
   const handleRefresh = () => {
