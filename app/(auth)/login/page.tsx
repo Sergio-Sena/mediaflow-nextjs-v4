@@ -46,7 +46,8 @@ export default function LoginPage() {
                 user_id: data.user_id,
                 name: data.user?.name || email.split('@')[0],
                 email: email,
-                role: data.user?.role || 'user'
+                role: data.user?.role || 'user',
+                s3_prefix: `users/${data.user_id}/`
               }
               console.log('Fallback user:', fallbackUser)
               localStorage.setItem('current_user', JSON.stringify(fallbackUser))
@@ -54,15 +55,30 @@ export default function LoginPage() {
           }
         } catch (err) {
           console.error('❌ Erro ao buscar dados do usuário:', err)
-          // Fallback
-          const fallbackUser = {
-            user_id: data.user_id,
-            name: data.user?.name || email.split('@')[0],
-            email: email,
-            role: data.user?.role || 'user'
+          // Fallback - buscar avatar diretamente do DynamoDB
+          try {
+            const avatarRes = await fetch(`https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/users/${data.user_id}`)
+            const avatarData = await avatarRes.json()
+            const fallbackUser = {
+              user_id: data.user_id,
+              name: data.user?.name || email.split('@')[0],
+              email: email,
+              role: data.user?.role || 'user',
+              s3_prefix: `users/${data.user_id}/`,
+              avatar_url: avatarData.avatar_url || undefined
+            }
+            localStorage.setItem('current_user', JSON.stringify(fallbackUser))
+          } catch (e2) {
+            // Fallback final sem avatar
+            const fallbackUser = {
+              user_id: data.user_id,
+              name: data.user?.name || email.split('@')[0],
+              email: email,
+              role: data.user?.role || 'user',
+              s3_prefix: `users/${data.user_id}/`
+            }
+            localStorage.setItem('current_user', JSON.stringify(fallbackUser))
           }
-          console.log('Fallback user (error):', fallbackUser)
-          localStorage.setItem('current_user', JSON.stringify(fallbackUser))
         }
         
         // 2FA apenas para admin
