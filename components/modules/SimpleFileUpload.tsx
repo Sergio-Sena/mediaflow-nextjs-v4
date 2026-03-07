@@ -68,9 +68,13 @@ export default function SimpleFileUpload({
       ))
 
       // 1. Obter URL presigned
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
       const urlResponse = await fetch('/api/upload/presigned', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({
           filename: uploadFile.file.name,
           contentType: uploadFile.file.type,
