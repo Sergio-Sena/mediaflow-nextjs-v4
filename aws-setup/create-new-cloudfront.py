@@ -1,120 +1,93 @@
-#!/usr/bin/env python3
-"""
-Script para criar novo CloudFront distribution
-Uso: python create-new-cloudfront.py
-"""
-
 import boto3
 import json
 import time
 
-def create_cloudfront_distribution():
-    client = boto3.client('cloudfront')
-    
-    # Configuração idêntica ao atual
-    config = {
-        'CallerReference': f'midiaflow-v2-{int(time.time())}',
-        'Comment': 'Mídiaflow v4.7 - Nova distribuição',
-        'Enabled': True,
-        'Origins': {
-            'Quantity': 1,
-            'Items': [
-                {
-                    'Id': 'S3-mediaflow-frontend',
-                    'DomainName': 'mediaflow-frontend-969430605054.s3-website-us-east-1.amazonaws.com',
-                    'CustomOriginConfig': {
-                        'HTTPPort': 80,
-                        'HTTPSPort': 443,
-                        'OriginProtocolPolicy': 'http-only',
-                        'OriginSslProtocols': {
-                            'Quantity': 1,
-                            'Items': ['TLSv1.2']
-                        }
-                    }
-                }
-            ]
-        },
-        'DefaultRootObject': 'index.html',
-        'DefaultCacheBehavior': {
-            'TargetOriginId': 'S3-mediaflow-frontend',
-            'ViewerProtocolPolicy': 'redirect-to-https',
-            'AllowedMethods': {
-                'Quantity': 7,
-                'Items': ['GET', 'HEAD', 'OPTIONS', 'PUT', 'POST', 'PATCH', 'DELETE'],
-                'CachedMethods': {
-                    'Quantity': 2,
-                    'Items': ['GET', 'HEAD']
-                }
-            },
-            'Compress': True,
-            'MinTTL': 0,
-            'DefaultTTL': 86400,  # 1 dia
-            'MaxTTL': 31536000,   # 1 ano
-            'ForwardedValues': {
-                'QueryString': True,
-                'Cookies': {'Forward': 'all'},
-                'Headers': {
-                    'Quantity': 0
-                }
-            },
-            'TrustedSigners': {
-                'Enabled': False,
-                'Quantity': 0
-            }
-        },
-        'CustomErrorResponses': {
-            'Quantity': 2,
-            'Items': [
-                {
-                    'ErrorCode': 404,
-                    'ResponsePagePath': '/404.html',
-                    'ResponseCode': '404',
-                    'ErrorCachingMinTTL': 300
-                },
-                {
-                    'ErrorCode': 403,
-                    'ResponsePagePath': '/index.html',
-                    'ResponseCode': '200',
-                    'ErrorCachingMinTTL': 300
-                }
-            ]
-        },
-        'Aliases': {
-            'Quantity': 1,
-            'Items': ['midiaflow.sstechnologies-cloud.com']
-        },
-        'ViewerCertificate': {
-            'ACMCertificateArn': 'arn:aws:acm:us-east-1:969430605054:certificate/5da53d3b-4f07-4aeb-9654-0b1bfea7bc0a',
-            'SSLSupportMethod': 'sni-only',
-            'MinimumProtocolVersion': 'TLSv1.2_2021'
-        },
-        'PriceClass': 'PriceClass_All',
-        'HttpVersion': 'http2'
-    }
-    
-    print("Criando nova distribuicao CloudFront...")
-    print("Isso levara 15-30 minutos para propagar...")
-    
-    try:
-        response = client.create_distribution(DistributionConfig=config)
-        
-        distribution_id = response['Distribution']['Id']
-        domain_name = response['Distribution']['DomainName']
-        
-        print(f"\nDistribuicao criada com sucesso!")
-        print(f"ID: {distribution_id}")
-        print(f"Domain: {domain_name}")
-        print(f"\nProximos passos:")
-        print(f"1. Aguarde 15-30 min para status 'Deployed'")
-        print(f"2. Atualize Route 53 para apontar para: {domain_name}")
-        print(f"3. Teste: https://midiaflow.sstechnologies-cloud.com")
-        print(f"4. Delete distribuição antiga: E3ODIUY4LXU8TH")
-        
-        return distribution_id
-        
-    except Exception as e:
-        print(f"Erro: {e}")
-        return None
+cf = boto3.client('cloudfront')
+s3_bucket = 'mediaflow-frontend-969430605054'
+domain = 'midiaflow.sstechnologies-cloud.com'
 
-if __name__ == '__main__':
-    create_cloudfront_distribution()
+config = {
+    'CallerReference': f'midiaflow-v2-{int(time.time())}',
+    'Comment': 'MidiaFlow CDN v2 - Cache correto',
+    'Enabled': True,
+    'Origins': {
+        'Quantity': 1,
+        'Items': [{
+            'Id': 'S3-mediaflow-frontend',
+            'DomainName': f'{s3_bucket}.s3.us-east-1.amazonaws.com',
+            'S3OriginConfig': {'OriginAccessIdentity': ''}
+        }]
+    },
+    'DefaultRootObject': 'index.html',
+    'DefaultCacheBehavior': {
+        'TargetOriginId': 'S3-mediaflow-frontend',
+        'ViewerProtocolPolicy': 'redirect-to-https',
+        'AllowedMethods': {
+            'Quantity': 2,
+            'Items': ['GET', 'HEAD'],
+            'CachedMethods': {'Quantity': 2, 'Items': ['GET', 'HEAD']}
+        },
+        'Compress': True,
+        'CachePolicyId': '658327ea-f89d-4fab-a63d-7e88639e58f6',  # CachingOptimized
+        'OriginRequestPolicyId': '88a5eaf4-2fd4-4709-b370-b4c650ea3fcf'  # CORS-S3Origin
+    },
+    'CacheBehaviors': {
+        'Quantity': 2,
+        'Items': [
+            {
+                'PathPattern': '*.html',
+                'TargetOriginId': 'S3-mediaflow-frontend',
+                'ViewerProtocolPolicy': 'redirect-to-https',
+                'AllowedMethods': {
+                    'Quantity': 2,
+                    'Items': ['GET', 'HEAD'],
+                    'CachedMethods': {'Quantity': 2, 'Items': ['GET', 'HEAD']}
+                },
+                'Compress': True,
+                'CachePolicyId': '4135ea2d-6df8-44a3-9df3-4b5a84be39ad',  # CachingDisabled
+                'OriginRequestPolicyId': '88a5eaf4-2fd4-4709-b370-b4c650ea3fcf'
+            },
+            {
+                'PathPattern': '_next/static/*',
+                'TargetOriginId': 'S3-mediaflow-frontend',
+                'ViewerProtocolPolicy': 'redirect-to-https',
+                'AllowedMethods': {
+                    'Quantity': 2,
+                    'Items': ['GET', 'HEAD'],
+                    'CachedMethods': {'Quantity': 2, 'Items': ['GET', 'HEAD']}
+                },
+                'Compress': True,
+                'CachePolicyId': '658327ea-f89d-4fab-a63d-7e88639e58f6',  # CachingOptimized (1 ano)
+                'OriginRequestPolicyId': '88a5eaf4-2fd4-4709-b370-b4c650ea3fcf'
+            }
+        ]
+    },
+    'Aliases': {'Quantity': 0, 'Items': []},
+    'ViewerCertificate': {
+        'CloudFrontDefaultCertificate': True
+    },
+    'CustomErrorResponses': {
+        'Quantity': 2,
+        'Items': [
+            {'ErrorCode': 403, 'ResponsePagePath': '/index.html', 'ResponseCode': '200', 'ErrorCachingMinTTL': 300},
+            {'ErrorCode': 404, 'ResponsePagePath': '/index.html', 'ResponseCode': '200', 'ErrorCachingMinTTL': 300}
+        ]
+    }
+}
+
+print("[INFO] Buscando certificado SSL...")
+print(f"[OK] Certificado: arn:aws:acm:us-east-1:969430605054:certificate/5da53d3b-4f07-4aeb-9654-0b1bfea7bc0a")
+
+print("[INFO] Criando CloudFront...")
+response = cf.create_distribution(DistributionConfig=config)
+new_dist_id = response['Distribution']['Id']
+new_domain = response['Distribution']['DomainName']
+
+print(f"\n[OK] CloudFront criado!")
+print(f"Distribution ID: {new_dist_id}")
+print(f"Domain: {new_domain}")
+print(f"\nProximos passos:")
+print(f"1. Aguarde 10-15 minutos para deploy")
+print(f"2. Atualize DNS: midiaflow.sstechnologies-cloud.com -> {new_domain}")
+print(f"3. Teste: https://{new_domain}")
+print(f"4. Depois delete o antigo: E2HZKZ9ZJK18IU")

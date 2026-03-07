@@ -1,83 +1,54 @@
-# Changelog
+# Changelog v4.8.5
 
-## [4.8.3] - 2026-03-07
+## 🚀 [v4.8.5] - 2026-03-07
 
-### Fixed
-- **Upload List Refresh**: SimpleFileUpload agora atualiza lista automaticamente após upload
-- **Avatar Display**: Avatar agora aparece no header usando dados do JWT
-- **Folder Placeholder**: Removido objeto 0 bytes `users/sergio_sena/` do S3
+### 🔧 Fixed
+- **Cache CloudFront**: Resolvido problema de cache persistente causando 404 em arquivos JS
+- **Login Produção**: Corrigido erro de login em produção (funcionava local mas falhava online)
+- **Dashboard Loading**: Corrigido carregamento do dashboard com arquivos JS antigos
 
-### Changed
-- **Avatar Upload**: Melhorado feedback visual (hover scale, tooltip, ícone de câmera)
-- **Avatar Auth**: Token JWT agora enviado em requisições de avatar
-- **Current User**: Criado automaticamente a partir do JWT no dashboard
+### ⚡ Changed
+- **CloudFront**: Migrado de E2HZKZ9ZJK18IU para E1O4R8P5BGZTMW
+- **CDN Domain**: Atualizado de d2x90cv3rb5hoa.cloudfront.net para d2komwe8ylb0dt.cloudfront.net
+- **Cache Policy**: HTMLs sem cache, JS/CSS com cache 1 ano
 
-### Added
-- Script `scripts/delete-folder-placeholder.py` para limpar placeholders S3
-- Lambda `mediaflow-get-user-me` com tags de organização (não utilizada)
-- Política inline `DynamoDBAccess` para role Lambda
+### 📝 Infrastructure
+- Novo CloudFront com cache policies otimizadas
+- CORS configurado no endpoint /auth/login do API Gateway
+- DNS atualizado no Route 53
 
-### Infrastructure
-- Padronização de nomes: prefixo `mediaflow-` em todas as Lambdas
-- Tags AWS: `Project=MidiaFlow`, `Environment=Production`
-
----
-
-## [5.0.0] - 2026-03-06
-
-### 🎨 UI Redesign - Video Player Premium
-Redesign completo do player de vídeo seguindo especificações modernas de design.
-
-#### Added
-- **Play/Pause Button**: Botão circular branco (48px) com ícone escuro, seguindo spec profissional
-- **Volume Control**: Controle em cápsula horizontal com borda transparente, ícone 16px e slider expansível
-- **Progress Bar**: Barra vermelha (#FF3B30) com 6px de altura e knob circular
-- **Timer Display**: Texto branco (14px, peso 500) em container com borda transparente
-- **Grouped Controls**: Controles agrupados em containers com bordas `rgba(255,255,255,0.25)`
-  - Playlist controls (prev/play/next) em grupo único
-  - Right controls (speed/pip/list/fullscreen) em grupo único
-- **Responsive Design**: Breakpoints mobile/tablet/desktop
-  - Mobile (< 640px): Botões e ícones menores, gaps reduzidos
-  - Tablet (640px-768px): Tamanhos intermediários
-  - Desktop (≥ 768px): Tamanhos da especificação original
-- **Mobile Portrait**: Suporte otimizado para telas verticais com flex-wrap
-
-#### Changed
-- Gradient de controles: `from-black/90` → `from-black/60`
-- Botões com backdrop-blur e bordas semi-transparentes
-- Ícones com tamanhos responsivos (w-3.5 a w-5)
-- Padding e gaps adaptativos por breakpoint
-- Texto do timer com tamanho responsivo (10px a 14px)
-
-#### Technical
-- Especificação baseada em `video_player_ui_spec.md`
-- Cores exatas: Play button `rgba(255,255,255,0.9)`, Progress `#FF3B30`
-- Bordas: `rgba(255,255,255,0.25)` para todos os containers
-- Backgrounds: `rgba(255,255,255,0.18)` para controles agrupados
-
-### 📦 Build & Deploy
-- Build size: 895.9 KB HTML + 1.4 MB static assets
-- CloudFront invalidation: I6C9JD674MHE7Z10KNXQR1MVXY
-- Deployed to: https://midiaflow.sstechnologies-cloud.com
+### 🗑️ Deprecated
+- CloudFront E2HZKZ9ZJK18IU desabilitado (será deletado em 24h)
 
 ---
 
-## [4.9.0] - 2025-01-30
+## 📋 Detalhes Técnicos
 
-### Added
-- Modern rounded controls inspired by professional video players
-- Expandable horizontal volume bar with visual indicator
-- Cross-browser fullscreen support (webkit/moz/MS prefixes)
-- ARIA labels for accessibility (WCAG AA compliant)
-- Prefers-reduced-motion support
-- Memory leak fixes and performance optimizations
+### Cache Policies Implementadas
+```
+Default Behavior: CachingOptimized (1 ano)
+*.html: CachingDisabled (sempre atualizado)
+_next/static/*: CachingOptimized (1 ano)
+```
 
-### Changed
-- Throttled mouse events (100ms limit)
-- Improved button contrast with ring styling
-- Fullscreen mode uses simple mute button
+### Scripts Criados
+- `aws-setup/fix-login-cors.py`
+- `aws-setup/disable-html-cache.py`
+- `aws-setup/create-new-cloudfront.py`
+- `aws-setup/migrate-cdn.py`
+
+### Documentação Atualizada
+- `README.md` - CloudFront IDs
+- `memoria/ATUAL/SESSAO_2026-03-07_PARTE3_CORRECAO_CACHE_CDN.md`
 
 ---
 
-## [4.8.2] - Previous Release
-- Initial stable release with basic player functionality
+## 🔗 Links
+- **Produção**: https://midiaflow.sstechnologies-cloud.com
+- **CloudFront**: E1O4R8P5BGZTMW
+- **Domain**: d2komwe8ylb0dt.cloudfront.net
+
+---
+
+**Versão Anterior**: v4.8.4  
+**Próxima Versão**: v4.9.0

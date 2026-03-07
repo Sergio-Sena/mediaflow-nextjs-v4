@@ -72,7 +72,7 @@
 
 ### **AWS Services**
 - **S3** - Uploads & Processed buckets
-- **CloudFront** - CDN (E2HZKZ9ZJK18IU)
+- **CloudFront** - CDN (E1O4R8P5BGZTMW)
 - **Lambda** - Upload handler, conversão
 - **API Gateway** - REST endpoints
 - **DynamoDB** - Usuários, logs
@@ -108,7 +108,7 @@ Edite `.env.local`:
 NEXT_PUBLIC_AWS_REGION=us-east-1
 NEXT_PUBLIC_S3_UPLOADS_BUCKET=mediaflow-uploads-969430605054
 NEXT_PUBLIC_S3_PROCESSED_BUCKET=mediaflow-processed-969430605054
-NEXT_PUBLIC_CLOUDFRONT_DOMAIN=d3xxxxxxxxxx.cloudfront.net
+NEXT_PUBLIC_CLOUDFRONT_DOMAIN=d2komwe8ylb0dt.cloudfront.net
 
 # API
 NEXT_PUBLIC_API_URL=https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod
@@ -142,7 +142,7 @@ aws s3 sync .next/static s3://mediaflow-frontend-969430605054/_next/static --del
 aws s3 sync out s3://mediaflow-frontend-969430605054 --delete --exclude "_next/*"
 
 # Invalidate CloudFront
-aws cloudfront create-invalidation --distribution-id E2HZKZ9ZJK18IU --paths "/*"
+aws cloudfront create-invalidation --distribution-id E1O4R8P5BGZTMW --paths "/*"
 ```
 
 ---
