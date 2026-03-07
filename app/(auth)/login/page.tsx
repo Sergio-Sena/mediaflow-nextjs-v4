@@ -26,9 +26,13 @@ export default function LoginPage() {
         localStorage.setItem('token', data.token)
         localStorage.setItem('user', JSON.stringify(data.user))
         
-        // Buscar dados completos do usuário (incluindo avatar)
+        // Buscar dados completos do usuário (incluindo avatar) via proxy
         try {
-          const usersRes = await fetch('https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/users')
+          const usersRes = await fetch('/api/users/list', {
+            headers: {
+              'Authorization': `Bearer ${data.token}`
+            }
+          })
           const usersData = await usersRes.json()
           if (usersData.success) {
             const fullUser = usersData.users.find((u: any) => u.user_id === data.user_id || u.email === email)

@@ -117,6 +117,11 @@ export default function SimpleFileUpload({
           ? { ...f, status: 'success', progress: 100, url: `https://mediaflow-uploads-969430605054.s3.amazonaws.com/${urlData.key}` }
           : f
       ))
+      
+      // Notificar conclusão individual
+      setTimeout(() => {
+        onUploadComplete?.([{ ...uploadFile, status: 'success', progress: 100 }])
+      }, 500)
 
     } catch (error) {
       setFiles(prev => prev.map(f => 
@@ -137,8 +142,13 @@ export default function SimpleFileUpload({
       await Promise.all(batch.map(file => uploadFile(file)))
     }
     
-    const completedFiles = files.filter(f => f.status === 'success')
-    onUploadComplete?.(completedFiles)
+    // Aguardar 1s e notificar conclusão
+    setTimeout(() => {
+      const completedFiles = files.filter(f => f.status === 'success')
+      if (completedFiles.length > 0) {
+        onUploadComplete?.(completedFiles)
+      }
+    }, 1000)
   }
 
   const removeFile = (id: string) => {

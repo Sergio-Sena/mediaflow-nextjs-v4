@@ -86,6 +86,11 @@ tmp/
 temp/
 *.tmp
 
+# Arquivos de resposta/teste
+response.json
+test-*.json
+*.zip
+
 # Memoria - arquivos privados
 memoria/videos-qualidade-suspeita.txt
 memoria/*-qualidade-*.txt
