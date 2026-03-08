@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Upload, X, CheckCircle, AlertCircle } from 'lucide-react'
+import { sanitizeFilename } from '@/lib/sanitize-filename'
 
 interface MultipartUploadProps {
   file: File
@@ -71,6 +72,12 @@ export default function MultipartUpload({ file, destination = '', onComplete, on
       console.log(`🚀 Iniciando multipart upload: ${file.name}`)
 
       let filename = (file as any).webkitRelativePath || file.name
+      
+      // Sanitizar nome do arquivo
+      const pathParts = filename.split('/')
+      pathParts[pathParts.length - 1] = sanitizeFilename(pathParts[pathParts.length - 1])
+      filename = pathParts.join('/')
+      
       if (destination) {
         filename = destination + filename
       }
