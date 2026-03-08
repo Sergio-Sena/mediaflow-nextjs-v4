@@ -1,6 +1,6 @@
 # 🔄 Mudanças Desde o Porto Seguro
 
-**Data**: 2025-01-20  
+**Data**: 2025-01-20 (Atualizado: 2026-03-08)  
 **Objetivo**: Documentar todas as alterações feitas após o último backup estável
 
 ---
@@ -8,6 +8,23 @@
 ## 📝 Arquivos Modificados
 
 ### 1. Frontend (Código)
+
+#### ✅ `components/modules/UniversalUpload.tsx` (v4.8.6 - Deploy Paralelo)
+**Mudança**: Novo componente universal de upload criado
+```typescript
+// Componente consolidado com:
+- Drag & drop
+- Progress tracking
+- Batch upload (3 concurrent)
+- UploadFactory pattern
+- JWT authentication
+- Suporte video/image/PDF
+```
+**Status**: ✅ Deploy paralelo (teste 24h)
+**Commit**: 3a313a71 + merge
+**Deploy**: 2026-03-08 15:11
+**Motivo**: Consolidar 5 componentes duplicados de upload
+**Rollback**: Componentes antigos mantidos (FileUpload, DirectUpload, MultipartUpload, MultipartUploader, SimpleFileUpload)
 
 #### ✅ `app/(auth)/login/page.tsx`
 **Mudança**: Adicionado `autoComplete` nos inputs
@@ -59,7 +76,22 @@ Depois: ['midiaflow.sstechnologies-cloud.com']
 
 ---
 
-### 3. Scripts Criados
+### 3. Arquivos Deletados
+
+#### ✅ VideoPlayer.tsx.backup (4 arquivos)
+**Deletados**:
+- `components/modules/VideoPlayer.tsx.backup` (588 linhas)
+- `components/modules/VideoPlayer.tsx.backup-mobile` (514 linhas)
+- `components/modules/VideoPlayer.tsx.backup-stable` (555 linhas)
+- `components/modules/VideoPlayer.tsx.backup-stable-2` (555 linhas)
+
+**Total**: 2,212 linhas removidas
+**Commit**: 3a313a71
+**Motivo**: Limpeza de backups obsoletos
+
+---
+
+### 4. Scripts Criados
 
 #### `scripts/remove-old-domain.py`
 **Função**: Identificar recursos do domínio antigo
@@ -91,7 +123,7 @@ Depois: ['midiaflow.sstechnologies-cloud.com']
 
 ---
 
-### 4. Documentação Atualizada
+### 5. Documentação Atualizada
 
 #### ✅ `README.md`
 **Mudanças**:
@@ -123,7 +155,7 @@ Depois: ['midiaflow.sstechnologies-cloud.com']
 
 ---
 
-### 5. Build & Deploy
+### 6. Build & Deploy
 
 #### ✅ Build Frontend
 **Comando**: `npm run build`
@@ -142,6 +174,41 @@ Depois: ['midiaflow.sstechnologies-cloud.com']
 **Distribution**: E2HZKZ9ZJK18IU
 **Status**: ✅ Sucesso
 **ID**: IC5HV896CIX6EHHG6OTXX4QEY5
+
+#### ✅ Deploy v4.8.6 - UniversalUpload (Deploy Paralelo)
+**Data**: 2026-03-08 15:11
+**Branch**: feature/modularizacao-upload → main
+**Commit**: Merge com --no-ff
+**Build**: ✅ Sucesso (npm run build)
+**S3 Sync**: ✅ 2.1 MiB sincronizados
+**CloudFront**: ✅ Invalidation I2JO3Q4KF79943BIY3L071BTJF (E1O4R8P5BGZTMW)
+**Estratégia**: Deploy paralelo (componentes antigos mantidos)
+**Teste**: 24 horas em produção
+**Rollback**: Instantâneo (componentes antigos disponíveis)
+
+---
+
+## 🧪 Em Teste (24h)
+
+### UniversalUpload.tsx
+**Início**: 2026-03-08 15:11  
+**Fim previsto**: 2026-03-09 15:11  
+**Status**: 🟡 Em observação
+
+**Checklist de Validação**:
+- [ ] Upload de vídeo pequeno (< 100MB)
+- [ ] Upload de vídeo grande (> 100MB)
+- [ ] Upload de imagem
+- [ ] Upload de PDF
+- [ ] Drag & drop funciona
+- [ ] Progress bar atualiza
+- [ ] Batch upload (múltiplos arquivos)
+- [ ] Erro de arquivo duplicado
+- [ ] Erro de formato inválido
+- [ ] JWT authentication funciona
+
+**Se todos os testes passarem**: Deletar componentes antigos  
+**Se algum teste falhar**: Rollback instantâneo (componentes antigos ativos)
 
 ---
 
@@ -196,7 +263,38 @@ Depois: ['midiaflow.sstechnologies-cloud.com']
 
 ---
 
-## 🔄 Como Reverter para Porto Seguro
+## 🔄 Como Reverter
+
+### Opção 1: Reverter UniversalUpload (se falhar teste 24h)
+
+```bash
+# Simplesmente não usar UniversalUpload
+# Componentes antigos continuam funcionando:
+# - FileUpload.tsx
+# - DirectUpload.tsx
+# - MultipartUpload.tsx
+# - MultipartUploader.tsx
+# - SimpleFileUpload.tsx
+
+# Se quiser remover UniversalUpload do código:
+git revert HEAD~1
+npm run build
+aws s3 sync out/ s3://mediaflow-frontend-969430605054/ --delete
+aws cloudfront create-invalidation --distribution-id E1O4R8P5BGZTMW --paths "/*"
+```
+
+### Opção 2: Reverter para Porto Seguro v4.8.6
+
+```bash
+git checkout v4.8.6-porto-seguro
+npm run build
+aws s3 sync out/ s3://mediaflow-frontend-969430605054/ --delete
+aws cloudfront create-invalidation --distribution-id E1O4R8P5BGZTMW --paths "/*"
+```
+
+---
+
+## 🔄 Como Reverter para Porto Seguro (Antigo)
 
 ### Opção 1: Reverter Apenas API Gateway
 
@@ -257,22 +355,41 @@ client.update_distribution(
 
 | Categoria | Mudanças | Status |
 |-----------|----------|--------|
-| **Frontend** | 1 arquivo (autocomplete) | ✅ OK |
+| **Frontend** | 2 arquivos (autocomplete + UniversalUpload) | ✅ OK |
 | **CloudFront** | Removido 1 alias | ✅ OK |
 | **API Gateway** | 10+ mudanças CORS | ⚠️ Parcial |
 | **Lambda** | 0 mudanças | ❌ Indisponível |
-| **Documentação** | 5 arquivos | ✅ OK |
+| **Documentação** | 6 arquivos | ✅ OK |
 | **Scripts** | 7 novos | ✅ OK |
+| **Modularização** | UniversalUpload (deploy paralelo) | 🟡 Teste 24h |
 
 **Conclusão**: 
-- Frontend está OK
+- Frontend está OK (+ UniversalUpload em teste)
 - Infraestrutura parcialmente OK
 - Lambda com problema (não relacionado às mudanças)
-- **Recomendação**: Aguardar Lambda normalizar OU reverter API Gateway
+- **Recomendação**: Monitorar UniversalUpload por 24h, aguardar Lambda normalizar
 
 ---
 
 ## 🎯 Próximos Passos
+
+### Imediato (24h):
+1. ✅ Deploy UniversalUpload em produção (paralelo)
+2. 🟡 Testar todos os cenários de upload
+3. 🟡 Monitorar erros no console
+4. 🟡 Validar performance
+
+### Após 24h (se testes OK):
+1. Deletar componentes antigos de upload (5 arquivos)
+2. Atualizar imports no código
+3. Commit final de limpeza
+4. Marcar v4.8.6 como 100% completo
+
+### Após 24h (se testes FAIL):
+1. Reverter UniversalUpload
+2. Investigar causa da falha
+3. Corrigir e testar localmente
+4. Tentar deploy novamente
 
 ### Se Lambda Normalizar:
 1. Testar login no browser
@@ -287,5 +404,6 @@ client.update_distribution(
 ---
 
 **Documento criado em**: 2025-01-20 13:45  
+**Última atualização**: 2026-03-08 15:11  
 **Autor**: Amazon Q  
-**Versão**: 1.0
+**Versão**: 2.0 (Deploy Paralelo UniversalUpload)
