@@ -1,4 +1,3 @@
-import Link from 'next/link'
 import { Button, Card } from '@/components/ui'
 
 export default function HomePage() {
@@ -14,12 +13,12 @@ export default function HomePage() {
             </span>
           </div>
           <div className="flex gap-3">
-            <Link href="/pricing">
+            <a href="/pricing">
               <Button variant="ghost" size="md">Preços</Button>
-            </Link>
-            <Link href="/login">
+            </a>
+            <a href="/login">
               <Button variant="primary" size="md">Entrar</Button>
-            </Link>
+            </a>
           </div>
         </div>
       </header>
@@ -54,16 +53,16 @@ export default function HomePage() {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-            <Link href="/register">
+            <a href="/register">
               <Button variant="primary" size="lg">
                 🚀 Começar Grátis - 15 dias
               </Button>
-            </Link>
-            <Link href="/pricing">
+            </a>
+            <a href="/pricing">
               <Button variant="secondary" size="lg">
                 Ver Preços
               </Button>
-            </Link>
+            </a>
           </div>
           
           <div className="flex items-center justify-center gap-6 text-sm text-gray-400">
@@ -215,11 +214,11 @@ export default function HomePage() {
         <p className="text-base sm:text-xl text-gray-400 mb-6 sm:mb-8 px-2">
           15 dias grátis. Sem cartão de crédito. Cancele quando quiser.
         </p>
-        <Link href="/register">
+        <a href="/register">
           <Button variant="primary" size="lg">
             🚀 Começar Grátis Agora
           </Button>
-        </Link>
+        </a>
       </section>
 
       {/* Footer */}
@@ -227,11 +226,11 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 text-center text-xs sm:text-sm text-gray-400">
           <p className="mb-3 sm:mb-4">© 2025 Mídiaflow. Desenvolvido por SSTechnologies - Sergio Sena</p>
           <div className="flex flex-wrap justify-center gap-3 sm:gap-6">
-            <Link href="/pricing" className="hover:text-neon-cyan">Preços</Link>
-            <Link href="/docs" className="hover:text-neon-cyan">Docs</Link>
-            <Link href="/termos" className="hover:text-neon-cyan">Termos</Link>
-            <Link href="/privacidade" className="hover:text-neon-cyan">Privacidade</Link>
-            <Link href="/sla" className="hover:text-neon-cyan">SLA</Link>
+            <a href="/pricing" className="hover:text-neon-cyan">Preços</a>
+            <a href="/docs" className="hover:text-neon-cyan">Docs</a>
+            <a href="/termos" className="hover:text-neon-cyan">Termos</a>
+            <a href="/privacidade" className="hover:text-neon-cyan">Privacidade</a>
+            <a href="/sla" className="hover:text-neon-cyan">SLA</a>
           </div>
         </div>
       </footer>
