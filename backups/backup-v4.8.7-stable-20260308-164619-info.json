@@ -1,0 +1,9 @@
+{
+  "name": "backup-v4.8.7-stable-20260308-164619",
+  "version": "v4.8.7-stable",
+  "timestamp": "20260308-164619",
+  "cloudfront_id": "E1A2CZM0WKF6LX",
+  "s3_frontend": "midiaflow-frontend-969430605054",
+  "s3_backup": "midiaflow-backups-969430605054",
+  "git_commit": "c425dbd6cc6dcd33fa13a7e9d9f6fde7a2cb5bd2"
+}
