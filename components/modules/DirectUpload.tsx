@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { Upload, X, CheckCircle, AlertCircle, AlertTriangle } from 'lucide-react'
 import MultipartUpload from './MultipartUpload'
+import { sanitizeFilename } from '@/lib/sanitize-filename'
 
 interface DirectUploadProps {
   onUploadComplete?: (files: any[]) => void
@@ -31,7 +32,7 @@ export default function DirectUpload({
     const fetchUsers = async () => {
       try {
         const token = localStorage.getItem('token')
-        const res = await fetch('/api/users/list', {
+        const res = await fetch('https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/users', {
           headers: {
             'Authorization': token ? `Bearer ${token}` : ''
           }
@@ -65,6 +66,11 @@ export default function DirectUpload({
     try {
       let filename = (file as any).webkitRelativePath || file.name
       
+      // Sanitizar nome do arquivo
+      const pathParts = filename.split('/')
+      pathParts[pathParts.length - 1] = sanitizeFilename(pathParts[pathParts.length - 1])
+      filename = pathParts.join('/')
+      
       // Auto-adicionar pasta do usuário se não for admin
       if (!destination && currentUser && currentUser.role !== 'admin') {
         const userPrefix = currentUser.s3_prefix || `users/${currentUser.user_id}/`
@@ -78,8 +84,8 @@ export default function DirectUpload({
         throw new Error('Token de autenticação não encontrado')
       }
       
-      // Usar proxy Next.js para evitar CORS
-      const urlResponse = await fetch('/api/upload/presigned', {
+      // Usar API Gateway diretamente (modo estático)
+      const urlResponse = await fetch('https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/upload/presigned', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
