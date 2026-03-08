@@ -82,12 +82,15 @@ export default function LoginPage() {
         }
         
         // 2FA apenas para admin
+        console.log('✅ Login OK, redirecionando...', data.user)
         if (data.user.role === 'admin' || data.user_id === 'user_admin') {
-          window.location.href = '/2fa'
+          console.log('→ Admin: /2fa')
+          setTimeout(() => window.location.href = '/2fa', 100)
         } else {
           // Usuários comuns vão direto ao dashboard
+          console.log('→ User: /dashboard')
           localStorage.setItem('2fa_session', Date.now().toString())
-          window.location.href = '/dashboard'
+          setTimeout(() => window.location.href = '/dashboard', 100)
         }
       } else {
         setError(data.error || 'Erro ao fazer login')

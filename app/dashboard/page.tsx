@@ -92,7 +92,7 @@ export default function DashboardPage() {
     }
     
     if (!token) {
-      router.push('/login')
+      window.location.href = '/login'
       return
     }
 
@@ -104,7 +104,7 @@ export default function DashboardPage() {
       JSON.parse(currentUserData).user_id === 'admin_sistema' : false
     
     if (isAdmin && (!session || (Date.now() - parseInt(session)) > 1800000)) {
-      router.push('/2fa')
+      window.location.href = '/2fa'
       return
     }
     
@@ -127,7 +127,7 @@ export default function DashboardPage() {
   const logout = () => {
     localStorage.removeItem('token')
     localStorage.removeItem('user')
-    router.push('/')
+    window.location.href = '/'
   }
 
   const formatFileSize = (bytes: number) => {
