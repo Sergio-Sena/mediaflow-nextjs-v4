@@ -1,4 +1,16 @@
-# Changelog v4.8.5
+# Changelog
+
+## 🚀 [v4.8.6] - 2026-03-08
+
+### 🔧 Fixed
+- **Delete de Arquivos**: Lambda files-handler agora verifica existência antes de deletar
+- **Validação**: Todos os bugs críticos testados e funcionando em produção
+
+### 📝 Documentation
+- Adicionada documentação completa da sessão de correções
+- Criado script de diagnóstico para testes futuros
+
+---
 
 ## 🚀 [v4.8.5] - 2026-03-07
 
