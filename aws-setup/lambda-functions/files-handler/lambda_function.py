@@ -109,11 +109,29 @@ def list_files(user_prefix='', context='dashboard'):
 
 def delete_file(key):
     try:
-        s3.delete_object(Bucket=UPLOADS_BUCKET, Key=key)
-        s3.delete_object(Bucket=PROCESSED_BUCKET, Key=key)
-        return cors_response(200, {'success': True})
-    except:
-        return cors_response(404, {'success': False, 'message': 'File not found'})
+        # Verificar em qual bucket o arquivo está
+        found = False
+        
+        try:
+            s3.head_object(Bucket=UPLOADS_BUCKET, Key=key)
+            s3.delete_object(Bucket=UPLOADS_BUCKET, Key=key)
+            found = True
+        except:
+            pass
+        
+        try:
+            s3.head_object(Bucket=PROCESSED_BUCKET, Key=key)
+            s3.delete_object(Bucket=PROCESSED_BUCKET, Key=key)
+            found = True
+        except:
+            pass
+        
+        if found:
+            return cors_response(200, {'success': True})
+        else:
+            return cors_response(404, {'success': False, 'message': 'File not found'})
+    except Exception as e:
+        return cors_response(500, {'success': False, 'message': str(e)})
 
 def bulk_delete(keys):
     deleted = []
