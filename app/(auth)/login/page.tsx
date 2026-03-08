@@ -83,11 +83,11 @@ export default function LoginPage() {
         
         // 2FA apenas para admin
         if (data.user.role === 'admin' || data.user_id === 'user_admin') {
-          router.push('/2fa')
+          window.location.href = '/2fa'
         } else {
           // Usuários comuns vão direto ao dashboard
           localStorage.setItem('2fa_session', Date.now().toString())
-          router.push('/dashboard')
+          window.location.href = '/dashboard'
         }
       } else {
         setError(data.error || 'Erro ao fazer login')
