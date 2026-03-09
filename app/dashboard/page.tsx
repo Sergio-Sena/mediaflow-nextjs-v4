@@ -3,6 +3,9 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button, Card, Skeleton } from '@/components/ui'
+import { DashboardSkeleton, FileListSkeleton, VideoPlayerSkeleton } from '@/components/ui/Skeleton'
+import { ErrorBoundary } from '@/components/ui/ErrorBoundary'
+import { getUserApiUrl } from '@/lib/aws-config'
 
 import DirectUpload from '@/components/modules/DirectUpload'
 import FileList from '@/components/modules/FileList'
@@ -63,7 +66,7 @@ export default function DashboardPage() {
       return
     }
     
-    // Se não tem current_user, criar a partir do JWT
+    // Se não tem current_user, criar a partir do JWT e buscar avatar do DynamoDB
     if (token && !currentUserData) {
       try {
         const payload = JSON.parse(atob(token.split('.')[1]))
@@ -76,9 +79,15 @@ export default function DashboardPage() {
         }
         localStorage.setItem('current_user', JSON.stringify(fallbackUser))
         setCurrentUser(fallbackUser)
+        // Buscar avatar do DynamoDB
+        fetchUserData(payload.user_id)
       } catch (e) {
         console.error('Erro ao decodificar JWT:', e)
       }
+    } else if (currentUserData) {
+      const user = JSON.parse(currentUserData)
+      // Buscar avatar atualizado do DynamoDB
+      fetchUserData(user.user_id || user.id)
     }
     
     // Todos começam em Biblioteca (files)
@@ -116,8 +125,25 @@ export default function DashboardPage() {
   }, [router])
 
   const fetchUserData = async (userId: string) => {
-    // TODO: Implementar busca de avatar do S3 ou DynamoDB
-    console.log('fetchUserData chamado para:', userId)
+    try {
+      const token = localStorage.getItem('token')
+      if (!token) return
+      
+      const response = await fetch(getUserApiUrl(userId), {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        if (data.success && data.user) {
+          const updated = { ...currentUser, avatar_url: data.user.avatar_url }
+          setCurrentUser(updated)
+          localStorage.setItem('current_user', JSON.stringify(updated))
+        }
+      }
+    } catch (error) {
+      console.error('Erro ao buscar dados do usuário:', error)
+    }
   }
 
   const handleRefresh = () => {
@@ -149,11 +175,8 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Card variant="glass" padding="lg" className="text-center">
-          <Skeleton variant="avatar" className="mx-auto mb-4" />
-          <p className="text-gray-400">Carregando...</p>
-        </Card>
+      <div className="min-h-screen p-8">
+        <DashboardSkeleton />
       </div>
     )
   }
@@ -370,7 +393,8 @@ export default function DashboardPage() {
 
 
         {activeTab === 'files' && (
-          <FileList 
+          <ErrorBoundary fallback={<FileListSkeleton />}>
+            <FileList 
             onPlayVideo={(video) => {
               setSelectedVideo(video)
               // Create playlist from videos in same folder
@@ -392,6 +416,7 @@ export default function DashboardPage() {
             onFilesLoaded={setAllFiles}
             targetFolder={currentFolderPath}
           />
+          </ErrorBoundary>
         )}
 
         {activeTab === 'folders' && (
@@ -448,7 +473,7 @@ export default function DashboardPage() {
               maxFiles={100}
               maxSize={10240}
               onUploadComplete={(uploadedFiles) => {
-                console.log('Upload concluído:', uploadedFiles)
+                console.log('✅ Todos os uploads concluídos:', uploadedFiles)
                 handleRefresh()
                 setActiveTab('files')
               }}
@@ -469,25 +494,27 @@ export default function DashboardPage() {
 
       {/* Viewers */}
       {selectedVideo && (
-        <VideoPlayer
-          src={selectedVideo.key}
-          title={selectedVideo.name}
-          currentVideo={selectedVideo}
-          playlist={videoPlaylist}
-          onClose={() => setSelectedVideo(null)}
-          onVideoChange={(video) => {
-            const fileItem: FileItem = {
-              key: video.key,
-              name: video.name,
-              url: video.url,
-              folder: video.folder,
-              size: 0,
-              lastModified: new Date().toISOString(),
-              type: 'video'
-            }
-            setSelectedVideo(fileItem)
-          }}
-        />
+        <ErrorBoundary fallback={<VideoPlayerSkeleton />}>
+          <VideoPlayer
+            src={selectedVideo.key}
+            title={selectedVideo.name}
+            currentVideo={selectedVideo}
+            playlist={videoPlaylist}
+            onClose={() => setSelectedVideo(null)}
+            onVideoChange={(video) => {
+              const fileItem: FileItem = {
+                key: video.key,
+                name: video.name,
+                url: video.url,
+                folder: video.folder,
+                size: 0,
+                lastModified: new Date().toISOString(),
+                type: 'video'
+              }
+              setSelectedVideo(fileItem)
+            }}
+          />
+        </ErrorBoundary>
       )}
       
       {selectedImage && (

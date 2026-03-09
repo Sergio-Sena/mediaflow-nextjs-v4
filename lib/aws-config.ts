@@ -5,11 +5,16 @@ export const AWS_CONFIG = {
   ENDPOINTS: {
     AUTH: '/auth/login',
     FILES: '/files',
-    UPLOAD: '/upload/presigned',
+    UPLOAD_PRESIGNED: '/upload/presigned',
+    UPLOAD_CHECK_EXISTS: '/upload/check-exists',
     CLEANUP: '/cleanup',
     BULK_DELETE: '/files/bulk-delete',
-    USERS: '/users/list',
-    VIEW: '/view'
+    USERS: '/users',
+    USERS_LIST: '/users',
+    VIEW: '/view',
+    CONVERT: '/convert',
+    AVATAR_PRESIGNED: '/avatar-presigned',
+    UPDATE_USER: '/update-user'
   },
   
   BUCKETS: {
@@ -24,4 +29,9 @@ export const AWS_CONFIG = {
 // Helper function to build full API URLs
 export const getApiUrl = (endpoint: keyof typeof AWS_CONFIG.ENDPOINTS) => {
   return `${AWS_CONFIG.API_BASE_URL}${AWS_CONFIG.ENDPOINTS[endpoint]}`;
+};
+
+// Helper to get user-specific endpoint
+export const getUserApiUrl = (userId: string) => {
+  return `${AWS_CONFIG.API_BASE_URL}/users/${userId}`;
 };

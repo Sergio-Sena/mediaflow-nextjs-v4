@@ -5,8 +5,17 @@ import os
 
 dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
 users_table = dynamodb.Table('mediaflow-users')
+secrets_client = boto3.client('secretsmanager', region_name='us-east-1')
 
-JWT_SECRET = os.environ.get('JWT_SECRET', 'mediaflow-secret-key-2024')
+def get_jwt_secret():
+    try:
+        response = secrets_client.get_secret_value(SecretId='midiaflow/jwt-secret')
+        return response['SecretString']
+    except Exception as e:
+        print(f"Error fetching secret: {e}")
+        raise Exception("Failed to retrieve JWT secret")
+
+JWT_SECRET = get_jwt_secret()
 
 def lambda_handler(event, context):
     try:

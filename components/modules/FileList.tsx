@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Play, Download, Trash2, Search, Filter, Grid, List, RefreshCw, Settings, X } from 'lucide-react'
+import { getApiUrl } from '@/lib/aws-config'
 
 interface S3File {
   key: string
@@ -45,6 +46,20 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
     try {
       setLoading(true)
       setError(null)
+      
+      // Tentar carregar do cache primeiro
+      const { filesCache } = await import('@/lib/files-cache')
+      const cached = filesCache.get()
+      
+      if (cached) {
+        console.log('Carregando arquivos do cache...')
+        setFiles(cached.files)
+        setFolders(cached.folders)
+        setFolderStructure(cached.folderStructure)
+        onFilesLoaded?.(cached.files)
+        setLoading(false)
+        return
+      }
       
       const { mediaflowClient } = await import('@/lib/aws-client')
       const data = await mediaflowClient.getFiles()
@@ -144,6 +159,14 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
         })
         
         setFolders(allFolders)
+        
+        // Salvar no cache DEPOIS de criar allFolders
+        const { filesCache } = await import('@/lib/files-cache')
+        filesCache.set({
+          files: transformedFiles,
+          folders: allFolders,
+          folderStructure: structure
+        })
       } else {
         throw new Error(data.message || 'Erro ao carregar arquivos')
       }
@@ -358,19 +381,23 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
         throw new Error('Token de autenticação não encontrado. Faça login novamente.')
       }
       
-      const response = await fetch('/api/videos/delete', {
-        method: 'DELETE',
+      // Usar bulk-delete com array de 1 item
+      const response = await fetch(getApiUrl('BULK_DELETE'), {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ key: file.key })
+        body: JSON.stringify({ keys: [file.key] })
       })
       
       if (response.ok) {
         const data = await response.json()
         if (data.success) {
           setFiles(prev => prev.filter(f => f.key !== file.key))
+          // Limpar cache
+          const { filesCache } = await import('@/lib/files-cache')
+          filesCache.clear()
         } else {
           throw new Error(data.message || 'Erro ao excluir arquivo')
         }
@@ -424,26 +451,31 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
         throw new Error('Token de autenticação não encontrado. Faça login novamente.')
       }
       
-      const promises = keysToDelete.map(key =>
-        fetch('/api/videos/delete', {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify({ key })
-        })
-      )
+      const response = await fetch(getApiUrl('BULK_DELETE'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ keys: keysToDelete })
+      })
 
-      const results = await Promise.all(promises)
-      const failedDeletes = results.filter(r => !r.ok)
-      
-      if (failedDeletes.length > 0 && failedDeletes[0].status === 403) {
+      if (response.ok) {
+        const data = await response.json()
+        if (data.success) {
+          setFiles(prev => prev.filter(f => !selectedFiles.has(f.key)))
+          setSelectedFiles(new Set())
+          // Limpar cache
+          const { filesCache } = await import('@/lib/files-cache')
+          filesCache.clear()
+        } else {
+          throw new Error(data.message || 'Erro ao excluir arquivos')
+        }
+      } else if (response.status === 403) {
         throw new Error('Sessão expirada. Faça login novamente.')
+      } else {
+        throw new Error(`Bulk delete failed: ${response.status}`)
       }
-      
-      setFiles(prev => prev.filter(f => !selectedFiles.has(f.key)))
-      setSelectedFiles(new Set())
     } catch (err) {
       console.error('Bulk delete error:', err)
       alert(err instanceof Error ? err.message : 'Erro ao excluir arquivos')
@@ -474,7 +506,7 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
       
       // Start conversions using direct Lambda API (same as successful ones)
       const promises = convertibleFiles.map(file =>
-        fetch('https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/convert', {
+        fetch(getApiUrl('CONVERT'), {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

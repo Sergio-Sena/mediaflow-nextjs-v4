@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     console.log('🔍 [PRESIGNED-URL] Request recebido:', { filename: body.filename, contentType: body.contentType, fileSize: body.fileSize })
     
-    const apiUrl = getApiUrl('UPLOAD')
+    const apiUrl = getApiUrl('UPLOAD_PRESIGNED')
     console.log(`🌍 [PRESIGNED-URL] Chamando Lambda em: ${apiUrl}`)
     console.log(`🔐 [PRESIGNED-URL] Headers enviados:`, { 'Content-Type': 'application/json' })
     

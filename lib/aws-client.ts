@@ -1,5 +1,5 @@
 // Direct AWS API Client for Static Frontend
-import { AWS_CONFIG, getApiUrl } from './aws-config'
+import { AWS_CONFIG, getApiUrl, getUserApiUrl } from './aws-config'
 
 export class MediaflowClient {
   private baseUrl = AWS_CONFIG.API_BASE_URL
@@ -46,7 +46,7 @@ export class MediaflowClient {
   }
   
   async getUploadUrl(filename: string, contentType: string, fileSize?: number) {
-    const response = await fetch(getApiUrl('UPLOAD'), {
+    const response = await fetch(getApiUrl('UPLOAD_PRESIGNED'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

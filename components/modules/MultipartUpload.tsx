@@ -206,15 +206,23 @@ export default function MultipartUpload({ file, destination = '', onComplete, on
       </div>
 
       <div className="mb-2">
-        <div className="w-full bg-gray-700 rounded-full h-2">
+        <div className="w-full bg-gray-700 rounded-full h-3 overflow-hidden">
           <div
-            className={`h-2 rounded-full transition-all duration-300 ${
-              status === 'completed' ? 'bg-green-400' :
-              status === 'error' ? 'bg-red-400' :
-              'bg-neon-cyan'
-            }`}
-            style={{ width: `${progress}%` }}
-          />
+            className="h-3 rounded-full transition-all duration-300 flex items-center justify-end pr-2"
+            style={{ 
+              width: `${progress}%`,
+              background: status === 'completed' ? 'linear-gradient(90deg, #10b981 0%, #10b981 100%)' :
+                         status === 'error' ? 'linear-gradient(90deg, #ef4444 0%, #ef4444 100%)' :
+                         'linear-gradient(90deg, #00ffff 0%, #00ffff 100%)',
+              boxShadow: status === 'uploading' ? '0 0 10px #00ffff, 0 0 20px #00ffff' : 'none'
+            }}
+          >
+            {progress > 0 && (
+              <span className="text-xs font-bold text-black drop-shadow-lg">
+                {progress}%
+              </span>
+            )}
+          </div>
         </div>
       </div>
 

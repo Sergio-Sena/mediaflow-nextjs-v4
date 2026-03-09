@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
     
-    const response = await fetch(getApiUrl('UPLOAD') + '/check', {
+    const response = await fetch(getApiUrl('UPLOAD_CHECK_EXISTS'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)

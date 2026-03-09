@@ -1,123 +1,140 @@
-# 🛠️ Scripts Utilitários - Mediaflow
+# 📁 Scripts Ativos - MidiaFlow
 
-## 📁 Estrutura
-
-```
-scripts/
-├── s3-operations/     # Scripts de movimentação e organização S3
-├── testing/           # Scripts de teste e validação
-└── README.md          # Este arquivo
-```
+**Data**: 2026-03-09  
+**Limpeza**: 150+ scripts obsoletos movidos para `_archive/scripts-old/`
 
 ---
 
-## 📦 S3 Operations
+## 🚀 Scripts de Deploy
 
-Scripts para operações de movimentação e organização de arquivos no S3.
-
-### Arquivos Disponíveis
-
-- `copy_folder.js` - Copia pastas entre buckets
-- `list_folders_via_api.js` - Lista pastas via API Gateway
-- `list_root_folders.js` - Lista pastas no root do S3
-- `move_folders_to_corporativo.js` - Move múltiplas pastas para Corporativo/
-- `move_s3_direct.js` - Movimentação direta no S3
-- `move_single_folder.js` - Move uma pasta específica
-- `move_with_auth.js` - Movimentação com autenticação
-- `move-to-corporativo.js` - Move para pasta Corporativo
-- `preview-move-to-corporativo.js` - Preview de movimentação
-
-### Uso Típico
-
+### `deploy-green.bat`
+Deploy para ambiente de staging (GREEN)
 ```bash
-cd scripts/s3-operations
-node move_single_folder.js
+scripts\deploy-green.bat
 ```
 
----
-
-## 🧪 Testing
-
-Scripts de teste e validação do sistema.
-
-### Arquivos Disponíveis
-
-- `test_direct_route.js` - Testa rota direta de upload
-- `test_frontend_upload.js` - Testa upload do frontend
-- `test_real_small_file.js` - Testa arquivo pequeno real
-- `test_small_file_403.js` - Debug de erro 403
-- `test_upload_curl.js` - Testa upload via curl
-- `test_upload_status.js` - Verifica status de upload
-- `test-payload.json` - Payload de teste
-- `test-phase1-production.js` - Testa fase 1 em produção
-- `test-production.js` - Testes gerais de produção
-- `test-s3.js` - Testa conexão S3
-- `test-sanitization.js` - Testa sanitização de inputs
-- `test-upload.js` - Testa sistema de upload
-- `test-user-filter.js` - Testa filtro de usuários
-
-### Uso Típico
-
+### `deploy-blue.bat`
+Deploy para produção (BLUE) - requer confirmação
 ```bash
-cd scripts/testing
-node test-production.js
+scripts\deploy-blue.bat
 ```
 
----
-
-## ⚠️ Avisos Importantes
-
-### Antes de Executar Scripts S3
-
-1. **Backup**: Sempre faça backup antes de mover arquivos
-2. **Preview**: Use scripts de preview quando disponível
-3. **Validação**: Verifique paths antes de executar
-4. **Região**: Confirme região AWS (us-east-1)
-
-### Antes de Executar Testes
-
-1. **Ambiente**: Configure .env.local corretamente
-2. **Credenciais**: Verifique AWS credentials
-3. **Produção**: Cuidado ao tecorporativo em produção
-4. **Cleanup**: Limpe arquivos de teste após uso
-
----
-
-## 🔧 Configuração
-
-### Variáveis de Ambiente Necessárias
-
-```env
-AWS_REGION=us-east-1
-AWS_ACCOUNT_ID=969430605054
-NEXT_PUBLIC_API_URL=https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod
-JWT_SECRET=your-secret-key
-```
-
-### Dependências
-
+### `rollback.bat`
+Rollback de emergência (GREEN → BLUE)
 ```bash
-npm install  # Instala todas as dependências necessárias
+scripts\rollback.bat
+```
+
+### `backup-before-deploy.py`
+Criar backup antes de deploy
+```bash
+python scripts\backup-before-deploy.py
 ```
 
 ---
 
-## 📝 Manutenção
+## 🔧 Scripts AWS
 
-### Adicionar Novo Script
+### `aws/deploy.py`
+Deploy genérico de recursos AWS
 
-1. Criar arquivo na pasta apropriada (s3-operations/ ou testing/)
-2. Adicionar documentação neste README
-3. Tecorporativo em ambiente de desenvolvimento primeiro
-4. Commitar com mensagem descritiva
+### `aws/monitoring/monitor-upload-live.py`
+Monitorar uploads em tempo real
 
-### Remover Script Obsoleto
+### `aws/monitoring/get-lambda-errors.py`
+Buscar erros em Lambdas
 
-1. Verificar se não é usado em nenhum processo
-2. Remover arquivo
-3. Atualizar este README
-4. Commitar mudança
+### `aws/monitoring/get-multipart-errors.py`
+Buscar erros em multipart uploads
 
 ---
 
-**Última atualização**: 2025-01-18
+## 🧪 Scripts de Teste
+
+### `test-production.js`
+Testar produção (login, upload, delete)
+```bash
+node scripts\test-production.js
+```
+
+### `test-midiaflow-production.js`
+Teste completo de produção
+
+---
+
+## 🛠️ Scripts Utilitários
+
+### `utils/backup-before-deploy.py`
+Backup automático
+
+### `utils/organize-project.py`
+Organizar estrutura do projeto
+
+### `utils/audit-users-vs-s3.py`
+Auditar usuários vs S3
+
+### `utils/check-dynamodb-structure.py`
+Verificar estrutura DynamoDB
+
+### `utils/map-bucket-structure.py`
+Mapear estrutura dos buckets
+
+---
+
+## 📊 Scripts de Análise
+
+### `measure-performance.py`
+Medir performance da aplicação
+
+### `monitor-performance.py`
+Monitorar performance em tempo real
+
+---
+
+## 🧹 Scripts de Manutenção
+
+### `cleanup-obsolete.bat`
+Limpar scripts obsoletos (já executado)
+
+### `sanitize-docs.py`
+Sanitizar documentação
+
+---
+
+## ⚠️ Scripts Arquivados
+
+**Localização**: `_archive/scripts-old/`
+
+**Categorias arquivadas**:
+- Upload específicos (kate-kuray, star, comatozze, etc)
+- Check específicos (sergio, admin, etc)
+- Rename/move obsoletos
+- Verificação obsoletos
+- Compare obsoletos
+- Unify/organize obsoletos
+- Find/list obsoletos
+- Convert obsoletos
+- Delete/cleanup obsoletos
+- Fix obsoletos
+- Replace obsoletos
+- Scan/duplicates obsoletos
+- Migrate obsoletos
+- Test obsoletos
+- Scripts JS obsoletos
+- Scripts BAT obsoletos
+
+**Total arquivado**: ~150 arquivos
+
+---
+
+## 📝 Notas
+
+- Scripts mantidos: **~20 de 200** (90% redução)
+- Critério: Uso atual ou genérico
+- Scripts específicos de conteúdo foram arquivados
+- Scripts de teste antigos foram arquivados
+- Manter apenas ferramentas de deploy, monitoring e utils
+
+---
+
+**Última atualização**: 2026-03-09

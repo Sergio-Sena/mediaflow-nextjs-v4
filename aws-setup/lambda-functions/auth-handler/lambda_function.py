@@ -5,10 +5,19 @@ import base64
 import boto3
 from datetime import datetime, timedelta
 
-JWT_SECRET = "17b8312c72fdcffbff89f2f4a564fb26e936002d344717ab7753a237fcd57aea"
-
 dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
 table = dynamodb.Table('mediaflow-users')
+secrets_client = boto3.client('secretsmanager', region_name='us-east-1')
+
+def get_jwt_secret():
+    try:
+        response = secrets_client.get_secret_value(SecretId='midiaflow/jwt-secret')
+        return response['SecretString']
+    except Exception as e:
+        print(f"Error fetching secret: {e}")
+        raise Exception("Failed to retrieve JWT secret")
+
+JWT_SECRET = get_jwt_secret()
 
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
