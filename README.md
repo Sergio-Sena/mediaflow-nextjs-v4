@@ -14,7 +14,14 @@
 
 ## ✨ Features
 
-### 🎥 **Player de Vídeo Premium** (v4.9.0)
+### 🧪 **Qualidade & Confiabilidade** (v4.9.0)
+- Testes unitários automatizados (Jest + Testing Library)
+- Error Boundaries para captura de erros
+- Loading Skeletons para melhor UX
+- Rate Limiting para proteção contra abuso
+- 9/9 testes passando com 100% de sucesso
+
+### 🎥 **Player de Vídeo Premium**
 - Player moderno com controles avançados
 - Barra de volume expansível horizontal com indicador visual
 - Barra de progresso em 3 camadas (fundo, buffer, reprodução)
@@ -123,6 +130,13 @@ npm run dev
 ```
 
 Acesse: http://localhost:3000
+
+### **5. Rodar testes**
+```bash
+npm test              # Rodar testes
+npm run test:watch    # Watch mode
+npm run test:coverage # Cobertura
+```
 
 ---
 
@@ -261,6 +275,12 @@ Nunca commite:
 ---
 
 ## 🗺️ Roadmap
+
+### ✅ Nível 2 - Qualidade & Confiabilidade (v4.9.0) - COMPLETO
+- ✅ Testes unitários (Jest + Testing Library)
+- ✅ Error Boundaries
+- ✅ Loading Skeletons
+- ✅ Rate Limiting
 
 ### ⚠️ Correções Prioritárias (v4.8.6)
 - [ ] Corrigir upload de arquivos pequenos

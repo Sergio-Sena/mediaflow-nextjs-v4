@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import { Upload, X, CheckCircle, AlertCircle, AlertTriangle } from 'lucide-react'
 import MultipartUpload from './MultipartUpload'
 import { sanitizeFilename } from '@/lib/sanitize-filename'
+import { getApiUrl } from '@/lib/aws-config'
 
 interface DirectUploadProps {
   onUploadComplete?: (files: any[]) => void
@@ -22,6 +23,7 @@ export default function DirectUpload({
   const [results, setResults] = useState<{[key: string]: 'success' | 'error'}>({})
   const [destination, setDestination] = useState('')
   const [multipartUploading, setMultipartUploading] = useState(false)
+  const [multipartCompleted, setMultipartCompleted] = useState(0)
   const [users, setUsers] = useState<any[]>([])
   const [currentUser, setCurrentUser] = useState<any>(null)
   const [notification, setNotification] = useState<{type: 'warning' | 'error' | 'info', message: string} | null>(null)
@@ -32,7 +34,7 @@ export default function DirectUpload({
     const fetchUsers = async () => {
       try {
         const token = localStorage.getItem('token')
-        const res = await fetch('https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/users', {
+        const res = await fetch(getApiUrl('USERS_LIST'), {
           headers: {
             'Authorization': token ? `Bearer ${token}` : ''
           }
@@ -85,7 +87,7 @@ export default function DirectUpload({
       }
       
       // Usar API Gateway diretamente (modo estático)
-      const urlResponse = await fetch('https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/upload/presigned', {
+      const urlResponse = await fetch(getApiUrl('UPLOAD_PRESIGNED'), {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -169,19 +171,36 @@ export default function DirectUpload({
     normalFiles.forEach(f => initialProgress[f.name] = 0)
     setProgress(initialProgress)
 
+    const uploadResults: {[key: string]: 'success' | 'error'} = {}
+
     try {
       const batchSize = 2
       for (let i = 0; i < normalFiles.length; i += batchSize) {
         const batch = normalFiles.slice(i, i + batchSize)
-        await Promise.all(batch.map(file => uploadFile(file)))
+        await Promise.all(batch.map(async (file) => {
+          try {
+            await uploadFile(file)
+            uploadResults[file.name] = 'success'
+          } catch (error) {
+            uploadResults[file.name] = 'error'
+          }
+        }))
         if (i + batchSize < normalFiles.length) {
           await new Promise(resolve => setTimeout(resolve, 500))
         }
       }
       
-      const successCount = Object.values(results).filter(r => r === 'success').length
-      if (successCount > 0 && onUploadComplete) {
-        setTimeout(() => onUploadComplete(normalFiles.slice(0, successCount)), 100)
+      // Aguardar um pouco para garantir que todos os resultados foram atualizados
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      
+      const successCount = Object.values(uploadResults).filter(r => r === 'success').length
+      console.log(`✅ Upload pequenos concluído: ${successCount}/${normalFiles.length} arquivos`)
+      
+      // Só chama onUploadComplete se NÃO houver arquivos grandes pendentes
+      const largeFiles = files.filter(f => f.size > 100 * 1024 * 1024)
+      if (largeFiles.length === 0 && successCount > 0 && onUploadComplete) {
+        console.log('✅ Nenhum arquivo grande, chamando onUploadComplete')
+        onUploadComplete(normalFiles.slice(0, successCount))
       }
     } finally {
       setUploading(false)
@@ -259,7 +278,7 @@ export default function DirectUpload({
     if (normalFiles.length > 1) {
       try {
         const filenames = normalFiles.map(f => (f as any).webkitRelativePath || f.name)
-        const checkResponse = await fetch('/api/upload/check-exists', {
+        const checkResponse = await fetch(getApiUrl('UPLOAD_CHECK_EXISTS'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ filenames })
@@ -417,6 +436,7 @@ export default function DirectUpload({
                   setProgress({})
                   setResults({})
                   setMultipartUploading(false)
+                  setMultipartCompleted(0)
                   setUploading(false)
                 }}
                 className="btn-secondary px-4 py-2 text-sm"
@@ -458,11 +478,21 @@ export default function DirectUpload({
                 onComplete={(key) => {
                   setFiles(prev => prev.filter(f => f !== file))
                   setResults(prev => ({ ...prev, [file.name]: 'success' }))
-                  if (onUploadComplete) {
-                    setTimeout(() => onUploadComplete([file]), 100)
-                  }
-                  if (files.filter(f => f.size > 100 * 1024 * 1024).length === 1) {
+                  
+                  const newCompleted = multipartCompleted + 1
+                  setMultipartCompleted(newCompleted)
+                  
+                  const totalLargeFiles = files.filter(f => f.size > 100 * 1024 * 1024).length
+                  console.log(`✅ Multipart ${newCompleted}/${totalLargeFiles} concluído`)
+                  
+                  // Só chama onUploadComplete quando TODOS os grandes terminarem
+                  if (newCompleted === totalLargeFiles) {
+                    console.log('✅ Todos os arquivos grandes concluídos, chamando onUploadComplete')
                     setMultipartUploading(false)
+                    setMultipartCompleted(0)
+                    if (onUploadComplete) {
+                      onUploadComplete([file])
+                    }
                   }
                 }}
                 onCancel={() => {
@@ -497,17 +527,22 @@ export default function DirectUpload({
                   </div>
                   
                   {progress[file.name] !== undefined && results[file.name] !== 'success' && results[file.name] !== 'error' && (
-                    <>
-                      <div className="w-full bg-gray-700 rounded-full h-2 mb-1">
+                    <div className="mt-2">
+                      <div className="w-full bg-gray-700 rounded-full h-3 overflow-hidden">
                         <div 
-                          className="bg-gradient-to-r from-neon-cyan to-neon-purple h-2 rounded-full transition-all duration-300"
-                          style={{ width: `${progress[file.name]}%` }}
-                        />
+                          className="h-3 rounded-full transition-all duration-300 flex items-center justify-end pr-2"
+                          style={{ 
+                            width: `${progress[file.name]}%`,
+                            background: 'linear-gradient(90deg, #00ffff 0%, #00ffff 100%)',
+                            boxShadow: '0 0 10px #00ffff, 0 0 20px #00ffff'
+                          }}
+                        >
+                          <span className="text-xs font-bold text-black drop-shadow-lg">
+                            {progress[file.name]}%
+                          </span>
+                        </div>
                       </div>
-                      <div className="text-xs text-neon-cyan text-right">
-                        {progress[file.name]}%
-                      </div>
-                    </>
+                    </div>
                   )}
                 </div>
 

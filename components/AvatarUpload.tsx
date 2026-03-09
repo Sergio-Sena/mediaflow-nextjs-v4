@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
+import { getApiUrl } from '@/lib/aws-config'
 
 interface AvatarUploadProps {
   userId: string
@@ -47,7 +48,7 @@ export default function AvatarUpload({
       }
       
       // Obter presigned URL com token
-      const presignedRes = await fetch('https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/avatar-presigned', {
+      const presignedRes = await fetch(getApiUrl('AVATAR_PRESIGNED'), {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -74,7 +75,7 @@ export default function AvatarUpload({
       setImageError(false)
       
       // Atualizar DynamoDB com token
-      await fetch('https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/update-user', {
+      await fetch(getApiUrl('UPDATE_USER'), {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
