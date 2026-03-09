@@ -1,77 +1,93 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 export default function DiagnosticPage() {
-  const [results, setResults] = useState<any[]>([])
-  const [token, setToken] = useState('')
+  const [token, setToken] = useState<string | null>(null)
+  const [decoded, setDecoded] = useState<any>(null)
+  const [error, setError] = useState<string>('')
 
-  const addResult = (name: string, data: any) => {
-    setResults(prev => [...prev, { name, data, time: new Date().toLocaleTimeString() }])
-  }
+  useEffect(() => {
+    const t = localStorage.getItem('token')
+    setToken(t)
 
-  const testEndpoint = async (name: string, url: string, options: RequestInit = {}) => {
-    try {
-      const start = performance.now()
-      const response = await fetch(url, options)
-      const elapsed = performance.now() - start
-      const data = await response.json()
-      
-      addResult(name, {
-        status: response.status,
-        time: `${elapsed.toFixed(0)}ms`,
-        data
-      })
-    } catch (error) {
-      addResult(name, { error: error instanceof Error ? error.message : 'Unknown error' })
+    if (t) {
+      try {
+        const parts = t.split('.')
+        if (parts.length === 3) {
+          const payload = JSON.parse(atob(parts[1]))
+          setDecoded(payload)
+          
+          // Check expiration
+          if (payload.exp) {
+            const now = Math.floor(Date.now() / 1000)
+            if (payload.exp < now) {
+              setError('Token expirado!')
+            }
+          }
+        }
+      } catch (e) {
+        setError('Token inválido')
+      }
     }
-  }
+  }, [])
 
-  const runTests = async () => {
-    setResults([])
-    const storedToken = localStorage.getItem('token')
-    setToken(storedToken || '')
-
-    if (storedToken) {
-      await testEndpoint('1. Files (Bearer)', 'https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/files', {
-        headers: { 'Authorization': `Bearer ${storedToken}` }
+  const testApi = async () => {
+    try {
+      const response = await fetch('https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/view/users%2Fsergio_sena%2FBolt%20Supercao.mp4', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
       })
-
-      await testEndpoint('2. Users (Bearer)', 'https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/users', {
-        headers: { 'Authorization': `Bearer ${storedToken}` }
-      })
+      
+      const data = await response.json()
+      alert(`Status: ${response.status}\n${JSON.stringify(data, null, 2)}`)
+    } catch (e: any) {
+      alert(`Erro: ${e.message}`)
     }
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-8">
-      <h1 className="text-3xl font-bold mb-4">API Diagnostic</h1>
+    <div className="min-h-screen p-8 bg-dark-900 text-white">
+      <h1 className="text-2xl font-bold mb-4">🔍 Diagnóstico JWT</h1>
       
-      <button 
-        onClick={runTests}
-        className="bg-cyan-500 hover:bg-cyan-600 px-6 py-2 rounded mb-4"
-      >
-        Run Tests
-      </button>
-
-      {token && (
-        <div className="mb-4 p-4 bg-gray-800 rounded">
-          <p className="text-sm">Token: {token.substring(0, 50)}...</p>
-        </div>
-      )}
-
       <div className="space-y-4">
-        {results.map((result, i) => (
-          <div key={i} className="bg-gray-800 p-4 rounded">
-            <div className="flex justify-between mb-2">
-              <span className="font-bold">{result.name}</span>
-              <span className="text-sm">{result.time}</span>
-            </div>
-            <pre className="text-xs overflow-auto bg-gray-900 p-2 rounded">
-              {JSON.stringify(result.data, null, 2)}
-            </pre>
+        <div className="bg-dark-800 p-4 rounded">
+          <h2 className="font-bold mb-2">Token:</h2>
+          <pre className="text-xs overflow-auto">{token || 'Nenhum token encontrado'}</pre>
+        </div>
+
+        {decoded && (
+          <div className="bg-dark-800 p-4 rounded">
+            <h2 className="font-bold mb-2">Payload Decodificado:</h2>
+            <pre className="text-xs">{JSON.stringify(decoded, null, 2)}</pre>
           </div>
-        ))}
+        )}
+
+        {error && (
+          <div className="bg-red-900/50 p-4 rounded border border-red-500">
+            <p className="text-red-300">❌ {error}</p>
+          </div>
+        )}
+
+        <button 
+          onClick={testApi}
+          className="btn-primary"
+          disabled={!token}
+        >
+          Testar API View
+        </button>
+
+        <button 
+          onClick={() => {
+            localStorage.clear()
+            window.location.href = '/login'
+          }}
+          className="btn-secondary ml-4"
+        >
+          Limpar e Relogar
+        </button>
       </div>
     </div>
   )
