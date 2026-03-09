@@ -45,6 +45,7 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
       setError('')
       
       try {
+        const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
         const isDev = process.env.NODE_ENV === 'development'
         const encodedSrc = encodeURIComponent(src)
         const response = isDev 
@@ -55,7 +56,7 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
             })
           : await fetch(`https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/view/${encodedSrc}`, {
               headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
               }
             })
