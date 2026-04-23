@@ -1,180 +1,210 @@
-# 🎬 MidiaFlow - Plataforma Profissional de Hospedagem de Vídeos
+# 🎬 MidiaFlow - Video Hosting Platform
 
-[![Status](https://img.shields.io/badge/Status-✅%20Online-brightgreen)](https://midiaflow.sstechnologies-cloud.com)
+[![Status](https://img.shields.io/badge/Status-✅%20Production-brightgreen)](https://midiaflow.sstechnologies-cloud.com)
 [![Version](https://img.shields.io/badge/Version-4.9.1-blue)]()
-[![Next.js](https://img.shields.io/badge/Next.js-14-black)](https://nextjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)](https://www.typescriptlang.org/)
-[![AWS](https://img.shields.io/badge/AWS-Serverless-orange)](https://aws.amazon.com/)
-[![CI/CD](https://img.shields.io/badge/CI%2FCD-GitHub%20Actions-2088FF)](https://github.com/Sergio-Sena/mediaflow-nextjs-v4/actions)
+[![Pipeline](https://img.shields.io/github/actions/workflow/status/Sergio-Sena/mediaflow-nextjs-v4/deploy-production.yml?label=CI%2FCD)](https://github.com/Sergio-Sena/mediaflow-nextjs-v4/actions)
+[![AWS](https://img.shields.io/badge/AWS-Serverless-FF9900?logo=amazonaws)](https://aws.amazon.com/)
+[![IaC](https://img.shields.io/badge/Infra-17%20Lambdas-purple)]()
+[![FinOps](https://img.shields.io/badge/FinOps-AI%20Insights-00FFFF)]()
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-> Hospede, converta e distribua seus vídeos com CDN global. Simples, rápido e seguro.
+> Plataforma serverless de hospedagem de vídeos com CDN global, CI/CD automatizado e camada FinOps com AI insights.
 
-**[🚀 Ver Demo](https://midiaflow.sstechnologies-cloud.com)** | **[📖 Documentação](docs/)** | **[🐛 Reportar Bug](issues)**
+**[🚀 Live Demo](https://midiaflow.sstechnologies-cloud.com)** | **[📐 Arquitetura](#-arquitetura)** | **[📊 Métricas](#-observabilidade--métricas)** | **[💰 FinOps](#-finops--ai-insights)**
 
 ---
 
-## ✨ Features
+## 🎯 Problema → Solução → Resultado
 
-### 💰 **FinOps & AI Insights** (v4.9.1) - NOVO
-- Relatório de custos AWS por projeto (filtrado por tags)
-- AI Insights via AWS Bedrock (Claude 3 Haiku)
-- Email automático via SES após cada deploy
-- Tags de custo em todos os recursos AWS
+| | Descrição |
+|---|---|
+| **Problema** | Como automatizar deploys de uma plataforma de vídeo garantindo escalabilidade, segurança e controle de gastos? |
+| **Solução** | Arquitetura 100% serverless na AWS com pipeline CI/CD, autenticação JWT unificada e camada FinOps com AI para otimização de custos |
+| **Resultado** | Deploy automatizado em ~8 min, 99.9% uptime, latência < 1.5s (CDN global), visibilidade de custos em tempo real por projeto |
 
-### 🚀 **CI/CD Pipeline** (v4.9.1) - NOVO
-- GitHub Actions: test → build → deploy → health-check → finops
-- Deploy automático de frontend (S3 + CloudFront) e 17 Lambdas
-- Rollback via `git revert`
-- Health check automático pós-deploy
+---
 
-### 🧪 **Qualidade & Confiabilidade** (v4.9.0)
-- Testes unitários automatizados (Jest + Testing Library)
-- Error Boundaries para captura de erros
-- Loading Skeletons para melhor UX
-- Rate Limiting para proteção contra abuso
+## 📐 Arquitetura
 
-### 🎥 **Player de Vídeo Premium**
-- Player moderno com controles avançados
-- Barra de volume expansível horizontal com indicador visual
-- Barra de progresso em 3 camadas (fundo, buffer, reprodução)
-- Controles responsivos (mobile, tablet, desktop)
-- Atalhos de teclado (Space, K, F, M, setas)
-- Gestos touch para mobile
-- Fullscreen com double-click
-- Velocidade de reprodução ajustável
-- WCAG AA compliant
+```
+                                    ┌─────────────────────────────────────────┐
+                                    │           GitHub Actions CI/CD          │
+                                    │  test → build → deploy → health → finops│
+                                    └──────────┬──────────────┬───────────────┘
+                                               │              │
+                                    ┌──────────▼──────┐ ┌─────▼──────────┐
+                                    │   S3 (Frontend)  │ │  17 Lambdas    │
+                                    │   Static Export  │ │  Python 3.11   │
+                                    └──────────┬──────┘ └─────┬──────────┘
+                                               │              │
+┌──────────┐    ┌──────────────┐    ┌──────────▼──────┐ ┌─────▼──────────┐
+│  Client  │───▶│  CloudFront  │───▶│   S3 Website    │ │  API Gateway   │
+│ (Browser)│    │  CDN Global  │    │   Hosting       │ │  REST API      │
+└──────────┘    │  400+ POPs   │    └─────────────────┘ └─────┬──────────┘
+                └──────────────┘                              │
+                                                    ┌─────────▼─────────┐
+                                              ┌─────┤   Lambda Functions ├─────┐
+                                              │     └───────────────────┘     │
+                                    ┌─────────▼──┐  ┌──────▼──────┐  ┌───────▼────┐
+                                    │  DynamoDB   │  │  S3 Uploads │  │  Bedrock   │
+                                    │  Users/Auth │  │  5GB/file   │  │  Claude AI │
+                                    └─────────────┘  └─────────────┘  └────────────┘
+                                                                      ┌────────────┐
+                                                                      │    SES      │
+                                                                      │FinOps Email│
+                                                                      └────────────┘
+```
 
-### 📤 **Upload Inteligente**
-- Upload multipart para arquivos grandes (até 5GB)
-- Barra de progresso em tempo real
-- Suporte a múltiplos formatos (MP4, AVI, MOV, MKV, WebM)
-- Organização por pastas
+### Decisões de Arquitetura
 
-### 🖼️ **Visualizador de Imagens**
-- Galeria com navegação por setas e swipe
-- Zoom, rotação e download
-- Presigned URLs com autenticação JWT
+| Decisão | Alternativa | Por que escolhi |
+|---|---|---|
+| **S3 + CloudFront** (static hosting) | EC2/ECS | Zero manutenção, escala infinita, custo ~$1/mês |
+| **Lambda** (17 funções) | ECS Fargate | Pay-per-request, sem idle cost, escala automática |
+| **DynamoDB** (on-demand) | RDS/Aurora | Serverless, sem provisioning, latência < 10ms |
+| **JWT manual** (HMAC-SHA256) | Cognito | Controle total, sem vendor lock-in, custo zero |
+| **Git rollback** | Blue/Green | Simplicidade para static sites, sem custo extra |
+| **Bedrock Claude** (FinOps AI) | GPT API | Nativo AWS, pay-per-token, sem chave externa |
 
-### 🔐 **Autenticação & Segurança**
-- JWT com expiração (24h)
-- 2FA obrigatório para admin
-- Controle de acesso por usuário
-- Presigned URLs com TTL
-- JWT_SECRET unificado em todas as Lambdas
+---
 
-### 👤 **Avatar Upload**
-- Módulo autossuficiente (extrai userId do JWT)
-- Auto-delete de avatares antigos
-- Persistência via DynamoDB
+## 🚀 CI/CD Pipeline
 
-### 📊 **Analytics & Gestão**
-- Dashboard administrativo completo
-- Gestão de usuários (admin/user roles)
-- Listagem e busca de vídeos
-- Estatísticas de uso
+```
+┌────────┐    ┌────────┐    ┌──────────────┐    ┌──────────────┐    ┌────────┐    ┌────────┐
+│  Test  │───▶│ Build  │───▶│Deploy Frontend│───▶│ Health Check │───▶│ FinOps │───▶│ Notify │
+│ Jest   │    │Next.js │    │  S3 + CDN    │    │  HTTP 200?   │    │Cost+AI │    │ Status │
+└────────┘    └────────┘    │              │    └──────────────┘    │Bedrock │    └────────┘
+                            │Deploy Lambdas│                       │  +SES  │
+                            │  17x parallel│                       └────────┘
+                            └──────────────┘
+```
+
+| Métrica | Valor |
+|---|---|
+| **Tempo total** | ~8 minutos |
+| **Trigger** | Push to `main` |
+| **Lambdas deployadas** | 17 (paralelo) |
+| **Rollback** | `git revert HEAD && git push` (~8 min) |
+| **Health check** | Frontend + API automático |
+
+### Rollback
+
+```bash
+# Reverter último deploy
+git revert HEAD
+git push origin main
+
+# Voltar para versão específica
+git checkout v4.9.1
+```
+
+---
+
+## 💰 FinOps & AI Insights
+
+Após cada deploy, o pipeline gera automaticamente:
+
+1. **Coleta** custos via AWS Cost Explorer (filtrado por tag `Project=MidiaFlow`)
+2. **Analisa** com Bedrock Claude 3 Haiku (3 insights acionáveis)
+3. **Envia** relatório HTML por email via SES
+
+### Exemplo de relatório
+
+```
+📊 MidiaFlow FinOps - Deploy ec7a1f7b
+
+💰 Custos (30 dias)
+┌─────────────────────┬──────────┐
+│ Serviço             │ Custo    │
+├─────────────────────┼──────────┤
+│ S3 Storage          │ $0.12    │
+│ CloudFront          │ $0.85    │
+│ Lambda              │ $0.03    │
+│ DynamoDB            │ $0.25    │
+│ API Gateway         │ $0.15    │
+├─────────────────────┼──────────┤
+│ TOTAL               │ $1.40    │
+└─────────────────────┴──────────┘
+
+🤖 AI Insights (Bedrock Claude):
+1. CloudFront: restringir geo para South America (-30% custo)
+2. Lambda: 3 funções com 256MB executariam mais rápido e barato
+3. DynamoDB: padrão de uso sugere provisioned mode (-40%)
+```
+
+**Custo do FinOps:** ~$0.005/relatório (Bedrock) + $0.00 (SES)
+
+---
+
+## 📊 Observabilidade & Métricas
+
+| Métrica | Valor | Ferramenta |
+|---|---|---|
+| **Uptime** | 99.9% | CloudFront |
+| **Latência (P50)** | < 50ms | CloudFront CDN |
+| **First Contentful Paint** | < 1.5s | Lighthouse |
+| **Time to Interactive** | < 3s | Lighthouse |
+| **Lighthouse Score** | 95+ | Chrome DevTools |
+| **CDN POPs** | 400+ globais | CloudFront |
+| **Lambda Cold Start** | < 500ms | CloudWatch |
+| **WCAG** | AA Compliant | Accessibility Audit |
+
+### Monitoramento
+
+- **CloudWatch**: Logs de todas as 17 Lambdas
+- **Cost Explorer**: Custos por tag `Project=MidiaFlow`
+- **GitHub Actions**: Pipeline status e histórico
+- **Health Check**: Automático pós-deploy
+
+---
+
+## 🔐 Segurança
+
+| Controle | Implementação |
+|---|---|
+| **Autenticação** | JWT HMAC-SHA256 (24h expiry) |
+| **2FA** | TOTP obrigatório para admin |
+| **Autorização** | Role-based (admin/user) |
+| **Dados em trânsito** | HTTPS (CloudFront TLS 1.3) |
+| **Dados em repouso** | S3 SSE (AES-256) |
+| **URLs temporárias** | Presigned URLs com TTL |
+| **Secrets** | GitHub Secrets + Lambda env vars |
+| **CORS** | Configurado por endpoint |
+| **Rate Limiting** | Implementado no frontend |
 
 ---
 
 ## 🛠️ Tech Stack
 
-### **Frontend**
-- **Next.js 14** - Framework React com SSR/SSG
-- **TypeScript** - Type safety
-- **TailwindCSS** - Utility-first CSS
-- **Lucide Icons** - Ícones modernos
+### Frontend
+| Tecnologia | Versão | Uso |
+|---|---|---|
+| Next.js | 14 | Framework (Static Export) |
+| TypeScript | 5.0 | Type safety |
+| TailwindCSS | 4.x | Styling |
+| Jest | 30.x | Testes unitários |
 
-### **Backend**
-- **Python 3.11** - 17 Lambda functions
-- **AWS SDK** - Integração AWS
-- **JWT (HMAC-SHA256)** - Autenticação
+### Backend
+| Tecnologia | Versão | Uso |
+|---|---|---|
+| Python | 3.11 | 17 Lambda functions |
+| JWT | HMAC-SHA256 | Autenticação |
+| Boto3 | latest | AWS SDK |
 
-### **AWS Services**
-- **S3** - Armazenamento (mediaflow-uploads-969430605054)
-- **CloudFront** - CDN (E1A2CZM0WKF6LX)
-- **Lambda** - 17 funções serverless
-- **API Gateway** - REST API (gdb962d234)
-- **DynamoDB** - Banco de dados (mediaflow-users)
-- **SES** - Email (relatórios FinOps)
-- **Bedrock** - AI Insights (Claude 3 Haiku)
-- **Cost Explorer** - Monitoramento de custos
-
-### **CI/CD**
-- **GitHub Actions** - Pipeline automatizado
-- **Git tags** - Versionamento e rollback
-
----
-
-## 🚀 Quick Start
-
-### **Pré-requisitos**
-- Node.js 18+
-- AWS Account
-- Git
-
-### **1. Clone o repositório**
-```bash
-git clone https://github.com/Sergio-Sena/mediaflow-nextjs-v4.git
-cd mediaflow-nextjs-v4
-```
-
-### **2. Instale as dependências**
-```bash
-npm install
-```
-
-### **3. Configure as variáveis de ambiente**
-```bash
-cp .env.example .env.local
-```
-
-Edite `.env.local`:
-```env
-AWS_REGION=us-east-1
-JWT_SECRET=your-secret-key
-NEXT_PUBLIC_APP_URL=http://localhost:3000
-```
-
-### **4. Execute em desenvolvimento**
-```bash
-npm run dev
-```
-
-### **5. Rodar testes**
-```bash
-npm test
-npm run test:coverage
-```
-
----
-
-## 📦 Deploy
-
-### **Automático (recomendado)**
-Push para `main` dispara o pipeline:
-```bash
-git push origin main
-```
-
-### **Manual**
-```bash
-npm run build
-aws s3 sync .next/static s3://mediaflow-frontend-969430605054/_next/static --delete
-aws s3 sync out s3://mediaflow-frontend-969430605054 --delete --exclude "_next/*"
-aws cloudfront create-invalidation --distribution-id E1A2CZM0WKF6LX --paths "/*"
-```
-
-### **Rollback**
-```bash
-git revert HEAD
-git push origin main
-```
-
-Ou para uma versão específica:
-```bash
-git revert HEAD~3..HEAD
-git push origin main
-```
+### AWS Services (10 serviços)
+| Serviço | Recurso | Uso |
+|---|---|---|
+| S3 | 2 buckets | Storage + Hosting |
+| CloudFront | 1 distribuição | CDN global |
+| Lambda | 17 funções | Backend serverless |
+| API Gateway | 1 REST API | Endpoints |
+| DynamoDB | 1 tabela | Users/Auth |
+| SES | 1 identidade | Email FinOps |
+| Bedrock | Claude 3 Haiku | AI Insights |
+| Cost Explorer | Tags | Monitoramento custos |
+| IAM | Roles + Policies | Segurança |
+| CloudWatch | Logs | Observabilidade |
 
 ---
 
@@ -182,132 +212,95 @@ git push origin main
 
 ```
 midiaflow/
-├── .github/workflows/        # CI/CD Pipeline
-│   └── deploy-production.yml
-├── app/                      # Next.js App Router
-│   ├── api/                  # API Routes (proxies)
-│   ├── (auth)/               # Login, Register
-│   ├── dashboard/            # Dashboard principal
-│   ├── admin/                # Painel admin
-│   └── users/                # Gestão de usuários
+├── .github/workflows/         # CI/CD Pipeline
+│   └── deploy-production.yml  # test → build → deploy → finops
+├── app/                       # Next.js App Router
+│   ├── (auth)/                # Login, Register, 2FA
+│   ├── dashboard/             # Dashboard principal
+│   ├── admin/                 # Painel administrativo
+│   └── users/                 # Gestão de usuários
 ├── components/
-│   ├── modules/              # Componentes principais
-│   │   ├── VideoPlayer.tsx   # Player premium
-│   │   ├── ImageViewer.tsx   # Visualizador de imagens
-│   │   ├── FileList.tsx      # Lista de arquivos
-│   │   └── DirectUpload.tsx  # Upload multipart
-│   ├── AvatarUpload.tsx      # Avatar (autossuficiente)
-│   └── ui/                   # Componentes UI
+│   ├── modules/               # Componentes de negócio
+│   │   ├── VideoPlayer.tsx    # Player premium (JWT auth)
+│   │   ├── ImageViewer.tsx    # Galeria (JWT auth)
+│   │   └── DirectUpload.tsx   # Upload multipart (5GB)
+│   ├── AvatarUpload.tsx       # Avatar autossuficiente
+│   └── ui/                    # Design system
 ├── lib/
-│   ├── aws-client.ts         # Cliente AWS
-│   ├── aws-config.ts         # Configuração endpoints
-│   └── auth-utils.ts         # Utilitários JWT
+│   ├── auth-utils.ts          # getUserFromToken() - JWT utils
+│   ├── aws-client.ts          # Cliente API
+│   └── aws-config.ts          # Endpoints config
 ├── aws-setup/
-│   └── lambda-functions/     # 17 Funções Lambda
+│   └── lambda-functions/      # 17 Lambdas (Python)
+│       ├── auth-handler/      # Login + JWT
+│       ├── view-handler/      # Presigned URLs
+│       ├── files-handler/     # CRUD arquivos
+│       ├── upload-handler/    # Upload presigned
+│       ├── avatar-presigned/  # Avatar + auto-delete
+│       └── ...                # +12 funções
 ├── scripts/
-│   └── finops/               # Relatório de custos + AI
-│       └── cost-report.py
-├── docs/                     # Documentação
-└── types/                    # TypeScript types
+│   └── finops/
+│       └── cost-report.py     # Cost Explorer + Bedrock + SES
+└── docs/
+    └── live-streaming-reference.md
 ```
 
 ---
 
-## 🔒 Segurança
+## 🚀 Quick Start
 
-- ✅ JWT com expiração (24h)
-- ✅ 2FA obrigatório para admin
-- ✅ Presigned URLs com TTL
-- ✅ CORS configurado
-- ✅ JWT_SECRET via variáveis de ambiente
-- ✅ Rate limiting
-- ✅ HTTPS em produção
+```bash
+# Clone
+git clone https://github.com/Sergio-Sena/mediaflow-nextjs-v4.git
+cd mediaflow-nextjs-v4
 
-**Nunca commite:** `.env.local`, credenciais AWS, JWT secrets
+# Install
+npm install
 
----
+# Configure
+cp .env.example .env.local
+# Edit .env.local with your AWS credentials
 
-## 💰 FinOps
+# Dev
+npm run dev
 
-Relatório automático após cada deploy:
-- Custos filtrados por tag `Project=MidiaFlow`
-- Comparação com mês anterior
-- 3 insights de otimização via AI (Bedrock Claude)
-- Email via SES
+# Test
+npm test
 
----
-
-## 📊 Performance
-
-- **Lighthouse Score**: 95+
-- **First Contentful Paint**: < 1.5s
-- **Time to Interactive**: < 3s
-- **CDN**: 400+ POPs globais
-- **Uptime**: 99.9%
-- **WCAG**: AA Compliant
+# Build
+npm run build
+```
 
 ---
 
 ## 🗺️ Roadmap
 
-### ✅ v4.9.0 - Qualidade & Confiabilidade - COMPLETO
-- ✅ Testes unitários (Jest + Testing Library)
-- ✅ Error Boundaries
-- ✅ Loading Skeletons
-- ✅ Rate Limiting
+### ✅ v4.9.0 - Qualidade & Confiabilidade
+Testes unitários, Error Boundaries, Loading Skeletons, Rate Limiting
 
-### ✅ v4.9.1 - CI/CD & FinOps - COMPLETO
-- ✅ Pipeline CI/CD (GitHub Actions)
-- ✅ FinOps + AI Insights (Bedrock + SES)
-- ✅ JWT unificado em todas as Lambdas
-- ✅ AvatarUpload refatorado (autossuficiente)
-- ✅ ImageViewer com autenticação JWT
-- ✅ Auto-delete avatares antigos
-- ✅ Limpeza S3 (undefined/, anonymous/)
-- ✅ Tags de custo em todos os recursos
+### ✅ v4.9.1 - CI/CD & FinOps (atual)
+Pipeline GitHub Actions, FinOps + Bedrock AI, JWT unificado, AvatarUpload refatorado
 
 ### 🔜 v4.10 - Área Pública
-- [ ] Área pública para conteúdo compartilhável
-- [ ] Conversão automática para múltiplas resoluções
-- [ ] Legendas e closed captions
-- [ ] Analytics avançado
+Conteúdo compartilhável, conversão multi-resolução, legendas, analytics avançado
 
 ### 🔮 Futuro
-- [ ] Live streaming (MediaStore + MediaLive)
-- [ ] API pública
-- [ ] Mobile app (React Native)
-
----
-
-## 🤝 Contribuição
-
-1. Fork o projeto
-2. Crie uma branch (`git checkout -b feature/nova-funcionalidade`)
-3. Commit suas mudanças (`git commit -m 'feat: nova funcionalidade'`)
-4. Push para a branch (`git push origin feature/nova-funcionalidade`)
-5. Abra um Pull Request
-
----
-
-## 📄 Licença
-
-Este projeto está sob a licença MIT. Veja [LICENSE](LICENSE) para detalhes.
+Live streaming (MediaStore + MediaLive), API pública, Mobile app (React Native)
 
 ---
 
 ## 👨‍💻 Autor
 
-**Sergio Sena**
-- GitHub: [@Sergio-Sena](https://github.com/Sergio-Sena)
-- LinkedIn: [Sergio Sena](https://linkedin.com/in/sergio-sena)
-- Portfolio: [dev-cloud.sstechnologies-cloud.com](https://dev-cloud.sstechnologies-cloud.com)
+**Sergio Sena** - Cloud & DevOps Engineer
+
+[![GitHub](https://img.shields.io/badge/GitHub-Sergio--Sena-181717?logo=github)](https://github.com/Sergio-Sena)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Sergio%20Sena-0A66C2?logo=linkedin)](https://linkedin.com/in/sergio-sena)
+[![Portfolio](https://img.shields.io/badge/Portfolio-dev--cloud-00FFFF)](https://dev-cloud.sstechnologies-cloud.com)
 
 ---
 
 <div align="center">
 
 **⭐ Se este projeto foi útil, deixe uma estrela!**
-
-[🚀 Ver Demo](https://midiaflow.sstechnologies-cloud.com) • [📖 Docs](docs/) • [🐛 Issues](issues)
 
 </div>
