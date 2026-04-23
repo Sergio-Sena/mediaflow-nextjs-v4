@@ -2,7 +2,7 @@
 
 ## Required Secrets for CI/CD
 
-Configure these secrets in: **Settings → Secrets and variables → Actions**
+Configure em: **Settings → Secrets and variables → Actions**
 
 ### AWS Credentials
 ```
@@ -10,19 +10,9 @@ AWS_ACCESS_KEY_ID=<your-access-key>
 AWS_SECRET_ACCESS_KEY=<your-secret-key>
 ```
 
-### Production Environment
+### Application
 ```
 JWT_SECRET=<production-jwt-secret>
-NEXT_PUBLIC_API_URL=https://your-api-gateway.execute-api.us-east-1.amazonaws.com/prod
-S3_BUCKET_FRONTEND=midiaflow-frontend
-CLOUDFRONT_DISTRIBUTION_ID=<your-cloudfront-id>
-```
-
-### Staging Environment (Optional)
-```
-STAGING_JWT_SECRET=<staging-jwt-secret>
-STAGING_API_URL=https://your-api-gateway.execute-api.us-east-1.amazonaws.com/staging
-S3_BUCKET_STAGING=midiaflow-staging-frontend
 ```
 
 ## How to Add Secrets
@@ -31,12 +21,10 @@ S3_BUCKET_STAGING=midiaflow-staging-frontend
 2. Click **Settings** → **Secrets and variables** → **Actions**
 3. Click **New repository secret**
 4. Add each secret with the exact name above
-5. Save
 
 ## Security Notes
 
 - ⚠️ Never commit secrets to the repository
-- ✅ Use different secrets for staging/production
 - 🔄 Rotate secrets regularly (every 90 days)
 - 🔒 Use AWS IAM roles with minimal permissions
 
@@ -52,11 +40,14 @@ S3_BUCKET_STAGING=midiaflow-staging-frontend
         "s3:PutObject",
         "s3:GetObject",
         "s3:DeleteObject",
-        "s3:ListBucket"
+        "s3:ListBucket",
+        "s3:ListObjectsV2"
       ],
       "Resource": [
-        "arn:aws:s3:::midiaflow-frontend/*",
-        "arn:aws:s3:::midiaflow-frontend"
+        "arn:aws:s3:::mediaflow-frontend-969430605054/*",
+        "arn:aws:s3:::mediaflow-frontend-969430605054",
+        "arn:aws:s3:::midiaflow-green-969430605054/*",
+        "arn:aws:s3:::midiaflow-green-969430605054"
       ]
     },
     {
@@ -64,28 +55,20 @@ S3_BUCKET_STAGING=midiaflow-staging-frontend
       "Action": [
         "cloudfront:CreateInvalidation"
       ],
-      "Resource": "arn:aws:cloudfront::*:distribution/*"
+      "Resource": "arn:aws:cloudfront::969430605054:distribution/E1A2CZM0WKF6LX"
     },
     {
       "Effect": "Allow",
       "Action": [
         "lambda:UpdateFunctionCode",
-        "lambda:GetFunction"
+        "lambda:GetFunction",
+        "lambda:GetFunctionConfiguration"
       ],
-      "Resource": "arn:aws:lambda:us-east-1:*:function:midiaflow-*"
+      "Resource": [
+        "arn:aws:lambda:us-east-1:969430605054:function:mediaflow-*",
+        "arn:aws:lambda:us-east-1:969430605054:function:approve-user"
+      ]
     }
   ]
 }
-```
-
-## Verification
-
-After adding secrets, trigger a workflow to verify:
-
-```bash
-# Push to develop branch (triggers staging)
-git checkout -b develop
-git push origin develop
-
-# Or manually trigger from GitHub Actions tab
 ```
