@@ -1,9 +1,11 @@
 # 🎬 MidiaFlow - Plataforma Profissional de Hospedagem de Vídeos
 
 [![Status](https://img.shields.io/badge/Status-✅%20Online-brightgreen)](https://midiaflow.sstechnologies-cloud.com)
+[![Version](https://img.shields.io/badge/Version-4.9.1-blue)]()
 [![Next.js](https://img.shields.io/badge/Next.js-14-black)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)](https://www.typescriptlang.org/)
 [![AWS](https://img.shields.io/badge/AWS-Serverless-orange)](https://aws.amazon.com/)
+[![CI/CD](https://img.shields.io/badge/CI%2FCD-GitHub%20Actions-2088FF)](https://github.com/Sergio-Sena/mediaflow-nextjs-v4/actions)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 > Hospede, converta e distribua seus vídeos com CDN global. Simples, rápido e seguro.
@@ -14,12 +16,23 @@
 
 ## ✨ Features
 
+### 💰 **FinOps & AI Insights** (v4.9.1) - NOVO
+- Relatório de custos AWS por projeto (filtrado por tags)
+- AI Insights via AWS Bedrock (Claude 3 Haiku)
+- Email automático via SES após cada deploy
+- Tags de custo em todos os recursos AWS
+
+### 🚀 **CI/CD Pipeline** (v4.9.1) - NOVO
+- GitHub Actions: test → build → deploy → health-check → finops
+- Deploy automático de frontend (S3 + CloudFront) e 17 Lambdas
+- Rollback via `git revert`
+- Health check automático pós-deploy
+
 ### 🧪 **Qualidade & Confiabilidade** (v4.9.0)
 - Testes unitários automatizados (Jest + Testing Library)
 - Error Boundaries para captura de erros
 - Loading Skeletons para melhor UX
 - Rate Limiting para proteção contra abuso
-- 9/9 testes passando com 100% de sucesso
 
 ### 🎥 **Player de Vídeo Premium**
 - Player moderno com controles avançados
@@ -27,39 +40,39 @@
 - Barra de progresso em 3 camadas (fundo, buffer, reprodução)
 - Controles responsivos (mobile, tablet, desktop)
 - Atalhos de teclado (Space, K, F, M, setas)
-- Gestos touch para mobile (swipe vertical para volume, horizontal para seek)
+- Gestos touch para mobile
 - Fullscreen com double-click
 - Velocidade de reprodução ajustável
-- WCAG AA compliant (acessibilidade)
-- Cross-browser support (Chrome, Firefox, Safari, Edge)
+- WCAG AA compliant
 
 ### 📤 **Upload Inteligente**
 - Upload multipart para arquivos grandes (até 5GB)
 - Barra de progresso em tempo real
 - Suporte a múltiplos formatos (MP4, AVI, MOV, MKV, WebM)
-- Thumbnails geradas automaticamente
 - Organização por pastas
 
+### 🖼️ **Visualizador de Imagens**
+- Galeria com navegação por setas e swipe
+- Zoom, rotação e download
+- Presigned URLs com autenticação JWT
+
 ### 🔐 **Autenticação & Segurança**
-- JWT + 2FA (Two-Factor Authentication)
+- JWT com expiração (24h)
+- 2FA obrigatório para admin
 - Controle de acesso por usuário
-- Vídeos privados por padrão
-- Presigned URLs com expiração
-- CORS configurado
+- Presigned URLs com TTL
+- JWT_SECRET unificado em todas as Lambdas
+
+### 👤 **Avatar Upload**
+- Módulo autossuficiente (extrai userId do JWT)
+- Auto-delete de avatares antigos
+- Persistência via DynamoDB
 
 ### 📊 **Analytics & Gestão**
 - Dashboard administrativo completo
 - Gestão de usuários (admin/user roles)
 - Listagem e busca de vídeos
 - Estatísticas de uso
-- Logs de atividades
-
-### ☁️ **Infraestrutura AWS**
-- **S3**: Armazenamento escalável
-- **CloudFront**: CDN global (400+ POPs)
-- **Lambda**: Processamento serverless
-- **API Gateway**: REST API
-- **DynamoDB**: Banco de dados NoSQL
 
 ---
 
@@ -72,17 +85,23 @@
 - **Lucide Icons** - Ícones modernos
 
 ### **Backend**
-- **Node.js 18+** - Runtime
-- **Python 3.11** - Lambda functions
+- **Python 3.11** - 17 Lambda functions
 - **AWS SDK** - Integração AWS
-- **JWT** - Autenticação
+- **JWT (HMAC-SHA256)** - Autenticação
 
 ### **AWS Services**
-- **S3** - Uploads & Processed buckets
-- **CloudFront** - CDN (E1O4R8P5BGZTMW)
-- **Lambda** - Upload handler, conversão
-- **API Gateway** - REST endpoints
-- **DynamoDB** - Usuários, logs
+- **S3** - Armazenamento (mediaflow-uploads-969430605054)
+- **CloudFront** - CDN (E1A2CZM0WKF6LX)
+- **Lambda** - 17 funções serverless
+- **API Gateway** - REST API (gdb962d234)
+- **DynamoDB** - Banco de dados (mediaflow-users)
+- **SES** - Email (relatórios FinOps)
+- **Bedrock** - AI Insights (Claude 3 Haiku)
+- **Cost Explorer** - Monitoramento de custos
+
+### **CI/CD**
+- **GitHub Actions** - Pipeline automatizado
+- **Git tags** - Versionamento e rollback
 
 ---
 
@@ -111,17 +130,9 @@ cp .env.example .env.local
 
 Edite `.env.local`:
 ```env
-# AWS
-NEXT_PUBLIC_AWS_REGION=us-east-1
-NEXT_PUBLIC_S3_UPLOADS_BUCKET=mediaflow-uploads-969430605054
-NEXT_PUBLIC_S3_PROCESSED_BUCKET=mediaflow-processed-969430605054
-NEXT_PUBLIC_CLOUDFRONT_DOMAIN=d2komwe8ylb0dt.cloudfront.net
-
-# API
-NEXT_PUBLIC_API_URL=https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod
-
-# Auth
-JWT_SECRET=your-super-secret-key-here
+AWS_REGION=us-east-1
+JWT_SECRET=your-secret-key
+NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 
 ### **4. Execute em desenvolvimento**
@@ -129,34 +140,40 @@ JWT_SECRET=your-super-secret-key-here
 npm run dev
 ```
 
-Acesse: http://localhost:3000
-
 ### **5. Rodar testes**
 ```bash
-npm test              # Rodar testes
-npm run test:watch    # Watch mode
-npm run test:coverage # Cobertura
+npm test
+npm run test:coverage
 ```
 
 ---
 
 ## 📦 Deploy
 
-### **Build de Produção**
+### **Automático (recomendado)**
+Push para `main` dispara o pipeline:
 ```bash
-npm run build
+git push origin main
 ```
 
-### **Deploy na AWS**
+### **Manual**
 ```bash
-# Sync static files
+npm run build
 aws s3 sync .next/static s3://mediaflow-frontend-969430605054/_next/static --delete
-
-# Sync HTML
 aws s3 sync out s3://mediaflow-frontend-969430605054 --delete --exclude "_next/*"
+aws cloudfront create-invalidation --distribution-id E1A2CZM0WKF6LX --paths "/*"
+```
 
-# Invalidate CloudFront
-aws cloudfront create-invalidation --distribution-id E1O4R8P5BGZTMW --paths "/*"
+### **Rollback**
+```bash
+git revert HEAD
+git push origin main
+```
+
+Ou para uma versão específica:
+```bash
+git revert HEAD~3..HEAD
+git push origin main
 ```
 
 ---
@@ -164,89 +181,65 @@ aws cloudfront create-invalidation --distribution-id E1O4R8P5BGZTMW --paths "/*"
 ## 📁 Estrutura do Projeto
 
 ```
-mediaflow-nextjs-v4/
+midiaflow/
+├── .github/workflows/        # CI/CD Pipeline
+│   └── deploy-production.yml
 ├── app/                      # Next.js App Router
 │   ├── api/                  # API Routes (proxies)
-│   ├── (auth)/              # Páginas de autenticação
-│   ├── dashboard/           # Dashboard principal
-│   └── globals.css          # Estilos globais
+│   ├── (auth)/               # Login, Register
+│   ├── dashboard/            # Dashboard principal
+│   ├── admin/                # Painel admin
+│   └── users/                # Gestão de usuários
 ├── components/
-│   ├── modules/             # Componentes principais
-│   │   ├── VideoPlayer.tsx  # Player premium
-│   │   ├── FileList.tsx     # Lista de vídeos
-│   │   └── UploadForm.tsx   # Upload multipart
-│   └── ui/                  # Componentes UI
+│   ├── modules/              # Componentes principais
+│   │   ├── VideoPlayer.tsx   # Player premium
+│   │   ├── ImageViewer.tsx   # Visualizador de imagens
+│   │   ├── FileList.tsx      # Lista de arquivos
+│   │   └── DirectUpload.tsx  # Upload multipart
+│   ├── AvatarUpload.tsx      # Avatar (autossuficiente)
+│   └── ui/                   # Componentes UI
 ├── lib/
-│   ├── aws-client.ts        # Cliente AWS
-│   └── auth.ts              # Autenticação JWT
-├── aws-setup/               # Infraestrutura AWS
-│   └── lambda-functions/    # Funções Lambda
-├── public/                  # Assets estáticos
-└── types/                   # TypeScript types
-```
-
----
-
-## 🎯 Funcionalidades Principais
-
-### **Upload de Vídeos**
-```typescript
-// Upload multipart com progresso
-const uploadVideo = async (file: File) => {
-  const presignedUrl = await getPresignedUrl(file.name);
-  await uploadToS3(presignedUrl, file, onProgress);
-};
-```
-
-### **Player de Vídeo**
-```typescript
-// Player com controles avançados
-<VideoPlayer
-  src={videoKey}
-  title={videoName}
-  playlist={videos}
-  onVideoChange={handleVideoChange}
-/>
-```
-
-### **Autenticação**
-```typescript
-// Login com JWT + 2FA
-const login = async (email: string, password: string, code?: string) => {
-  const response = await fetch('/api/auth/login', {
-    method: 'POST',
-    body: JSON.stringify({ email, password, code })
-  });
-  return response.json();
-};
+│   ├── aws-client.ts         # Cliente AWS
+│   ├── aws-config.ts         # Configuração endpoints
+│   └── auth-utils.ts         # Utilitários JWT
+├── aws-setup/
+│   └── lambda-functions/     # 17 Funções Lambda
+├── scripts/
+│   └── finops/               # Relatório de custos + AI
+│       └── cost-report.py
+├── docs/                     # Documentação
+└── types/                    # TypeScript types
 ```
 
 ---
 
 ## 🔒 Segurança
 
-### **Boas Práticas Implementadas**
-- ✅ JWT com expiração
+- ✅ JWT com expiração (24h)
 - ✅ 2FA obrigatório para admin
 - ✅ Presigned URLs com TTL
 - ✅ CORS configurado
-- ✅ Validação de input
-- ✅ Rate limiting (recomendado)
+- ✅ JWT_SECRET via variáveis de ambiente
+- ✅ Rate limiting
 - ✅ HTTPS em produção
 
-### **Variáveis Sensíveis**
-Nunca commite:
-- `.env.local`
-- Credenciais AWS
-- JWT secrets
-- API keys
+**Nunca commite:** `.env.local`, credenciais AWS, JWT secrets
+
+---
+
+## 💰 FinOps
+
+Relatório automático após cada deploy:
+- Custos filtrados por tag `Project=MidiaFlow`
+- Comparação com mês anterior
+- 3 insights de otimização via AI (Bedrock Claude)
+- Email via SES
 
 ---
 
 ## 📊 Performance
 
 - **Lighthouse Score**: 95+
-- **Lighthouse Accessibility**: 90+
 - **First Contentful Paint**: < 1.5s
 - **Time to Interactive**: < 3s
 - **CDN**: 400+ POPs globais
@@ -255,43 +248,32 @@ Nunca commite:
 
 ---
 
-## 🐛 Troubleshooting
-
-### **Vídeo não carrega**
-- Verificar presigned URL válida
-- Confirmar bucket S3 acessível
-- Checar CORS configurado
-
-### **Upload falha**
-- Verificar tamanho do arquivo (< 5GB)
-- Confirmar formato suportado
-- Checar credenciais AWS
-
-### **Erro 403 ao deletar**
-- Usar endpoint `/files/bulk-delete`
-- Verificar permissões IAM
-- Confirmar token JWT válido
-
----
-
 ## 🗺️ Roadmap
 
-### ✅ Nível 2 - Qualidade & Confiabilidade (v4.9.0) - COMPLETO
+### ✅ v4.9.0 - Qualidade & Confiabilidade - COMPLETO
 - ✅ Testes unitários (Jest + Testing Library)
 - ✅ Error Boundaries
 - ✅ Loading Skeletons
 - ✅ Rate Limiting
 
-### ⚠️ Correções Prioritárias (v4.8.6)
-- [ ] Corrigir upload de arquivos pequenos
-- [ ] Corrigir foto de perfil que não aparece
-- [ ] Corrigir delete de arquivos
+### ✅ v4.9.1 - CI/CD & FinOps - COMPLETO
+- ✅ Pipeline CI/CD (GitHub Actions)
+- ✅ FinOps + AI Insights (Bedrock + SES)
+- ✅ JWT unificado em todas as Lambdas
+- ✅ AvatarUpload refatorado (autossuficiente)
+- ✅ ImageViewer com autenticação JWT
+- ✅ Auto-delete avatares antigos
+- ✅ Limpeza S3 (undefined/, anonymous/)
+- ✅ Tags de custo em todos os recursos
 
-### Área Pública (v4.10)
+### 🔜 v4.10 - Área Pública
+- [ ] Área pública para conteúdo compartilhável
 - [ ] Conversão automática para múltiplas resoluções
 - [ ] Legendas e closed captions
-- [ ] Live streaming
 - [ ] Analytics avançado
+
+### 🔮 Futuro
+- [ ] Live streaming (MediaStore + MediaLive)
 - [ ] API pública
 - [ ] Mobile app (React Native)
 
@@ -319,14 +301,6 @@ Este projeto está sob a licença MIT. Veja [LICENSE](LICENSE) para detalhes.
 - GitHub: [@Sergio-Sena](https://github.com/Sergio-Sena)
 - LinkedIn: [Sergio Sena](https://linkedin.com/in/sergio-sena)
 - Portfolio: [dev-cloud.sstechnologies-cloud.com](https://dev-cloud.sstechnologies-cloud.com)
-
----
-
-## 🙏 Agradecimentos
-
-- AWS pela infraestrutura robusta
-- Next.js team pelo framework incrível
-- Comunidade open source
 
 ---
 
