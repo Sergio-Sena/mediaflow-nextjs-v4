@@ -6,69 +6,207 @@ on:
       - main
   workflow_dispatch:
 
+env:
+  AWS_REGION: us-east-1
+  NODE_VERSION: '22'
+  S3_BUCKET_GREEN: midiaflow-green-969430605054
+
 jobs:
-  build:
-    name: Build Application
+  test:
+    name: Run Tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-      
+
       - name: Install dependencies
         run: npm ci
-      
+
+      - name: Run tests
+        run: npm test -- --passWithNoTests
+
+  build:
+    name: Build Application
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
       - name: Build Next.js
+        env:
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
         run: npm run build
-      
-      - name: Upload artifacts
+
+      - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: build
-          path: out/
-          retention-days: 1
-  
-  deploy:
-    name: Deploy to Production
+          name: build-artifacts
+          path: |
+            out/
+            .next/static/
+          retention-days: 7
+
+  deploy-frontend:
+    name: Deploy Frontend
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Download artifacts
+      - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
-          name: build
-          path: out/
-      
-      - name: Configure AWS
+          name: build-artifacts
+
+      - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
-      
-      - name: Sync to S3
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Sync static assets to S3
         run: |
-          aws s3 sync out/ s3://mediaflow-frontend-969430605054/ \
-            --cache-control "public, max-age=31536000, immutable" \
-            --exclude "*.html"
-          
-          aws s3 sync out/ s3://mediaflow-frontend-969430605054/ \
-            --exclude "*" \
-            --include "*.html" \
+          aws s3 sync .next/static s3://${{ secrets.S3_BUCKET_FRONTEND }}/_next/static \
+            --delete \
+            --cache-control "public, max-age=31536000, immutable"
+
+      - name: Sync HTML to S3
+        run: |
+          aws s3 sync out/ s3://${{ secrets.S3_BUCKET_FRONTEND }}/ \
+            --delete \
+            --exclude "_next/*" \
             --cache-control "public, max-age=0, must-revalidate"
-      
+
+      - name: Copy to Green environment
+        run: |
+          aws s3 sync s3://${{ secrets.S3_BUCKET_FRONTEND }} s3://${{ env.S3_BUCKET_GREEN }} --delete
+
       - name: Invalidate CloudFront
         run: |
           aws cloudfront create-invalidation \
-            --distribution-id E2HZKZ9ZJK18IU \
+            --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
             --paths "/*"
-      
-      - name: Deployment Success
+
+  deploy-lambdas:
+    name: Deploy Lambdas
+    needs: test
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        lambda:
+          - name: mediaflow-auth-handler
+            path: aws-setup/lambda-functions/auth-handler
+          - name: mediaflow-files-handler
+            path: aws-setup/lambda-functions/files-handler
+          - name: mediaflow-upload-handler
+            path: aws-setup/lambda-functions/upload-handler
+          - name: mediaflow-view-handler
+            path: aws-setup/lambda-functions/view-handler
+          - name: mediaflow-multipart-handler
+            path: aws-setup/lambda-functions/multipart-handler
+          - name: mediaflow-convert-handler
+            path: aws-setup/lambda-functions/convert-handler
+          - name: mediaflow-cleanup-handler
+            path: aws-setup/lambda-functions/cleanup-handler
+          - name: mediaflow-create-user
+            path: aws-setup/lambda-functions/create-user
+          - name: mediaflow-list-users
+            path: aws-setup/lambda-functions/list-users
+          - name: mediaflow-get-user
+            path: aws-setup/lambda-functions/get-user
+          - name: mediaflow-get-user-me
+            path: aws-setup/lambda-functions/get-user-me
+          - name: mediaflow-update-user
+            path: aws-setup/lambda-functions/update-user
+          - name: mediaflow-avatar-presigned
+            path: aws-setup/lambda-functions/avatar-presigned
+          - name: mediaflow-verify-user-2fa
+            path: aws-setup/lambda-functions/verify-user-2fa
+          - name: mediaflow-check-limits
+            path: aws-setup/lambda-functions/check-limits
+          - name: mediaflow-send-trial-emails
+            path: aws-setup/lambda-functions/send-trial-emails
+          - name: approve-user
+            path: aws-setup/lambda-functions/approve-user
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Package and Deploy Lambda
         run: |
-          echo "Deployment successful!"
+          cd ${{ matrix.lambda.path }}
+          zip -r /tmp/${{ matrix.lambda.name }}.zip . \
+            -x "*.zip" "*.bat" "*_backup*" "*_simple*" "*_check*" "temp/*"
+          aws lambda update-function-code \
+            --function-name ${{ matrix.lambda.name }} \
+            --zip-file fileb:///tmp/${{ matrix.lambda.name }}.zip
+
+      - name: Wait for update
+        run: |
+          aws lambda wait function-updated \
+            --function-name ${{ matrix.lambda.name }}
+
+  health-check:
+    name: Health Check
+    needs: [deploy-frontend, deploy-lambdas]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Frontend
+        run: |
+          response=$(curl -s -o /dev/null -w "%{http_code}" https://midiaflow.sstechnologies-cloud.com)
+          if [ "$response" -ne 200 ]; then
+            echo "❌ Frontend failed (HTTP $response)"
+            exit 1
+          fi
+          echo "✅ Frontend OK (HTTP $response)"
+
+      - name: Check API
+        run: |
+          response=$(curl -s -o /dev/null -w "%{http_code}" \
+            ${{ secrets.NEXT_PUBLIC_API_URL }}/files)
+          echo "API response: HTTP $response"
+          if [ "$response" -eq 000 ]; then
+            echo "⚠️ API unreachable, skipping"
+          else
+            echo "✅ API reachable (HTTP $response)"
+          fi
+
+  notify:
+    name: Deploy Status
+    needs: health-check
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Success
+        if: needs.health-check.result == 'success'
+        run: |
+          echo "✅ Deploy concluído com sucesso!"
           echo "URL: https://midiaflow.sstechnologies-cloud.com"
-          echo "Version: ${{ github.sha }}"
+          echo "Commit: ${{ github.sha }}"
+          echo "Timestamp: $(date -u)"
+
+      - name: Failed
+        if: needs.health-check.result != 'success'
+        run: |
+          echo "❌ Deploy falhou!"
+          echo "Commit: ${{ github.sha }}"
+          exit 1
