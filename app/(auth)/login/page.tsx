@@ -25,61 +25,8 @@ export default function LoginPage() {
         // Salvar token e dados do usuário
         localStorage.setItem('token', data.token)
         localStorage.setItem('user', JSON.stringify(data.user))
-        
-        // Buscar dados completos do usuário (incluindo avatar) diretamente da API
-        try {
-          const usersRes = await fetch('https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/users', {
-            headers: {
-              'Authorization': `Bearer ${data.token}`
-            }
-          })
-          const usersData = await usersRes.json()
-          if (usersData.success) {
-            const fullUser = usersData.users.find((u: any) => u.user_id === data.user_id || u.email === email)
-            if (fullUser) {
-              console.log('✅ Current user saved:', fullUser)
-              localStorage.setItem('current_user', JSON.stringify(fullUser))
-            } else {
-              console.warn('⚠️ User not found in list, using fallback')
-              // Fallback se não encontrar
-              const fallbackUser = {
-                user_id: data.user_id,
-                name: data.user?.name || email.split('@')[0],
-                email: email,
-                role: data.user?.role || 'user',
-                s3_prefix: `users/${data.user_id}/`
-              }
-              console.log('Fallback user:', fallbackUser)
-              localStorage.setItem('current_user', JSON.stringify(fallbackUser))
-            }
-          }
-        } catch (err) {
-          console.error('❌ Erro ao buscar dados do usuário:', err)
-          // Fallback - buscar avatar diretamente do DynamoDB
-          try {
-            const avatarRes = await fetch(`https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/users/${data.user_id}`)
-            const avatarData = await avatarRes.json()
-            const fallbackUser = {
-              user_id: data.user_id,
-              name: data.user?.name || email.split('@')[0],
-              email: email,
-              role: data.user?.role || 'user',
-              s3_prefix: `users/${data.user_id}/`,
-              avatar_url: avatarData.avatar_url || undefined
-            }
-            localStorage.setItem('current_user', JSON.stringify(fallbackUser))
-          } catch (e2) {
-            // Fallback final sem avatar
-            const fallbackUser = {
-              user_id: data.user_id,
-              name: data.user?.name || email.split('@')[0],
-              email: email,
-              role: data.user?.role || 'user',
-              s3_prefix: `users/${data.user_id}/`
-            }
-            localStorage.setItem('current_user', JSON.stringify(fallbackUser))
-          }
-        }
+        localStorage.setItem('current_user', JSON.stringify(data.user))
+        console.log('✅ Current user saved:', data.user)
         
         // 2FA apenas para admin
         console.log('✅ Login OK, redirecionando...', data.user)

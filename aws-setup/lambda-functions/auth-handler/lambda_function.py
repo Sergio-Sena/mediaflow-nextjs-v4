@@ -73,9 +73,12 @@ def lambda_handler(event, context):
                     'token': token,
                     'user_id': user['user_id'],
                     'user': {
+                        'user_id': user['user_id'],
                         'email': email,
                         'name': user.get('name', email),
-                        'role': role
+                        'role': role,
+                        's3_prefix': s3_prefix,
+                        'avatar_url': user.get('avatar_url', '')
                     }
                 })
         
