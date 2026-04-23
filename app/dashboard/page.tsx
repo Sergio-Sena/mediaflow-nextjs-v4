@@ -66,37 +66,28 @@ export default function DashboardPage() {
       return
     }
     
-    // Se não tem current_user, criar a partir do JWT e buscar avatar do DynamoDB
-    if (token && !currentUserData) {
+    // Construir current_user a partir do JWT (fonte confiável)
+    if (token) {
       try {
         const payload = JSON.parse(atob(token.split('.')[1]))
-        const fallbackUser = {
+        const saved = currentUserData ? JSON.parse(currentUserData) : {}
+        const fullUser = {
           user_id: payload.user_id,
-          name: payload.email?.split('@')[0] || 'Usuário',
+          name: saved.name || payload.email?.split('@')[0] || 'Usuário',
           email: payload.email,
           role: payload.role || 'user',
-          s3_prefix: payload.s3_prefix || ''
+          s3_prefix: payload.s3_prefix || '',
+          avatar_url: saved.avatar_url || ''
         }
-        localStorage.setItem('current_user', JSON.stringify(fallbackUser))
-        setCurrentUser(fallbackUser)
-        // Buscar avatar do DynamoDB
+        localStorage.setItem('current_user', JSON.stringify(fullUser))
+        setCurrentUser(fullUser)
+        if (fullUser.role !== 'admin') {
+          setCurrentFolderPath(fullUser.s3_prefix || '')
+        }
+        // Buscar avatar atualizado do DynamoDB
         fetchUserData(payload.user_id)
       } catch (e) {
         console.error('Erro ao decodificar JWT:', e)
-      }
-    } else if (currentUserData) {
-      const user = JSON.parse(currentUserData)
-      // Buscar avatar atualizado do DynamoDB
-      fetchUserData(user.user_id || user.id)
-    }
-    
-    // Todos começam em Biblioteca (files)
-    if (currentUserData) {
-      const user = JSON.parse(currentUserData)
-      setCurrentUser(user)
-      // User: definir pasta inicial
-      if (user.role !== 'admin') {
-        setCurrentFolderPath(user.s3_prefix || '')
       }
     }
     
