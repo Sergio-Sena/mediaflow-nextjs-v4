@@ -48,6 +48,7 @@ export default function AvatarUpload({
       }
       
       // Obter presigned URL com token
+      console.log('Avatar upload:', { userId, fileExt: ext, url: getApiUrl('AVATAR_PRESIGNED') })
       const presignedRes = await fetch(getApiUrl('AVATAR_PRESIGNED'), {
         method: 'POST',
         headers: { 
