@@ -25,6 +25,16 @@ def lambda_handler(event, context):
             }
         
         key = f'avatars/avatar_{user_id}.{file_ext}'
+        bucket = 'mediaflow-uploads-969430605054'
+
+        # Deletar avatares antigos deste user
+        try:
+            old = s3.list_objects_v2(Bucket=bucket, Prefix=f'avatars/avatar_{user_id}.')
+            for obj in old.get('Contents', []):
+                if obj['Key'] != key:
+                    s3.delete_object(Bucket=bucket, Key=obj['Key'])
+        except:
+            pass
         
         # Normalizar content type
         content_type_map = {
@@ -39,7 +49,7 @@ def lambda_handler(event, context):
         presigned_url = s3.generate_presigned_url(
             'put_object',
             Params={
-                'Bucket': 'mediaflow-uploads-969430605054',
+                'Bucket': bucket,
                 'Key': key,
                 'ContentType': content_type
             },
@@ -49,7 +59,7 @@ def lambda_handler(event, context):
         # Garantir que não há HTML entities na URL
         presigned_url = presigned_url.replace('&amp;', '&')
         
-        avatar_url = f'https://mediaflow-uploads-969430605054.s3.amazonaws.com/{key}'
+        avatar_url = f'https://{bucket}.s3.amazonaws.com/{key}'
         
         return {
             'statusCode': 200,
