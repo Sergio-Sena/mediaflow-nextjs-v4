@@ -9,7 +9,6 @@ on:
 env:
   AWS_REGION: us-east-1
   NODE_VERSION: '22'
-  S3_BUCKET_GREEN: midiaflow-green-969430605054
 
 jobs:
   test:
@@ -89,10 +88,6 @@ jobs:
             --delete \
             --exclude "_next/*" \
             --cache-control "public, max-age=0, must-revalidate"
-
-      - name: Copy to Green environment
-        run: |
-          aws s3 sync s3://${{ secrets.S3_BUCKET_FRONTEND }} s3://${{ env.S3_BUCKET_GREEN }} --delete
 
       - name: Invalidate CloudFront
         run: |
