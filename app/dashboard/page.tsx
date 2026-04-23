@@ -6,6 +6,7 @@ import { Button, Card, Skeleton } from '@/components/ui'
 import { DashboardSkeleton, FileListSkeleton, VideoPlayerSkeleton } from '@/components/ui/Skeleton'
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary'
 import { getUserApiUrl } from '@/lib/aws-config'
+import { getUserFromToken } from '@/lib/auth-utils'
 
 import DirectUpload from '@/components/modules/DirectUpload'
 import FileList from '@/components/modules/FileList'
@@ -67,28 +68,23 @@ export default function DashboardPage() {
     }
     
     // Construir current_user a partir do JWT (fonte confiável)
-    if (token) {
-      try {
-        const payload = JSON.parse(atob(token.split('.')[1]))
-        const saved = currentUserData ? JSON.parse(currentUserData) : {}
-        const fullUser = {
-          user_id: payload.user_id,
-          name: saved.name || payload.email?.split('@')[0] || 'Usuário',
-          email: payload.email,
-          role: payload.role || 'user',
-          s3_prefix: payload.s3_prefix || '',
-          avatar_url: saved.avatar_url || ''
-        }
-        localStorage.setItem('current_user', JSON.stringify(fullUser))
-        setCurrentUser(fullUser)
-        if (fullUser.role !== 'admin') {
-          setCurrentFolderPath(fullUser.s3_prefix || '')
-        }
-        // Buscar avatar atualizado do DynamoDB
-        fetchUserData(payload.user_id)
-      } catch (e) {
-        console.error('Erro ao decodificar JWT:', e)
+    const tokenUser = getUserFromToken()
+    if (token && tokenUser) {
+      const saved = currentUserData ? JSON.parse(currentUserData) : {}
+      const fullUser = {
+        user_id: tokenUser.user_id,
+        name: saved.name || tokenUser.email?.split('@')[0] || 'Usuário',
+        email: tokenUser.email,
+        role: tokenUser.role,
+        s3_prefix: tokenUser.s3_prefix,
+        avatar_url: saved.avatar_url || ''
       }
+      localStorage.setItem('current_user', JSON.stringify(fullUser))
+      setCurrentUser(fullUser)
+      if (fullUser.role !== 'admin') {
+        setCurrentFolderPath(fullUser.s3_prefix || '')
+      }
+      fetchUserData(tokenUser.user_id)
     }
     
     if (!token) {
@@ -118,7 +114,7 @@ export default function DashboardPage() {
   const fetchUserData = async (userId: string) => {
     try {
       const token = localStorage.getItem('token')
-      if (!token) return
+      if (!token || !userId) return
       
       const response = await fetch(getUserApiUrl(userId), {
         headers: { 'Authorization': `Bearer ${token}` }
@@ -127,7 +123,8 @@ export default function DashboardPage() {
       if (response.ok) {
         const data = await response.json()
         if (data.success && data.user) {
-          const updated = { ...currentUser, avatar_url: data.user.avatar_url }
+          const saved = JSON.parse(localStorage.getItem('current_user') || '{}')
+          const updated = { ...saved, avatar_url: data.user.avatar_url }
           setCurrentUser(updated)
           localStorage.setItem('current_user', JSON.stringify(updated))
         }
@@ -202,15 +199,12 @@ export default function DashboardPage() {
               {currentUser && (
                 <div className="flex items-center gap-2 glass-card px-4 py-2">
                   <AvatarUpload
-                    userId={currentUser.user_id || currentUser.id}
                     currentAvatar={currentUser.avatar_url}
                     size="sm"
                     className="flex-shrink-0"
                     onAvatarUpdate={(avatarUrl) => {
                       const updated = { ...currentUser, avatar_url: avatarUrl }
                       setCurrentUser(updated)
-                      localStorage.setItem('current_user', JSON.stringify(updated))
-                      setTimeout(() => fetchUserData(currentUser.user_id || currentUser.id), 500)
                     }}
                   />
                   <div className="text-sm">
@@ -259,15 +253,12 @@ export default function DashboardPage() {
               {currentUser && (
                 <div className="flex items-center gap-3 glass-card px-4 py-3">
                   <AvatarUpload
-                    userId={currentUser.user_id || currentUser.id}
                     currentAvatar={currentUser.avatar_url}
                     size="sm"
                     className="flex-shrink-0"
                     onAvatarUpdate={(avatarUrl) => {
                       const updated = { ...currentUser, avatar_url: avatarUrl }
                       setCurrentUser(updated)
-                      localStorage.setItem('current_user', JSON.stringify(updated))
-                      setTimeout(() => fetchUserData(currentUser.user_id || currentUser.id), 500)
                     }}
                   />
                   <div className="text-sm">
