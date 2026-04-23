@@ -118,7 +118,6 @@ export default function UsersPage() {
                 {/* Avatar Upload */}
                 <div className="mb-6 flex justify-center">
                   <AvatarUpload
-                    userId={user.user_id}
                     currentAvatar={user.avatar_url}
                     size="lg"
                     className="group-hover:scale-110 transition-transform duration-500"
