@@ -3,6 +3,23 @@
 import { useState, useEffect } from 'react'
 import { X, Download, ZoomIn, ZoomOut, RotateCw, ChevronLeft, ChevronRight } from 'lucide-react'
 
+const getPresignedUrl = async (key: string): Promise<string | null> => {
+  const token = localStorage.getItem('token')
+  if (!token) return null
+  try {
+    const res = await fetch(`https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/view/${encodeURIComponent(key)}`, {
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+    })
+    if (res.ok) {
+      const data = await res.json()
+      if (data.success && data.viewUrl) return data.viewUrl
+    }
+  } catch (e) {
+    console.error('Presigned URL error:', e)
+  }
+  return null
+}
+
 interface ImageFile {
   key: string
   name: string
@@ -41,10 +58,16 @@ export default function ImageViewer({ src, title, currentImage, playlist = [], o
     }
   }, [currentImage, playlist])
   
-  // Update source when src prop changes
+  // Get presigned URL for initial image
   useEffect(() => {
-    setCurrentSrc(src)
-  }, [src])
+    if (currentImage?.key) {
+      getPresignedUrl(currentImage.key).then(url => {
+        if (url) setCurrentSrc(url)
+      })
+    } else {
+      setCurrentSrc(src)
+    }
+  }, [src, currentImage])
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -107,26 +130,13 @@ export default function ImageViewer({ src, title, currentImage, playlist = [], o
       const nextImage = playlist[nextIndex]
       setCurrentIndex(nextIndex)
       
-      // Get presigned URL for next image
-      try {
-        const response = await fetch(`https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/view/${encodeURIComponent(nextImage.key)}`, {
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' }
-        })
-        
-        if (response.ok) {
-          const data = await response.json()
-          if (data.success) {
-            onImageChange?.({ ...nextImage, url: data.viewUrl })
-            return
-          }
-        }
-      } catch (error) {
-        console.error('Error getting presigned URL:', error)
+      const url = await getPresignedUrl(nextImage.key)
+      if (url) {
+        setCurrentSrc(url)
+        onImageChange?.({ ...nextImage, url })
+      } else {
+        onImageChange?.(nextImage)
       }
-      
-      // Fallback to original URL
-      onImageChange?.(nextImage)
     }
   }
   
@@ -138,26 +148,13 @@ export default function ImageViewer({ src, title, currentImage, playlist = [], o
       const prevImage = playlist[prevIndex]
       setCurrentIndex(prevIndex)
       
-      // Get presigned URL for previous image
-      try {
-        const response = await fetch(`https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/view/${encodeURIComponent(prevImage.key)}`, {
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' }
-        })
-        
-        if (response.ok) {
-          const data = await response.json()
-          if (data.success) {
-            onImageChange?.({ ...prevImage, url: data.viewUrl })
-            return
-          }
-        }
-      } catch (error) {
-        console.error('Error getting presigned URL:', error)
+      const url = await getPresignedUrl(prevImage.key)
+      if (url) {
+        setCurrentSrc(url)
+        onImageChange?.({ ...prevImage, url })
+      } else {
+        onImageChange?.(prevImage)
       }
-      
-      // Fallback to original URL
-      onImageChange?.(prevImage)
     }
   }
 
