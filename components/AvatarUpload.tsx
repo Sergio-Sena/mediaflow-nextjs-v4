@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { getApiUrl } from '@/lib/aws-config'
+import { getUserFromToken } from '@/lib/auth-utils'
 
 interface AvatarUploadProps {
-  userId: string
   currentAvatar?: string
   onAvatarUpdate?: (avatarUrl: string) => void
   size?: 'sm' | 'md' | 'lg'
@@ -12,7 +12,6 @@ interface AvatarUploadProps {
 }
 
 export default function AvatarUpload({ 
-  userId, 
   currentAvatar, 
   onAvatarUpdate,
   size = 'md',
@@ -23,6 +22,10 @@ export default function AvatarUpload({
   const [imageError, setImageError] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
+  useEffect(() => {
+    if (currentAvatar) setPreview(currentAvatar)
+  }, [currentAvatar])
+
   const sizeClasses = {
     sm: 'w-12 h-12',
     md: 'w-20 h-20', 
@@ -32,37 +35,37 @@ export default function AvatarUpload({
   const handleFileSelect = async (file: File) => {
     if (!file.type.startsWith('image/')) return
 
-    // Preview
+    const token = localStorage.getItem('token')
+    const user = getUserFromToken()
+
+    if (!token || !user) {
+      alert('Sessão expirada. Faça login novamente.')
+      return
+    }
+
+    // Preview imediato
     const reader = new FileReader()
     reader.onload = (e) => setPreview(e.target?.result as string)
     reader.readAsDataURL(file)
 
-    // Upload via presigned URL
     setUploading(true)
     try {
       const ext = file.name.split('.').pop()
-      const token = localStorage.getItem('token')
-      
-      if (!token) {
-        throw new Error('Token não encontrado. Faça login novamente.')
-      }
-      
-      // Obter presigned URL com token
-      console.log('Avatar upload:', { userId, fileExt: ext, url: getApiUrl('AVATAR_PRESIGNED') })
+
+      // 1. Obter presigned URL
       const presignedRes = await fetch(getApiUrl('AVATAR_PRESIGNED'), {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ userId, fileExt: ext })
+        body: JSON.stringify({ userId: user.user_id, fileExt: ext })
       })
       
       const presignedData = await presignedRes.json()
+      if (!presignedData.success) throw new Error('Falha ao obter URL de upload')
       
-      if (!presignedData.success) throw new Error('Failed to get presigned URL')
-      
-      // Upload para S3 usando presigned URL (decode para evitar &amp;)
+      // 2. Upload para S3
       const cleanUrl = presignedData.presignedUrl.replace(/&amp;/g, '&')
       await fetch(cleanUrl, {
         method: 'PUT',
@@ -70,12 +73,7 @@ export default function AvatarUpload({
         headers: { 'Content-Type': file.type }
       })
       
-      // Atualizar preview com cache-busting
-      const avatarUrlWithCache = `${presignedData.avatarUrl}?t=${Date.now()}`
-      setPreview(avatarUrlWithCache)
-      setImageError(false)
-      
-      // Atualizar DynamoDB com token
+      // 3. Atualizar DynamoDB
       await fetch(getApiUrl('UPDATE_USER'), {
         method: 'POST',
         headers: { 
@@ -83,11 +81,19 @@ export default function AvatarUpload({
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-          user_id: userId,
+          user_id: user.user_id,
           avatar_url: presignedData.avatarUrl
         })
       })
-      
+
+      // 4. Atualizar UI e localStorage
+      const avatarUrlWithCache = `${presignedData.avatarUrl}?t=${Date.now()}`
+      setPreview(avatarUrlWithCache)
+      setImageError(false)
+
+      const saved = JSON.parse(localStorage.getItem('current_user') || '{}')
+      localStorage.setItem('current_user', JSON.stringify({ ...saved, avatar_url: presignedData.avatarUrl }))
+
       onAvatarUpdate?.(presignedData.avatarUrl)
     } catch (error) {
       console.error('Avatar upload failed:', error)
@@ -138,7 +144,6 @@ export default function AvatarUpload({
             alt="Avatar"
             className="w-full h-full object-cover"
             onError={() => {
-              console.warn(`Failed to load avatar: ${preview}`)
               setImageError(true)
               setPreview(null)
             }}
@@ -152,7 +157,6 @@ export default function AvatarUpload({
           </div>
         )}
 
-        {/* Upload Overlay */}
         <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-1">
           <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
@@ -161,7 +165,6 @@ export default function AvatarUpload({
           <span className="text-xs text-white font-semibold">Alterar</span>
         </div>
 
-        {/* Loading */}
         {uploading && (
           <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
             <div className="w-6 h-6 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin"></div>
