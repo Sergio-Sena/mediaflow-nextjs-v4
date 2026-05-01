@@ -1,0 +1,6 @@
+aws_region   = "us-east-1"
+project_name = "mediaflow"
+environment  = "production"
+account_id   = "969430605054"
+domain_name  = "midiaflow.sstechnologies-cloud.com"
+ses_email    = "senanetworker@gmail.com"

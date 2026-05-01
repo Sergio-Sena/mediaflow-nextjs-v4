@@ -1,0 +1,6 @@
+aws_region   = "us-west-2"
+project_name = "mediaflow"
+environment  = "dr"
+account_id   = "969430605054"
+domain_name  = ""
+ses_email    = "senanetworker@gmail.com"
