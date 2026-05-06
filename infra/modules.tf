@@ -34,10 +34,11 @@ module "api" {
 }
 
 module "cdn" {
-  source          = "./modules/cdn"
-  project_name    = var.project_name
-  frontend_bucket = module.storage.frontend_bucket_website_endpoint
-  domain_name     = var.domain_name
+  source              = "./modules/cdn"
+  project_name        = var.project_name
+  frontend_bucket     = module.storage.frontend_bucket_website_endpoint
+  domain_name         = var.domain_name
+  acm_certificate_arn = var.acm_certificate_arn
 }
 
 module "ses" {
