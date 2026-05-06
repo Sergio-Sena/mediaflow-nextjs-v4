@@ -1,6 +1,10 @@
 variable "project_name" { type = string }
 variable "frontend_bucket" { type = string }
 variable "domain_name" { type = string }
+variable "acm_certificate_arn" {
+  type    = string
+  default = ""
+}
 
 resource "aws_cloudfront_distribution" "main" {
   enabled             = true
@@ -47,9 +51,9 @@ resource "aws_cloudfront_distribution" "main" {
   }
 
   viewer_certificate {
-    cloudfront_default_certificate = var.domain_name == "" ? true : false
-    acm_certificate_arn            = var.domain_name != "" ? "arn:aws:acm:us-east-1:969430605054:certificate/5da53d3b-4f07-4aeb-9654-0b1bfea7bc0a" : null
-    ssl_support_method             = var.domain_name != "" ? "sni-only" : null
+    cloudfront_default_certificate = var.acm_certificate_arn == "" ? true : false
+    acm_certificate_arn            = var.acm_certificate_arn != "" ? var.acm_certificate_arn : null
+    ssl_support_method             = var.acm_certificate_arn != "" ? "sni-only" : null
     minimum_protocol_version       = "TLSv1.2_2021"
   }
 }

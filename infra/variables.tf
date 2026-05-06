@@ -34,6 +34,12 @@ variable "domain_name" {
   default     = "midiaflow.sstechnologies-cloud.com"
 }
 
+variable "acm_certificate_arn" {
+  description = "ACM certificate ARN for HTTPS (must be in us-east-1)"
+  type        = string
+  default     = ""
+}
+
 variable "ses_email" {
   description = "Email for SES (FinOps reports)"
   type        = string
