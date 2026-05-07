@@ -10,7 +10,7 @@ users_table = dynamodb.Table('mediaflow-users')
 
 UPLOADS_BUCKET = os.environ.get('UPLOADS_BUCKET', 'mediaflow-uploads-969430605054')
 PROCESSED_BUCKET = os.environ.get('PROCESSED_BUCKET', 'mediaflow-processed-969430605054')
-JWT_SECRET = os.environ.get('JWT_SECRET', 'your-secret-key')
+JWT_SECRET = os.environ['JWT_SECRET']
 
 def lambda_handler(event, context):
     print(f"Event: {json.dumps(event)}")

@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
 table = dynamodb.Table('mediaflow-users')
 
-JWT_SECRET = os.environ.get('JWT_SECRET', 'your-secret-key')
+JWT_SECRET = os.environ['JWT_SECRET']
 
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()

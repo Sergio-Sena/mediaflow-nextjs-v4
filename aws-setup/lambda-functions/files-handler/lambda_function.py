@@ -7,7 +7,7 @@ from urllib.parse import unquote
 s3 = boto3.client('s3')
 UPLOADS_BUCKET = os.environ.get('UPLOADS_BUCKET', 'mediaflow-uploads-969430605054')
 PROCESSED_BUCKET = os.environ.get('PROCESSED_BUCKET', 'mediaflow-processed-969430605054')
-SECRET_KEY = os.environ.get('JWT_SECRET', 'your-secret-key')
+SECRET_KEY = os.environ['JWT_SECRET']
 
 def lambda_handler(event, context):
     try:

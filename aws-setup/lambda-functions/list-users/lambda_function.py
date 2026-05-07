@@ -6,7 +6,7 @@ import os
 dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table('mediaflow-users')
 
-SECRET_KEY = os.environ.get('JWT_SECRET', 'your-secret-key')
+SECRET_KEY = os.environ['JWT_SECRET']
 
 def lambda_handler(event, context):
     try:
