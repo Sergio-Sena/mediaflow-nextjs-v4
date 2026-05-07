@@ -14,7 +14,8 @@ export const AWS_CONFIG = {
     VIEW: '/view',
     CONVERT: '/convert',
     AVATAR_PRESIGNED: '/avatar-presigned',
-    UPDATE_USER: '/update-user'
+    UPDATE_USER: '/update-user',
+    PUBLIC_CONTENT: '/public'
   },
   
   BUCKETS: {

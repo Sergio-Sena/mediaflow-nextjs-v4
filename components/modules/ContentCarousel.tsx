@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { ChevronLeft, ChevronRight, Play, Image, FileText, Trash2, CheckSquare, Square } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Play, Image, FileText, Trash2, Share2, CheckSquare, Square } from 'lucide-react'
 
 interface ContentItem {
   key: string
@@ -16,13 +16,14 @@ interface ContentRowProps {
   items: ContentItem[]
   onItemClick?: (item: ContentItem) => void
   onItemDelete?: (item: ContentItem) => void
+  onItemShare?: (item: ContentItem) => void
   onDeleteAll?: (items: ContentItem[]) => void
   selectionMode: boolean
   selectedKeys: Set<string>
   onToggleSelect?: (key: string) => void
 }
 
-function ContentRow({ title, items, onItemClick, onItemDelete, onDeleteAll, selectionMode, selectedKeys, onToggleSelect }: ContentRowProps) {
+function ContentRow({ title, items, onItemClick, onItemDelete, onItemShare, onDeleteAll, selectionMode, selectedKeys, onToggleSelect }: ContentRowProps) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const [showLeft, setShowLeft] = useState(false)
   const [showRight, setShowRight] = useState(false)
@@ -144,14 +145,27 @@ function ContentRow({ title, items, onItemClick, onItemDelete, onDeleteAll, sele
                   <div className="absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded text-[9px] sm:text-[10px] font-bold bg-black/60 text-white/80">
                     {formatSize(item.size)}
                   </div>
-                  {/* Delete button on hover (non-selection mode) */}
-                  {!selectionMode && onItemDelete && (
-                    <button
-                      onClick={(e) => { e.stopPropagation(); onItemDelete(item) }}
-                      className="absolute top-1.5 left-1.5 p-1.5 rounded bg-red-600/80 hover:bg-red-600 text-white transition-colors opacity-0 group-hover:opacity-100"
-                    >
-                      <Trash2 className="w-3 h-3" />
-                    </button>
+                  {/* Action buttons on hover (non-selection mode) */}
+                  {!selectionMode && (
+                    <div className="absolute top-1.5 left-1.5 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      {onItemShare && (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); onItemShare(item) }}
+                          className="p-1.5 rounded bg-cyan-600/80 hover:bg-cyan-600 text-white transition-colors"
+                          title="Compartilhar"
+                        >
+                          <Share2 className="w-3 h-3" />
+                        </button>
+                      )}
+                      {onItemDelete && (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); onItemDelete(item) }}
+                          className="p-1.5 rounded bg-red-600/80 hover:bg-red-600 text-white transition-colors"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      )}
+                    </div>
                   )}
                   {/* Checkbox in selection mode */}
                   {selectionMode && (
@@ -187,13 +201,14 @@ interface ContentCarouselProps {
   files: ContentItem[]
   onItemClick?: (file: ContentItem) => void
   onItemDelete?: (file: ContentItem) => void
+  onItemShare?: (file: ContentItem) => void
   onBulkDelete?: (files: ContentItem[]) => void
   selectedKeys?: Set<string>
   onToggleSelect?: (key: string) => void
   selectionMode?: boolean
 }
 
-export default function ContentCarousel({ files, onItemClick, onItemDelete, onBulkDelete, selectedKeys = new Set(), onToggleSelect, selectionMode = false }: ContentCarouselProps) {
+export default function ContentCarousel({ files, onItemClick, onItemDelete, onItemShare, onBulkDelete, selectedKeys = new Set(), onToggleSelect, selectionMode = false }: ContentCarouselProps) {
   // Group by folder
   const grouped: Record<string, ContentItem[]> = {}
   files.forEach(file => {
@@ -214,6 +229,7 @@ export default function ContentCarousel({ files, onItemClick, onItemDelete, onBu
           items={items}
           onItemClick={onItemClick}
           onItemDelete={onItemDelete}
+          onItemShare={onItemShare}
           onDeleteAll={onBulkDelete}
           selectionMode={selectionMode}
           selectedKeys={selectedKeys}

@@ -717,6 +717,26 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
           else if (file.type === 'document') onViewPDF?.(file as any)
         }}
         onItemDelete={(file) => handleDelete(file as any)}
+        onItemShare={async (file) => {
+          const category = prompt('Categoria (Filmes, Anime, Musica, Geral):', 'Geral')
+          if (!category) return
+          try {
+            const token = localStorage.getItem('token')
+            const res = await fetch(getApiUrl('PUBLIC_CONTENT'), {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+              body: JSON.stringify({ file_key: file.key, title: file.name, type: file.type, category })
+            })
+            const data = await res.json()
+            if (data.success) {
+              alert(`"${file.name}" compartilhado na area publica!`)
+            } else {
+              alert('Erro: ' + data.message)
+            }
+          } catch (e) {
+            alert('Erro ao compartilhar')
+          }
+        }}
         onBulkDelete={(items) => {
           if (confirm(`Excluir ${items.length} arquivo(s) desta pasta?`)) {
             const keys = items.map(i => i.key)
