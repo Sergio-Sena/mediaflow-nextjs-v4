@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Play, Download, Trash2, Search, Filter, Grid, List, RefreshCw, Settings, X } from 'lucide-react'
 import { getApiUrl } from '@/lib/aws-config'
+import ContentCarousel from './ContentCarousel'
 
 interface S3File {
   key: string
@@ -697,6 +698,16 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
           </button>
         </div>
       </div>
+
+      {/* Carousel View */}
+      <ContentCarousel
+        files={filteredFiles}
+        onItemClick={(file) => {
+          if (file.type === 'video') onPlayVideo?.(file as any)
+          else if (file.type === 'image') onViewImage?.(file as any)
+          else if (file.type === 'document') onViewPDF?.(file as any)
+        }}
+      />
 
       {/* File List */}
       {filteredFiles.length === 0 ? (
