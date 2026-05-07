@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { Play, Download, Trash2, Search, Filter, Grid, List, RefreshCw, Settings, X, ListChecks } from 'lucide-react'
 import { getApiUrl } from '@/lib/aws-config'
 import ContentCarousel from './ContentCarousel'
+import { InputModal } from '@/components/ui/Modal'
 
 interface S3File {
   key: string
@@ -42,6 +43,7 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage] = useState(50)
   const [deleting, setDeleting] = useState<Set<string>>(new Set())
+  const [shareModal, setShareModal] = useState<any>(null)
 
   const fetchFiles = async () => {
     try {
@@ -717,26 +719,7 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
           else if (file.type === 'document') onViewPDF?.(file as any)
         }}
         onItemDelete={(file) => handleDelete(file as any)}
-        onItemShare={async (file) => {
-          const category = prompt('Categoria (Filmes, Anime, Musica, Geral):', 'Geral')
-          if (!category) return
-          try {
-            const token = localStorage.getItem('token')
-            const res = await fetch(getApiUrl('PUBLIC_CONTENT'), {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-              body: JSON.stringify({ file_key: file.key, title: file.name, type: file.type, category })
-            })
-            const data = await res.json()
-            if (data.success) {
-              alert(`"${file.name}" compartilhado na area publica!`)
-            } else {
-              alert('Erro: ' + data.message)
-            }
-          } catch (e) {
-            alert('Erro ao compartilhar')
-          }
-        }}
+        onItemShare={(file) => setShareModal(file)}
         onBulkDelete={(items) => {
           if (confirm(`Excluir ${items.length} arquivo(s) desta pasta?`)) {
             const keys = items.map(i => i.key)
@@ -747,6 +730,34 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
         selectionMode={selectAll}
         selectedKeys={selectedFiles}
         onToggleSelect={(key) => toggleFileSelection(key)}
+      />
+
+      {/* Share Modal */}
+      <InputModal
+        isOpen={!!shareModal}
+        onClose={() => setShareModal(null)}
+        onConfirm={async (category) => {
+          if (!shareModal) return
+          try {
+            const token = localStorage.getItem('token')
+            const res = await fetch(getApiUrl('PUBLIC_CONTENT'), {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+              body: JSON.stringify({ file_key: shareModal.key, title: shareModal.name, type: shareModal.type, category })
+            })
+            const data = await res.json()
+            if (data.success) {
+              setShareModal(null)
+            }
+          } catch (e) {
+            console.error('Share error:', e)
+          }
+        }}
+        title="Compartilhar na Área Pública"
+        message={shareModal ? `Compartilhar "${shareModal.name}" publicamente?` : ''}
+        options={['Geral', 'Filmes', 'Séries', 'Anime', 'Música', 'Documentos', 'Fotos']}
+        defaultValue="Geral"
+        confirmText="Compartilhar"
       />
     </div>
   )
