@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { ChevronLeft, ChevronRight, Play, Image, FileText } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Play, Image, FileText, Trash2, CheckSquare, Square } from 'lucide-react'
 
 interface ContentItem {
   key: string
@@ -15,9 +15,14 @@ interface ContentRowProps {
   title: string
   items: ContentItem[]
   onItemClick?: (item: ContentItem) => void
+  onItemDelete?: (item: ContentItem) => void
+  onDeleteAll?: (items: ContentItem[]) => void
+  selectionMode: boolean
+  selectedKeys: Set<string>
+  onToggleSelect?: (key: string) => void
 }
 
-function ContentRow({ title, items, onItemClick }: ContentRowProps) {
+function ContentRow({ title, items, onItemClick, onItemDelete, onDeleteAll, selectionMode, selectedKeys, onToggleSelect }: ContentRowProps) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const [showLeft, setShowLeft] = useState(false)
   const [showRight, setShowRight] = useState(false)
@@ -73,13 +78,30 @@ function ContentRow({ title, items, onItemClick }: ContentRowProps) {
     return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`
   }
 
+  const selectedInRow = items.filter(i => selectedKeys.has(i.key)).length
+
   return (
     <div className="mb-5">
-      <h3 className="text-sm sm:text-base font-bold text-white mb-2">
-        {title} <span className="text-gray-500 text-xs font-normal">({items.length})</span>
-      </h3>
+      <div className="flex items-center justify-between mb-2">
+        <h3 className="text-sm sm:text-base font-bold text-white">
+          {title} <span className="text-gray-500 text-xs font-normal">({items.length})</span>
+        </h3>
+        {onDeleteAll && (
+          <button
+            onClick={() => {
+              if (confirm(`Excluir todos os ${items.length} arquivos de "${title.replace('📁 ', '')}"?`)) {
+                onDeleteAll(items)
+              }
+            }}
+            className="p-1.5 text-gray-500 hover:text-red-400 hover:bg-red-600/10 rounded transition-colors"
+            title={`Excluir pasta ${title}`}
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        )}
+      </div>
 
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-0.5">
         {/* Left Arrow */}
         <button
           onClick={() => scroll('left')}
@@ -94,30 +116,59 @@ function ContentRow({ title, items, onItemClick }: ContentRowProps) {
           className="flex gap-2 sm:gap-3 overflow-x-auto flex-1 py-1"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
-          {items.map((item) => (
-            <div
-              key={item.key}
-              onClick={() => onItemClick?.(item)}
-              className="flex-shrink-0 w-[140px] sm:w-[170px] md:w-[190px] lg:w-[210px] cursor-pointer group"
-            >
-              <div className={`relative aspect-video rounded-lg overflow-hidden bg-gradient-to-br ${getGradient(item.type)} border border-white/5 transition-all duration-300 group-hover:scale-105 group-hover:border-neon-cyan/50 group-hover:shadow-lg group-hover:shadow-neon-cyan/20`}>
-                <div className="absolute inset-0 flex items-center justify-center text-white/60 group-hover:text-white/90 transition-colors">
-                  {getIcon(item.type)}
-                </div>
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <div className="bg-neon-cyan/90 rounded-full p-1.5 sm:p-2">
-                    <Play className="w-4 h-4 sm:w-5 sm:h-5 text-black" fill="black" />
+          {items.map((item) => {
+            const isSelected = selectedKeys.has(item.key)
+            return (
+              <div
+                key={item.key}
+                onClick={() => {
+                  if (selectionMode) {
+                    onToggleSelect?.(item.key)
+                  } else {
+                    onItemClick?.(item)
+                  }
+                }}
+                className={`flex-shrink-0 w-[140px] sm:w-[170px] md:w-[190px] lg:w-[210px] cursor-pointer group ${isSelected ? 'ring-2 ring-neon-cyan rounded-lg' : ''}`}
+              >
+                <div className={`relative aspect-video rounded-lg overflow-hidden bg-gradient-to-br ${getGradient(item.type)} border border-white/5 transition-all duration-300 group-hover:scale-105 group-hover:border-neon-cyan/50 group-hover:shadow-lg group-hover:shadow-neon-cyan/20`}>
+                  <div className="absolute inset-0 flex items-center justify-center text-white/60 group-hover:text-white/90 transition-colors">
+                    {getIcon(item.type)}
                   </div>
+                  {!selectionMode && (
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <div className="bg-neon-cyan/90 rounded-full p-1.5 sm:p-2">
+                        <Play className="w-4 h-4 sm:w-5 sm:h-5 text-black" fill="black" />
+                      </div>
+                    </div>
+                  )}
+                  <div className="absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded text-[9px] sm:text-[10px] font-bold bg-black/60 text-white/80">
+                    {formatSize(item.size)}
+                  </div>
+                  {/* Delete button on hover (non-selection mode) */}
+                  {!selectionMode && onItemDelete && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); onItemDelete(item) }}
+                      className="absolute top-1.5 left-1.5 p-1.5 rounded bg-red-600/80 hover:bg-red-600 text-white transition-colors opacity-0 group-hover:opacity-100"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </button>
+                  )}
+                  {/* Checkbox in selection mode */}
+                  {selectionMode && (
+                    <div className="absolute top-1.5 left-1.5">
+                      {isSelected
+                        ? <CheckSquare className="w-5 h-5 text-neon-cyan" />
+                        : <Square className="w-5 h-5 text-white/60" />
+                      }
+                    </div>
+                  )}
                 </div>
-                <div className="absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded text-[9px] sm:text-[10px] font-bold bg-black/60 text-white/80">
-                  {formatSize(item.size)}
-                </div>
+                <p className="mt-1.5 text-xs sm:text-sm text-white truncate font-medium group-hover:text-neon-cyan transition-colors" title={item.name}>
+                  {item.name}
+                </p>
               </div>
-              <p className="mt-1.5 text-xs sm:text-sm text-white truncate font-medium group-hover:text-neon-cyan transition-colors" title={item.name}>
-                {item.name}
-              </p>
-            </div>
-          ))}
+            )
+          })}
         </div>
 
         {/* Right Arrow */}
@@ -135,9 +186,14 @@ function ContentRow({ title, items, onItemClick }: ContentRowProps) {
 interface ContentCarouselProps {
   files: ContentItem[]
   onItemClick?: (file: ContentItem) => void
+  onItemDelete?: (file: ContentItem) => void
+  onBulkDelete?: (files: ContentItem[]) => void
+  selectedKeys?: Set<string>
+  onToggleSelect?: (key: string) => void
+  selectionMode?: boolean
 }
 
-export default function ContentCarousel({ files, onItemClick }: ContentCarouselProps) {
+export default function ContentCarousel({ files, onItemClick, onItemDelete, onBulkDelete, selectedKeys = new Set(), onToggleSelect, selectionMode = false }: ContentCarouselProps) {
   // Group by folder
   const grouped: Record<string, ContentItem[]> = {}
   files.forEach(file => {
@@ -157,6 +213,11 @@ export default function ContentCarousel({ files, onItemClick }: ContentCarouselP
           title={folder === 'root' ? '📁 Raiz' : `📁 ${folder.split('/').pop()}`}
           items={items}
           onItemClick={onItemClick}
+          onItemDelete={onItemDelete}
+          onDeleteAll={onBulkDelete}
+          selectionMode={selectionMode}
+          selectedKeys={selectedKeys}
+          onToggleSelect={onToggleSelect}
         />
       ))}
     </div>
