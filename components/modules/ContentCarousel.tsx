@@ -82,7 +82,7 @@ function ContentRow({ title, items, onItemClick, onItemDelete, onDeleteAll, sele
 
   return (
     <div className="mb-5">
-      <div className="flex items-center justify-between mb-2">
+      <div className="flex items-center gap-2 mb-2">
         <h3 className="text-sm sm:text-base font-bold text-white">
           {title} <span className="text-gray-500 text-xs font-normal">({items.length})</span>
         </h3>
@@ -96,7 +96,7 @@ function ContentRow({ title, items, onItemClick, onItemDelete, onDeleteAll, sele
             className="p-1.5 text-gray-500 hover:text-red-400 hover:bg-red-600/10 rounded transition-colors"
             title={`Excluir pasta ${title}`}
           >
-            <Trash2 className="w-4 h-4" />
+            <Trash2 className="w-5 h-5" />
           </button>
         )}
       </div>
