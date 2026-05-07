@@ -312,12 +312,19 @@ export default function DashboardPage() {
               ...(currentUser?.role !== 'admin' ? [{ id: 'files', label: '📁 Biblioteca', count: 0 }] : []),
               { id: 'folders', label: '🗂️ Pastas', count: 0 },
               { id: 'upload', label: '📤 Upload', count: 0 },
+              { id: 'public-feed', label: '🌐 Público', count: 0 },
               { id: 'analytics', label: '📊 Analytics', count: 0 },
             ].map((tab) => (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
-                className={`py-3 sm:py-4 px-2 sm:px-3 border-b-2 font-medium text-xs sm:text-sm whitespace-nowrap transition-all duration-300 ${
+                onClick={() => {
+                  if (tab.id === 'public-feed') {
+                    router.push('/public-feed')
+                  } else {
+                    setActiveTab(tab.id as any)
+                  }
+                }}
+                className={`py-3 sm:py-4 px-3 sm:px-4 border-b-2 font-medium text-sm sm:text-base whitespace-nowrap transition-all duration-300 ${
                   activeTab === tab.id
                     ? 'border-neon-cyan text-neon-cyan'
                     : 'border-transparent text-gray-400 hover:text-gray-300 hover:border-neon-cyan/30'
