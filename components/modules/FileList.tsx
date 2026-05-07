@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Play, Download, Trash2, Search, Filter, Grid, List, RefreshCw, Settings, X } from 'lucide-react'
+import { Play, Download, Trash2, Search, Filter, Grid, List, RefreshCw, Settings, X, ListChecks } from 'lucide-react'
 import { getApiUrl } from '@/lib/aws-config'
 import ContentCarousel from './ContentCarousel'
 
@@ -301,11 +301,11 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
     setCurrentPage(1)
   }, [searchTerm, selectedType, currentPath])
 
-  const filteredFiles = (searchTerm ? files : getCurrentFiles()).filter(file => {
+  const filteredFiles = files.filter(file => {
     // Normalizar busca: remover _ e espaços para comparação
     const normalizedFileName = file.name.toLowerCase().replace(/[_\s]/g, '')
     const normalizedSearch = searchTerm.toLowerCase().replace(/[_\s]/g, '')
-    const matchesSearch = normalizedFileName.includes(normalizedSearch)
+    const matchesSearch = !searchTerm || normalizedFileName.includes(normalizedSearch)
     const matchesType = selectedType === 'all' || file.type === selectedType
     
     // Filtrar por permissão do usuário
@@ -328,7 +328,11 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
       ? (file.folder.startsWith('admin/') || file.folder === 'admin')
       : (file.folder.startsWith(normalizedPrefix) || file.folder === 'root')
     
-    return matchesSearch && matchesType && hasPermission
+    // Filtrar por pasta selecionada (se não for raiz)
+    const currentFolderPath = getCurrentFolderPath()
+    const matchesFolder = !currentFolderPath || file.folder.startsWith(currentFolderPath)
+    
+    return matchesSearch && matchesType && hasPermission && matchesFolder
   })
 
   const formatFileSize = (bytes: number) => {
@@ -581,45 +585,48 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
           
           <div className="flex gap-2">
             <button
-              onClick={fetchFiles}
-              className="btn-refresh"
+              onClick={() => {
+                const { filesCache } = require('@/lib/files-cache')
+                filesCache.clear()
+                fetchFiles()
+              }}
+              className="p-2.5 sm:p-3 bg-cyan-600/20 hover:bg-cyan-600/40 text-cyan-300 rounded-lg transition-colors border border-cyan-500/30"
               title="Atualizar"
             >
-              <RefreshCw className="w-4 h-4" />
+              <RefreshCw className="w-5 h-5" />
             </button>
-            
+
             <button
-              onClick={() => setViewMode(viewMode === 'list' ? 'grid' : 'list')}
-              className="btn-view-toggle"
-              title={viewMode === 'list' ? 'Visualização em Grade' : 'Visualização em Lista'}
+              onClick={() => {
+                if (selectAll) {
+                  setSelectedFiles(new Set())
+                  setSelectAll(false)
+                } else {
+                  setSelectAll(true)
+                }
+              }}
+              className={`p-2.5 sm:p-3 rounded-lg transition-colors border ${
+                selectAll
+                  ? 'bg-gray-700/20 hover:bg-gray-700/40 text-gray-400 border-gray-600/30'
+                  : 'bg-cyan-600/20 hover:bg-cyan-600/40 text-cyan-300 border-cyan-500/30'
+              }`}
+              title={selectAll ? 'Sair do modo seleção' : 'Modo seleção'}
             >
-              {viewMode === 'list' ? <Grid className="w-4 h-4" /> : <List className="w-4 h-4" />}
-            </button>
-            
-            <button
-              onClick={handleSelectAll}
-              className={`btn-secondary p-2 ${selectAll ? 'bg-neon-cyan/20 text-neon-cyan' : ''}`}
-              title={selectAll ? 'Desmarcar Todos' : 'Selecionar Todos'}
-            >
-              {selectAll ? '☑️' : '☐'}
+              <ListChecks className="w-5 h-5" />
             </button>
             
             {selectedFiles.size > 0 && (
               <>
                 <button
-                  onClick={handleConvertFiles}
-                  className="btn-neon p-2 icon-centered"
-                  title="Converter Selecionados para MP4 720p"
-                >
-                  <Settings className="w-4 h-4" />
-                </button>
-                <button
                   onClick={handleBulkDelete}
-                  className="btn-danger p-2"
+                  className="p-2.5 sm:p-3 bg-red-600/20 hover:bg-red-600/40 text-red-300 rounded-lg transition-colors border border-red-500/30"
                   title="Excluir Selecionados"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Trash2 className="w-5 h-5" />
                 </button>
+                <span className="flex items-center text-sm text-neon-cyan">
+                  {selectedFiles.size} selecionado(s)
+                </span>
               </>
             )}
           </div>
@@ -690,6 +697,8 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
               setSelectedType('all')
               setSelectedFiles(new Set())
               setSelectAll(false)
+              setCurrentPath([''])
+              setInitialPathSet(false)
             }}
             className="h-[42px] btn-secondary flex items-center justify-center"
           >
@@ -707,148 +716,18 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
           else if (file.type === 'image') onViewImage?.(file as any)
           else if (file.type === 'document') onViewPDF?.(file as any)
         }}
+        onItemDelete={(file) => handleDelete(file as any)}
+        onBulkDelete={(items) => {
+          if (confirm(`Excluir ${items.length} arquivo(s) desta pasta?`)) {
+            const keys = items.map(i => i.key)
+            setSelectedFiles(new Set(keys))
+            handleBulkDelete()
+          }
+        }}
+        selectionMode={selectAll}
+        selectedKeys={selectedFiles}
+        onToggleSelect={(key) => toggleFileSelection(key)}
       />
-
-      {/* File List */}
-      {filteredFiles.length === 0 ? (
-        <div className="glass-card p-8 text-center">
-          <p className="text-gray-400">Nenhum arquivo encontrado</p>
-        </div>
-      ) : (
-        <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4' : 'space-y-3'}>
-          {filteredFiles
-            .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
-            .map((file) => {
-            const status = getConversionStatus(file.name, file.key)
-            const isSelected = selectedFiles.has(file.key)
-            
-            return (
-              <div
-                key={file.key}
-                className={`glass-card p-4 transition-all duration-200 ${
-                  isSelected ? 'ring-2 ring-neon-cyan' : ''
-                }`}
-              >
-                <div className="flex items-center gap-4">
-                  {/* Checkbox */}
-                  <input
-                    type="checkbox"
-                    checked={isSelected}
-                    onChange={() => toggleFileSelection(file.key)}
-                    className="w-4 h-4 text-neon-cyan bg-gray-800 border-gray-600 rounded focus:ring-neon-cyan"
-                  />
-
-                  {/* File Info */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-lg flex-shrink-0">{getFileIcon(file.type)}</span>
-                      <h3 className="font-medium text-white truncate flex-1 min-w-0" title={file.name}>
-                        {file.name}
-                      </h3>
-                      {status.canConvert && (
-                        <span 
-                          className="text-xs text-yellow-400 cursor-help" 
-                          title={status.tooltip}
-                        >
-                          🔄
-                        </span>
-                      )}
-                    </div>
-                    
-                    <div className="flex items-center gap-4 text-sm text-gray-400 flex-wrap">
-                      <span className="flex-shrink-0">{formatFileSize(file.size)}</span>
-                      <span className="flex-shrink-0">{formatDate(file.lastModified)}</span>
-                      {file.folder !== 'root' && (
-                        <span className="text-neon-cyan truncate max-w-[200px]" title={file.folder}>📁 {file.folder}</span>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Actions */}
-                  <div className="flex gap-2">
-                    {file.type === 'video' && (
-                      <button
-                        onClick={() => onPlayVideo?.(file)}
-                        className="p-2 bg-purple-600/30 hover:bg-purple-600/50 text-purple-300 rounded-lg transition-colors border border-purple-500/30"
-                        title="Reproduzir"
-                      >
-                        <Play className="w-4 h-4" />
-                      </button>
-                    )}
-                    
-                    {file.type === 'image' && (
-                      <button
-                        onClick={() => onViewImage?.(file)}
-                        className="p-2 bg-green-600/30 hover:bg-green-600/50 text-green-300 rounded-lg transition-colors border border-green-500/30"
-                        title="Visualizar"
-                      >
-                        <Play className="w-4 h-4" />
-                      </button>
-                    )}
-                    
-                    {file.type === 'document' && (
-                      <button
-                        onClick={() => onViewPDF?.(file)}
-                        className="p-2 bg-blue-600/30 hover:bg-blue-600/50 text-blue-300 rounded-lg transition-colors border border-blue-500/30"
-                        title="Visualizar PDF"
-                      >
-                        <Play className="w-4 h-4" />
-                      </button>
-                    )}
-                    
-                    <button
-                      onClick={() => handleDownload(file)}
-                      className="p-2 bg-cyan-600/30 hover:bg-cyan-600/50 text-cyan-300 rounded-lg transition-colors border border-cyan-500/30"
-                      title="Download"
-                    >
-                      <Download className="w-4 h-4" />
-                    </button>
-                    
-                    <button
-                      onClick={() => handleDelete(file)}
-                      disabled={deleting.has(file.key)}
-                      className="p-2 bg-red-600/30 hover:bg-red-600/50 text-red-300 rounded-lg transition-colors border border-red-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
-                      title={deleting.has(file.key) ? 'Excluindo...' : 'Excluir'}
-                    >
-                      <Trash2 className={`w-4 h-4 ${deleting.has(file.key) ? 'animate-pulse' : ''}`} />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )
-          })}
-        </div>
-      )}
-
-      {/* Pagination Info */}
-      {filteredFiles.length > itemsPerPage && (
-        <div className="glass-card p-4 mt-6">
-          <div className="flex items-center justify-between">
-            <div className="text-sm text-gray-400">
-              Mostrando {((currentPage - 1) * itemsPerPage) + 1}-{Math.min(currentPage * itemsPerPage, filteredFiles.length)} de {filteredFiles.length} arquivos
-            </div>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                disabled={currentPage === 1}
-                className="btn-secondary px-4 py-2 disabled:opacity-50"
-              >
-                ← Anterior
-              </button>
-              <span className="px-4 py-2 text-white">
-                Página {currentPage} de {Math.ceil(filteredFiles.length / itemsPerPage)}
-              </span>
-              <button
-                onClick={() => setCurrentPage(p => Math.min(Math.ceil(filteredFiles.length / itemsPerPage), p + 1))}
-                disabled={currentPage >= Math.ceil(filteredFiles.length / itemsPerPage)}
-                className="btn-secondary px-4 py-2 disabled:opacity-50"
-              >
-                Próxima →
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }

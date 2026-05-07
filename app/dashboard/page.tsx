@@ -173,7 +173,7 @@ export default function DashboardPage() {
     <div className="min-h-screen">
       {/* Header */}
       <header className="bg-dark-900/50 backdrop-blur-md border-b border-neon-cyan/20 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-2 sm:px-4 py-3 sm:py-4">
+        <div className="mx-auto px-4 sm:px-8 py-3 sm:py-4">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-2 sm:gap-4">
               <h1 
@@ -306,7 +306,7 @@ export default function DashboardPage() {
 
       {/* Navigation */}
       <nav className="bg-dark-800/30 backdrop-blur-sm border-b border-neon-cyan/10 overflow-x-auto">
-        <div className="max-w-7xl mx-auto px-2 sm:px-4">
+        <div className="mx-auto px-4 sm:px-8">
           <div className="flex space-x-2 sm:space-x-4 md:space-x-8 min-w-max">
             {[
               ...(currentUser?.role !== 'admin' ? [{ id: 'files', label: '📁 Biblioteca', count: 0 }] : []),
@@ -336,7 +336,7 @@ export default function DashboardPage() {
       </nav>
 
       {/* Content */}
-      <main className="max-w-7xl mx-auto px-2 sm:px-4 py-4 sm:py-8">
+      <main className="mx-auto px-4 sm:px-8 py-4 sm:py-8">
         {/* Trial Progress */}
         {currentUser?.plan === 'trial' && (
           <Card variant="glass" padding="md" className="mb-6 border border-yellow-500/30">
