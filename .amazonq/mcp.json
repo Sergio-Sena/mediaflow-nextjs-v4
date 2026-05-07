@@ -1,0 +1,18 @@
+{
+  "mcpServers": {
+    "terraform": {
+      "command": "npx",
+      "args": ["-y", "@anthropic/terraform-mcp-server"],
+      "env": {
+        "TERRAFORM_DOCS_BASE_URL": "https://registry.terraform.io"
+      }
+    },
+    "aws-docs": {
+      "command": "npx",
+      "args": ["-y", "aws-documentation-mcp-server"],
+      "env": {
+        "AWS_REGION": "us-east-1"
+      }
+    }
+  }
+}
