@@ -37,7 +37,7 @@ export default function LoginPage() {
           // Usuários comuns vão direto ao dashboard
           console.log('→ User: /dashboard')
           localStorage.setItem('2fa_session', Date.now().toString())
-          setTimeout(() => window.location.href = '/dashboard', 100)
+          setTimeout(() => window.location.href = '/public-feed', 100)
         }
       } else {
         setError(data.error || 'Erro ao fazer login')
