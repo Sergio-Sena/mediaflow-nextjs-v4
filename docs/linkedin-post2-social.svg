@@ -1,0 +1,117 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" font-family="Arial, sans-serif">
+  <rect width="1200" height="630" fill="#0f172a"/>
+  
+  <!-- Title -->
+  <text x="600" y="45" text-anchor="middle" fill="#22d3ee" font-size="26" font-weight="bold">🌐 Área Pública — Social Features Serverless</text>
+  <text x="600" y="72" text-anchor="middle" fill="#94a3b8" font-size="14">1 Lambda + 1 DynamoDB = Rede social completa | Custo adicional: $0.00/mês</text>
+
+  <!-- Architecture -->
+  <text x="600" y="110" text-anchor="middle" fill="#f8fafc" font-size="16" font-weight="bold">Arquitetura</text>
+
+  <!-- Frontend -->
+  <rect x="50" y="130" width="200" height="70" rx="8" fill="#1e293b" stroke="#22d3ee" stroke-width="2"/>
+  <text x="150" y="158" text-anchor="middle" fill="#22d3ee" font-size="13" font-weight="bold">🎨 Frontend</text>
+  <text x="150" y="178" text-anchor="middle" fill="#94a3b8" font-size="10">Next.js 14 + React</text>
+  <text x="150" y="192" text-anchor="middle" fill="#94a3b8" font-size="10">Carrossel por user/categoria</text>
+
+  <text x="270" y="168" fill="#64748b" font-size="20">→</text>
+
+  <!-- API Gateway -->
+  <rect x="290" y="130" width="180" height="70" rx="8" fill="#1e293b" stroke="#e879f9" stroke-width="2"/>
+  <text x="380" y="158" text-anchor="middle" fill="#e879f9" font-size="13" font-weight="bold">🔌 API Gateway</text>
+  <text x="380" y="178" text-anchor="middle" fill="#94a3b8" font-size="10">POST /public</text>
+  <text x="380" y="192" text-anchor="middle" fill="#94a3b8" font-size="10">GET, DELETE</text>
+
+  <text x="490" y="168" fill="#64748b" font-size="20">→</text>
+
+  <!-- Lambda -->
+  <rect x="510" y="130" width="200" height="70" rx="8" fill="#1e293b" stroke="#f59e0b" stroke-width="2"/>
+  <text x="610" y="155" text-anchor="middle" fill="#f59e0b" font-size="13" font-weight="bold">⚡ 1 Lambda</text>
+  <text x="610" y="175" text-anchor="middle" fill="#94a3b8" font-size="10">share | like | comment</text>
+  <text x="610" y="190" text-anchor="middle" fill="#94a3b8" font-size="10">deactivate | list</text>
+
+  <text x="730" y="168" fill="#64748b" font-size="20">→</text>
+
+  <!-- DynamoDB -->
+  <rect x="750" y="130" width="200" height="70" rx="8" fill="#1e293b" stroke="#3b82f6" stroke-width="2"/>
+  <text x="850" y="155" text-anchor="middle" fill="#3b82f6" font-size="13" font-weight="bold">🗄️ 1 DynamoDB</text>
+  <text x="850" y="175" text-anchor="middle" fill="#94a3b8" font-size="10">mediaflow-public-content</text>
+  <text x="850" y="190" text-anchor="middle" fill="#94a3b8" font-size="10">On-demand (PAY_PER_REQUEST)</text>
+
+  <!-- S3 -->
+  <rect x="980" y="130" width="180" height="70" rx="8" fill="#1e293b" stroke="#22c55e" stroke-width="2"/>
+  <text x="1070" y="158" text-anchor="middle" fill="#22c55e" font-size="13" font-weight="bold">💾 S3</text>
+  <text x="1070" y="178" text-anchor="middle" fill="#94a3b8" font-size="10">Presigned URLs</text>
+  <text x="1070" y="192" text-anchor="middle" fill="#94a3b8" font-size="10">Videos + Images</text>
+
+  <!-- Features section -->
+  <text x="600" y="245" text-anchor="middle" fill="#f8fafc" font-size="16" font-weight="bold">Features Implementadas</text>
+
+  <!-- Feature cards row 1 -->
+  <rect x="50" y="265" width="220" height="100" rx="8" fill="#1e293b" stroke="#ef4444" stroke-width="1.5"/>
+  <text x="160" y="295" text-anchor="middle" fill="#ef4444" font-size="24">❤️</text>
+  <text x="160" y="320" text-anchor="middle" fill="#f8fafc" font-size="13" font-weight="bold">Likes</text>
+  <text x="160" y="340" text-anchor="middle" fill="#94a3b8" font-size="10">Toggle like/unlike</text>
+  <text x="160" y="355" text-anchor="middle" fill="#94a3b8" font-size="10">Contador em tempo real</text>
+
+  <rect x="295" y="265" width="220" height="100" rx="8" fill="#1e293b" stroke="#22d3ee" stroke-width="1.5"/>
+  <text x="405" y="295" text-anchor="middle" fill="#22d3ee" font-size="24">💬</text>
+  <text x="405" y="320" text-anchor="middle" fill="#f8fafc" font-size="13" font-weight="bold">Comentários</text>
+  <text x="405" y="340" text-anchor="middle" fill="#94a3b8" font-size="10">Input inline nos cards</text>
+  <text x="405" y="355" text-anchor="middle" fill="#94a3b8" font-size="10">Limite 500 chars</text>
+
+  <rect x="540" y="265" width="220" height="100" rx="8" fill="#1e293b" stroke="#22c55e" stroke-width="1.5"/>
+  <text x="650" y="295" text-anchor="middle" fill="#22c55e" font-size="24">🔗</text>
+  <text x="650" y="320" text-anchor="middle" fill="#f8fafc" font-size="13" font-weight="bold">Compartilhar Link</text>
+  <text x="650" y="340" text-anchor="middle" fill="#94a3b8" font-size="10">Copiar URL com 1 clique</text>
+  <text x="650" y="355" text-anchor="middle" fill="#94a3b8" font-size="10">Deep link para conteúdo</text>
+
+  <rect x="785" y="265" width="220" height="100" rx="8" fill="#1e293b" stroke="#a78bfa" stroke-width="1.5"/>
+  <text x="895" y="295" text-anchor="middle" fill="#a78bfa" font-size="24">🛡️</text>
+  <text x="895" y="320" text-anchor="middle" fill="#f8fafc" font-size="13" font-weight="bold">Moderação Admin</text>
+  <text x="895" y="340" text-anchor="middle" fill="#94a3b8" font-size="10">Desativar conteúdo</text>
+  <text x="895" y="355" text-anchor="middle" fill="#94a3b8" font-size="10">Proteger contra abuso</text>
+
+  <!-- Feed layout preview -->
+  <rect x="50" y="395" width="1100" height="200" rx="10" fill="#1e293b"/>
+  <text x="600" y="425" text-anchor="middle" fill="#f8fafc" font-size="16" font-weight="bold">Layout do Feed — Por Usuário → Categoria → Carrossel</text>
+
+  <!-- User section mock -->
+  <circle cx="100" cy="460" r="15" fill="#22d3ee"/>
+  <text x="100" y="465" text-anchor="middle" fill="#0f172a" font-size="12" font-weight="bold">S</text>
+  <text x="130" y="458" fill="#f8fafc" font-size="12" font-weight="bold">sergio</text>
+  <text x="130" y="474" fill="#94a3b8" font-size="10">5 conteúdos</text>
+
+  <text x="100" y="500" fill="#94a3b8" font-size="11">📁 Filmes</text>
+
+  <!-- Mock cards -->
+  <rect x="100" y="510" width="120" height="70" rx="5" fill="#0f172a" stroke="#a78bfa" stroke-width="1"/>
+  <text x="160" y="545" text-anchor="middle" fill="#a78bfa" font-size="10">🎬 Bolt</text>
+  <text x="160" y="570" text-anchor="middle" fill="#94a3b8" font-size="9">❤️ 3  💬 1</text>
+
+  <rect x="230" y="510" width="120" height="70" rx="5" fill="#0f172a" stroke="#a78bfa" stroke-width="1"/>
+  <text x="290" y="545" text-anchor="middle" fill="#a78bfa" font-size="10">🎬 Dory</text>
+  <text x="290" y="570" text-anchor="middle" fill="#94a3b8" font-size="9">❤️ 1  💬 0</text>
+
+  <rect x="360" y="510" width="120" height="70" rx="5" fill="#0f172a" stroke="#a78bfa" stroke-width="1"/>
+  <text x="420" y="545" text-anchor="middle" fill="#a78bfa" font-size="10">🎬 Video 3</text>
+  <text x="420" y="570" text-anchor="middle" fill="#94a3b8" font-size="9">❤️ 0  💬 2</text>
+
+  <text x="500" y="550" fill="#64748b" font-size="20">→</text>
+
+  <!-- Cost box -->
+  <rect x="700" y="450" width="420" height="130" rx="8" fill="#0f172a" stroke="#22c55e" stroke-width="1"/>
+  <text x="910" y="480" text-anchor="middle" fill="#22c55e" font-size="14" font-weight="bold">💰 Custo Total da Feature Social</text>
+  
+  <text x="790" y="520" fill="#f8fafc" font-size="12">DynamoDB on-demand:</text>
+  <text x="1050" y="520" text-anchor="end" fill="#22c55e" font-size="12" font-weight="bold">$0.00</text>
+  
+  <text x="790" y="545" fill="#f8fafc" font-size="12">Lambda (pay-per-request):</text>
+  <text x="1050" y="545" text-anchor="end" fill="#22c55e" font-size="12" font-weight="bold">$0.00</text>
+  
+  <text x="790" y="570" fill="#f8fafc" font-size="12" font-weight="bold">TOTAL ADICIONAL:</text>
+  <text x="1050" y="570" text-anchor="end" fill="#22c55e" font-size="16" font-weight="bold">$0.00/mês</text>
+
+  <!-- Footer -->
+  <text x="600" y="618" text-anchor="middle" fill="#64748b" font-size="11">AWS Lambda • DynamoDB • API Gateway • Next.js • React • MidiaFlow v4.10</text>
+</svg>

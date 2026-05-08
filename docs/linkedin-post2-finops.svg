@@ -1,0 +1,124 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" font-family="Arial, sans-serif">
+  <rect width="1200" height="630" fill="#0f172a"/>
+  
+  <!-- Title -->
+  <text x="600" y="45" text-anchor="middle" fill="#22d3ee" font-size="26" font-weight="bold">💰 FinOps Automatizado — Custos + AI após cada Deploy</text>
+  <text x="600" y="72" text-anchor="middle" fill="#94a3b8" font-size="14">Cost Explorer → Bedrock Claude → SES Email | Custo: $0.005/relatório</text>
+
+  <!-- Pipeline flow -->
+  <text x="600" y="108" text-anchor="middle" fill="#f8fafc" font-size="16" font-weight="bold">Fluxo Automático</text>
+
+  <rect x="30" y="125" width="150" height="55" rx="6" fill="#1e293b" stroke="#22c55e" stroke-width="2"/>
+  <text x="105" y="150" text-anchor="middle" fill="#22c55e" font-size="12" font-weight="bold">✅ Deploy OK</text>
+  <text x="105" y="168" text-anchor="middle" fill="#94a3b8" font-size="10">GitHub Actions</text>
+
+  <text x="195" y="155" fill="#64748b" font-size="18">→</text>
+
+  <rect x="210" y="125" width="170" height="55" rx="6" fill="#1e293b" stroke="#f59e0b" stroke-width="2"/>
+  <text x="295" y="150" text-anchor="middle" fill="#f59e0b" font-size="12" font-weight="bold">📊 Cost Explorer</text>
+  <text x="295" y="168" text-anchor="middle" fill="#94a3b8" font-size="10">Tag: Project=MidiaFlow</text>
+
+  <text x="395" y="155" fill="#64748b" font-size="18">→</text>
+
+  <rect x="410" y="125" width="170" height="55" rx="6" fill="#1e293b" stroke="#a78bfa" stroke-width="2"/>
+  <text x="495" y="150" text-anchor="middle" fill="#a78bfa" font-size="12" font-weight="bold">🤖 Bedrock Claude</text>
+  <text x="495" y="168" text-anchor="middle" fill="#94a3b8" font-size="10">3 AI Insights</text>
+
+  <text x="595" y="155" fill="#64748b" font-size="18">→</text>
+
+  <rect x="610" y="125" width="170" height="55" rx="6" fill="#1e293b" stroke="#22d3ee" stroke-width="2"/>
+  <text x="695" y="150" text-anchor="middle" fill="#22d3ee" font-size="12" font-weight="bold">📧 SES Email</text>
+  <text x="695" y="168" text-anchor="middle" fill="#94a3b8" font-size="10">Relatório HTML</text>
+
+  <text x="795" y="155" fill="#64748b" font-size="18">→</text>
+
+  <rect x="810" y="125" width="170" height="55" rx="6" fill="#1e293b" stroke="#22c55e" stroke-width="2"/>
+  <text x="895" y="150" text-anchor="middle" fill="#22c55e" font-size="12" font-weight="bold">👨‍💻 Engenheiro</text>
+  <text x="895" y="168" text-anchor="middle" fill="#94a3b8" font-size="10">Recebe na inbox</text>
+
+  <!-- Email mockup -->
+  <rect x="50" y="205" width="550" height="390" rx="10" fill="#1e293b" stroke="#22d3ee" stroke-width="1"/>
+  
+  <!-- Email header -->
+  <rect x="50" y="205" width="550" height="40" rx="10" fill="#22d3ee" fill-opacity="0.1"/>
+  <text x="75" y="230" fill="#22d3ee" font-size="14" font-weight="bold">📊 MidiaFlow - Relatório FinOps</text>
+  <text x="530" y="230" text-anchor="end" fill="#94a3b8" font-size="10">Deploy: ba00f828</text>
+
+  <!-- Cost cards -->
+  <rect x="70" y="260" width="150" height="65" rx="6" fill="#0f172a" stroke="#22d3ee" stroke-width="1"/>
+  <text x="145" y="282" text-anchor="middle" fill="#94a3b8" font-size="9">CUSTO (30 DIAS)</text>
+  <text x="145" y="310" text-anchor="middle" fill="#22d3ee" font-size="24" font-weight="bold">$0.83</text>
+
+  <rect x="235" y="260" width="150" height="65" rx="6" fill="#0f172a" stroke="#94a3b8" stroke-width="1"/>
+  <text x="310" y="282" text-anchor="middle" fill="#94a3b8" font-size="9">MÊS ANTERIOR</text>
+  <text x="310" y="310" text-anchor="middle" fill="#f8fafc" font-size="24" font-weight="bold">$0.00</text>
+
+  <rect x="400" y="260" width="150" height="65" rx="6" fill="#0f172a" stroke="#22c55e" stroke-width="1"/>
+  <text x="475" y="282" text-anchor="middle" fill="#94a3b8" font-size="9">VARIAÇÃO</text>
+  <text x="475" y="310" text-anchor="middle" fill="#22c55e" font-size="24" font-weight="bold">Novo</text>
+
+  <!-- Cost table -->
+  <text x="75" y="355" fill="#94a3b8" font-size="10">SERVIÇO</text>
+  <text x="450" y="355" fill="#94a3b8" font-size="10">CUSTO</text>
+
+  <text x="75" y="380" fill="#f8fafc" font-size="11">Amazon S3 Storage</text>
+  <rect x="300" y="370" width="120" height="8" rx="3" fill="#0f172a"/>
+  <rect x="300" y="370" width="86" height="8" rx="3" fill="#22d3ee"/>
+  <text x="450" y="380" fill="#22d3ee" font-size="11" font-weight="bold">$0.60</text>
+
+  <text x="75" y="405" fill="#f8fafc" font-size="11">Amazon S3 Requests</text>
+  <rect x="300" y="395" width="120" height="8" rx="3" fill="#0f172a"/>
+  <rect x="300" y="395" width="33" height="8" rx="3" fill="#22d3ee"/>
+  <text x="450" y="405" fill="#22d3ee" font-size="11" font-weight="bold">$0.23</text>
+
+  <!-- AI Insights -->
+  <rect x="70" y="430" width="510" height="145" rx="6" fill="#0f172a" stroke="#a78bfa" stroke-width="1"/>
+  <text x="90" y="455" fill="#a78bfa" font-size="12" font-weight="bold">🤖 AI Insights (Bedrock Claude)</text>
+  
+  <text x="90" y="480" fill="#f8fafc" font-size="10">1. S3: migrar dados de acesso raro para Glacier (-40% storage)</text>
+  <text x="90" y="505" fill="#f8fafc" font-size="10">2. Lambda: otimizar memory size das 17 funções (right-sizing)</text>
+  <text x="90" y="530" fill="#f8fafc" font-size="10">3. DynamoDB: padrão de uso sugere provisioned mode (-40%)</text>
+  
+  <text x="90" y="560" fill="#64748b" font-size="9">Gerado automaticamente por MidiaFlow FinOps | Powered by AWS Bedrock</text>
+
+  <!-- Right side - Implementation details -->
+  <rect x="640" y="205" width="520" height="390" rx="10" fill="#1e293b"/>
+  
+  <text x="900" y="240" text-anchor="middle" fill="#f8fafc" font-size="16" font-weight="bold">Implementação</text>
+
+  <!-- Steps -->
+  <rect x="670" y="260" width="460" height="40" rx="5" fill="#0f172a"/>
+  <text x="690" y="285" fill="#22c55e" font-size="12">1.</text>
+  <text x="710" y="285" fill="#f8fafc" font-size="12">Tagear TODOS os recursos com Project=MidiaFlow</text>
+
+  <rect x="670" y="310" width="460" height="40" rx="5" fill="#0f172a"/>
+  <text x="690" y="335" fill="#22c55e" font-size="12">2.</text>
+  <text x="710" y="335" fill="#f8fafc" font-size="12">Ativar tag no Cost Explorer (cost allocation tags)</text>
+
+  <rect x="670" y="360" width="460" height="40" rx="5" fill="#0f172a"/>
+  <text x="690" y="385" fill="#22c55e" font-size="12">3.</text>
+  <text x="710" y="385" fill="#f8fafc" font-size="12">Script Python: Cost Explorer → Bedrock → SES</text>
+
+  <rect x="670" y="410" width="460" height="40" rx="5" fill="#0f172a"/>
+  <text x="690" y="435" fill="#22c55e" font-size="12">4.</text>
+  <text x="710" y="435" fill="#f8fafc" font-size="12">Adicionar step no GitHub Actions (após health-check)</text>
+
+  <!-- Cost breakdown -->
+  <text x="900" y="485" text-anchor="middle" fill="#f8fafc" font-size="14" font-weight="bold">Custo do FinOps</text>
+
+  <text x="690" y="515" fill="#94a3b8" font-size="12">Cost Explorer:</text>
+  <text x="1100" y="515" text-anchor="end" fill="#22c55e" font-size="12">$0.00 (incluso)</text>
+
+  <text x="690" y="540" fill="#94a3b8" font-size="12">Bedrock Claude 3 Haiku:</text>
+  <text x="1100" y="540" text-anchor="end" fill="#22c55e" font-size="12">$0.005/relatório</text>
+
+  <text x="690" y="565" fill="#94a3b8" font-size="12">SES Email:</text>
+  <text x="1100" y="565" text-anchor="end" fill="#22c55e" font-size="12">$0.00 (free tier)</text>
+
+  <line x1="690" y1="575" x2="1100" y2="575" stroke="#64748b" stroke-width="0.5"/>
+  <text x="690" y="595" fill="#f8fafc" font-size="13" font-weight="bold">Total mensal (1 deploy/dia):</text>
+  <text x="1100" y="595" text-anchor="end" fill="#22c55e" font-size="16" font-weight="bold">~$0.15/mês</text>
+
+  <!-- Footer -->
+  <text x="600" y="618" text-anchor="middle" fill="#64748b" font-size="11">AWS Cost Explorer • Bedrock Claude 3 Haiku • SES • GitHub Actions • Python • MidiaFlow v4.10</text>
+</svg>
