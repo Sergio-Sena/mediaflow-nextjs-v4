@@ -43,6 +43,7 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage] = useState(50)
   const [deleting, setDeleting] = useState<Set<string>>(new Set())
+  const [deleteModal, setDeleteModal] = useState<{type: 'single' | 'bulk' | 'folder', file?: any, items?: any[]} | null>(null)
   const [shareModal, setShareModal] = useState<any>(null)
 
   const fetchFiles = async () => {
@@ -378,8 +379,11 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
   }
 
   const handleDelete = async (file: S3File) => {
+    setDeleteModal({ type: 'single', file })
+  }
+
+  const executeDelete = async (file: S3File) => {
     if (deleting.has(file.key)) return
-    if (!confirm(`Deseja excluir "${file.name}"?`)) return
 
     setDeleting(prev => new Set(prev).add(file.key))
     try {
@@ -433,7 +437,6 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
       newSelected.add(key)
     }
     setSelectedFiles(newSelected)
-    setSelectAll(newSelected.size === filteredFiles.length)
   }
 
   const handleSelectAll = () => {
@@ -448,7 +451,10 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
 
   const handleBulkDelete = async () => {
     if (selectedFiles.size === 0 || deleting.size > 0) return
-    if (!confirm(`Deseja excluir ${selectedFiles.size} arquivo(s)?`)) return
+    setDeleteModal({ type: 'bulk' })
+  }
+
+  const executeBulkDelete = async () => {
 
     const keysToDelete = Array.from(selectedFiles)
     setDeleting(new Set(keysToDelete))
