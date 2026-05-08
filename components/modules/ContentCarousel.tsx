@@ -89,11 +89,7 @@ function ContentRow({ title, items, onItemClick, onItemDelete, onItemShare, onDe
         </h3>
         {onDeleteAll && (
           <button
-            onClick={() => {
-              if (confirm(`Excluir todos os ${items.length} arquivos de "${title.replace('📁 ', '')}"?`)) {
-                onDeleteAll(items)
-              }
-            }}
+            onClick={() => onDeleteAll(items)}
             className="p-1.5 text-gray-500 hover:text-red-400 hover:bg-red-600/10 rounded transition-colors"
             title={`Excluir pasta ${title}`}
           >

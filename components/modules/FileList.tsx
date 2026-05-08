@@ -1,10 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Play, Download, Trash2, Search, Filter, Grid, List, RefreshCw, Settings, X, ListChecks } from 'lucide-react'
+import { Play, Download, Trash2, Search, Filter, Grid, List, RefreshCw, Settings, X, ListChecks, Share2 } from 'lucide-react'
 import { getApiUrl } from '@/lib/aws-config'
 import ContentCarousel from './ContentCarousel'
-import { InputModal } from '@/components/ui/Modal'
+import { InputModal, ConfirmModal } from '@/components/ui/Modal'
 
 interface S3File {
   key: string
@@ -626,6 +626,16 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
             {selectedFiles.size > 0 && (
               <>
                 <button
+                  onClick={() => {
+                    const selectedItems = filteredFiles.filter(f => selectedFiles.has(f.key))
+                    setShareModal({ key: 'bulk', name: `${selectedItems.length} arquivo(s)`, type: 'video', items: selectedItems })
+                  }}
+                  className="p-2.5 sm:p-3 bg-cyan-600/20 hover:bg-cyan-600/40 text-cyan-300 rounded-lg transition-colors border border-cyan-500/30"
+                  title="Compartilhar Selecionados"
+                >
+                  <Share2 className="w-5 h-5" />
+                </button>
+                <button
                   onClick={handleBulkDelete}
                   className="p-2.5 sm:p-3 bg-red-600/20 hover:bg-red-600/40 text-red-300 rounded-lg transition-colors border border-red-500/30"
                   title="Excluir Selecionados"
@@ -727,11 +737,7 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
         onItemDelete={(file) => handleDelete(file as any)}
         onItemShare={(file) => setShareModal(file)}
         onBulkDelete={(items) => {
-          if (confirm(`Excluir ${items.length} arquivo(s) desta pasta?`)) {
-            const keys = items.map(i => i.key)
-            setSelectedFiles(new Set(keys))
-            handleBulkDelete()
-          }
+          setDeleteModal({ type: 'folder', items })
         }}
         selectionMode={selectAll}
         selectedKeys={selectedFiles}
@@ -746,15 +752,26 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
           if (!shareModal) return
           try {
             const token = localStorage.getItem('token')
-            const res = await fetch(getApiUrl('PUBLIC_CONTENT'), {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-              body: JSON.stringify({ file_key: shareModal.key, title: shareModal.name, type: shareModal.type, category })
-            })
-            const data = await res.json()
-            if (data.success) {
-              setShareModal(null)
+            if (shareModal.items) {
+              // Bulk share
+              for (const item of shareModal.items) {
+                await fetch(getApiUrl('PUBLIC_CONTENT'), {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                  body: JSON.stringify({ file_key: item.key, title: item.name, type: item.type, category })
+                })
+              }
+              setSelectedFiles(new Set())
+              setSelectAll(false)
+            } else {
+              // Single share
+              await fetch(getApiUrl('PUBLIC_CONTENT'), {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ file_key: shareModal.key, title: shareModal.name, type: shareModal.type, category })
+              })
             }
+            setShareModal(null)
           } catch (e) {
             console.error('Share error:', e)
           }
@@ -764,6 +781,33 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
         options={['Geral', 'Filmes', 'Séries', 'Anime', 'Música', 'Documentos', 'Fotos']}
         defaultValue="Geral"
         confirmText="Compartilhar"
+      />
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={!!deleteModal}
+        onClose={() => setDeleteModal(null)}
+        onConfirm={() => {
+          if (deleteModal?.type === 'single' && deleteModal.file) {
+            executeDelete(deleteModal.file)
+          } else if (deleteModal?.type === 'bulk') {
+            executeBulkDelete()
+          } else if (deleteModal?.type === 'folder' && deleteModal.items) {
+            const keys = deleteModal.items.map((i: any) => i.key)
+            setSelectedFiles(new Set(keys))
+            setTimeout(() => executeBulkDelete(), 100)
+          }
+        }}
+        title={deleteModal?.type === 'folder' ? 'Excluir pasta' : 'Excluir arquivo(s)'}
+        message={
+          deleteModal?.type === 'single'
+            ? `Deseja excluir "${deleteModal?.file?.name}"?`
+            : deleteModal?.type === 'folder'
+            ? `Deseja excluir ${deleteModal?.items?.length} arquivo(s) desta pasta?`
+            : `Deseja excluir ${selectedFiles.size} arquivo(s) selecionado(s)?`
+        }
+        confirmText="Excluir"
+        confirmColor="red"
       />
     </div>
   )
