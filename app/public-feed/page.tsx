@@ -7,7 +7,7 @@ import { getUserFromToken } from '@/lib/auth-utils'
 import VideoPlayer from '@/components/modules/VideoPlayer'
 import ImageViewer from '@/components/modules/ImageViewer'
 import { ConfirmModal } from '@/components/ui/Modal'
-import { Heart, MessageCircle, Trash2, Send, ChevronLeft, ChevronRight, Play, Share2 } from 'lucide-react'
+import { Heart, MessageCircle, Trash2, Send, ChevronLeft, ChevronRight, Play, Share2, ListChecks } from 'lucide-react'
 
 interface PublicItem {
   content_id: string
@@ -32,7 +32,7 @@ interface Comment {
   created_at: string
 }
 
-function CategoryRow({ title, items, currentUserId, currentUserRole, onPlay, onLike, onComment, onRemove }: {
+function CategoryRow({ title, items, currentUserId, currentUserRole, onPlay, onLike, onComment, onRemove, selectMode, selectedItems, onToggleSelect }: {
   title: string
   items: PublicItem[]
   currentUserId: string
@@ -41,6 +41,9 @@ function CategoryRow({ title, items, currentUserId, currentUserRole, onPlay, onL
   onLike: (id: string) => void
   onComment: (id: string, text: string) => void
   onRemove: (id: string) => void
+  selectMode?: boolean
+  selectedItems?: Set<string>
+  onToggleSelect?: (id: string) => void
 }) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const [showLeft, setShowLeft] = useState(false)
@@ -89,7 +92,7 @@ function CategoryRow({ title, items, currentUserId, currentUserRole, onPlay, onL
 
         <div
           ref={scrollRef}
-          className="flex gap-3 overflow-x-auto flex-1 py-1"
+          className="flex gap-3 overflow-x-auto flex-1 py-1 px-1"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {items.map(item => {
@@ -97,10 +100,16 @@ function CategoryRow({ title, items, currentUserId, currentUserRole, onPlay, onL
             const canRemove = item.owner_id === currentUserId || currentUserRole === 'admin'
 
             return (
-              <div key={item.content_id} className="flex-shrink-0 w-[200px] sm:w-[230px] md:w-[260px]">
+              <div key={item.content_id} className={`flex-shrink-0 w-[200px] sm:w-[230px] md:w-[260px] p-0.5 ${selectMode && selectedItems?.has(item.content_id) ? 'ring-2 ring-neon-cyan rounded-lg' : ''}`}>
                 {/* Preview */}
                 <div
-                  onClick={() => onPlay(item)}
+                  onClick={() => {
+                    if (selectMode) {
+                      onToggleSelect?.(item.content_id)
+                    } else {
+                      onPlay(item)
+                    }
+                  }}
                   className="relative aspect-video rounded-lg overflow-hidden bg-gradient-to-br from-purple-900/60 to-blue-900/40 border border-white/5 cursor-pointer group transition-all duration-300 hover:scale-[1.03] hover:border-neon-cyan/50 hover:shadow-lg hover:shadow-neon-cyan/10"
                 >
                   <div className="absolute inset-0 flex items-center justify-center text-white/50 group-hover:text-white/80 transition-colors">
@@ -230,6 +239,9 @@ export default function PublicFeedPage() {
   const [selectedVideo, setSelectedVideo] = useState<any>(null)
   const [selectedImage, setSelectedImage] = useState<any>(null)
   const [removeModal, setRemoveModal] = useState<string | null>(null)
+  const [bulkRemoveModal, setBulkRemoveModal] = useState(false)
+  const [selectMode, setSelectMode] = useState(false)
+  const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set())
   const router = useRouter()
   const currentUser = getUserFromToken()
 
@@ -362,12 +374,42 @@ export default function PublicFeedPage() {
               <span className="text-gray-600">|</span>
               <span className="text-sm sm:text-lg font-semibold text-white">🌐 Área Pública</span>
             </div>
-            <button
-              onClick={() => router.push('/dashboard')}
-              className="px-3 py-1.5 bg-purple-600/20 hover:bg-purple-600/40 text-purple-300 border border-purple-500/30 rounded-lg transition-colors text-sm font-medium"
-            >
-              🔒 Minha Biblioteca
-            </button>
+            <div className="flex items-center gap-2">
+              {selectedItems.size > 0 && (
+                <>
+                  <button
+                    onClick={() => setBulkRemoveModal(true)}
+                    className="px-3 py-1.5 bg-red-600/20 hover:bg-red-600/40 text-red-300 border border-red-500/30 rounded-lg transition-colors text-sm font-medium"
+                  >
+                    🗑️ Remover {selectedItems.size}
+                  </button>
+                </>
+              )}
+              <button
+                onClick={() => {
+                  if (selectMode) {
+                    setSelectedItems(new Set())
+                    setSelectMode(false)
+                  } else {
+                    setSelectMode(true)
+                  }
+                }}
+                className={`p-2 rounded-lg transition-colors border ${
+                  selectMode
+                    ? 'bg-gray-700/20 text-gray-400 border-gray-600/30'
+                    : 'bg-cyan-600/20 text-cyan-300 border-cyan-500/30'
+                }`}
+                title={selectMode ? 'Sair do modo seleção' : 'Modo seleção'}
+              >
+                <ListChecks className="w-5 h-5" />
+              </button>
+              <button
+                onClick={() => router.push('/dashboard')}
+                className="px-3 py-1.5 bg-purple-600/20 hover:bg-purple-600/40 text-purple-300 border border-purple-500/30 rounded-lg transition-colors text-sm font-medium"
+              >
+                🔒 Minha Biblioteca
+              </button>
+            </div>
           </div>
         </div>
       </header>
@@ -415,6 +457,14 @@ export default function PublicFeedPage() {
                       onLike={handleLike}
                       onComment={handleComment}
                       onRemove={(id) => setRemoveModal(id)}
+                      selectMode={selectMode}
+                      selectedItems={selectedItems}
+                      onToggleSelect={(id) => {
+                        const next = new Set(selectedItems)
+                        if (next.has(id)) next.delete(id)
+                        else next.add(id)
+                        setSelectedItems(next)
+                      }}
                     />
                   ))}
                 </div>
@@ -450,6 +500,21 @@ export default function PublicFeedPage() {
         title="Remover conteúdo"
         message="Tem certeza que deseja remover este conteúdo da área pública? O arquivo original não será deletado."
         confirmText="Remover"
+        confirmColor="red"
+      />
+
+      {/* Bulk Remove Modal */}
+      <ConfirmModal
+        isOpen={bulkRemoveModal}
+        onClose={() => setBulkRemoveModal(false)}
+        onConfirm={() => {
+          selectedItems.forEach(id => handleRemove(id))
+          setSelectedItems(new Set())
+          setSelectMode(false)
+        }}
+        title="Remover múltiplos"
+        message={`Deseja remover ${selectedItems.size} item(ns) da área pública? Os arquivos originais não serão deletados.`}
+        confirmText="Remover todos"
         confirmColor="red"
       />
     </div>
