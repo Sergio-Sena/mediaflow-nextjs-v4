@@ -162,6 +162,8 @@ jobs:
             path: aws-setup/lambda-functions/send-trial-emails
           - name: approve-user
             path: aws-setup/lambda-functions/approve-user
+          - name: mediaflow-share-content
+            path: aws-setup/lambda-functions/share-content
     steps:
       - uses: actions/checkout@v4
 
