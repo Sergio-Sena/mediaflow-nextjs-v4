@@ -83,16 +83,18 @@ function CategoryRow({ title, items, currentUserId, currentUserRole, onPlay, onL
       </h4>
 
       <div className="flex items-start gap-0.5">
+        {/* Left Arrow - hidden on mobile */}
         <button
           onClick={() => scroll('left')}
-          className={`flex-shrink-0 w-7 h-7 mt-16 rounded-full bg-dark-800/80 border border-cyan-400/30 flex items-center justify-center text-cyan-300 hover:bg-cyan-400/20 transition-all ${showLeft ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+          className={`hidden md:flex flex-shrink-0 w-7 h-7 mt-16 rounded-full bg-dark-800/80 border border-cyan-400/30 items-center justify-center text-cyan-300 hover:bg-cyan-400/20 transition-all ${showLeft ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
         >
           <ChevronLeft className="w-4 h-4" />
         </button>
 
+        {/* Cards - vertical on mobile, horizontal on desktop */}
         <div
           ref={scrollRef}
-          className="flex gap-3 overflow-x-auto flex-1 py-1 px-1"
+          className="flex flex-col md:flex-row gap-3 md:overflow-x-auto flex-1 py-1 px-1"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {items.map(item => {
@@ -100,7 +102,7 @@ function CategoryRow({ title, items, currentUserId, currentUserRole, onPlay, onL
             const canRemove = item.owner_id === currentUserId || currentUserRole === 'admin'
 
             return (
-              <div key={item.content_id} className={`flex-shrink-0 w-[200px] sm:w-[230px] md:w-[260px] p-0.5 ${selectMode && selectedItems?.has(item.content_id) ? 'ring-2 ring-neon-cyan rounded-lg' : ''}`}>
+              <div key={item.content_id} className={`flex-shrink-0 w-full md:w-[200px] sm:w-full md:w-[230px] lg:w-[260px] p-0.5 ${selectMode && selectedItems?.has(item.content_id) ? 'ring-2 ring-neon-cyan rounded-lg' : ''}`}>
                 {/* Preview */}
                 <div
                   onClick={() => {
@@ -110,7 +112,7 @@ function CategoryRow({ title, items, currentUserId, currentUserRole, onPlay, onL
                       onPlay(item)
                     }
                   }}
-                  className="relative aspect-video rounded-lg overflow-hidden bg-gradient-to-br from-purple-900/60 to-blue-900/40 border border-white/5 cursor-pointer group transition-all duration-300 hover:scale-[1.03] hover:border-neon-cyan/50 hover:shadow-lg hover:shadow-neon-cyan/10"
+                  className="relative aspect-[16/10] md:aspect-video rounded-lg overflow-hidden bg-gradient-to-br from-purple-900/60 to-blue-900/40 border border-white/5 cursor-pointer group transition-all duration-300 hover:scale-[1.03] hover:border-neon-cyan/50 hover:shadow-lg hover:shadow-neon-cyan/10"
                 >
                   <div className="absolute inset-0 flex items-center justify-center text-white/50 group-hover:text-white/80 transition-colors">
                     <span className="text-3xl">{item.type === 'video' ? '🎬' : '🖼️'}</span>
@@ -137,19 +139,19 @@ function CategoryRow({ title, items, currentUserId, currentUserRole, onPlay, onL
                   <p className="text-sm text-white font-medium truncate" title={item.title}>{item.title}</p>
 
                   {/* Like + Comment + Share */}
-                  <div className="flex items-center gap-4 mt-2">
+                  <div className="flex items-center gap-5 sm:gap-4 mt-2.5 sm:mt-2">
                     <button
                       onClick={() => onLike(item.content_id)}
-                      className={`flex items-center gap-1.5 text-sm transition-colors ${isLiked ? 'text-red-400' : 'text-gray-500 hover:text-red-400'}`}
+                      className={`flex items-center gap-1.5 text-sm py-1 transition-colors ${isLiked ? 'text-red-400' : 'text-gray-500 hover:text-red-400'}`}
                     >
-                      <Heart className={`w-5 h-5 ${isLiked ? 'fill-current' : ''}`} />
+                      <Heart className={`w-5 h-5 sm:w-5 sm:h-5 ${isLiked ? 'fill-current' : ''}`} />
                       <span>{item.likes || 0}</span>
                     </button>
                     <button
                       onClick={() => setCommentingOn(commentingOn === item.content_id ? null : item.content_id)}
-                      className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-neon-cyan transition-colors"
+                      className="flex items-center gap-1.5 text-sm py-1 text-gray-500 hover:text-neon-cyan transition-colors"
                     >
-                      <MessageCircle className="w-5 h-5" />
+                      <MessageCircle className="w-5 h-5 sm:w-5 sm:h-5" />
                       <span>{(item.comments || []).length}</span>
                     </button>
                     <button
@@ -227,9 +229,10 @@ function CategoryRow({ title, items, currentUserId, currentUserRole, onPlay, onL
           })}
         </div>
 
+        {/* Right Arrow - hidden on mobile */}
         <button
           onClick={() => scroll('right')}
-          className={`flex-shrink-0 w-7 h-7 mt-16 rounded-full bg-dark-800/80 border border-cyan-400/30 flex items-center justify-center text-cyan-300 hover:bg-cyan-400/20 transition-all ${showRight ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+          className={`hidden md:flex flex-shrink-0 w-7 h-7 mt-16 rounded-full bg-dark-800/80 border border-cyan-400/30 items-center justify-center text-cyan-300 hover:bg-cyan-400/20 transition-all ${showRight ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
         >
           <ChevronRight className="w-4 h-4" />
         </button>
@@ -367,28 +370,26 @@ export default function PublicFeedPage() {
     <div className="min-h-screen">
       {/* Header */}
       <header className="bg-dark-900/50 backdrop-blur-md border-b border-neon-cyan/20 sticky top-0 z-50">
-        <div className="mx-auto px-4 sm:px-8 py-3 sm:py-4">
+        <div className="mx-auto px-3 sm:px-8 py-2.5 sm:py-4">
           <div className="flex justify-between items-center">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
               <h1
-                className="text-lg sm:text-2xl font-bold cursor-pointer hover:scale-105 transition-transform duration-300"
+                className="text-base sm:text-2xl font-bold cursor-pointer hover:scale-105 transition-transform duration-300"
                 onClick={() => router.push('/dashboard')}
               >
                 🎬 <span className="neon-text">Mídiaflow</span>
               </h1>
-              <span className="text-gray-600">|</span>
-              <span className="text-sm sm:text-lg font-semibold text-white">🌐 Área Pública</span>
+              <span className="hidden sm:inline text-gray-600">|</span>
+              <span className="hidden sm:inline text-sm sm:text-lg font-semibold text-white">🌐 Área Pública</span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2">
               {selectedItems.size > 0 && (
-                <>
-                  <button
-                    onClick={() => setBulkRemoveModal(true)}
-                    className="px-3 py-1.5 bg-red-600/20 hover:bg-red-600/40 text-red-300 border border-red-500/30 rounded-lg transition-colors text-sm font-medium"
-                  >
-                    🗑️ Remover {selectedItems.size}
-                  </button>
-                </>
+                <button
+                  onClick={() => setBulkRemoveModal(true)}
+                  className="px-2 sm:px-3 py-1 sm:py-1.5 bg-red-600/20 hover:bg-red-600/40 text-red-300 border border-red-500/30 rounded-lg transition-colors text-xs sm:text-sm font-medium"
+                >
+                  🗑️ {selectedItems.size}
+                </button>
               )}
               <button
                 onClick={() => {
@@ -399,18 +400,18 @@ export default function PublicFeedPage() {
                     setSelectMode(true)
                   }
                 }}
-                className={`p-2 rounded-lg transition-colors border ${
+                className={`p-1.5 sm:p-2 rounded-lg transition-colors border ${
                   selectMode
                     ? 'bg-gray-700/20 text-gray-400 border-gray-600/30'
                     : 'bg-cyan-600/20 text-cyan-300 border-cyan-500/30'
                 }`}
                 title={selectMode ? 'Sair do modo seleção' : 'Modo seleção'}
               >
-                <ListChecks className="w-5 h-5" />
+                <ListChecks className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
               <button
                 onClick={() => router.push('/dashboard')}
-                className="px-3 py-1.5 bg-purple-600/20 hover:bg-purple-600/40 text-purple-300 border border-purple-500/30 rounded-lg transition-colors text-sm font-medium"
+                className="hidden md:block px-3 py-1.5 bg-purple-600/20 hover:bg-purple-600/40 text-purple-300 border border-purple-500/30 rounded-lg transition-colors text-sm font-medium"
               >
                 🔒 Minha Biblioteca
               </button>
@@ -440,13 +441,13 @@ export default function PublicFeedPage() {
               return (
                 <div key={userId}>
                   {/* User header */}
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-500 to-purple-500 flex items-center justify-center text-white font-bold">
+                  <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-cyan-500 to-purple-500 flex items-center justify-center text-white text-sm sm:text-base font-bold">
                       {userData.name?.charAt(0).toUpperCase()}
                     </div>
                     <div>
-                      <p className="text-base font-semibold text-white">{userData.name}</p>
-                      <p className="text-xs text-gray-500">{totalItems} conteúdo(s)</p>
+                      <p className="text-sm sm:text-base font-semibold text-white">{userData.name}</p>
+                      <p className="text-[10px] sm:text-xs text-gray-500">{totalItems} conteúdo(s)</p>
                     </div>
                   </div>
 

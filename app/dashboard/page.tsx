@@ -305,7 +305,7 @@ export default function DashboardPage() {
       </header>
 
       {/* Navigation */}
-      <nav className="bg-dark-800/30 backdrop-blur-sm border-b border-neon-cyan/10 overflow-x-auto">
+      <nav className="hidden md:block bg-dark-800/30 backdrop-blur-sm border-b border-neon-cyan/10 overflow-x-auto">
         <div className="mx-auto px-4 sm:px-8">
           <div className="flex space-x-2 sm:space-x-4 md:space-x-8 min-w-max">
             {[

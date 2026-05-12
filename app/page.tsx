@@ -5,26 +5,26 @@ export default function HomePage() {
     <div className="min-h-screen bg-gradient-to-br from-dark-900 via-dark-800 to-dark-900">
       {/* Header */}
       <header className="bg-dark-900/80 backdrop-blur-xl border-b border-neon-cyan/20 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex justify-between items-center">
-          <div className="text-2xl font-bold flex items-center gap-2">
-            <span className="text-3xl">🎬</span>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center">
+          <div className="text-xl sm:text-2xl font-bold flex items-center gap-2">
+            <span className="text-2xl sm:text-3xl">🎬</span>
             <span className="neon-text bg-gradient-to-r from-neon-cyan to-neon-purple bg-clip-text text-transparent">
               Mídiaflow
             </span>
           </div>
-          <div className="flex gap-3">
+          <div className="flex gap-2 sm:gap-3">
             <a href="/pricing">
-              <Button variant="ghost" size="md">Preços</Button>
+              <Button variant="ghost" size="sm">Preços</Button>
             </a>
             <a href="/login">
-              <Button variant="primary" size="md">Entrar</Button>
+              <Button variant="primary" size="sm">Entrar</Button>
             </a>
           </div>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="relative py-20 px-4 overflow-hidden">
+      <section className="relative py-12 sm:py-20 px-4 overflow-hidden">
         {/* Background Effects */}
         <div className="absolute inset-0">
           <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-neon-cyan/10 rounded-full blur-3xl animate-float"></div>
@@ -39,7 +39,7 @@ export default function HomePage() {
             </span>
           </div>
           
-          <h1 className="text-5xl md:text-7xl font-bold mb-8 leading-tight">
+          <h1 className="text-3xl sm:text-5xl md:text-7xl font-bold mb-6 sm:mb-8 leading-tight">
             Hospede e Distribua
             <br />
             <span className="bg-gradient-to-r from-neon-cyan via-neon-purple to-neon-pink bg-clip-text text-transparent">
@@ -47,7 +47,7 @@ export default function HomePage() {
             </span>
           </h1>
           
-          <p className="text-xl text-gray-300 mb-10 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-base sm:text-xl text-gray-300 mb-8 sm:mb-10 max-w-3xl mx-auto leading-relaxed">
             Plataforma completa com upload inteligente, conversão automática 4K e CDN global. 
             Usado por criadores, empresas e agências do mundo todo.
           </p>
@@ -65,7 +65,7 @@ export default function HomePage() {
             </a>
           </div>
           
-          <div className="flex items-center justify-center gap-6 text-sm text-gray-400">
+          <div className="flex flex-col sm:flex-row flex-wrap items-center justify-center gap-3 sm:gap-6 text-xs sm:text-sm text-gray-400">
             <span className="flex items-center gap-2">
               <span className="w-2 h-2 bg-accent-success rounded-full"></span>
               Sem cartão de crédito
