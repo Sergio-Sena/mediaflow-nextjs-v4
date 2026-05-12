@@ -154,7 +154,12 @@ function CategoryRow({ title, items, currentUserId, currentUserRole, onPlay, onL
                     </button>
                     <button
                       onClick={() => {
-                        const url = `${window.location.origin}/public-feed?play=${item.content_id}`
+                        const nameWithoutExt = item.title.replace(/\.[^.]+$/, '')
+                        const slug = nameWithoutExt
+                          .toLowerCase()
+                          .replace(/[^a-z0-9]+/g, '-')
+                          .replace(/^-|-$/g, '')
+                        const url = `${window.location.origin}/p?v=${slug}`
                         navigator.clipboard.writeText(url)
                         const btn = document.activeElement as HTMLButtonElement
                         const original = btn.innerHTML
