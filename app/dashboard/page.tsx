@@ -197,7 +197,10 @@ export default function DashboardPage() {
                 </div>
               )}
               {currentUser && (
-                <div className="flex items-center gap-2 glass-card px-4 py-2">
+                <div
+                  onClick={() => router.push('/profile')}
+                  className="flex items-center gap-2 glass-card px-4 py-2 cursor-pointer hover:border-neon-cyan/50 transition-colors"
+                >
                   <AvatarUpload
                     currentAvatar={currentUser.avatar_url}
                     size="sm"

@@ -15,7 +15,7 @@ export default function MobileNav() {
     { id: '/dashboard', icon: Library, label: 'Biblioteca' },
     { id: '/public-feed', icon: Globe, label: 'Público' },
     { id: '/dashboard?tab=upload', icon: Upload, label: 'Upload' },
-    { id: '/users', icon: User, label: 'Perfil' },
+    { id: '/profile', icon: User, label: 'Perfil' },
   ]
 
   return (
