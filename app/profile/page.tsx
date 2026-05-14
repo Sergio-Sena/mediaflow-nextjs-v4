@@ -17,6 +17,7 @@ export default function ProfilePage() {
   const [newPassword, setNewPassword] = useState('')
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [error, setError] = useState('')
   const [logoutModal, setLogoutModal] = useState(false)
 
   useEffect(() => {
@@ -42,6 +43,7 @@ export default function ProfilePage() {
 
   const handleSave = async () => {
     setSaving(true)
+    setError('')
     try {
       const token = localStorage.getItem('token')
       const body: any = { user_id: tokenUser?.user_id }
@@ -55,16 +57,17 @@ export default function ProfilePage() {
       })
       const data = await res.json()
       if (data.success) {
-        // Update localStorage
         const current = JSON.parse(localStorage.getItem('current_user') || '{}')
         current.name = name
         localStorage.setItem('current_user', JSON.stringify(current))
         setSaved(true)
         setNewPassword('')
         setTimeout(() => setSaved(false), 3000)
+      } else {
+        setError(data.message || 'Erro ao salvar')
       }
     } catch (e) {
-      console.error('Save error:', e)
+      setError('Erro de conexão. Tente novamente.')
     } finally {
       setSaving(false)
     }
@@ -149,6 +152,11 @@ export default function ProfilePage() {
           </div>
 
           {/* Info */}
+          {error && (
+            <div className="text-red-400 text-sm text-center bg-red-400/10 border border-red-400/20 rounded-lg p-3">
+              {error}
+            </div>
+          )}
           <div className="glass-card p-4 space-y-2">
             <div className="flex justify-between text-sm">
               <span className="text-gray-400">User ID</span>
@@ -163,7 +171,7 @@ export default function ProfilePage() {
           {/* Buttons */}
           <div className="flex gap-3">
             <button
-              onClick={() => router.push('/public-feed')}
+              onClick={() => router.back()}
               className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gray-700/20 text-gray-300 border border-gray-600/30 rounded-lg hover:bg-gray-700/40 transition-colors"
             >
               Descartar
@@ -171,7 +179,7 @@ export default function ProfilePage() {
             <button
               onClick={async () => {
                 await handleSave()
-                router.push('/public-feed')
+                router.back()
               }}
               disabled={saving}
               className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-neon-cyan border border-neon-cyan/50 rounded-lg hover:from-cyan-500/30 hover:to-purple-500/30 transition-all font-medium disabled:opacity-50"

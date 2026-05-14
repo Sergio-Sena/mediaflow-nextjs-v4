@@ -14,7 +14,7 @@ export default function MobileNav() {
   const tabs = [
     { id: '/dashboard', icon: Library, label: 'Biblioteca' },
     { id: '/public-feed', icon: Globe, label: 'Público' },
-    { id: '/dashboard?tab=upload', icon: Upload, label: 'Upload' },
+    { id: '/dashboard', icon: Upload, label: 'Upload', query: 'upload' },
     { id: '/profile', icon: User, label: 'Perfil' },
   ]
 
@@ -22,11 +22,11 @@ export default function MobileNav() {
     <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-dark-900/95 backdrop-blur-md border-t border-neon-cyan/20">
       <div className="flex justify-around items-center h-14">
         {tabs.map(tab => {
-          const isActive = pathname === tab.id || (tab.id === '/dashboard' && pathname === '/dashboard')
+          const isActive = pathname === tab.id || (tab.id === '/public-feed' && pathname === '/public-feed')
           const Icon = tab.icon
           return (
             <button
-              key={tab.id}
+              key={tab.label}
               onClick={() => router.push(tab.id)}
               className={`flex flex-col items-center justify-center w-full h-full transition-colors ${
                 isActive ? 'text-neon-cyan' : 'text-gray-500'
