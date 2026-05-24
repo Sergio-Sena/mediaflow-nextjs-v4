@@ -83,7 +83,7 @@ export default function DirectUpload({
       
       const token = localStorage.getItem('token')
       if (!token) {
-        throw new Error('Token de autenticação não encontrado')
+        throw new Error('🔒 Sessão expirada. Faça login novamente.')
       }
       
       // Usar API Gateway diretamente (modo estático)
@@ -103,7 +103,7 @@ export default function DirectUpload({
       const urlData = await urlResponse.json()
       
       if (!urlResponse.ok || !urlData.success) {
-        throw new Error(urlData.message || 'Falha ao obter URL')
+        throw new Error(urlData.message || '📡 Falha ao preparar upload. Tente novamente.')
       }
 
       await new Promise<void>((resolve, reject) => {
@@ -143,7 +143,7 @@ export default function DirectUpload({
             }, delay)
           } else {
             setResults(prev => ({ ...prev, [file.name]: 'error' }))
-            reject(new Error('Erro de rede'))
+            reject(new Error('🌐 Conexão perdida. Tentando reconectar...'))
           }
         })
 
@@ -194,7 +194,24 @@ export default function DirectUpload({
       await new Promise(resolve => setTimeout(resolve, 1000))
       
       const successCount = Object.values(uploadResults).filter(r => r === 'success').length
-      console.log(`✅ Upload pequenos concluído: ${successCount}/${normalFiles.length} arquivos`)
+      const failCount = Object.values(uploadResults).filter(r => r === 'error').length
+
+      if (successCount > 0 && failCount === 0) {
+        setNotification({
+          type: 'info',
+          message: `✅ ${successCount} arquivo(s) enviado(s) com sucesso!`
+        })
+      } else if (successCount > 0 && failCount > 0) {
+        setNotification({
+          type: 'warning',
+          message: `⚠️ ${successCount} enviado(s), ${failCount} falhou(aram). Tente novamente os que falharam.`
+        })
+      } else if (failCount > 0) {
+        setNotification({
+          type: 'error',
+          message: `❌ Upload falhou. Verifique sua conexão e tente novamente.`
+        })
+      }
       
       // Só chama onUploadComplete se NÃO houver arquivos grandes pendentes
       const largeFiles = files.filter(f => f.size > 100 * 1024 * 1024)
@@ -224,6 +241,16 @@ export default function DirectUpload({
 
   const handleFileSelect = async (selectedFiles: FileList) => {
     let allFiles = Array.from(selectedFiles)
+
+    // Mensagem amigável ao selecionar arquivos/pasta
+    const totalSize = allFiles.reduce((acc, f) => acc + f.size, 0)
+    const sizeMB = (totalSize / 1024 / 1024).toFixed(0)
+    const sizeGB = (totalSize / 1024 / 1024 / 1024).toFixed(1)
+    const sizeStr = totalSize > 1024 * 1024 * 1024 ? `${sizeGB} GB` : `${sizeMB} MB`
+    setNotification({
+      type: 'info',
+      message: `📂 ${allFiles.length} arquivo(s) selecionado(s) (${sizeStr}). Preparando upload...`
+    })
     
     const tsFiles = allFiles.filter(f => f.name.endsWith('.ts'))
     if (tsFiles.length > 0) {
@@ -247,7 +274,7 @@ export default function DirectUpload({
         console.error('Erro na conversão:', error)
         setNotification({
           type: 'error',
-          message: `❌ Erro ao converter arquivos .ts`
+          message: `📹 Não foi possível converter os arquivos .ts. Converta manualmente para .mp4.`
         })
         return
       }
@@ -256,7 +283,7 @@ export default function DirectUpload({
     if (allFiles.length > maxFiles) {
       setNotification({
         type: 'warning',
-        message: `⚠️ Limite de ${maxFiles} arquivos excedido! Selecionados: ${allFiles.length}, serão enviados: ${maxFiles}.`
+        message: `📋 Você selecionou ${allFiles.length} arquivos. Enviando os primeiros ${maxFiles} por vez.`
       })
     }
     
@@ -264,7 +291,7 @@ export default function DirectUpload({
       if (file.size > maxSize * 1024 * 1024) {
         setNotification({
           type: 'error',
-          message: `❌ ${file.name} é muito grande. Máximo: ${maxSize}MB`
+          message: `📀 ${file.name} excede o limite de ${maxSize/1024}GB. Use arquivos menores.`
         })
         return false
       }
@@ -295,7 +322,7 @@ export default function DirectUpload({
             const more = existingFiles.length > 5 ? ` e mais ${existingFiles.length - 5}` : ''
             setNotification({
               type: 'warning',
-              message: `⚠️ ${existingFiles.length} arquivo(s) já existe(m): ${existingNames}${more}.`
+              message: `📁 ${existingFiles.length} arquivo(s) já enviado(s) anteriormente e serão ignorados. Enviando ${finalNormalFiles.length} novo(s).`
             })
           }
         }

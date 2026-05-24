@@ -4,7 +4,7 @@ echo   MidiaFlow - Terraform Import
 echo ==========================================
 echo.
 
-set TFVARS=-var-file=environments/production/terraform.tfvars -var="jwt_secret=***REMOVED***"
+set TFVARS=-var-file=environments/production/terraform.tfvars -var="jwt_secret=17b8312c72fdcffbff89f2f4a564fb26e936002d344717ab7753a237fcd57aea"
 
 echo [1/7] Importing IAM...
 terraform import %TFVARS% module.iam.aws_iam_role.lambda mediaflow-lambda-role

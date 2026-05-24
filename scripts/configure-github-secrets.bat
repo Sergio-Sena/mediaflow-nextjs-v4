@@ -20,7 +20,7 @@ echo %AWS_SECRET% | gh secret set AWS_SECRET_ACCESS_KEY
 if %errorlevel% equ 0 (echo ✓ OK) else (echo ✗ ERRO)
 
 echo [3/6] JWT_SECRET
-echo ***REMOVED*** | gh secret set JWT_SECRET
+echo 17b8312c72fdcffbff89f2f4a564fb26e936002d344717ab7753a237fcd57aea | gh secret set JWT_SECRET
 if %errorlevel% equ 0 (echo ✓ OK) else (echo ✗ ERRO)
 
 echo [4/6] NEXT_PUBLIC_API_URL

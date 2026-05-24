@@ -7,7 +7,7 @@ from datetime import datetime
 
 s3 = boto3.client('s3')
 UPLOADS_BUCKET = os.environ.get('UPLOADS_BUCKET', 'mediaflow-uploads-969430605054')
-SECRET_KEY = os.environ.get('JWT_SECRET', '***REMOVED***')
+SECRET_KEY = os.environ['JWT_SECRET']
 
 def lambda_handler(event, context):
     try:

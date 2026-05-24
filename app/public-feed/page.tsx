@@ -261,6 +261,7 @@ function CategoryRow({ title, items, currentUserId, currentUserRole, onPlay, onL
 export default function PublicFeedPage() {
   const [content, setContent] = useState<PublicItem[]>([])
   const [loading, setLoading] = useState(true)
+  const [feedError, setFeedError] = useState('')
   const [selectedVideo, setSelectedVideo] = useState<any>(null)
   const [selectedImage, setSelectedImage] = useState<any>(null)
   const [removeModal, setRemoveModal] = useState<string | null>(null)
@@ -286,8 +287,10 @@ export default function PublicFeedPage() {
       })
       const data = await res.json()
       if (data.success) setContent(data.content)
+      else setFeedError('📡 Não foi possível carregar o conteúdo. Tente novamente.')
     } catch (e) {
       console.error('Error:', e)
+      setFeedError('🌐 Sem conexão. Verifique sua internet.')
     } finally {
       setLoading(false)
     }
