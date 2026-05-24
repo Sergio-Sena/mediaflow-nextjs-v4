@@ -9,6 +9,15 @@ import ImageViewer from '@/components/modules/ImageViewer'
 import { ConfirmModal } from '@/components/ui/Modal'
 import { Heart, MessageCircle, Trash2, Send, ChevronLeft, ChevronRight, Play, Share2, ListChecks } from 'lucide-react'
 
+const BUCKET_URL = 'https://mediaflow-uploads-969430605054.s3.amazonaws.com'
+function getThumbnailUrl(fileKey: string): string {
+  const parts = fileKey.split('/')
+  if (parts.length >= 3 && parts[0] === 'users') {
+    return `${BUCKET_URL}/public/thumbnails/${parts.slice(1).join('/').replace(/\.[^.]+$/, '.jpg')}`
+  }
+  return ''
+}
+
 interface PublicItem {
   content_id: string
   owner_id: string
@@ -114,6 +123,14 @@ function CategoryRow({ title, items, currentUserId, currentUserRole, onPlay, onL
                   }}
                   className="relative aspect-[16/10] md:aspect-video rounded-lg overflow-hidden bg-gradient-to-br from-purple-900/60 to-blue-900/40 border border-white/5 cursor-pointer group transition-all duration-300 hover:scale-[1.03] hover:border-neon-cyan/50 hover:shadow-lg hover:shadow-neon-cyan/10"
                 >
+                  {item.type === 'video' && getThumbnailUrl(item.file_key) ? (
+                    <img
+                      src={getThumbnailUrl(item.file_key)}
+                      alt=""
+                      className="absolute inset-0 w-full h-full object-cover"
+                      onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+                    />
+                  ) : null}
                   <div className="absolute inset-0 flex items-center justify-center text-white/50 group-hover:text-white/80 transition-colors">
                     <span className="text-3xl">{item.type === 'video' ? '🎬' : '🖼️'}</span>
                   </div>
