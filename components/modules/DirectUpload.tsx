@@ -27,6 +27,7 @@ export default function DirectUpload({
   const [users, setUsers] = useState<any[]>([])
   const [currentUser, setCurrentUser] = useState<any>(null)
   const [notification, setNotification] = useState<{type: 'warning' | 'error' | 'info', message: string} | null>(null)
+  const [uploadSummary, setUploadSummary] = useState<{success: number, failed: string[]} | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const folderInputRef = useRef<HTMLInputElement>(null)
 
@@ -194,31 +195,12 @@ export default function DirectUpload({
       await new Promise(resolve => setTimeout(resolve, 1000))
       
       const successCount = Object.values(uploadResults).filter(r => r === 'success').length
-      const failCount = Object.values(uploadResults).filter(r => r === 'error').length
+      const failedNames = Object.entries(uploadResults).filter(([_, r]) => r === 'error').map(([name]) => name)
 
-      if (successCount > 0 && failCount === 0) {
-        setNotification({
-          type: 'info',
-          message: `✅ ${successCount} arquivo(s) enviado(s) com sucesso!`
-        })
-      } else if (successCount > 0 && failCount > 0) {
-        setNotification({
-          type: 'warning',
-          message: `⚠️ ${successCount} enviado(s), ${failCount} falhou(aram). Tente novamente os que falharam.`
-        })
-      } else if (failCount > 0) {
-        setNotification({
-          type: 'error',
-          message: `❌ Upload falhou. Verifique sua conexão e tente novamente.`
-        })
-      }
+      setNotification(null)
+      setUploadSummary({ success: successCount, failed: failedNames })
       
-      // Só chama onUploadComplete se NÃO houver arquivos grandes pendentes
-      const largeFiles = files.filter(f => f.size > 100 * 1024 * 1024)
-      if (largeFiles.length === 0 && successCount > 0 && onUploadComplete) {
-        console.log('✅ Nenhum arquivo grande, chamando onUploadComplete')
-        onUploadComplete(normalFiles.slice(0, successCount))
-      }
+      // NÃO chama onUploadComplete aqui - o botão OK fará o refresh
     } finally {
       setUploading(false)
     }
@@ -358,6 +340,37 @@ export default function DirectUpload({
               className="text-gray-400 hover:text-white transition-colors"
             >
               <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {uploadSummary && (
+        <div className="glass-card p-6 border-l-4 border-neon-cyan bg-cyan-500/10">
+          <div className="text-center">
+            <div className="text-3xl mb-3">{uploadSummary.failed.length === 0 ? '✅' : '⚠️'}</div>
+            <h4 className="text-lg font-semibold text-white mb-2">
+              Upload {uploadSummary.failed.length === 0 ? 'concluído' : 'parcial'}
+            </h4>
+            <p className="text-sm text-gray-300 mb-3">
+              {uploadSummary.success} arquivo(s) enviado(s) com sucesso
+              {uploadSummary.failed.length > 0 && (
+                <span className="text-red-400"> • {uploadSummary.failed.length} falha(s)</span>
+              )}
+            </p>
+            {uploadSummary.failed.length > 0 && (
+              <div className="text-left bg-red-500/10 rounded-lg p-3 mb-3 max-h-24 overflow-y-auto">
+                <p className="text-xs text-red-300 font-medium mb-1">Falharam:</p>
+                {uploadSummary.failed.map(name => (
+                  <p key={name} className="text-xs text-red-400 truncate">• {name}</p>
+                ))}
+              </div>
+            )}
+            <button
+              onClick={() => window.location.reload()}
+              className="px-6 py-2 bg-neon-cyan/20 text-neon-cyan border border-neon-cyan/50 rounded-lg hover:bg-neon-cyan/30 transition-colors text-sm font-medium"
+            >
+              OK - Atualizar Biblioteca
             </button>
           </div>
         </div>
