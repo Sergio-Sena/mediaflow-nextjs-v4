@@ -525,14 +525,15 @@ export default function DirectUpload({
                   const totalLargeFiles = files.filter(f => f.size > 100 * 1024 * 1024).length
                   console.log(`✅ Multipart ${newCompleted}/${totalLargeFiles} concluído`)
                   
-                  // Só chama onUploadComplete quando TODOS os grandes terminarem
+                  // Só mostra summary quando TODOS os grandes terminarem
                   if (newCompleted === totalLargeFiles) {
-                    console.log('✅ Todos os arquivos grandes concluídos, chamando onUploadComplete')
+                    console.log('✅ Todos os arquivos grandes concluídos')
                     setMultipartUploading(false)
                     setMultipartCompleted(0)
-                    if (onUploadComplete) {
-                      onUploadComplete([file])
-                    }
+                    setUploadSummary(prev => ({
+                      success: (prev?.success || 0) + totalLargeFiles,
+                      failed: prev?.failed || []
+                    }))
                   }
                 }}
                 onCancel={() => {
