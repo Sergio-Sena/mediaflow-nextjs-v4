@@ -198,8 +198,15 @@ export default function DirectUpload({
       const successCount = Object.values(uploadResults).filter(r => r === 'success').length
       const failedNames = Object.entries(uploadResults).filter(([_, r]) => r === 'error').map(([name]) => name)
 
-      setNotification(null)
-      setUploadSummary({ success: successCount, failed: failedNames })
+      // Só mostra summary se NÃO houver arquivos grandes pendentes
+      const largeFiles = files.filter(f => f.size > 100 * 1024 * 1024)
+      if (largeFiles.length === 0) {
+        setNotification(null)
+        setUploadSummary({ success: successCount, failed: failedNames })
+      } else {
+        // Guarda resultado parcial - o multipart vai completar depois
+        setUploadSummary({ success: successCount, failed: failedNames })
+      }
       
       // NÃO chama onUploadComplete aqui - o botão OK fará o refresh
     } finally {
@@ -346,7 +353,7 @@ export default function DirectUpload({
         </div>
       )}
 
-      {uploadSummary && (
+      {uploadSummary && !multipartUploading && (
         <div className="glass-card p-6 border-l-4 border-neon-cyan bg-cyan-500/10">
           <div className="text-center">
             <div className="text-3xl mb-3">{uploadSummary.failed.length === 0 ? '✅' : '⚠️'}</div>
