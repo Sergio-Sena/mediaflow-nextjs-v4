@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Button, Card, Skeleton } from '@/components/ui'
 import { DashboardSkeleton, FileListSkeleton, VideoPlayerSkeleton } from '@/components/ui/Skeleton'
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary'
@@ -49,6 +49,14 @@ export default function DashboardPage() {
   const [imagePlaylist, setImagePlaylist] = useState<FileItem[]>([])
   const [currentFolderPath, setCurrentFolderPath] = useState<string>('')
   const router = useRouter()
+  const searchParams = useSearchParams()
+
+  // Se veio com ?upload=true, abre tab upload
+  useEffect(() => {
+    if (searchParams.get('upload') === 'true') {
+      setActiveTab('upload')
+    }
+  }, [searchParams])
 
   const [currentUser, setCurrentUser] = useState<any>(null)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)

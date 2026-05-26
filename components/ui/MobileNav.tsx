@@ -27,7 +27,7 @@ export default function MobileNav() {
           return (
             <button
               key={tab.label}
-              onClick={() => router.push(tab.id)}
+              onClick={() => router.push(tab.query ? `${tab.id}?${tab.query}=true` : tab.id)}
               className={`flex flex-col items-center justify-center w-full h-full transition-colors ${
                 isActive ? 'text-neon-cyan' : 'text-gray-500'
               }`}
