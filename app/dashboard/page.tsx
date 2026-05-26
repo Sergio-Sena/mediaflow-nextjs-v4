@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Button, Card, Skeleton } from '@/components/ui'
 import { DashboardSkeleton, FileListSkeleton, VideoPlayerSkeleton } from '@/components/ui/Skeleton'
@@ -36,7 +36,7 @@ interface FileItem {
   folder: string
 }
 
-export default function DashboardPage() {
+function DashboardContent() {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<'files' | 'folders' | 'upload' | 'analytics'>('files')
@@ -51,7 +51,6 @@ export default function DashboardPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
 
-  // Se veio com ?upload=true, abre tab upload
   useEffect(() => {
     if (searchParams.get('upload') === 'true') {
       setActiveTab('upload')
@@ -548,5 +547,13 @@ export default function DashboardPage() {
         />
       )}
     </div>
+  )
+}
+
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen p-8"><DashboardSkeleton /></div>}>
+      <DashboardContent />
+    </Suspense>
   )
 }
