@@ -73,9 +73,10 @@ export default function MultipartUpload({ file, destination = '', onComplete, on
 
       let filename = (file as any).webkitRelativePath || file.name
       
-      // Sanitizar nome do arquivo
+      // Sanitizar nome do arquivo (passa nome da pasta pra remover redundancia)
       const pathParts = filename.split('/')
-      pathParts[pathParts.length - 1] = sanitizeFilename(pathParts[pathParts.length - 1])
+      const folderName = pathParts.length > 1 ? pathParts[pathParts.length - 2] : undefined
+      pathParts[pathParts.length - 1] = sanitizeFilename(pathParts[pathParts.length - 1], folderName)
       filename = pathParts.join('/')
       
       if (destination) {
