@@ -84,6 +84,26 @@ export default function MultipartUpload({ file, destination = '', onComplete, on
       }
       
       console.log(`📝 Filename: ${filename}`)
+
+      // Check se arquivo já existe no S3
+      try {
+        const checkResponse = await fetch(`${API_URL}/upload/check`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': token ? `Bearer ${token}` : '' },
+          body: JSON.stringify({ filenames: [filename] })
+        })
+        const checkData = await checkResponse.json()
+        if (checkData.success && checkData.files?.[0]?.exists) {
+          console.log(`⏭️ Arquivo já existe no S3, pulando: ${filename}`)
+          setStatus('completed')
+          setProgress(100)
+          if (onComplete) onComplete(filename)
+          return
+        }
+      } catch (e) {
+        console.log('Check-exists falhou, continuando upload...')
+      }
+
       console.log('📡 Chamando /multipart/init...')
       
       const initResponse = await fetch(`${API_URL}/multipart/init`, {
