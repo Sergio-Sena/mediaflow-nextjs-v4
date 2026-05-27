@@ -23,7 +23,7 @@ def lambda_handler(event, context):
             
     except Exception as e:
         print(f"Error: {str(e)}")
-        return {'statusCode': 500, 'body': json.dumps({'error': str(e)})}
+        return {'statusCode': 500, 'body': json.dumps({'error': 'Internal server error'})}
 
 def handle_s3_event(event):
     """Process S3 ObjectCreated events - DISABLED for manual conversion"""
@@ -63,7 +63,7 @@ def handle_http_request(event, context):
             return cors_response(200, list_jobs())
             
     except Exception as e:
-        return cors_response(500, {'success': False, 'message': str(e)})
+        return cors_response(500, {'success': False, 'message': 'Internal server error'})
 
 def start_conversion(file_key):
     """Start MediaConvert job for video file"""
@@ -279,7 +279,7 @@ def cors_response(status_code, body):
     return {
         'statusCode': status_code,
         'headers': {
-            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Origin': os.environ.get('ALLOWED_ORIGIN', 'https://midiaflow.sstechnologies-cloud.com'),
             'Access-Control-Allow-Headers': 'Content-Type,Authorization',
             'Access-Control-Allow-Methods': 'GET,POST,OPTIONS'
         },

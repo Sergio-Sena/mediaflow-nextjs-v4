@@ -9,6 +9,7 @@ s3 = boto3.client('s3')
 BUCKET = 'mediaflow-uploads-969430605054'
 THUMB_PREFIX = 'public/thumbnails/'
 JWT_SECRET = os.environ['JWT_SECRET']
+ALLOWED_ORIGIN = os.environ.get('ALLOWED_ORIGIN', 'https://midiaflow.sstechnologies-cloud.com')
 
 
 def verify_token(token):
@@ -70,7 +71,7 @@ def lambda_handler(event, context):
     if not user or user.get('role') != 'admin':
         return {
             'statusCode': 403,
-            'headers': {'Access-Control-Allow-Origin': '*'},
+            'headers': {'Access-Control-Allow-Origin': ALLOWED_ORIGIN},
             'body': json.dumps({'error': 'Admin only'})
         }
 
@@ -86,7 +87,7 @@ def lambda_handler(event, context):
         ok = generate_thumbnail(video_key, thumb_key)
         return {
             'statusCode': 200 if ok else 500,
-            'headers': {'Access-Control-Allow-Origin': '*'},
+            'headers': {'Access-Control-Allow-Origin': ALLOWED_ORIGIN},
             'body': json.dumps({'thumbnail': thumb_key if ok else None})
         }
 
@@ -128,7 +129,7 @@ def lambda_handler(event, context):
 
         return {
             'statusCode': 200,
-            'headers': {'Access-Control-Allow-Origin': '*'},
+            'headers': {'Access-Control-Allow-Origin': ALLOWED_ORIGIN},
             'body': json.dumps({
                 'generated': generated,
                 'errors': errors,
@@ -138,6 +139,6 @@ def lambda_handler(event, context):
 
     return {
         'statusCode': 400,
-        'headers': {'Access-Control-Allow-Origin': '*'},
+        'headers': {'Access-Control-Allow-Origin': ALLOWED_ORIGIN},
         'body': json.dumps({'error': 'Invalid action'})
     }
