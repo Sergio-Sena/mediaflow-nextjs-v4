@@ -3,6 +3,7 @@ import boto3
 import base64
 import pyotp
 import hashlib
+import os
 from datetime import datetime, timedelta
 
 dynamodb = boto3.resource('dynamodb')
@@ -140,18 +141,17 @@ def lambda_handler(event, context):
             })
             
     except Exception as e:
+        print(f"Create user error: {str(e)}")
         return cors_response(500, {
             'success': False,
-            'message': str(e)
+            'message': 'Internal server error'
         })
 
 def cors_response(status_code, body):
     return {
         'statusCode': status_code,
         'headers': {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Headers': 'Content-Type,Authorization',
-            'Access-Control-Allow-Methods': 'GET,POST,DELETE,OPTIONS'
+            'Access-Control-Allow-Origin': os.environ.get('ALLOWED_ORIGIN', 'https://midiaflow.sstechnologies-cloud.com'),
         },
         'body': json.dumps(body)
     }

@@ -61,7 +61,8 @@ def lambda_handler(event, context):
             return unshare_content(event, user)
 
     except Exception as e:
-        return cors_response(500, {'success': False, 'message': str(e)})
+        print(f"Share content error: {str(e)}")
+        return cors_response(500, {'success': False, 'message': 'Internal server error'})
 
 
 def share_content(body, user):
@@ -204,9 +205,7 @@ def cors_response(status_code, body):
     return {
         'statusCode': status_code,
         'headers': {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Headers': 'Content-Type,Authorization',
-            'Access-Control-Allow-Methods': 'GET,POST,DELETE,OPTIONS'
+            'Access-Control-Allow-Origin': os.environ.get('ALLOWED_ORIGIN', 'https://midiaflow.sstechnologies-cloud.com'),
         },
         'body': json.dumps(body, default=str)
     }

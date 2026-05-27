@@ -69,16 +69,14 @@ def lambda_handler(event, context):
         logger.error("Approve user error", error=str(e))
         return cors_response(500, {
             'success': False,
-            'message': str(e)
+            'message': 'Internal server error'
         })
 
 def cors_response(status_code, body):
     return {
         'statusCode': status_code,
         'headers': {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Headers': 'Content-Type,Authorization',
-            'Access-Control-Allow-Methods': 'POST,OPTIONS'
+            'Access-Control-Allow-Origin': os.environ.get('ALLOWED_ORIGIN', 'https://midiaflow.sstechnologies-cloud.com'),
         },
         'body': json.dumps(body)
     }

@@ -1,5 +1,6 @@
 import json
 import boto3
+import os
 
 dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
 users_table = dynamodb.Table('mediaflow-users')
@@ -23,14 +24,15 @@ def lambda_handler(event, context):
         return cors_response(200, {'success': True, 'user': user})
         
     except Exception as e:
-        return cors_response(500, {'success': False, 'message': str(e)})
+        print(f"Get user error: {str(e)}")
+        return cors_response(500, {'success': False, 'message': 'Internal server error'})
 
 def cors_response(status_code, body):
     return {
         'statusCode': status_code,
         'headers': {
             'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Origin': os.environ.get('ALLOWED_ORIGIN', 'https://midiaflow.sstechnologies-cloud.com'),
             'Access-Control-Allow-Headers': 'Content-Type,Authorization',
             'Access-Control-Allow-Methods': 'GET,OPTIONS'
         },

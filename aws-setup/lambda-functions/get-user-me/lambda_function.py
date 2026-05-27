@@ -59,8 +59,12 @@ def lambda_handler(event, context):
         }
         
     except Exception as e:
+        print(f"Get user me error: {str(e)}")
         return {
             'statusCode': 500,
-            'headers': {'Content-Type': 'application/json'},
-            'body': json.dumps({'success': False, 'message': str(e)})
+            'headers': {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': os.environ.get('ALLOWED_ORIGIN', 'https://midiaflow.sstechnologies-cloud.com')
+            },
+            'body': json.dumps({'success': False, 'message': 'Internal server error'})
         }

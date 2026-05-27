@@ -9,17 +9,35 @@ from datetime import datetime
 
 s3 = boto3.client('s3')
 BUCKET = 'mediaflow-uploads-969430605054'
+ALLOWED_ORIGIN = os.environ.get('ALLOWED_ORIGIN', 'https://midiaflow.sstechnologies-cloud.com')
+
+def cors_headers():
+    return {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': ALLOWED_ORIGIN,
+        'Access-Control-Allow-Headers': 'Content-Type,Authorization,x-correlation-id',
+        'Access-Control-Allow-Methods': 'POST,DELETE,OPTIONS'
+    }
+
+def cors_response(status_code, body):
+    return {
+        'statusCode': status_code,
+        'headers': cors_headers(),
+        'body': json.dumps(body)
+    }
 
 def lambda_handler(event, context):
     correlation_id = event.get('headers', {}).get('x-correlation-id', None)
     logger = Logger('folder-operations', correlation_id)
     
     method = event['httpMethod']
-    body = json.loads(event.get('body', '{}'))
     
+    if method == 'OPTIONS':
+        return cors_response(200, {})
+    
+    body = json.loads(event.get('body', '{}'))
     logger.info("Folder operation request", method=method)
     
-    # Extract user_id from JWT
     token = event['headers'].get('Authorization', '').replace('Bearer ', '')
     try:
         payload = json.loads(base64.b64decode(token.split('.')[1] + '=='))
@@ -28,28 +46,17 @@ def lambda_handler(event, context):
         logger.info("User authenticated", user_id=user_id, role=role)
     except Exception as e:
         logger.warn("Authentication failed", error=str(e))
-        return {
-            'statusCode': 401,
-            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-            'body': json.dumps({'success': False, 'message': 'Unauthorized'})
-        }
+        return cors_response(401, {'success': False, 'message': 'Unauthorized'})
     
     if method == 'POST':
         folder_path = body['folderPath'].strip('/')
         logger.info("Creating folder", path=folder_path, user_id=user_id)
         
-        # Validate permission
         expected_prefix = f'users/{user_id}'
-        
         if role != 'admin' and not folder_path.startswith(expected_prefix):
             logger.warn("Folder creation forbidden", path=folder_path, user_id=user_id)
-            return {
-                'statusCode': 403,
-                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({'success': False, 'message': 'Forbidden'})
-            }
+            return cors_response(403, {'success': False, 'message': 'Forbidden'})
         
-        # Create placeholder
         s3.put_object(
             Bucket=BUCKET,
             Key=f'{folder_path}/.folder_placeholder',
@@ -59,39 +66,22 @@ def lambda_handler(event, context):
         
         logger.info("Folder created", path=folder_path)
         logger.metric("folder_created", 1)
-        
-        return {
-            'statusCode': 200,
-            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-            'body': json.dumps({'success': True, 'folder': folder_path})
-        }
+        return cors_response(200, {'success': True, 'folder': folder_path})
     
     elif method == 'DELETE':
         folder_path = body['folderPath'].strip('/')
         logger.info("Deleting folder", path=folder_path, user_id=user_id)
         
-        # Validate permission
         if role != 'admin' and not folder_path.startswith(f'users/{user_id}'):
             logger.warn("Folder deletion forbidden", path=folder_path, user_id=user_id)
-            return {
-                'statusCode': 403,
-                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({'success': False, 'message': 'Forbidden'})
-            }
+            return cors_response(403, {'success': False, 'message': 'Forbidden'})
         
-        # List objects in folder
         response = s3.list_objects_v2(Bucket=BUCKET, Prefix=f'{folder_path}/')
         
-        # Only delete if empty (safety)
         if 'Contents' in response and len(response['Contents']) > 1:
             logger.warn("Folder not empty", path=folder_path, files=len(response['Contents']))
-            return {
-                'statusCode': 400,
-                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({'success': False, 'message': 'Folder not empty'})
-            }
+            return cors_response(400, {'success': False, 'message': 'Folder not empty'})
         
-        # Delete placeholder
         try:
             s3.delete_object(Bucket=BUCKET, Key=f'{folder_path}/.folder_placeholder')
         except:
@@ -99,15 +89,6 @@ def lambda_handler(event, context):
         
         logger.info("Folder deleted", path=folder_path)
         logger.metric("folder_deleted", 1)
-        
-        return {
-            'statusCode': 200,
-            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-            'body': json.dumps({'success': True})
-        }
+        return cors_response(200, {'success': True})
     
-    return {
-        'statusCode': 405,
-        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-        'body': json.dumps({'success': False, 'message': 'Method Not Allowed'})
-    }
+    return cors_response(405, {'success': False, 'message': 'Method Not Allowed'})
