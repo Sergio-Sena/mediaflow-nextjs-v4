@@ -2,11 +2,13 @@ import json
 import jwt
 import pyotp
 import boto3
+import os
 from datetime import datetime, timedelta
 
-SECRET_KEY = 'mediaflow_super_secret_key_2025'
+JWT_SECRET = os.environ['JWT_SECRET']
 dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table('mediaflow-users')
+ALLOWED_ORIGIN = os.environ.get('ALLOWED_ORIGIN', 'https://midiaflow.sstechnologies-cloud.com')
 
 def lambda_handler(event, context):
     try:
@@ -23,7 +25,6 @@ def lambda_handler(event, context):
                 'message': 'user_id and code required'
             })
         
-        # Buscar usuário no DynamoDB
         response = table.get_item(Key={'user_id': user_id})
         
         if 'Item' not in response:
@@ -34,7 +35,6 @@ def lambda_handler(event, context):
         
         user = response['Item']
         
-        # Validar TOTP (Google Authenticator)
         totp = pyotp.TOTP(user['totp_secret'])
         if not totp.verify(code, valid_window=1):
             return cors_response(401, {
@@ -42,14 +42,13 @@ def lambda_handler(event, context):
                 'message': 'Invalid 2FA code'
             })
         
-        # Gerar JWT com informações do usuário
         token = jwt.encode({
             'user_id': user_id,
             'user_name': user['name'],
             's3_prefix': user.get('s3_prefix', ''),
             'role': user.get('role', 'user'),
             'exp': datetime.utcnow() + timedelta(hours=24)
-        }, SECRET_KEY, algorithm='HS256')
+        }, JWT_SECRET, algorithm='HS256')
         
         return cors_response(200, {
             'success': True,
@@ -57,21 +56,22 @@ def lambda_handler(event, context):
             'user': {
                 'id': user_id,
                 'name': user['name'],
-                'avatar': user.get('avatar', '👤')
+                'avatar': user.get('avatar', '')
             }
         })
         
     except Exception as e:
+        print(f"Verify 2FA error: {str(e)}")
         return cors_response(500, {
             'success': False,
-            'message': str(e)
+            'message': 'Internal server error'
         })
 
 def cors_response(status_code, body):
     return {
         'statusCode': status_code,
         'headers': {
-            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Origin': ALLOWED_ORIGIN,
             'Access-Control-Allow-Headers': 'Content-Type,Authorization',
             'Access-Control-Allow-Methods': 'POST,OPTIONS'
         },

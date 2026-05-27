@@ -1,14 +1,16 @@
 import json
 import boto3
 import base64
+import os
 from datetime import datetime
 
 s3 = boto3.client('s3')
 BUCKET = 'mediaflow-uploads-969430605054'
+ALLOWED_ORIGIN = os.environ.get('ALLOWED_ORIGIN', 'https://midiaflow.sstechnologies-cloud.com')
 
 def lambda_handler(event, context):
     try:
-        print(f"Event: {json.dumps(event)}")
+        print(f"Multipart request: {event['httpMethod']} {event.get('path', '')}")
         
         if event['httpMethod'] == 'OPTIONS':
             print("Handling OPTIONS preflight")
@@ -112,9 +114,10 @@ def lambda_handler(event, context):
         })
         
     except Exception as e:
+        print(f"Multipart handler error: {str(e)}")
         return cors_response(500, {
             'success': False,
-            'message': str(e)
+            'message': 'Internal server error'
         })
 
 def extract_user_id(event):
@@ -159,7 +162,7 @@ def cors_response(status_code, body):
     return {
         'statusCode': status_code,
         'headers': {
-            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Origin': ALLOWED_ORIGIN,
             'Access-Control-Allow-Headers': 'Content-Type,Authorization',
             'Access-Control-Allow-Methods': 'POST,DELETE,OPTIONS'
         },

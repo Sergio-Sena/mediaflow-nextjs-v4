@@ -1,7 +1,16 @@
 import json
 import boto3
+import os
 
 s3 = boto3.client('s3', region_name='us-east-1')
+ALLOWED_ORIGIN = os.environ.get('ALLOWED_ORIGIN', 'https://midiaflow.sstechnologies-cloud.com')
+
+def cors_headers():
+    return {
+        'Access-Control-Allow-Origin': ALLOWED_ORIGIN,
+        'Access-Control-Allow-Headers': 'Content-Type,Authorization',
+        'Access-Control-Allow-Methods': 'POST,OPTIONS'
+    }
 
 def lambda_handler(event, context):
     try:
@@ -16,18 +25,13 @@ def lambda_handler(event, context):
         if not user_id:
             return {
                 'statusCode': 400,
-                'headers': {
-                    'Access-Control-Allow-Origin': '*',
-                    'Access-Control-Allow-Headers': '*',
-                    'Access-Control-Allow-Methods': '*'
-                },
+                'headers': cors_headers(),
                 'body': json.dumps({'success': False, 'error': 'userId required'})
             }
         
         key = f'avatars/avatar_{user_id}.{file_ext}'
         bucket = 'mediaflow-uploads-969430605054'
 
-        # Deletar avatares antigos deste user
         try:
             old = s3.list_objects_v2(Bucket=bucket, Prefix=f'avatars/avatar_{user_id}.')
             for obj in old.get('Contents', []):
@@ -36,7 +40,6 @@ def lambda_handler(event, context):
         except:
             pass
         
-        # Normalizar content type
         content_type_map = {
             'jpg': 'image/jpeg',
             'jpeg': 'image/jpeg',
@@ -56,18 +59,12 @@ def lambda_handler(event, context):
             ExpiresIn=300
         )
         
-        # Garantir que não há HTML entities na URL
         presigned_url = presigned_url.replace('&amp;', '&')
-        
         avatar_url = f'https://{bucket}.s3.amazonaws.com/{key}'
         
         return {
             'statusCode': 200,
-            'headers': {
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Headers': '*',
-                'Access-Control-Allow-Methods': '*'
-            },
+            'headers': cors_headers(),
             'body': json.dumps({
                 'success': True,
                 'presignedUrl': presigned_url,
@@ -76,12 +73,9 @@ def lambda_handler(event, context):
         }
         
     except Exception as e:
+        print(f"Avatar presigned error: {str(e)}")
         return {
             'statusCode': 500,
-            'headers': {
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Headers': '*',
-                'Access-Control-Allow-Methods': '*'
-            },
-            'body': json.dumps({'success': False, 'error': str(e)})
+            'headers': cors_headers(),
+            'body': json.dumps({'success': False, 'error': 'Internal server error'})
         }

@@ -89,10 +89,11 @@ def lambda_handler(event, context):
         return {'allowed': True}
         
     except Exception as e:
+        print(f"Check limits error: {str(e)}")
         return {
             'allowed': False,
             'reason': 'error',
-            'message': str(e)
+            'message': 'Internal server error'
         }
 
 def mark_alert_flag(user_id, flag_name):

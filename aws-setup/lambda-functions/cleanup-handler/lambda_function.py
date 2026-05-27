@@ -21,9 +21,10 @@ def lambda_handler(event, context):
         return scheduled_cleanup()
         
     except Exception as e:
+        print(f"Cleanup error: {str(e)}")
         return {
             'statusCode': 500,
-            'body': json.dumps({'success': False, 'message': str(e)})
+            'body': json.dumps({'success': False, 'message': 'Internal server error'})
         }
 
 def handle_mediaconvert_completion(event):
@@ -108,12 +109,7 @@ def manual_cleanup():
         return {
             'statusCode': 200,
             'headers': {
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Headers': 'Content-Type,Authorization',
-                'Access-Control-Allow-Methods': 'POST,OPTIONS'
-            },
-            'body': json.dumps({
-                'success': True,
+                'Access-Control-Allow-Origin': os.environ.get('ALLOWED_ORIGIN', 'https://midiaflow.sstechnologies-cloud.com'),
                 'cleaned': cleaned,
                 'count': len(cleaned)
             })
@@ -126,7 +122,7 @@ def manual_cleanup():
                 'Access-Control-Allow-Headers': 'Content-Type,Authorization',
                 'Access-Control-Allow-Methods': 'POST,OPTIONS'
             },
-            'body': json.dumps({'success': False, 'message': str(e)})
+            'body': json.dumps({'success': False, 'message': 'Internal server error'})
         }
 
 def find_empty_folders():
@@ -203,4 +199,5 @@ def scheduled_cleanup():
             })
         }
     except Exception as e:
-        return {'statusCode': 500, 'body': str(e)}
+        print(f"Scheduled cleanup error: {str(e)}")
+        return {'statusCode': 500, 'body': json.dumps({'success': False, 'message': 'Internal server error'})}
