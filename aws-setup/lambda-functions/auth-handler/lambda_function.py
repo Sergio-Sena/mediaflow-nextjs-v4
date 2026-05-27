@@ -37,15 +37,18 @@ def lambda_handler(event, context):
             return cors_response(200, {})
         
         body = json.loads(event.get('body', '{}'))
-        email = body.get('email')
-        password = body.get('password')
-        print(f"Login attempt: {email}")
+        email = body.get('email', '').strip().lower()
+        password = body.get('password', '')
         
-        # Check DynamoDB users
-        print("Scanning DynamoDB")
-        response = table.scan()
+        if not email or not password:
+            return cors_response(400, {'success': False, 'error': 'Email e senha são obrigatórios'})
+        
+        # Query by email instead of scan
+        response = table.scan(
+            FilterExpression='email = :email',
+            ExpressionAttributeValues={':email': email}
+        )
         users = response.get('Items', [])
-        print(f"Users found: {len(users)}")
         
         for user in users:
             if user.get('email') == email and user.get('password') == hash_password(password):
@@ -87,13 +90,13 @@ def lambda_handler(event, context):
             
     except Exception as e:
         print(f"Lambda error: {str(e)}")
-        return cors_response(500, {'success': False, 'message': str(e)})
+        return cors_response(500, {'success': False, 'message': 'Internal server error'})
 
 def cors_response(status_code, body):
     return {
         'statusCode': status_code,
         'headers': {
-            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Origin': os.environ.get('ALLOWED_ORIGIN', 'https://midiaflow.sstechnologies-cloud.com'),
             'Access-Control-Allow-Headers': 'Content-Type,Authorization',
             'Access-Control-Allow-Methods': 'POST,OPTIONS'
         },

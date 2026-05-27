@@ -1,5 +1,9 @@
 import { NextResponse } from 'next/server'
 
+export const dynamic = 'force-dynamic'
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod'
+
 export async function GET(request: Request) {
   try {
     const authHeader = request.headers.get('authorization')
@@ -8,7 +12,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
     }
 
-    const response = await fetch('https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod/users', {
+    const response = await fetch(`${API_BASE}/users`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

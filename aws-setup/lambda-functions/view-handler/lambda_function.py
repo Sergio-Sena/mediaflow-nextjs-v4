@@ -13,7 +13,7 @@ PROCESSED_BUCKET = os.environ.get('PROCESSED_BUCKET', 'mediaflow-processed-96943
 JWT_SECRET = os.environ['JWT_SECRET']
 
 def lambda_handler(event, context):
-    print(f"Event: {json.dumps(event)}")
+    print(f"Event method: {event.get('httpMethod')}")
     try:
         if event['httpMethod'] == 'OPTIONS':
             return cors_response(200, {})
@@ -86,13 +86,13 @@ def lambda_handler(event, context):
         print(f"Error: {str(e)}")
         import traceback
         traceback.print_exc()
-        return cors_response(500, {'success': False, 'message': str(e)})
+        return cors_response(500, {'success': False, 'message': 'Internal server error'})
 
 def cors_response(status_code, body):
     return {
         'statusCode': status_code,
         'headers': {
-            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Origin': os.environ.get('ALLOWED_ORIGIN', 'https://midiaflow.sstechnologies-cloud.com'),
             'Access-Control-Allow-Headers': 'Content-Type,Authorization',
             'Access-Control-Allow-Methods': 'GET,OPTIONS'
         },

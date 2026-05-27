@@ -60,7 +60,8 @@ def lambda_handler(event, context):
             return bulk_delete(keys)
             
     except Exception as e:
-        return cors_response(500, {'success': False, 'message': str(e)})
+        print(f"Files handler error: {str(e)}")
+        return cors_response(500, {'success': False, 'message': 'Internal server error'})
 
 def list_files(user_prefix='', context='dashboard'):
     files = []
@@ -131,7 +132,8 @@ def delete_file(key):
         else:
             return cors_response(404, {'success': False, 'message': 'File not found'})
     except Exception as e:
-        return cors_response(500, {'success': False, 'message': str(e)})
+        print(f"Delete error: {str(e)}")
+        return cors_response(500, {'success': False, 'message': 'Internal server error'})
 
 def bulk_delete(keys):
     deleted = []
@@ -149,7 +151,7 @@ def cors_response(status_code, body):
     return {
         'statusCode': status_code,
         'headers': {
-            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Origin': os.environ.get('ALLOWED_ORIGIN', 'https://midiaflow.sstechnologies-cloud.com'),
             'Access-Control-Allow-Headers': 'Content-Type,Authorization,x-correlation-id',
             'Access-Control-Allow-Methods': 'GET,POST,DELETE,OPTIONS',
             'Content-Type': 'application/json'

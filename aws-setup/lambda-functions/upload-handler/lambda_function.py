@@ -98,7 +98,7 @@ def lambda_handler(event, context):
         
     except Exception as e:
         print(f"Upload handler error: {str(e)}")
-        return cors_response(500, {'success': False, 'message': str(e)})
+        return cors_response(500, {'success': False, 'message': 'Internal server error'})
 
 def check_file_exists(key):
     """Check if file exists in S3"""
@@ -197,7 +197,7 @@ def cors_response(status_code, body):
     return {
         'statusCode': status_code,
         'headers': {
-            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Origin': os.environ.get('ALLOWED_ORIGIN', 'https://midiaflow.sstechnologies-cloud.com'),
             'Access-Control-Allow-Headers': 'Content-Type,Authorization',
             'Access-Control-Allow-Methods': 'GET,POST,OPTIONS'
         },
