@@ -1,7 +1,5 @@
 import { NextResponse } from 'next/server'
 
-export const dynamic = 'force-dynamic'
-
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://gdb962d234.execute-api.us-east-1.amazonaws.com/prod'
 
 export async function GET(request: Request) {
