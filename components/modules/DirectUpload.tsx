@@ -23,7 +23,7 @@ export default function DirectUpload({
   const [results, setResults] = useState<{[key: string]: 'success' | 'error'}>({})
   const [destination, setDestination] = useState('')
   const [multipartUploading, setMultipartUploading] = useState(false)
-  const [multipartCompleted, setMultipartCompleted] = useState(0)
+  const multipartCompletedRef = useRef(0)
   const [users, setUsers] = useState<any[]>([])
   const [currentUser, setCurrentUser] = useState<any>(null)
   const [notification, setNotification] = useState<{type: 'warning' | 'error' | 'info', message: string} | null>(null)
@@ -483,7 +483,7 @@ export default function DirectUpload({
                   setProgress({})
                   setResults({})
                   setMultipartUploading(false)
-                  setMultipartCompleted(0)
+                  multipartCompletedRef.current = 0
                   setUploading(false)
                 }}
                 className="btn-secondary px-4 py-2 text-sm"
@@ -526,17 +526,15 @@ export default function DirectUpload({
                   setFiles(prev => prev.filter(f => f !== file))
                   setResults(prev => ({ ...prev, [file.name]: 'success' }))
                   
-                  const newCompleted = multipartCompleted + 1
-                  setMultipartCompleted(newCompleted)
-                  
+                  multipartCompletedRef.current += 1
+                  const newCompleted = multipartCompletedRef.current
                   const totalLargeFiles = files.filter(f => f.size > 100 * 1024 * 1024).length
                   console.log(`✅ Multipart ${newCompleted}/${totalLargeFiles} concluído`)
                   
-                  // Só mostra summary quando TODOS os grandes terminarem
-                  if (newCompleted === totalLargeFiles) {
+                  if (newCompleted >= totalLargeFiles) {
                     console.log('✅ Todos os arquivos grandes concluídos')
                     setMultipartUploading(false)
-                    setMultipartCompleted(0)
+                    multipartCompletedRef.current = 0
                     setUploadSummary(prev => ({
                       success: (prev?.success || 0) + totalLargeFiles,
                       failed: prev?.failed || []
