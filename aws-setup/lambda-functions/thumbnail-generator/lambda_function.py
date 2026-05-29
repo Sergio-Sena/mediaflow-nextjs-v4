@@ -26,26 +26,27 @@ def verify_token(token):
 
 
 def generate_thumbnail(video_key, output_key):
-    """Download video from S3, extract first frame, upload thumbnail."""
+    """Download partial video from S3, extract frame at ~10s, upload thumbnail."""
     with tempfile.TemporaryDirectory() as tmp:
         video_path = os.path.join(tmp, 'video.mp4')
         thumb_path = os.path.join(tmp, 'thumb.jpg')
 
-        # Download video (only first 5MB for speed - enough for first frame)
-        obj = s3.get_object(Bucket=BUCKET, Key=video_key, Range='bytes=0-5242880')
+        # Download first 30MB - enough for 10s seek in most videos
+        obj = s3.get_object(Bucket=BUCKET, Key=video_key, Range='bytes=0-31457280')
         with open(video_path, 'wb') as f:
             f.write(obj['Body'].read())
 
-        # Extract first frame with ffmpeg
+        # Extract frame at 10s with ffmpeg
         ffmpeg = '/opt/bin/ffmpeg'
         cmd = [ffmpeg, '-ss', '10', '-i', video_path, '-vframes', '1', '-q:v', '5',
                '-vf', 'scale=320:-1', '-y', thumb_path]
         result = subprocess.run(cmd, capture_output=True, timeout=30)
 
         if result.returncode != 0 or not os.path.exists(thumb_path):
-            # Retry with full file if partial download failed
-            s3.download_file(BUCKET, video_key, video_path)
-            result = subprocess.run(cmd, capture_output=True, timeout=60)
+            # Fallback: extract first available frame (no seek)
+            cmd_fallback = [ffmpeg, '-i', video_path, '-vframes', '1', '-q:v', '5',
+                           '-vf', 'scale=320:-1', '-y', thumb_path]
+            subprocess.run(cmd_fallback, capture_output=True, timeout=30)
 
         if not os.path.exists(thumb_path):
             return False
