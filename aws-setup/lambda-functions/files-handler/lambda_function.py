@@ -117,9 +117,20 @@ def list_files(user_prefix='', context='dashboard'):
     
     return cors_response(200, {'success': True, 'files': files})
 
+def delete_thumbnail(key):
+    """Delete thumbnail associated with a video file."""
+    if not key.endswith('.mp4'):
+        return
+    parts = key.split('/')
+    if len(parts) >= 3 and parts[0] == 'users':
+        thumb_key = 'public/thumbnails/' + '/'.join(parts[1:]).rsplit('.', 1)[0] + '.jpg'
+        try:
+            s3.delete_object(Bucket=UPLOADS_BUCKET, Key=thumb_key)
+        except:
+            pass
+
 def delete_file(key):
     try:
-        # Verificar em qual bucket o arquivo está
         found = False
         
         try:
@@ -137,6 +148,7 @@ def delete_file(key):
             pass
         
         if found:
+            delete_thumbnail(key)
             return cors_response(200, {'success': True})
         else:
             return cors_response(404, {'success': False, 'message': 'File not found'})
@@ -150,6 +162,7 @@ def bulk_delete(keys):
         try:
             s3.delete_object(Bucket=UPLOADS_BUCKET, Key=key)
             s3.delete_object(Bucket=PROCESSED_BUCKET, Key=key)
+            delete_thumbnail(key)
             deleted.append(key)
         except:
             pass
