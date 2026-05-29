@@ -3,11 +3,17 @@ import boto3
 import os
 
 s3 = boto3.client('s3', region_name='us-east-1')
-ALLOWED_ORIGIN = os.environ.get('ALLOWED_ORIGIN', 'https://midiaflow.sstechnologies-cloud.com')
 
-def cors_headers():
+ALLOWED_ORIGINS = ['https://midiaflow.sstechnologies-cloud.com', 'http://localhost:3000']
+
+def get_origin(event):
+    headers = event.get('headers') or {}
+    origin = headers.get('origin') or headers.get('Origin') or ''
+    return origin if origin in ALLOWED_ORIGINS else ALLOWED_ORIGINS[0]
+
+def cors_headers(event):
     return {
-        'Access-Control-Allow-Origin': ALLOWED_ORIGIN,
+        'Access-Control-Allow-Origin': get_origin(event),
         'Access-Control-Allow-Headers': 'Content-Type,Authorization',
         'Access-Control-Allow-Methods': 'POST,OPTIONS'
     }
@@ -25,7 +31,7 @@ def lambda_handler(event, context):
         if not user_id:
             return {
                 'statusCode': 400,
-                'headers': cors_headers(),
+                'headers': cors_headers(event),
                 'body': json.dumps({'success': False, 'error': 'userId required'})
             }
         
@@ -64,7 +70,7 @@ def lambda_handler(event, context):
         
         return {
             'statusCode': 200,
-            'headers': cors_headers(),
+            'headers': cors_headers(event),
             'body': json.dumps({
                 'success': True,
                 'presignedUrl': presigned_url,
@@ -76,6 +82,6 @@ def lambda_handler(event, context):
         print(f"Avatar presigned error: {str(e)}")
         return {
             'statusCode': 500,
-            'headers': cors_headers(),
+            'headers': cors_headers(event),
             'body': json.dumps({'success': False, 'error': 'Internal server error'})
         }

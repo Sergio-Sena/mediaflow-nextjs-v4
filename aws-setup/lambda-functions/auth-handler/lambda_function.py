@@ -34,14 +34,14 @@ def lambda_handler(event, context):
         print(f"Login request received: {event['httpMethod']}")
         
         if event['httpMethod'] == 'OPTIONS':
-            return cors_response(200, {})
+            return cors_response(200, {}, event)
         
         body = json.loads(event.get('body', '{}'))
         email = body.get('email', '').strip().lower()
         password = body.get('password', '')
         
         if not email or not password:
-            return cors_response(400, {'success': False, 'error': 'Email e senha são obrigatórios'})
+            return cors_response(400, {'success': False, 'error': 'Email e senha são obrigatórios'}, event)
         
         # Query by email instead of scan
         response = table.scan(
@@ -55,10 +55,10 @@ def lambda_handler(event, context):
                 status = user.get('status', 'approved')
                 if status == 'pending':
                     print(f"Login blocked - pending: {email}")
-                    return cors_response(403, {'success': False, 'error': 'Conta aguardando aprovação do administrador'})
+                    return cors_response(403, {'success': False, 'error': 'Conta aguardando aprovação do administrador'}, event)
                 if status == 'rejected':
                     print(f"Login blocked - rejected: {email}")
-                    return cors_response(403, {'success': False, 'error': 'Conta rejeitada pelo administrador'})
+                    return cors_response(403, {'success': False, 'error': 'Conta rejeitada pelo administrador'}, event)
                 
                 s3_prefix = user.get('s3_prefix', '')
                 role = user.get('role', 'user')
@@ -83,20 +83,27 @@ def lambda_handler(event, context):
                         's3_prefix': s3_prefix,
                         'avatar_url': user.get('avatar_url', '')
                     }
-                })
+                }, event)
         
         print(f"Login failed - invalid credentials: {email}")
-        return cors_response(401, {'success': False, 'error': 'Invalid credentials'})
+        return cors_response(401, {'success': False, 'error': 'Invalid credentials'}, event)
             
     except Exception as e:
         print(f"Lambda error: {str(e)}")
-        return cors_response(500, {'success': False, 'message': 'Internal server error'})
+        return cors_response(500, {'success': False, 'message': 'Internal server error'}, event)
 
-def cors_response(status_code, body):
+ALLOWED_ORIGINS = ['https://midiaflow.sstechnologies-cloud.com', 'http://localhost:3000']
+
+def get_origin(event):
+    headers = event.get('headers') or {}
+    origin = headers.get('origin') or headers.get('Origin') or ''
+    return origin if origin in ALLOWED_ORIGINS else ALLOWED_ORIGINS[0]
+
+def cors_response(status_code, body, event=None):
     return {
         'statusCode': status_code,
         'headers': {
-            'Access-Control-Allow-Origin': os.environ.get('ALLOWED_ORIGIN', 'https://midiaflow.sstechnologies-cloud.com'),
+            'Access-Control-Allow-Origin': get_origin(event) if event else ALLOWED_ORIGINS[0],
             'Access-Control-Allow-Headers': 'Content-Type,Authorization',
             'Access-Control-Allow-Methods': 'POST,OPTIONS'
         },

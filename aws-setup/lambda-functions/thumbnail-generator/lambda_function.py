@@ -5,13 +5,19 @@ import tempfile
 import boto3
 import jwt
 
+ALLOWED_ORIGINS = ['https://midiaflow.sstechnologies-cloud.com', 'http://localhost:3000']
+
+def get_origin(event):
+    headers = event.get('headers') or {}
+    origin = headers.get('origin') or headers.get('Origin') or ''
+    return origin if origin in ALLOWED_ORIGINS else ALLOWED_ORIGINS[0]
+
+
+
 s3 = boto3.client('s3')
 BUCKET = 'mediaflow-uploads-969430605054'
 THUMB_PREFIX = 'public/thumbnails/'
 JWT_SECRET = os.environ['JWT_SECRET']
-ALLOWED_ORIGIN = os.environ.get('ALLOWED_ORIGIN', 'https://midiaflow.sstechnologies-cloud.com')
-
-
 def verify_token(token):
     try:
         return jwt.decode(token, JWT_SECRET, algorithms=['HS256'])
@@ -71,7 +77,7 @@ def lambda_handler(event, context):
     if not user or user.get('role') != 'admin':
         return {
             'statusCode': 403,
-            'headers': {'Access-Control-Allow-Origin': ALLOWED_ORIGIN},
+            'headers': {'Access-Control-Allow-Origin': get_origin(event)},
             'body': json.dumps({'error': 'Admin only'})
         }
 
@@ -87,7 +93,7 @@ def lambda_handler(event, context):
         ok = generate_thumbnail(video_key, thumb_key)
         return {
             'statusCode': 200 if ok else 500,
-            'headers': {'Access-Control-Allow-Origin': ALLOWED_ORIGIN},
+            'headers': {'Access-Control-Allow-Origin': get_origin(event)},
             'body': json.dumps({'thumbnail': thumb_key if ok else None})
         }
 
@@ -129,7 +135,7 @@ def lambda_handler(event, context):
 
         return {
             'statusCode': 200,
-            'headers': {'Access-Control-Allow-Origin': ALLOWED_ORIGIN},
+            'headers': {'Access-Control-Allow-Origin': get_origin(event)},
             'body': json.dumps({
                 'generated': generated,
                 'errors': errors,
@@ -139,6 +145,6 @@ def lambda_handler(event, context):
 
     return {
         'statusCode': 400,
-        'headers': {'Access-Control-Allow-Origin': ALLOWED_ORIGIN},
+        'headers': {'Access-Control-Allow-Origin': get_origin(event)},
         'body': json.dumps({'error': 'Invalid action'})
     }

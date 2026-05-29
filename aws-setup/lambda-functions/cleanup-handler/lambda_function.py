@@ -3,6 +3,15 @@ import boto3
 import os
 from datetime import datetime, timedelta
 
+ALLOWED_ORIGINS = ['https://midiaflow.sstechnologies-cloud.com', 'http://localhost:3000']
+
+def get_origin(event):
+    headers = event.get('headers') or {}
+    origin = headers.get('origin') or headers.get('Origin') or ''
+    return origin if origin in ALLOWED_ORIGINS else ALLOWED_ORIGINS[0]
+
+
+
 s3 = boto3.client('s3')
 UPLOADS_BUCKET = os.environ.get('UPLOADS_BUCKET', 'mediaflow-uploads-969430605054')
 PROCESSED_BUCKET = os.environ.get('PROCESSED_BUCKET', 'mediaflow-processed-969430605054')
@@ -109,7 +118,7 @@ def manual_cleanup():
         return {
             'statusCode': 200,
             'headers': {
-                'Access-Control-Allow-Origin': os.environ.get('ALLOWED_ORIGIN', 'https://midiaflow.sstechnologies-cloud.com'),
+                'Access-Control-Allow-Origin': get_origin(event),
                 'cleaned': cleaned,
                 'count': len(cleaned)
             })
@@ -118,7 +127,7 @@ def manual_cleanup():
         return {
             'statusCode': 500,
             'headers': {
-                'Access-Control-Allow-Origin': os.environ.get('ALLOWED_ORIGIN', 'https://midiaflow.sstechnologies-cloud.com'),
+                'Access-Control-Allow-Origin': get_origin(event),
                 'Access-Control-Allow-Headers': 'Content-Type,Authorization',
                 'Access-Control-Allow-Methods': 'POST,OPTIONS'
             },

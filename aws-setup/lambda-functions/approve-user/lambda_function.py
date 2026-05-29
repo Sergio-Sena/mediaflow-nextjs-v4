@@ -6,6 +6,15 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../lib'))
 from logger import Logger
 from datetime import datetime
 
+ALLOWED_ORIGINS = ['https://midiaflow.sstechnologies-cloud.com', 'http://localhost:3000']
+
+def get_origin(event):
+    headers = event.get('headers') or {}
+    origin = headers.get('origin') or headers.get('Origin') or ''
+    return origin if origin in ALLOWED_ORIGINS else ALLOWED_ORIGINS[0]
+
+
+
 dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table('mediaflow-users')
 
@@ -76,7 +85,7 @@ def cors_response(status_code, body):
     return {
         'statusCode': status_code,
         'headers': {
-            'Access-Control-Allow-Origin': os.environ.get('ALLOWED_ORIGIN', 'https://midiaflow.sstechnologies-cloud.com'),
+            'Access-Control-Allow-Origin': get_origin(event),
         },
         'body': json.dumps(body)
     }

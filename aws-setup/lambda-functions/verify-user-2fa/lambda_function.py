@@ -5,11 +5,18 @@ import boto3
 import os
 from datetime import datetime, timedelta
 
+ALLOWED_ORIGINS = ['https://midiaflow.sstechnologies-cloud.com', 'http://localhost:3000']
+
+def get_origin(event):
+    headers = event.get('headers') or {}
+    origin = headers.get('origin') or headers.get('Origin') or ''
+    return origin if origin in ALLOWED_ORIGINS else ALLOWED_ORIGINS[0]
+
+
+
 JWT_SECRET = os.environ['JWT_SECRET']
 dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table('mediaflow-users')
-ALLOWED_ORIGIN = os.environ.get('ALLOWED_ORIGIN', 'https://midiaflow.sstechnologies-cloud.com')
-
 def lambda_handler(event, context):
     try:
         if event['httpMethod'] == 'OPTIONS':
@@ -71,7 +78,7 @@ def cors_response(status_code, body):
     return {
         'statusCode': status_code,
         'headers': {
-            'Access-Control-Allow-Origin': ALLOWED_ORIGIN,
+            'Access-Control-Allow-Origin': get_origin(event),
             'Access-Control-Allow-Headers': 'Content-Type,Authorization',
             'Access-Control-Allow-Methods': 'POST,OPTIONS'
         },
