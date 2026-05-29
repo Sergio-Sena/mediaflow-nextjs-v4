@@ -9,7 +9,10 @@ from datetime import datetime
 
 ALLOWED_ORIGINS = ['https://midiaflow.sstechnologies-cloud.com', 'http://localhost:3000']
 
-def get_origin(event=None):
+_current_event = None
+
+def get_origin():
+    event = _current_event
     if not event:
         return ALLOWED_ORIGINS[0]
     headers = event.get('headers') or {}
@@ -20,15 +23,15 @@ def get_origin(event=None):
 
 s3 = boto3.client('s3')
 BUCKET = 'mediaflow-uploads-969430605054'
-def cors_headers(event=None):
+def cors_headers():
     return {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': get_origin(event),
+        'Access-Control-Allow-Origin': get_origin(),
         'Access-Control-Allow-Headers': 'Content-Type,Authorization,x-correlation-id',
         'Access-Control-Allow-Methods': 'POST,DELETE,OPTIONS'
     }
 
-def cors_response(status_code, body, event=None):
+def cors_response(status_code, body):
     return {
         'statusCode': status_code,
         'headers': cors_headers(),
@@ -36,6 +39,8 @@ def cors_response(status_code, body, event=None):
     }
 
 def lambda_handler(event, context):
+    global _current_event
+    _current_event = event
     correlation_id = event.get('headers', {}).get('x-correlation-id', None)
     logger = Logger('folder-operations', correlation_id)
     

@@ -4,7 +4,10 @@ import os
 
 ALLOWED_ORIGINS = ['https://midiaflow.sstechnologies-cloud.com', 'http://localhost:3000']
 
-def get_origin(event=None):
+_current_event = None
+
+def get_origin():
+    event = _current_event
     if not event:
         return ALLOWED_ORIGINS[0]
     headers = event.get('headers') or {}
@@ -17,6 +20,8 @@ dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
 users_table = dynamodb.Table('mediaflow-users')
 
 def lambda_handler(event, context):
+    global _current_event
+    _current_event = event
     try:
         # Suportar GET /users/{user_id}
         user_id = event.get('pathParameters', {}).get('user_id') or event.get('pathParameters', {}).get('userId')
@@ -38,12 +43,12 @@ def lambda_handler(event, context):
         print(f"Get user error: {str(e)}")
         return cors_response(500, {'success': False, 'message': 'Internal server error'})
 
-def cors_response(status_code, body, event=None):
+def cors_response(status_code, body):
     return {
         'statusCode': status_code,
         'headers': {
             'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': get_origin(event),
+            'Access-Control-Allow-Origin': get_origin(),
             'Access-Control-Allow-Headers': 'Content-Type,Authorization',
             'Access-Control-Allow-Methods': 'GET,OPTIONS'
         },

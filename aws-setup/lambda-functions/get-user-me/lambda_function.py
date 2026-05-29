@@ -5,7 +5,10 @@ import os
 
 ALLOWED_ORIGINS = ['https://midiaflow.sstechnologies-cloud.com', 'http://localhost:3000']
 
-def get_origin(event=None):
+_current_event = None
+
+def get_origin():
+    event = _current_event
     if not event:
         return ALLOWED_ORIGINS[0]
     headers = event.get('headers') or {}
@@ -29,6 +32,8 @@ def get_jwt_secret():
 JWT_SECRET = get_jwt_secret()
 
 def lambda_handler(event, context):
+    global _current_event
+    _current_event = event
     try:
         auth_header = event.get('headers', {}).get('Authorization') or event.get('headers', {}).get('authorization')
         
@@ -75,7 +80,7 @@ def lambda_handler(event, context):
             'statusCode': 500,
             'headers': {
                 'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': get_origin(event)
+                'Access-Control-Allow-Origin': get_origin()
             },
             'body': json.dumps({'success': False, 'message': 'Internal server error'})
         }

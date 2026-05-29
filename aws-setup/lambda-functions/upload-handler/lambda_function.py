@@ -7,7 +7,10 @@ from datetime import datetime
 
 ALLOWED_ORIGINS = ['https://midiaflow.sstechnologies-cloud.com', 'http://localhost:3000']
 
-def get_origin(event=None):
+_current_event = None
+
+def get_origin():
+    event = _current_event
     if not event:
         return ALLOWED_ORIGINS[0]
     headers = event.get('headers') or {}
@@ -21,6 +24,8 @@ UPLOADS_BUCKET = os.environ.get('UPLOADS_BUCKET', 'mediaflow-uploads-96943060505
 SECRET_KEY = os.environ['JWT_SECRET']
 
 def lambda_handler(event, context):
+    global _current_event
+    _current_event = event
     try:
         print(f"Upload request: {event['httpMethod']} {event.get('path', '')}")
         
@@ -204,11 +209,11 @@ def extract_user_id(event):
         print(f"JWT Error: {e}")
         return 'anonymous'
 
-def cors_response(status_code, body, event=None):
+def cors_response(status_code, body):
     return {
         'statusCode': status_code,
         'headers': {
-            'Access-Control-Allow-Origin': get_origin(event),
+            'Access-Control-Allow-Origin': get_origin(),
             'Access-Control-Allow-Headers': 'Content-Type,Authorization',
             'Access-Control-Allow-Methods': 'GET,POST,OPTIONS'
         },

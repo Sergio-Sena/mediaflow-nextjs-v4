@@ -6,7 +6,10 @@ from urllib.parse import unquote
 
 ALLOWED_ORIGINS = ['https://midiaflow.sstechnologies-cloud.com', 'http://localhost:3000']
 
-def get_origin(event=None):
+_current_event = None
+
+def get_origin():
+    event = _current_event
     if not event:
         return ALLOWED_ORIGINS[0]
     headers = event.get('headers') or {}
@@ -21,6 +24,8 @@ PROCESSED_BUCKET = os.environ.get('PROCESSED_BUCKET', 'mediaflow-processed-96943
 SECRET_KEY = os.environ['JWT_SECRET']
 
 def lambda_handler(event, context):
+    global _current_event
+    _current_event = event
     try:
         method = event['httpMethod']
         path = event.get('path', '')
@@ -158,11 +163,11 @@ def bulk_delete(keys):
     
     return cors_response(200, {'success': True, 'deleted': deleted})
 
-def cors_response(status_code, body, event=None):
+def cors_response(status_code, body):
     return {
         'statusCode': status_code,
         'headers': {
-            'Access-Control-Allow-Origin': get_origin(event),
+            'Access-Control-Allow-Origin': get_origin(),
             'Access-Control-Allow-Headers': 'Content-Type,Authorization,x-correlation-id',
             'Access-Control-Allow-Methods': 'GET,POST,DELETE,OPTIONS',
             'Content-Type': 'application/json'

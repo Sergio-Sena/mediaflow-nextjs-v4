@@ -7,7 +7,10 @@ import jwt
 
 ALLOWED_ORIGINS = ['https://midiaflow.sstechnologies-cloud.com', 'http://localhost:3000']
 
-def get_origin(event=None):
+_current_event = None
+
+def get_origin():
+    event = _current_event
     if not event:
         return ALLOWED_ORIGINS[0]
     headers = event.get('headers') or {}
@@ -59,6 +62,8 @@ def generate_thumbnail(video_key, output_key):
 
 
 def lambda_handler(event, context):
+    global _current_event
+    _current_event = event
     # Mode 1: S3 trigger (auto-generate on upload)
     if 'Records' in event:
         for record in event['Records']:
@@ -79,7 +84,7 @@ def lambda_handler(event, context):
     if not user or user.get('role') != 'admin':
         return {
             'statusCode': 403,
-            'headers': {'Access-Control-Allow-Origin': get_origin(event)},
+            'headers': {'Access-Control-Allow-Origin': get_origin()},
             'body': json.dumps({'error': 'Admin only'})
         }
 
@@ -95,7 +100,7 @@ def lambda_handler(event, context):
         ok = generate_thumbnail(video_key, thumb_key)
         return {
             'statusCode': 200 if ok else 500,
-            'headers': {'Access-Control-Allow-Origin': get_origin(event)},
+            'headers': {'Access-Control-Allow-Origin': get_origin()},
             'body': json.dumps({'thumbnail': thumb_key if ok else None})
         }
 
@@ -137,7 +142,7 @@ def lambda_handler(event, context):
 
         return {
             'statusCode': 200,
-            'headers': {'Access-Control-Allow-Origin': get_origin(event)},
+            'headers': {'Access-Control-Allow-Origin': get_origin()},
             'body': json.dumps({
                 'generated': generated,
                 'errors': errors,
@@ -147,6 +152,6 @@ def lambda_handler(event, context):
 
     return {
         'statusCode': 400,
-        'headers': {'Access-Control-Allow-Origin': get_origin(event)},
+        'headers': {'Access-Control-Allow-Origin': get_origin()},
         'body': json.dumps({'error': 'Invalid action'})
     }

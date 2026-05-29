@@ -5,7 +5,10 @@ from datetime import datetime, timedelta
 
 ALLOWED_ORIGINS = ['https://midiaflow.sstechnologies-cloud.com', 'http://localhost:3000']
 
-def get_origin(event=None):
+_current_event = None
+
+def get_origin():
+    event = _current_event
     if not event:
         return ALLOWED_ORIGINS[0]
     headers = event.get('headers') or {}
@@ -19,6 +22,8 @@ UPLOADS_BUCKET = os.environ.get('UPLOADS_BUCKET', 'mediaflow-uploads-96943060505
 PROCESSED_BUCKET = os.environ.get('PROCESSED_BUCKET', 'mediaflow-processed-969430605054')
 
 def lambda_handler(event, context):
+    global _current_event
+    _current_event = event
     try:
         # Check if triggered by MediaConvert completion
         if 'source' in event and event['source'] == 'aws.mediaconvert':
@@ -120,7 +125,7 @@ def manual_cleanup():
         return {
             'statusCode': 200,
             'headers': {
-                'Access-Control-Allow-Origin': get_origin(event),
+                'Access-Control-Allow-Origin': get_origin(),
                 'cleaned': cleaned,
                 'count': len(cleaned)
             })
@@ -129,7 +134,7 @@ def manual_cleanup():
         return {
             'statusCode': 500,
             'headers': {
-                'Access-Control-Allow-Origin': get_origin(event),
+                'Access-Control-Allow-Origin': get_origin(),
                 'Access-Control-Allow-Headers': 'Content-Type,Authorization',
                 'Access-Control-Allow-Methods': 'POST,OPTIONS'
             },

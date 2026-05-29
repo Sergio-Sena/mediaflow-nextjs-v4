@@ -6,7 +6,10 @@ s3 = boto3.client('s3', region_name='us-east-1')
 
 ALLOWED_ORIGINS = ['https://midiaflow.sstechnologies-cloud.com', 'http://localhost:3000']
 
-def get_origin(event=None):
+_current_event = None
+
+def get_origin():
+    event = _current_event
     if not event:
         return ALLOWED_ORIGINS[0]
     headers = event.get('headers') or {}
@@ -15,12 +18,14 @@ def get_origin(event=None):
 
 def cors_headers(event):
     return {
-        'Access-Control-Allow-Origin': get_origin(event),
+        'Access-Control-Allow-Origin': get_origin(),
         'Access-Control-Allow-Headers': 'Content-Type,Authorization',
         'Access-Control-Allow-Methods': 'POST,OPTIONS'
     }
 
 def lambda_handler(event, context):
+    global _current_event
+    _current_event = event
     try:
         if isinstance(event.get('body'), str):
             body = json.loads(event['body'])

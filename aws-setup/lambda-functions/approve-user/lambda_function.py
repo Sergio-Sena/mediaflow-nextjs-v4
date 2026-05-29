@@ -8,7 +8,10 @@ from datetime import datetime
 
 ALLOWED_ORIGINS = ['https://midiaflow.sstechnologies-cloud.com', 'http://localhost:3000']
 
-def get_origin(event=None):
+_current_event = None
+
+def get_origin():
+    event = _current_event
     if not event:
         return ALLOWED_ORIGINS[0]
     headers = event.get('headers') or {}
@@ -21,6 +24,8 @@ dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table('mediaflow-users')
 
 def lambda_handler(event, context):
+    global _current_event
+    _current_event = event
     correlation_id = event.get('headers', {}).get('x-correlation-id', None)
     logger = Logger('approve-user', correlation_id)
     
@@ -83,11 +88,11 @@ def lambda_handler(event, context):
             'message': 'Internal server error'
         })
 
-def cors_response(status_code, body, event=None):
+def cors_response(status_code, body):
     return {
         'statusCode': status_code,
         'headers': {
-            'Access-Control-Allow-Origin': get_origin(event),
+            'Access-Control-Allow-Origin': get_origin(),
         },
         'body': json.dumps(body)
     }

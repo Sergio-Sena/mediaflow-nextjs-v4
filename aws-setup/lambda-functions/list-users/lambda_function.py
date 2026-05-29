@@ -5,7 +5,10 @@ import os
 
 ALLOWED_ORIGINS = ['https://midiaflow.sstechnologies-cloud.com', 'http://localhost:3000']
 
-def get_origin(event=None):
+_current_event = None
+
+def get_origin():
+    event = _current_event
     if not event:
         return ALLOWED_ORIGINS[0]
     headers = event.get('headers') or {}
@@ -20,6 +23,8 @@ table = dynamodb.Table('mediaflow-users')
 SECRET_KEY = os.environ['JWT_SECRET']
 
 def lambda_handler(event, context):
+    global _current_event
+    _current_event = event
     try:
         if event['httpMethod'] == 'OPTIONS':
             return cors_response(200, {})
@@ -65,11 +70,11 @@ def lambda_handler(event, context):
             'message': 'Internal server error'
         })
 
-def cors_response(status_code, body, event=None):
+def cors_response(status_code, body):
     return {
         'statusCode': status_code,
         'headers': {
-            'Access-Control-Allow-Origin': get_origin(event),
+            'Access-Control-Allow-Origin': get_origin(),
             'Access-Control-Allow-Headers': 'Content-Type,Authorization',
             'Access-Control-Allow-Methods': 'GET,POST,OPTIONS'
         },

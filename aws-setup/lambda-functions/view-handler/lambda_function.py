@@ -6,7 +6,10 @@ from urllib.parse import unquote, unquote_plus
 
 ALLOWED_ORIGINS = ['https://midiaflow.sstechnologies-cloud.com', 'http://localhost:3000']
 
-def get_origin(event=None):
+_current_event = None
+
+def get_origin():
+    event = _current_event
     if not event:
         return ALLOWED_ORIGINS[0]
     headers = event.get('headers') or {}
@@ -24,6 +27,8 @@ PROCESSED_BUCKET = os.environ.get('PROCESSED_BUCKET', 'mediaflow-processed-96943
 JWT_SECRET = os.environ['JWT_SECRET']
 
 def lambda_handler(event, context):
+    global _current_event
+    _current_event = event
     print(f"Event method: {event.get('httpMethod')}")
     try:
         if event['httpMethod'] == 'OPTIONS':
@@ -99,11 +104,11 @@ def lambda_handler(event, context):
         traceback.print_exc()
         return cors_response(500, {'success': False, 'message': 'Internal server error'})
 
-def cors_response(status_code, body, event=None):
+def cors_response(status_code, body):
     return {
         'statusCode': status_code,
         'headers': {
-            'Access-Control-Allow-Origin': get_origin(event),
+            'Access-Control-Allow-Origin': get_origin(),
             'Access-Control-Allow-Headers': 'Content-Type,Authorization',
             'Access-Control-Allow-Methods': 'GET,OPTIONS'
         },
