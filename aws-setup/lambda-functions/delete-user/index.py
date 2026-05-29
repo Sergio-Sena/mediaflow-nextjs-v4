@@ -5,21 +5,7 @@ import os
 dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table('mediaflow-users')
 
-ALLOWED_ORIGINS = ['https://midiaflow.sstechnologies-cloud.com', 'http://localhost:3000']
-
-_current_event = None
-
-def get_origin():
-    event = _current_event
-    if not event:
-        return ALLOWED_ORIGINS[0]
-    headers = event.get('headers') or {}
-    origin = headers.get('origin') or headers.get('Origin') or ''
-    return origin if origin in ALLOWED_ORIGINS else ALLOWED_ORIGINS[0]
-
 def lambda_handler(event, context):
-    global _current_event
-    _current_event = event
     try:
         if event['httpMethod'] == 'OPTIONS':
             return cors_response(200, {})
@@ -45,7 +31,7 @@ def cors_response(status_code, body):
     return {
         'statusCode': status_code,
         'headers': {
-            'Access-Control-Allow-Origin': get_origin() if event else ALLOWED_ORIGINS[0],
+            'Access-Control-Allow-Origin': os.environ.get('ALLOWED_ORIGIN', 'https://midiaflow.sstechnologies-cloud.com'),
             'Access-Control-Allow-Headers': 'Content-Type,Authorization',
             'Access-Control-Allow-Methods': 'DELETE,OPTIONS'
         },

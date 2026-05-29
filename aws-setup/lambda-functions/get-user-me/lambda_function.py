@@ -3,20 +3,6 @@ import boto3
 import jwt
 import os
 
-ALLOWED_ORIGINS = ['https://midiaflow.sstechnologies-cloud.com', 'http://localhost:3000']
-
-_current_event = None
-
-def get_origin():
-    event = _current_event
-    if not event:
-        return ALLOWED_ORIGINS[0]
-    headers = event.get('headers') or {}
-    origin = headers.get('origin') or headers.get('Origin') or ''
-    return origin if origin in ALLOWED_ORIGINS else ALLOWED_ORIGINS[0]
-
-
-
 dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
 users_table = dynamodb.Table('mediaflow-users')
 secrets_client = boto3.client('secretsmanager', region_name='us-east-1')
@@ -32,8 +18,6 @@ def get_jwt_secret():
 JWT_SECRET = get_jwt_secret()
 
 def lambda_handler(event, context):
-    global _current_event
-    _current_event = event
     try:
         auth_header = event.get('headers', {}).get('Authorization') or event.get('headers', {}).get('authorization')
         
@@ -80,7 +64,7 @@ def lambda_handler(event, context):
             'statusCode': 500,
             'headers': {
                 'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': get_origin()
+                'Access-Control-Allow-Origin': os.environ.get('ALLOWED_ORIGIN', 'https://midiaflow.sstechnologies-cloud.com')
             },
             'body': json.dumps({'success': False, 'message': 'Internal server error'})
         }

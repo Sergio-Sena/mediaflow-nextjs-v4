@@ -3,29 +3,16 @@ import boto3
 import os
 
 s3 = boto3.client('s3', region_name='us-east-1')
+ALLOWED_ORIGIN = os.environ.get('ALLOWED_ORIGIN', 'https://midiaflow.sstechnologies-cloud.com')
 
-ALLOWED_ORIGINS = ['https://midiaflow.sstechnologies-cloud.com', 'http://localhost:3000']
-
-_current_event = None
-
-def get_origin():
-    event = _current_event
-    if not event:
-        return ALLOWED_ORIGINS[0]
-    headers = event.get('headers') or {}
-    origin = headers.get('origin') or headers.get('Origin') or ''
-    return origin if origin in ALLOWED_ORIGINS else ALLOWED_ORIGINS[0]
-
-def cors_headers(event):
+def cors_headers():
     return {
-        'Access-Control-Allow-Origin': get_origin(),
+        'Access-Control-Allow-Origin': ALLOWED_ORIGIN,
         'Access-Control-Allow-Headers': 'Content-Type,Authorization',
         'Access-Control-Allow-Methods': 'POST,OPTIONS'
     }
 
 def lambda_handler(event, context):
-    global _current_event
-    _current_event = event
     try:
         if isinstance(event.get('body'), str):
             body = json.loads(event['body'])
@@ -38,7 +25,7 @@ def lambda_handler(event, context):
         if not user_id:
             return {
                 'statusCode': 400,
-                'headers': cors_headers(event),
+                'headers': cors_headers(),
                 'body': json.dumps({'success': False, 'error': 'userId required'})
             }
         
@@ -77,7 +64,7 @@ def lambda_handler(event, context):
         
         return {
             'statusCode': 200,
-            'headers': cors_headers(event),
+            'headers': cors_headers(),
             'body': json.dumps({
                 'success': True,
                 'presignedUrl': presigned_url,
@@ -89,6 +76,6 @@ def lambda_handler(event, context):
         print(f"Avatar presigned error: {str(e)}")
         return {
             'statusCode': 500,
-            'headers': cors_headers(event),
+            'headers': cors_headers(),
             'body': json.dumps({'success': False, 'error': 'Internal server error'})
         }
