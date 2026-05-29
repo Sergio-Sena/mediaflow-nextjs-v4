@@ -38,7 +38,7 @@ def generate_thumbnail(video_key, output_key):
 
         # Extract first frame with ffmpeg
         ffmpeg = '/opt/bin/ffmpeg'
-        cmd = [ffmpeg, '-i', video_path, '-vframes', '1', '-q:v', '5',
+        cmd = [ffmpeg, '-ss', '10', '-i', video_path, '-vframes', '1', '-q:v', '5',
                '-vf', 'scale=320:-1', '-y', thumb_path]
         result = subprocess.run(cmd, capture_output=True, timeout=30)
 
