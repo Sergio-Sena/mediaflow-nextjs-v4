@@ -9,7 +9,13 @@ s3 = boto3.client('s3')
 BUCKET = 'mediaflow-uploads-969430605054'
 THUMB_PREFIX = 'public/thumbnails/'
 JWT_SECRET = os.environ['JWT_SECRET']
-ALLOWED_ORIGIN = os.environ.get('ALLOWED_ORIGIN', 'https://midiaflow.sstechnologies-cloud.com')
+_request_origin = None
+
+def get_allowed_origin(event):
+    allowed = os.environ.get('ALLOWED_ORIGINS', 'https://midiaflow.sstechnologies-cloud.com').split(',')
+    headers = event.get('headers') or {}
+    origin = headers.get('origin') or headers.get('Origin') or ''
+    return origin if origin in allowed else allowed[0]
 
 
 def verify_token(token):
@@ -51,6 +57,8 @@ def generate_thumbnail(video_key, output_key):
 
 
 def lambda_handler(event, context):
+    global _request_origin
+    _request_origin = get_allowed_origin(event)
     # Mode 1: S3 trigger (auto-generate on upload)
     if 'Records' in event:
         for record in event['Records']:
@@ -71,7 +79,7 @@ def lambda_handler(event, context):
     if not user or user.get('role') != 'admin':
         return {
             'statusCode': 403,
-            'headers': {'Access-Control-Allow-Origin': ALLOWED_ORIGIN},
+            'headers': {'Access-Control-Allow-Origin': _request_origin or 'https://midiaflow.sstechnologies-cloud.com'},
             'body': json.dumps({'error': 'Admin only'})
         }
 
@@ -87,7 +95,7 @@ def lambda_handler(event, context):
         ok = generate_thumbnail(video_key, thumb_key)
         return {
             'statusCode': 200 if ok else 500,
-            'headers': {'Access-Control-Allow-Origin': ALLOWED_ORIGIN},
+            'headers': {'Access-Control-Allow-Origin': _request_origin or 'https://midiaflow.sstechnologies-cloud.com'},
             'body': json.dumps({'thumbnail': thumb_key if ok else None})
         }
 
@@ -129,7 +137,7 @@ def lambda_handler(event, context):
 
         return {
             'statusCode': 200,
-            'headers': {'Access-Control-Allow-Origin': ALLOWED_ORIGIN},
+            'headers': {'Access-Control-Allow-Origin': _request_origin or 'https://midiaflow.sstechnologies-cloud.com'},
             'body': json.dumps({
                 'generated': generated,
                 'errors': errors,
@@ -139,6 +147,6 @@ def lambda_handler(event, context):
 
     return {
         'statusCode': 400,
-        'headers': {'Access-Control-Allow-Origin': ALLOWED_ORIGIN},
+        'headers': {'Access-Control-Allow-Origin': _request_origin or 'https://midiaflow.sstechnologies-cloud.com'},
         'body': json.dumps({'error': 'Invalid action'})
     }

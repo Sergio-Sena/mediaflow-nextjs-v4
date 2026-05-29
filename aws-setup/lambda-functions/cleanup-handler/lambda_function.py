@@ -6,8 +6,17 @@ from datetime import datetime, timedelta
 s3 = boto3.client('s3')
 UPLOADS_BUCKET = os.environ.get('UPLOADS_BUCKET', 'mediaflow-uploads-969430605054')
 PROCESSED_BUCKET = os.environ.get('PROCESSED_BUCKET', 'mediaflow-processed-969430605054')
+_request_origin = None
+
+def get_allowed_origin(event):
+    allowed = os.environ.get('ALLOWED_ORIGINS', 'https://midiaflow.sstechnologies-cloud.com').split(',')
+    headers = event.get('headers') or {}
+    origin = headers.get('origin') or headers.get('Origin') or ''
+    return origin if origin in allowed else allowed[0]
 
 def lambda_handler(event, context):
+    global _request_origin
+    _request_origin = get_allowed_origin(event) if event.get('headers') else 'https://midiaflow.sstechnologies-cloud.com'
     try:
         # Check if triggered by MediaConvert completion
         if 'source' in event and event['source'] == 'aws.mediaconvert':
@@ -109,16 +118,17 @@ def manual_cleanup():
         return {
             'statusCode': 200,
             'headers': {
-                'Access-Control-Allow-Origin': os.environ.get('ALLOWED_ORIGIN', 'https://midiaflow.sstechnologies-cloud.com'),
-                'cleaned': cleaned,
-                'count': len(cleaned)
-            })
+                'Access-Control-Allow-Origin': _request_origin or 'https://midiaflow.sstechnologies-cloud.com',
+                'Access-Control-Allow-Headers': 'Content-Type,Authorization',
+                'Access-Control-Allow-Methods': 'POST,OPTIONS'
+            },
+            'body': json.dumps({'success': True, 'cleaned': cleaned, 'count': len(cleaned)})
         }
     except Exception as e:
         return {
             'statusCode': 500,
             'headers': {
-                'Access-Control-Allow-Origin': os.environ.get('ALLOWED_ORIGIN', 'https://midiaflow.sstechnologies-cloud.com'),
+                'Access-Control-Allow-Origin': _request_origin or 'https://midiaflow.sstechnologies-cloud.com',
                 'Access-Control-Allow-Headers': 'Content-Type,Authorization',
                 'Access-Control-Allow-Methods': 'POST,OPTIONS'
             },
