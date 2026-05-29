@@ -6,7 +6,9 @@ from datetime import datetime
 
 ALLOWED_ORIGINS = ['https://midiaflow.sstechnologies-cloud.com', 'http://localhost:3000']
 
-def get_origin(event):
+def get_origin(event=None):
+    if not event:
+        return ALLOWED_ORIGINS[0]
     headers = event.get('headers') or {}
     origin = headers.get('origin') or headers.get('Origin') or ''
     return origin if origin in ALLOWED_ORIGINS else ALLOWED_ORIGINS[0]
@@ -165,7 +167,7 @@ def extract_user_id(event):
         print(f"Error parsing JWT: {e}")
         return 'anonymous'
 
-def cors_response(status_code, body):
+def cors_response(status_code, body, event=None):
     return {
         'statusCode': status_code,
         'headers': {
