@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { ChevronLeft, ChevronRight, Play, Image, FileText, Trash2, Share2, CheckSquare, Square } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Play, Trash2, Share2, CheckSquare, Square } from 'lucide-react'
 
 const BUCKET_URL = 'https://mediaflow-uploads-969430605054.s3.amazonaws.com'
 
@@ -16,34 +16,21 @@ function getThumbnailUrl(key: string): string {
   return ''
 }
 
-function ThumbnailImage({ itemKey, type, icon }: { itemKey: string; type: string; icon: React.ReactNode }) {
+function ThumbnailImage({ itemKey }: { itemKey: string }) {
   const [loaded, setLoaded] = useState(false)
   const [error, setError] = useState(false)
   const thumbUrl = getThumbnailUrl(itemKey)
 
-  if (!thumbUrl || error || type !== 'video') {
-    return (
-      <div className="absolute inset-0 flex items-center justify-center text-white/60 group-hover:text-white/90 transition-colors">
-        {icon}
-      </div>
-    )
-  }
+  if (!thumbUrl || error) return null
 
   return (
-    <>
-      {!loaded && (
-        <div className="absolute inset-0 flex items-center justify-center text-white/60">
-          {icon}
-        </div>
-      )}
-      <img
-        src={thumbUrl}
-        alt=""
-        className={`absolute inset-0 w-full h-full object-cover transition-opacity ${loaded ? 'opacity-100' : 'opacity-0'}`}
-        onLoad={() => setLoaded(true)}
-        onError={() => setError(true)}
-      />
-    </>
+    <img
+      src={thumbUrl}
+      alt=""
+      className={`absolute inset-0 w-full h-full object-cover transition-opacity ${loaded ? 'opacity-100' : 'opacity-0'}`}
+      onLoad={() => setLoaded(true)}
+      onError={() => setError(true)}
+    />
   )
 }
 
@@ -107,13 +94,7 @@ function ContentRow({ title, items, onItemClick, onItemDelete, onItemShare, onDe
     }
   }
 
-  const getIcon = (type: string) => {
-    switch (type) {
-      case 'video': return <Play className="w-6 h-6 sm:w-8 sm:h-8" />
-      case 'image': return <Image className="w-6 h-6 sm:w-8 sm:h-8" />
-      default: return <FileText className="w-6 h-6 sm:w-8 sm:h-8" />
-    }
-  }
+
 
   const formatSize = (bytes: number) => {
     if (bytes === 0) return '0 B'
@@ -172,11 +153,11 @@ function ContentRow({ title, items, onItemClick, onItemDelete, onItemShare, onDe
                 className={`flex-shrink-0 w-[140px] sm:w-[170px] md:w-[190px] lg:w-[210px] cursor-pointer group ${isSelected ? 'ring-2 ring-neon-cyan rounded-lg' : ''}`}
               >
                 <div className={`relative aspect-video rounded-lg overflow-hidden bg-gradient-to-br ${getGradient(item.type)} border border-white/5 transition-all duration-300 group-hover:scale-105 group-hover:border-neon-cyan/50 group-hover:shadow-lg group-hover:shadow-neon-cyan/20`}>
-                  <ThumbnailImage itemKey={item.key} type={item.type} icon={getIcon(item.type)} />
+                  <ThumbnailImage itemKey={item.key} />
                   {!selectionMode && (
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <div className="bg-neon-cyan/90 rounded-full p-1.5 sm:p-2">
-                        <Play className="w-4 h-4 sm:w-5 sm:h-5 text-black" fill="black" />
+                    <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-r from-cyan-500/20 to-purple-500/20 backdrop-blur-sm flex items-center justify-center">
+                        <Play className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-300" fill="currentColor" />
                       </div>
                     </div>
                   )}

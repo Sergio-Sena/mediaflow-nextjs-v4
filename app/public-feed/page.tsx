@@ -123,7 +123,7 @@ function CategoryRow({ title, items, currentUserId, currentUserRole, onPlay, onL
                   }}
                   className="relative aspect-[16/10] md:aspect-video rounded-lg overflow-hidden bg-gradient-to-br from-purple-900/60 to-blue-900/40 border border-white/5 cursor-pointer group transition-all duration-300 hover:scale-[1.03] hover:border-neon-cyan/50 hover:shadow-lg hover:shadow-neon-cyan/10"
                 >
-                  {item.type === 'video' && getThumbnailUrl(item.file_key) ? (
+                  {getThumbnailUrl(item.file_key) ? (
                     <img
                       src={getThumbnailUrl(item.file_key)}
                       alt=""
@@ -131,9 +131,6 @@ function CategoryRow({ title, items, currentUserId, currentUserRole, onPlay, onL
                       onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
                     />
                   ) : null}
-                  <div className="absolute inset-0 flex items-center justify-center text-white/50 group-hover:text-white/80 transition-colors">
-                    <span className="text-3xl">{item.type === 'video' ? '🎬' : '🖼️'}</span>
-                  </div>
                   <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                     <div className="w-12 h-12 rounded-full bg-gradient-to-r from-cyan-500/20 to-purple-500/20 backdrop-blur-sm flex items-center justify-center">
                       <Play className="w-5 h-5 text-cyan-300" fill="currentColor" />
