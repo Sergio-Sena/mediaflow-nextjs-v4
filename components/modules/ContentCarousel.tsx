@@ -236,8 +236,8 @@ export default function ContentCarousel({ files, onItemClick, onItemDelete, onIt
     grouped[folder].push(file)
   })
 
-  // Sort by item count descending
-  const sorted = Object.entries(grouped).sort((a, b) => b[1].length - a[1].length)
+  // Sort alphabetically by folder name
+  const sorted = Object.entries(grouped).sort((a, b) => a[0].localeCompare(b[0]))
 
   return (
     <div className="mt-4">
