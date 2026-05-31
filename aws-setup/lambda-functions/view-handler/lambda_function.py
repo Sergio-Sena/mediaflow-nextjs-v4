@@ -10,6 +10,7 @@ users_table = dynamodb.Table('mediaflow-users')
 
 UPLOADS_BUCKET = os.environ.get('UPLOADS_BUCKET', 'mediaflow-uploads-969430605054')
 PROCESSED_BUCKET = os.environ.get('PROCESSED_BUCKET', 'mediaflow-processed-969430605054')
+CDN_DOMAIN = os.environ.get('CDN_DOMAIN', 'midiaflow.sstechnologies-cloud.com')
 JWT_SECRET = os.environ['JWT_SECRET']
 _request_origin = None
 
@@ -78,12 +79,15 @@ def lambda_handler(event, context):
                 # Fall back to uploads bucket
                 pass
         
-        # Generate presigned URL
-        view_url = s3.generate_presigned_url(
-            'get_object',
-            Params={'Bucket': bucket_to_use, 'Key': key},
-            ExpiresIn=3600
-        )
+        # Generate CDN URL (faster) or fallback to presigned
+        if bucket_to_use == UPLOADS_BUCKET:
+            view_url = f'https://{CDN_DOMAIN}/media/{key}'
+        else:
+            view_url = s3.generate_presigned_url(
+                'get_object',
+                Params={'Bucket': bucket_to_use, 'Key': key},
+                ExpiresIn=3600
+            )
         
         return cors_response(200, {
             'success': True,
