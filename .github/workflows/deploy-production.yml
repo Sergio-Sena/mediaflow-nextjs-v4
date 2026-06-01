@@ -83,7 +83,7 @@ jobs:
           path: |
             out/
             .next/static/
-          retention-days: 7
+          retention-days: 1
 
   deploy-frontend:
     name: Deploy Frontend
