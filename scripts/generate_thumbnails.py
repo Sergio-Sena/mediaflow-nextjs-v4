@@ -6,7 +6,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 BUCKET = 'mediaflow-uploads-969430605054'
 VIDEO_PREFIX = 'users/'
 THUMB_PREFIX = 'public/thumbnails/'
-FFMPEG = r'C:\ffmpeg\bin\ffmpeg.exe'
+FFMPEG = r'C:\Program Files\FormatFactory5.22.0.0\ffmpeg.exe'
 TEMP_DIR = os.path.join(os.environ['TEMP'], 'midiaflow_thumbs')
 MAX_WORKERS = 10
 
@@ -63,7 +63,7 @@ def main():
     videos = []
     for page in paginator.paginate(Bucket=BUCKET, Prefix=VIDEO_PREFIX):
         for obj in page.get('Contents', []):
-            if obj['Key'].lower().endswith('.mp4'):
+            if obj['Key'].lower().endswith(('.mp4', '.mkv', '.avi', '.webm', '.ts', '.mov', '.wmv', '.flv')):
                 videos.append(obj['Key'])
 
     print(f"Total videos: {len(videos)}")

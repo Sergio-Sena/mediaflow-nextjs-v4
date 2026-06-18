@@ -1,6 +1,26 @@
 # Changelog - MidiaFlow
 
-## [4.9.0] - 2025-01-XX - Nível 2: Qualidade & Confiabilidade
+## [4.10.1] - 2026-06-18 - Media Pipeline & S3 Organization
+
+### Adicionado
+- **compare-local-s3.py**: Compara arquivos locais vs S3 com deteccao por nome + tamanho
+- **sanitize-remux-upload.py**: Pipeline completo de sanitizacao + remux (.ts->.mp4) + upload
+- **reorganize-s3.py**: Reorganizacao de pastas/arquivos no S3
+- **remove-player-ui.py**: Remocao de elementos de UI de thumbnails via OpenCV inpainting
+- Comparacao por tamanho exato no compare-local-s3 (evita duplicatas)
+
+### Corrigido
+- Duplicatas AniButler removidas (upload duplo por nomes diferentes)
+- Thumbnails customizadas preservadas pelo gerador automatico
+
+### Organizacao S3
+- Categorias Anime organizadas em subpastas (Kimetsu_No_Yaba, Succubus, Ravena, Outros)
+- Pastas Star consolidadas (AniButler, arina_fox, Jill Kassidy, Mini_skirt_dress)
+- 40 videos sanitizados e enviados, 36 duplicados locais removidos (11.68 GB liberados)
+
+---
+
+## [4.9.0] - 2025-01-XX - Nivel 2: Qualidade & Confiabilidade
 
 ### ✨ Adicionado
 - **Testes Unitários**: Jest + Testing Library configurado
