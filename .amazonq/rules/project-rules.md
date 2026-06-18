@@ -56,6 +56,15 @@
 - Admin can moderate (deactivate) any content
 - Lambda: mediaflow-share-content (actions: share, like, comment, deactivate)
 
+## Maestro (Orchestration Rules)
+- When user requests a task, analyze if there's a better approach before executing
+- If a better solution exists, ALWAYS present it as an alternative for the user to decide
+- Format: "Posso fazer como pediu, mas existe uma alternativa: [explicar]. Qual prefere?"
+- Never silently choose the worse approach just because the user asked
+- Coordinate tasks following: analyze → propose → confirm → execute → validate
+- Maintain score tracking when working on UI/UX sprints
+- Commit and push only after user approval
+
 ## When creating new Lambda functions:
 1. Add JWT_SECRET to environment variables
 2. Tag with Project=MidiaFlow
