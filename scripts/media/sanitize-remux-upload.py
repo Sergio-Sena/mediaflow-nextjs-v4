@@ -5,50 +5,129 @@ Roda direto de scripts/media/ sem precisar de cd.
 Preserva estrutura de pastas local -> S3.
 
 Uso:
-  python "c:\Projetos Git\MidiaFlow\scripts\media\sanitize-remux-upload.py"
+  python scripts/media/sanitize-remux-upload.py
 
 Mapeamento:
   IDM/Star/AniButler/video.ts  -> users/sergio_sena/Star/AniButler/video_sanitizado.mp4
   IDM/Anime/Kimetsu/video.mp4  -> users/sergio_sena/Anime/Kimetsu/video_sanitizado.mp4
 """
 import boto3
+from boto3.s3.transfer import TransferConfig
 import os
 import re
 import subprocess
 import sys
+import unicodedata
 
 sys.stdout.reconfigure(encoding='utf-8')
 
-s3 = boto3.client('s3', region_name='us-east-1')
+session = boto3.Session(profile_name='default')
+s3 = session.client('s3', region_name='us-east-1')
 BUCKET = 'mediaflow-uploads-969430605054'
 LOCAL_PATH = r'C:\Users\dell 5557\Videos\IDM'
 FFMPEG = r'C:\ffmpeg\bin\ffmpeg.exe'
 VIDEO_EXTS = ('.mp4', '.ts', '.mkv', '.avi', '.mov', '.webm')
 S3_USER = 'users/sergio_sena'
 
+def get_transfer_config():
+    """Mede velocidade de upload e configura multipart otimizado."""
+    try:
+        import speedtest
+        print('Medindo velocidade de internet...')
+        st = speedtest.Speedtest()
+        st.get_best_server()
+        upload_speed = st.upload() / 1_000_000  # Mbps
+        print(f'  Upload: {upload_speed:.0f} Mbps')
+
+        if upload_speed > 150:
+            config = TransferConfig(multipart_threshold=8*1024*1024, multipart_chunksize=64*1024*1024, max_concurrency=10, use_threads=True)
+            print(f'  Config: 64MB chunks, 10 threads (banda alta)\n')
+        elif upload_speed > 50:
+            config = TransferConfig(multipart_threshold=8*1024*1024, multipart_chunksize=32*1024*1024, max_concurrency=8, use_threads=True)
+            print(f'  Config: 32MB chunks, 8 threads (banda media)\n')
+        else:
+            config = TransferConfig(multipart_threshold=8*1024*1024, multipart_chunksize=8*1024*1024, max_concurrency=5, use_threads=True)
+            print(f'  Config: 8MB chunks, 5 threads (banda baixa)\n')
+        return config
+    except Exception:
+        print('  Speedtest indisponivel, usando config padrao (64MB, 10 threads)\n')
+        return TransferConfig(multipart_threshold=8*1024*1024, multipart_chunksize=64*1024*1024, max_concurrency=10, use_threads=True)
+
+
+TRANSFER_CONFIG = None  # inicializado no main()
+
+# Transliteração cirílico -> latin
+CYRILLIC_MAP = {
+    'а': 'a', 'б': 'b', 'в': 'v', 'г': 'g', 'д': 'd', 'е': 'e', 'ё': 'yo',
+    'ж': 'zh', 'з': 'z', 'и': 'i', 'й': 'y', 'к': 'k', 'л': 'l', 'м': 'm',
+    'н': 'n', 'о': 'o', 'п': 'p', 'р': 'r', 'с': 's', 'т': 't', 'у': 'u',
+    'ф': 'f', 'х': 'kh', 'ц': 'ts', 'ч': 'ch', 'ш': 'sh', 'щ': 'shch',
+    'ъ': '', 'ы': 'y', 'ь': '', 'э': 'e', 'ю': 'yu', 'я': 'ya',
+}
+
+# Produtoras a remover
+PRODUTORAS = [
+    'BLACKEDRAW', 'BLACKED RAW', 'BLACKED', 'GIRLSWAY', 'HouseHumpers',
+    'TUSHY', 'XPERVO', 'LETSDOEIT', 'VIXEN', 'BRAZZERS', 'SWEET SINNER',
+    'ADULT TIME', 'CUM4K', 'JULES JORDAN', 'Jules Jordan', 'NEW SENSATIONS',
+    'PORNPROS', '404HotFound'
+]
+
 print(f'Pasta base: {LOCAL_PATH}\n')
 
 
 def sanitize_filename(filename):
-    """Remove sites, resolucoes, codecs, caracteres especiais."""
+    """Sanitiza nomes em qualquer idioma."""
     name, ext = os.path.splitext(filename)
 
-    name = re.sub(r'\s*-?\s*(Pornhub\.com|Pornhub|EPORNER\.COM|xvideos)', '', name, flags=re.IGNORECASE)
-    name = re.sub(r'_(\d)$', r' \1', name)
+    # Remove sites
+    name = re.sub(r'\s*-?\s*(Pornhub\.com|Pornhub|EPORNER\.COM|xvideos|PornHD)', '', name, flags=re.IGNORECASE)
+
+    # Remove sufixos _2, _3
+    name = re.sub(r'_(\d)$', r'_\1', name)
+
+    # Remove tags entre colchetes/chaves
     name = re.sub(r'\[H69\]', '', name, flags=re.IGNORECASE)
     name = re.sub(r'\[4K\s*\d*FPS\]', '', name, flags=re.IGNORECASE)
     name = re.sub(r'\[R2\s*Studio\]', '', name, flags=re.IGNORECASE)
     name = re.sub(r'\[NO\s*WM\.?\]', '', name, flags=re.IGNORECASE)
     name = re.sub(r'\[[^\]]*\]', '', name)
-    name = re.sub(r'\s*(4K|1080p?|720p?|480p?|60FPS|120FPS)\s*', ' ', name, flags=re.IGNORECASE)
-    name = re.sub(r'^(BLACKEDRAW|GIRLSWAY|HouseHumpers|TUSHY)\s*-?\s*', '', name, flags=re.IGNORECASE)
+    name = re.sub(r'\{[^\}]*\}', '', name)
 
+    # Remove resolucoes
+    name = re.sub(r'\s*(4K|1080p?|720p?|480p?|60FPS|120FPS)\s*', ' ', name, flags=re.IGNORECASE)
+
+    # Remove produtoras
+    for prod in PRODUTORAS:
+        name = re.sub(rf'^\s*{re.escape(prod)}\s*-?\s*', '', name, flags=re.IGNORECASE)
+        name = re.sub(rf'\s*-?\s*{re.escape(prod)}\s*-?\s*', ' ', name, flags=re.IGNORECASE)
+
+    # Remove "Video completo - "
+    name = re.sub(r'^V[ií]deo\s+completo\s*-?\s*', '', name, flags=re.IGNORECASE)
+
+    # Transliterar cirílico
+    result = []
+    for char in name:
+        lower = char.lower()
+        if lower in CYRILLIC_MAP:
+            mapped = CYRILLIC_MAP[lower]
+            result.append(mapped.upper() if char.isupper() else mapped)
+        else:
+            result.append(char)
+    name = ''.join(result)
+
+    # Remover acentos
+    name = unicodedata.normalize('NFD', name)
+    name = ''.join(c for c in name if unicodedata.category(c) != 'Mn')
+
+    # Normalizar caracteres
     name = name.strip(' -_.')
     name = re.sub(r'[^\w\s.-]', '_', name)
     name = re.sub(r'\s+', '_', name)
     name = re.sub(r'_+', '_', name)
     name = name.strip('_')
 
+    # Truncar a 60 chars
     if len(name) > 60:
         name = name[:60]
         last_underscore = name.rfind('_')
@@ -66,7 +145,7 @@ def remux_to_mp4(input_file, output_file):
 
 
 def upload_to_s3(local_file, s3_key):
-    """Upload com progress."""
+    """Upload otimizado com multipart (64MB chunks, 10 threads)."""
     file_size = os.path.getsize(local_file)
     uploaded = [0]
 
@@ -75,7 +154,7 @@ def upload_to_s3(local_file, s3_key):
         pct = (uploaded[0] / file_size) * 100
         print(f'\r    Upload: {uploaded[0]/(1024*1024):.0f}/{file_size/(1024*1024):.0f} MB ({pct:.0f}%)', end='', flush=True)
 
-    s3.upload_file(local_file, BUCKET, s3_key, Callback=callback)
+    s3.upload_file(local_file, BUCKET, s3_key, Config=TRANSFER_CONFIG, Callback=callback)
     print()
 
 
@@ -87,9 +166,13 @@ def get_s3_folder(filepath):
 
 
 def main():
+    global TRANSFER_CONFIG
+
     if not os.path.exists(FFMPEG):
         print(f'ERRO: ffmpeg nao encontrado em {FFMPEG}')
         sys.exit(1)
+
+    TRANSFER_CONFIG = get_transfer_config()
 
     print('Coletando arquivos pendentes...\n')
 
@@ -166,13 +249,6 @@ def main():
                 if os.path.exists(temp_mp4):
                     os.remove(temp_mp4)
 
-    # Limpar pastas vazias
-    empty_removed = 0
-    for root, dirs, files in os.walk(LOCAL_PATH, topdown=False):
-        if not os.listdir(root) and root != LOCAL_PATH:
-            os.rmdir(root)
-            empty_removed += 1
-
     print(f'\n{"="*60}')
     print(f'RESUMO')
     print(f'{"="*60}')
@@ -180,7 +256,6 @@ def main():
     print(f'  Remuxados:    {processed}')
     print(f'  Enviados:     {uploaded_count}')
     print(f'  Erros:        {len(errors)}')
-    print(f'  Pastas vazias removidas: {empty_removed}')
 
     if errors:
         print(f'\n  ERROS:')

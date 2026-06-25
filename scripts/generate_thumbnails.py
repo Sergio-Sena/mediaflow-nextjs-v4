@@ -10,7 +10,8 @@ FFMPEG = r'C:\Program Files\FormatFactory5.22.0.0\ffmpeg.exe'
 TEMP_DIR = os.path.join(os.environ['TEMP'], 'midiaflow_thumbs')
 MAX_WORKERS = 10
 
-s3 = boto3.client('s3', region_name='us-east-1')
+session = boto3.Session(profile_name='default')
+s3 = session.client('s3', region_name='us-east-1')
 
 def get_thumb_key(video_key):
     """users/sergio_sena/Anime/file.mp4 -> public/thumbnails/sergio_sena/Anime/file.jpg"""
