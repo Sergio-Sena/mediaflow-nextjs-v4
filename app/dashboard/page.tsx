@@ -315,7 +315,7 @@ function DashboardContent() {
       </header>
 
       {/* Navigation */}
-      <nav className="hidden md:block bg-dark-800/30 backdrop-blur-sm border-b border-neon-cyan/10 overflow-x-auto">
+      <nav className="hidden md:block bg-dark-800/30 backdrop-blur-sm border-b border-neon-cyan/10 overflow-x-auto sticky top-[64px] z-40">
         <div className="mx-auto px-4 sm:px-8">
           <div className="flex space-x-2 sm:space-x-4 md:space-x-8 min-w-max">
             {[
