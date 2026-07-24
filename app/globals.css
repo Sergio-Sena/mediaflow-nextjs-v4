@@ -295,7 +295,14 @@ body {
   }
 }
 
-/* Fullscreen Video */
+/* Folder select compact on mobile landscape */
+@media (max-height: 500px) and (orientation: landscape) {
+  .folder-select-compact {
+    width: 44px !important;
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
+}
 :fullscreen .relative {
   height: 100vh !important;
   max-height: 100vh !important;
