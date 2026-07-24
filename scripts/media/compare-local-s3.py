@@ -4,8 +4,8 @@ Compara arquivos locais vs S3 e remove duplicados.
 Roda direto de scripts/media/ sem precisar de cd.
 
 Uso:
-  python "c:\Projetos Git\MidiaFlow\scripts\media\compare-local-s3.py"
-  python "c:\Projetos Git\MidiaFlow\scripts\media\compare-local-s3.py" --delete
+  python scripts/media/compare-local-s3.py
+  python scripts/media/compare-local-s3.py --delete
 """
 import boto3
 import os
@@ -14,7 +14,8 @@ import sys
 
 sys.stdout.reconfigure(encoding='utf-8')
 
-s3 = boto3.client('s3', region_name='us-east-1')
+session = boto3.Session(profile_name='default')
+s3 = session.client('s3', region_name='us-east-1')
 BUCKET = 'mediaflow-uploads-969430605054'
 LOCAL_PATH = r'C:\Users\dell 5557\Videos\IDM'
 VIDEO_EXTS = ('.mp4', '.ts', '.mkv', '.avi', '.mov', '.webm')
@@ -164,6 +165,7 @@ if '--delete' in sys.argv:
     empty_removed = 0
     for root, dirs, files in os.walk(LOCAL_PATH, topdown=False):
         if not os.listdir(root) and root != LOCAL_PATH:
-            os.rmdir(root)
-            empty_removed += 1
-    print(f'  Pastas vazias removidas: {empty_removed}')
+            # Nao remover pastas de referencia (apenas pastas que tinham videos)
+            # Manter pastas vazias como referencia para adicoes futuras
+            pass
+    print(f'  Pastas de referencia mantidas')
