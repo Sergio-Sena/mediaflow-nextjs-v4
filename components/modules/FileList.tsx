@@ -578,148 +578,96 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
 
 
       {/* Header + Filters sticky */}
-      <div className="sticky top-[113px] z-40 bg-dark-900/95 backdrop-blur-md border-b border-neon-cyan/10 px-6 py-4 -mx-4 sm:-mx-8">
-        <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-bold text-white mb-2">
-              🎬 Arquivos ({filteredFiles.length})
-            </h2>
-            <p className="text-gray-400">
-              {selectedFiles.size > 0 && `${selectedFiles.size} selecionado(s) • `}
-              Pasta atual: {getCurrentFolderPath() || 'Raiz'}
-            </p>
-
+      <div className="sticky top-[80px] sm:top-[95px] z-40 bg-dark-900/95 backdrop-blur-md border-b border-neon-cyan/10 px-3 sm:px-8 py-2 -mx-4 sm:-mx-8">
+        <div className="flex items-center gap-3">
+          {/* Título */}
+          <div className="hidden lg:block flex-shrink-0">
+            <span className="text-base font-bold text-white">🎬 {filteredFiles.length}</span>
+            <span className="text-xs text-gray-500 ml-2 truncate max-w-[120px] inline-block align-middle">{getCurrentFolderPath().split('/').pop() || 'Raiz'}</span>
           </div>
-          
-          <div className="flex gap-2">
-            <button
-              onClick={() => {
-                const { filesCache } = require('@/lib/files-cache')
-                filesCache.clear()
-                fetchFiles()
-              }}
-              className="p-2.5 sm:p-3 bg-cyan-600/20 hover:bg-cyan-600/40 text-cyan-300 rounded-lg transition-colors border border-cyan-500/30"
-              title="Atualizar"
-            >
-              <RefreshCw className="w-5 h-5" />
-            </button>
 
-            <button
-              onClick={() => {
-                if (selectAll) {
-                  setSelectedFiles(new Set())
-                  setSelectAll(false)
-                } else {
-                  setSelectAll(true)
-                }
-              }}
-              className={`p-2.5 sm:p-3 rounded-lg transition-colors border ${
-                selectAll
-                  ? 'bg-gray-700/20 hover:bg-gray-700/40 text-gray-400 border-gray-600/30'
-                  : 'bg-cyan-600/20 hover:bg-cyan-600/40 text-cyan-300 border-cyan-500/30'
-              }`}
-              title={selectAll ? 'Sair do modo seleção' : 'Modo seleção'}
-            >
-              <ListChecks className="w-5 h-5" />
-            </button>
-            
-            {selectedFiles.size > 0 && (
-              <>
-                <button
-                  onClick={() => {
-                    const selectedItems = filteredFiles.filter(f => selectedFiles.has(f.key))
-                    setShareModal({ key: 'bulk', name: `${selectedItems.length} arquivo(s)`, type: 'video', items: selectedItems })
-                  }}
-                  className="p-2.5 sm:p-3 bg-cyan-600/20 hover:bg-cyan-600/40 text-cyan-300 rounded-lg transition-colors border border-cyan-500/30"
-                  title="Compartilhar Selecionados"
-                >
-                  <Share2 className="w-5 h-5" />
-                </button>
-                <button
-                  onClick={handleBulkDelete}
-                  className="p-2.5 sm:p-3 bg-red-600/20 hover:bg-red-600/40 text-red-300 rounded-lg transition-colors border border-red-500/30"
-                  title="Excluir Selecionados"
-                >
-                  <Trash2 className="w-5 h-5" />
-                </button>
-                <span className="flex items-center text-sm text-neon-cyan">
-                  {selectedFiles.size} selecionado(s)
-                </span>
-              </>
-            )}
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
-          {/* Search */}
-          <div className="relative flex items-center">
+          {/* Busca */}
+          <div className="relative flex items-center flex-1 min-w-0">
             <input
               type="text"
               placeholder="Buscar arquivos..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full h-[42px] px-4 py-2 pr-10 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-neon-cyan focus:outline-none"
+              className="w-full h-[36px] px-3 py-1 pr-8 bg-gray-800 border border-gray-600 rounded-lg text-white text-sm placeholder-gray-400 focus:border-neon-cyan focus:outline-none"
             />
             {searchTerm && (
-              <button
-                onClick={() => setSearchTerm('')}
-                className="absolute right-2 p-1 text-gray-400 hover:text-white transition-colors"
-                title="Limpar busca"
-              >
-                <X className="w-4 h-4" />
+              <button onClick={() => setSearchTerm('')} className="absolute right-2 p-1 text-gray-400 hover:text-white">
+                <X className="w-3 h-3" />
               </button>
             )}
           </div>
 
-          {/* Quick Folder Jump */}
+          {/* Pasta */}
           <select
             value=""
             onChange={(e) => {
               if (e.target.value) {
                 const folderName = e.target.value.replace('📁 ', '')
-                if (folderName === 'Raiz') {
-                  navigateToFolder('')  // Navigate to root
-                } else {
-                  navigateToFolder(folderName)
-                }
+                navigateToFolder(folderName === 'Raiz' ? '' : folderName)
               }
             }}
-            className="h-[42px] px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:border-neon-cyan focus:outline-none"
+            className="hidden sm:block h-[36px] px-3 bg-gray-800 border border-gray-600 rounded-lg text-white text-sm focus:border-neon-cyan focus:outline-none flex-shrink-0"
           >
-            <option value="">🚀 Ir para pasta...</option>
-            {folders.map(folder => (
-              <option key={folder} value={folder}>{folder}</option>
-            ))}
+            <option value="">🚀 Pasta...</option>
+            {folders.map(folder => <option key={folder} value={folder}>{folder}</option>)}
           </select>
 
-          {/* Type Filter */}
+          {/* Tipo */}
           <select
             value={selectedType}
             onChange={(e) => setSelectedType(e.target.value)}
-            className="h-[42px] px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:border-neon-cyan focus:outline-none"
+            className="hidden md:block h-[36px] px-3 bg-gray-800 border border-gray-600 rounded-lg text-white text-sm focus:border-neon-cyan focus:outline-none flex-shrink-0"
           >
             <option value="all">Todos os tipos</option>
             <option value="video">Vídeos</option>
             <option value="image">Imagens</option>
             <option value="document">Documentos</option>
-            <option value="other">Outros</option>
           </select>
 
-          {/* Clear Filters */}
-          <button
-            onClick={() => {
-              setSearchTerm('')
-              setSelectedType('all')
-              setSelectedFiles(new Set())
-              setSelectAll(false)
-              setCurrentPath([''])
-              setInitialPathSet(false)
-            }}
-            className="h-[42px] btn-secondary flex items-center justify-center"
-          >
-            <Filter className="w-4 h-4 mr-2" />
-            Limpar Filtros
-          </button>
+          {/* Ações */}
+          <div className="flex gap-1.5 flex-shrink-0">
+            <button
+              onClick={() => { const { filesCache } = require('@/lib/files-cache'); filesCache.clear(); fetchFiles() }}
+              className="p-2 bg-cyan-600/20 hover:bg-cyan-600/40 text-cyan-300 rounded-lg border border-cyan-500/30 transition-colors"
+              title="Atualizar"
+            >
+              <RefreshCw className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => { if (selectAll) { setSelectedFiles(new Set()); setSelectAll(false) } else { setSelectAll(true) } }}
+              className={`p-2 rounded-lg border transition-colors ${ selectAll ? 'bg-gray-700/20 text-gray-400 border-gray-600/30' : 'bg-cyan-600/20 text-cyan-300 border-cyan-500/30' }`}
+              title={selectAll ? 'Sair da seleção' : 'Selecionar'}
+            >
+              <ListChecks className="w-4 h-4" />
+            </button>
+            {selectedFiles.size > 0 && (
+              <>
+                <button
+                  onClick={() => { const selectedItems = filteredFiles.filter(f => selectedFiles.has(f.key)); setShareModal({ key: 'bulk', name: `${selectedItems.length} arquivo(s)`, type: 'video', items: selectedItems }) }}
+                  className="p-2 bg-cyan-600/20 hover:bg-cyan-600/40 text-cyan-300 rounded-lg border border-cyan-500/30"
+                  title="Compartilhar"
+                >
+                  <Share2 className="w-4 h-4" />
+                </button>
+                <button onClick={handleBulkDelete} className="p-2 bg-red-600/20 hover:bg-red-600/40 text-red-300 rounded-lg border border-red-500/30">
+                  <Trash2 className="w-4 h-4" />
+                </button>
+                <span className="flex items-center text-xs text-neon-cyan">{selectedFiles.size}</span>
+              </>
+            )}
+            <button
+              onClick={() => { setSearchTerm(''); setSelectedType('all'); setSelectedFiles(new Set()); setSelectAll(false); setCurrentPath(['']); setInitialPathSet(false) }}
+              className="hidden lg:flex p-2 bg-gray-700/20 hover:bg-gray-700/40 text-gray-400 rounded-lg border border-gray-600/30 items-center gap-1 text-xs"
+              title="Limpar filtros"
+            >
+              <Filter className="w-3 h-3" />
+            </button>
+          </div>
         </div>
       </div>
 

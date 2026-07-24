@@ -150,7 +150,7 @@ function ContentRow({ title, items, onItemClick, onItemDelete, onItemShare, onDe
                     onItemClick?.(item)
                   }
                 }}
-                className={`flex-shrink-0 w-[calc(50vw-32px)] sm:w-[calc(33vw-24px)] lg:w-[calc(25vw-24px)] cursor-pointer group ${isSelected ? 'ring-2 ring-neon-cyan rounded-lg' : ''}`}
+                className={`flex-shrink-0 w-[calc(50vw-24px)] sm:w-[calc(33vw-24px)] lg:w-[calc(25vw-24px)] cursor-pointer group ${isSelected ? 'ring-2 ring-neon-cyan rounded-lg' : ''}`}
               >
                 <div className={`relative aspect-video rounded-lg overflow-hidden bg-gradient-to-br ${getGradient(item.type)} border border-white/5 transition-all duration-300 group-hover:scale-105 group-hover:border-neon-cyan/50 group-hover:shadow-lg group-hover:shadow-neon-cyan/20`}>
                   <ThumbnailImage itemKey={item.key} />
