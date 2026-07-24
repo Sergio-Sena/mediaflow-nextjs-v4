@@ -611,9 +611,9 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
                 navigateToFolder(folderName === 'Raiz' ? '' : folderName)
               }
             }}
-            className="hidden sm:block h-[36px] px-3 bg-gray-800 border border-gray-600 rounded-lg text-white text-sm focus:border-neon-cyan focus:outline-none flex-shrink-0"
+            className="hidden md:block h-[36px] landscape:w-[44px] md:landscape:w-auto px-2 md:px-3 bg-gray-800 border border-gray-600 rounded-lg text-white text-sm focus:border-neon-cyan focus:outline-none flex-shrink-0"
           >
-            <option value="">🚀 Pasta...</option>
+            <option value="">🚀</option>
             {folders.map(folder => <option key={folder} value={folder}>{folder}</option>)}
           </select>
 
