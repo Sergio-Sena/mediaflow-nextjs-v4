@@ -578,7 +578,7 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
 
 
       {/* Header + Filters sticky */}
-      <div className="sticky top-[80px] sm:top-[95px] landscape:top-[78px] z-40 bg-dark-900/95 backdrop-blur-md border-b border-neon-cyan/10 px-3 sm:px-8 py-2 -mx-4 sm:-mx-8">
+      <div className="sticky top-[80px] sm:top-[95px] landscape:top-[75px] z-40 bg-dark-900/95 backdrop-blur-md border-b border-neon-cyan/10 px-3 sm:px-8 py-2 -mx-4 sm:-mx-8">
         <div className="flex items-center gap-3">
           {/* Título */}
           <div className="hidden lg:block flex-shrink-0">
