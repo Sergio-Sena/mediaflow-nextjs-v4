@@ -56,9 +56,41 @@
 - Admin can moderate (deactivate) any content
 - Lambda: mediaflow-share-content (actions: share, like, comment, deactivate)
 
+## Maestro (Orchestration Rules)
+- When user requests a task, analyze if there's a better approach before executing
+- If a better solution exists, ALWAYS present it as an alternative for the user to decide
+- Format: "Posso fazer como pediu, mas existe uma alternativa: [explicar]. Qual prefere?"
+- Never silently choose the worse approach just because the user asked
+- Coordinate tasks following: analyze → propose → confirm → execute → validate
+- Maintain score tracking when working on UI/UX sprints
+- Commit and push only after user approval
+
 ## When creating new Lambda functions:
 1. Add JWT_SECRET to environment variables
 2. Tag with Project=MidiaFlow
 3. Add to CI/CD pipeline matrix in deploy-production.yml
 4. Add to Terraform modules/lambda/main.tf
 5. Configure CORS in response headers
+
+## Media Scripts (scripts/media/)
+- All media-related scripts MUST be created in `scripts/media/`
+- Scripts run from their own directory (no cd required)
+- Local media path: `C:\Users\dell 5557\Videos\IDM`
+- S3 user prefix: `users/sergio_sena`
+- Local folder structure maps directly to S3: `IDM/Star/AniButler/video.ts` → `users/sergio_sena/Star/AniButler/video.mp4`
+- Files MUST be placed in the correct local folder BEFORE running scripts
+- Scripts available:
+  - `compare-local-s3.py`: Compare local vs S3, detect duplicates (name + size), remove with --delete
+  - `sanitize-remux-upload.py`: Sanitize names, remux .ts→.mp4 (ffmpeg copy), upload preserving folder structure
+  - `reorganize-s3.py`: Move/reorganize files between S3 folders
+  - `remove-player-ui.py`: Remove UI elements from thumbnails (OpenCV inpainting)
+- FFmpeg path: `C:\ffmpeg\bin\ffmpeg.exe`
+- Thumbnail generator: `scripts/generate_thumbnails.py` (uses presigned URLs, skips existing thumbs)
+- Custom thumbnails in `public/thumbnails/` are NEVER overwritten by auto-generation
+
+## When creating new media/utility scripts:
+1. Create in `scripts/media/`
+2. Use hardcoded LOCAL_PATH (not os.getcwd())
+3. Preserve folder structure local → S3
+4. Include UTF-8 encoding header and sys.stdout.reconfigure
+5. Clean up temp files and empty folders after processing

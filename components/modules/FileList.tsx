@@ -577,8 +577,8 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
 
 
 
-      {/* Header */}
-      <div className="glass-card p-6">
+      {/* Header + Filters sticky */}
+      <div className="glass-card p-6 sticky top-[106px] z-40">
         <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
           <div>
             <h2 className="text-2xl font-bold text-white mb-2">
@@ -649,11 +649,8 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
             )}
           </div>
         </div>
-      </div>
 
-      {/* Filters */}
-      <div className="glass-card p-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
           {/* Search */}
           <div className="relative flex items-center">
             <input

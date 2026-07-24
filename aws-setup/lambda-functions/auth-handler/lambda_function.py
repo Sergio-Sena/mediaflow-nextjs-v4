@@ -10,26 +10,40 @@ dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
 table = dynamodb.Table('mediaflow-users')
 
 JWT_SECRET = os.environ['JWT_SECRET']
+_request_origin = None
+
+def get_allowed_origin(event):
+    allowed = os.environ.get('ALLOWED_ORIGINS', 'https://midiaflow.sstechnologies-cloud.com').split(',')
+    headers = event.get('headers') or {}
+    origin = headers.get('origin') or headers.get('Origin') or ''
+    return origin if origin in allowed else allowed[0]
+
+def cors_response(status_code, body):
+    return {
+        'statusCode': status_code,
+        'headers': {
+            'Access-Control-Allow-Origin': _request_origin or 'https://midiaflow.sstechnologies-cloud.com',
+            'Access-Control-Allow-Headers': 'Content-Type,Authorization',
+            'Access-Control-Allow-Methods': 'POST,OPTIONS'
+        },
+        'body': json.dumps(body)
+    }
 
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
 
 def create_jwt(payload, secret):
-    """Simple JWT creation without external libraries"""
     header = {"alg": "HS256", "typ": "JWT"}
-    
-    # Encode header and payload
     header_encoded = base64.urlsafe_b64encode(json.dumps(header).encode()).decode().rstrip('=')
     payload_encoded = base64.urlsafe_b64encode(json.dumps(payload).encode()).decode().rstrip('=')
-    
-    # Create signature
     message = f"{header_encoded}.{payload_encoded}"
     signature = hmac.new(secret.encode(), message.encode(), hashlib.sha256).digest()
     signature_encoded = base64.urlsafe_b64encode(signature).decode().rstrip('=')
-    
     return f"{message}.{signature_encoded}"
 
 def lambda_handler(event, context):
+    global _request_origin
+    _request_origin = get_allowed_origin(event)
     try:
         print(f"Login request received: {event['httpMethod']}")
         
@@ -43,7 +57,6 @@ def lambda_handler(event, context):
         if not email or not password:
             return cors_response(400, {'success': False, 'error': 'Email e senha são obrigatórios'})
         
-        # Query by email instead of scan
         response = table.scan(
             FilterExpression='email = :email',
             ExpressionAttributeValues={':email': email}
@@ -91,14 +104,3 @@ def lambda_handler(event, context):
     except Exception as e:
         print(f"Lambda error: {str(e)}")
         return cors_response(500, {'success': False, 'message': 'Internal server error'})
-
-def cors_response(status_code, body):
-    return {
-        'statusCode': status_code,
-        'headers': {
-            'Access-Control-Allow-Origin': os.environ.get('ALLOWED_ORIGIN', 'https://midiaflow.sstechnologies-cloud.com'),
-            'Access-Control-Allow-Headers': 'Content-Type,Authorization',
-            'Access-Control-Allow-Methods': 'POST,OPTIONS'
-        },
-        'body': json.dumps(body)
-    }

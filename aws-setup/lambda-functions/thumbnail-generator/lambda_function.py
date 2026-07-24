@@ -9,7 +9,13 @@ s3 = boto3.client('s3')
 BUCKET = 'mediaflow-uploads-969430605054'
 THUMB_PREFIX = 'public/thumbnails/'
 JWT_SECRET = os.environ['JWT_SECRET']
-ALLOWED_ORIGIN = os.environ.get('ALLOWED_ORIGIN', 'https://midiaflow.sstechnologies-cloud.com')
+_request_origin = None
+
+def get_allowed_origin(event):
+    allowed = os.environ.get('ALLOWED_ORIGINS', 'https://midiaflow.sstechnologies-cloud.com').split(',')
+    headers = event.get('headers') or {}
+    origin = headers.get('origin') or headers.get('Origin') or ''
+    return origin if origin in allowed else allowed[0]
 
 
 def verify_token(token):
@@ -20,26 +26,27 @@ def verify_token(token):
 
 
 def generate_thumbnail(video_key, output_key):
-    """Download video from S3, extract first frame, upload thumbnail."""
+    """Download partial video from S3, extract frame at ~10s, upload thumbnail."""
     with tempfile.TemporaryDirectory() as tmp:
         video_path = os.path.join(tmp, 'video.mp4')
         thumb_path = os.path.join(tmp, 'thumb.jpg')
 
-        # Download video (only first 5MB for speed - enough for first frame)
-        obj = s3.get_object(Bucket=BUCKET, Key=video_key, Range='bytes=0-5242880')
+        # Download first 30MB - enough for 10s seek in most videos
+        obj = s3.get_object(Bucket=BUCKET, Key=video_key, Range='bytes=0-31457280')
         with open(video_path, 'wb') as f:
             f.write(obj['Body'].read())
 
-        # Extract first frame with ffmpeg
+        # Extract frame at 10s with ffmpeg
         ffmpeg = '/opt/bin/ffmpeg'
-        cmd = [ffmpeg, '-i', video_path, '-vframes', '1', '-q:v', '5',
+        cmd = [ffmpeg, '-ss', '10', '-i', video_path, '-vframes', '1', '-q:v', '5',
                '-vf', 'scale=320:-1', '-y', thumb_path]
         result = subprocess.run(cmd, capture_output=True, timeout=30)
 
         if result.returncode != 0 or not os.path.exists(thumb_path):
-            # Retry with full file if partial download failed
-            s3.download_file(BUCKET, video_key, video_path)
-            result = subprocess.run(cmd, capture_output=True, timeout=60)
+            # Fallback: extract first available frame (no seek)
+            cmd_fallback = [ffmpeg, '-i', video_path, '-vframes', '1', '-q:v', '5',
+                           '-vf', 'scale=320:-1', '-y', thumb_path]
+            subprocess.run(cmd_fallback, capture_output=True, timeout=30)
 
         if not os.path.exists(thumb_path):
             return False
@@ -51,6 +58,8 @@ def generate_thumbnail(video_key, output_key):
 
 
 def lambda_handler(event, context):
+    global _request_origin
+    _request_origin = get_allowed_origin(event)
     # Mode 1: S3 trigger (auto-generate on upload)
     if 'Records' in event:
         for record in event['Records']:
@@ -71,7 +80,7 @@ def lambda_handler(event, context):
     if not user or user.get('role') != 'admin':
         return {
             'statusCode': 403,
-            'headers': {'Access-Control-Allow-Origin': ALLOWED_ORIGIN},
+            'headers': {'Access-Control-Allow-Origin': _request_origin or 'https://midiaflow.sstechnologies-cloud.com'},
             'body': json.dumps({'error': 'Admin only'})
         }
 
@@ -87,7 +96,7 @@ def lambda_handler(event, context):
         ok = generate_thumbnail(video_key, thumb_key)
         return {
             'statusCode': 200 if ok else 500,
-            'headers': {'Access-Control-Allow-Origin': ALLOWED_ORIGIN},
+            'headers': {'Access-Control-Allow-Origin': _request_origin or 'https://midiaflow.sstechnologies-cloud.com'},
             'body': json.dumps({'thumbnail': thumb_key if ok else None})
         }
 
@@ -129,7 +138,7 @@ def lambda_handler(event, context):
 
         return {
             'statusCode': 200,
-            'headers': {'Access-Control-Allow-Origin': ALLOWED_ORIGIN},
+            'headers': {'Access-Control-Allow-Origin': _request_origin or 'https://midiaflow.sstechnologies-cloud.com'},
             'body': json.dumps({
                 'generated': generated,
                 'errors': errors,
@@ -139,6 +148,6 @@ def lambda_handler(event, context):
 
     return {
         'statusCode': 400,
-        'headers': {'Access-Control-Allow-Origin': ALLOWED_ORIGIN},
+        'headers': {'Access-Control-Allow-Origin': _request_origin or 'https://midiaflow.sstechnologies-cloud.com'},
         'body': json.dumps({'error': 'Invalid action'})
     }
