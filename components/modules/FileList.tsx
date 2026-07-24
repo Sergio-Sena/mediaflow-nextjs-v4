@@ -573,12 +573,12 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
 
 
 
       {/* Header + Filters sticky */}
-      <div className="glass-card p-6 sticky top-[113px] z-40">
+      <div className="sticky top-[113px] z-40 bg-dark-900/95 backdrop-blur-md border-b border-neon-cyan/10 px-6 py-4 -mx-4 sm:-mx-8">
         <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
           <div>
             <h2 className="text-2xl font-bold text-white mb-2">

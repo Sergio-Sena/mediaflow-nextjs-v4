@@ -353,7 +353,7 @@ function DashboardContent() {
       </nav>
 
       {/* Content */}
-      <main className="mx-auto px-4 sm:px-8 py-4 sm:py-8">
+      <main className="mx-auto px-4 sm:px-8 pt-0 pb-8">
         {/* Trial Progress */}
         {currentUser?.plan === 'trial' && (
           <Card variant="glass" padding="md" className="mb-6 border border-yellow-500/30">
