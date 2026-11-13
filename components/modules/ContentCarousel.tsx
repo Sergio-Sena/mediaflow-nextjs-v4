@@ -40,6 +40,7 @@ interface ContentItem {
   size: number
   type: string
   folder: string
+  lastModified?: string
 }
 
 interface ContentRowProps {
@@ -225,9 +226,19 @@ interface ContentCarouselProps {
   selectedKeys?: Set<string>
   onToggleSelect?: (key: string) => void
   selectionMode?: boolean
+  sortBy?: 'name' | 'size' | 'date'
+  sortOrder?: 'asc' | 'desc'
 }
 
-export default function ContentCarousel({ files, onItemClick, onItemDelete, onItemShare, onBulkDelete, selectedKeys = new Set(), onToggleSelect, selectionMode = false }: ContentCarouselProps) {
+export default function ContentCarousel({ files, onItemClick, onItemDelete, onItemShare, onBulkDelete, selectedKeys = new Set(), onToggleSelect, selectionMode = false, sortBy = 'name', sortOrder = 'asc' }: ContentCarouselProps) {
+  const sortItems = (items: ContentItem[]) => [...items].sort((a, b) => {
+    let cmp = 0
+    if (sortBy === 'name') cmp = a.name.localeCompare(b.name)
+    else if (sortBy === 'size') cmp = a.size - b.size
+    else cmp = new Date(a.lastModified ?? 0).getTime() - new Date(b.lastModified ?? 0).getTime()
+    return sortOrder === 'asc' ? cmp : -cmp
+  })
+
   // Group by folder
   const grouped: Record<string, ContentItem[]> = {}
   files.forEach(file => {
@@ -236,7 +247,6 @@ export default function ContentCarousel({ files, onItemClick, onItemDelete, onIt
     grouped[folder].push(file)
   })
 
-  // Sort alphabetically by folder name
   const sorted = Object.entries(grouped).sort((a, b) => a[0].localeCompare(b[0]))
 
   return (
@@ -245,7 +255,7 @@ export default function ContentCarousel({ files, onItemClick, onItemDelete, onIt
         <ContentRow
           key={folder}
           title={folder === 'root' ? '📁 Raiz' : `📁 ${folder.split('/').pop()}`}
-          items={items}
+          items={sortItems(items)}
           onItemClick={onItemClick}
           onItemDelete={onItemDelete}
           onItemShare={onItemShare}

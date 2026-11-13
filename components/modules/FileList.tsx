@@ -45,6 +45,8 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
   const [deleting, setDeleting] = useState<Set<string>>(new Set())
   const [deleteModal, setDeleteModal] = useState<{type: 'single' | 'bulk' | 'folder', file?: any, items?: any[]} | null>(null)
   const [shareModal, setShareModal] = useState<any>(null)
+  const [sortBy, setSortBy] = useState<'name' | 'size' | 'date'>('name')
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
 
   const fetchFiles = async () => {
     try {
@@ -587,10 +589,10 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
           </div>
 
           {/* Busca */}
-          <div className="relative flex items-center flex-1 min-w-0">
+          <div className="relative flex items-center flex-1 min-w-0 max-w-[180px] sm:max-w-xs">
             <input
               type="text"
-              placeholder="Buscar arquivos..."
+              placeholder="Buscar..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full h-[36px] px-3 py-1 pr-8 bg-gray-800 border border-gray-600 rounded-lg text-white text-sm placeholder-gray-400 focus:border-neon-cyan focus:outline-none"
@@ -623,10 +625,28 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
             onChange={(e) => setSelectedType(e.target.value)}
             className="hidden md:block h-[36px] px-3 bg-gray-800 border border-gray-600 rounded-lg text-white text-sm focus:border-neon-cyan focus:outline-none flex-shrink-0"
           >
-            <option value="all">Todos os tipos</option>
+            <option value="all">Todos</option>
             <option value="video">Vídeos</option>
             <option value="image">Imagens</option>
-            <option value="document">Documentos</option>
+            <option value="document">Docs</option>
+          </select>
+
+          {/* Ordenação */}
+          <select
+            value={`${sortBy}-${sortOrder}`}
+            onChange={(e) => {
+              const [by, order] = e.target.value.split('-') as ['name' | 'size' | 'date', 'asc' | 'desc']
+              setSortBy(by)
+              setSortOrder(order)
+            }}
+            className="h-[36px] px-2 bg-gray-800 border border-gray-600 rounded-lg text-white text-sm focus:border-neon-cyan focus:outline-none flex-shrink-0"
+          >
+            <option value="name-asc">Nome A→Z</option>
+            <option value="name-desc">Nome Z→A</option>
+            <option value="size-asc">Menor</option>
+            <option value="size-desc">Maior</option>
+            <option value="date-desc">Recente</option>
+            <option value="date-asc">Antigo</option>
           </select>
 
           {/* Ações */}
@@ -674,6 +694,8 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
       {/* Carousel View */}
       <ContentCarousel
         files={filteredFiles}
+        sortBy={sortBy}
+        sortOrder={sortOrder}
         onItemClick={(file) => {
           if (file.type === 'video') onPlayVideo?.(file as any)
           else if (file.type === 'image') onViewImage?.(file as any)
