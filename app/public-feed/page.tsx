@@ -386,18 +386,18 @@ export default function PublicFeedPage() {
   return (
     <div className="min-h-screen">
       {/* Header */}
-      <header className="bg-dark-900/50 backdrop-blur-md border-b border-neon-cyan/20 sticky top-0 z-50">
+      <header className="sticky top-0 z-50 border-b border-white/5" style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(20px)' }}>
         <div className="mx-auto px-3 sm:px-8 py-2.5 sm:py-4">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-2 sm:gap-3">
               <h1
-                className="text-base sm:text-2xl font-bold cursor-pointer hover:scale-105 transition-transform duration-300"
+                className="text-base sm:text-xl font-bold cursor-pointer tracking-tight"
                 onClick={() => router.push('/dashboard')}
               >
-                🎬 <span className="neon-text">Mídiaflow</span>
+                <span className="text-white">Mídia</span><span style={{ color: '#667eea' }}>flow</span>
               </h1>
-              <span className="hidden sm:inline text-gray-600">|</span>
-              <span className="hidden sm:inline text-sm sm:text-lg font-semibold text-white">🌐 Área Pública</span>
+              <span className="hidden sm:inline text-white/10">|</span>
+              <span className="hidden sm:inline text-sm font-medium" style={{ color: '#a5b4fc' }}>Área Pública</span>
             </div>
             <div className="flex items-center gap-1.5 sm:gap-2">
               {selectedItems.size > 0 && (
@@ -419,8 +419,8 @@ export default function PublicFeedPage() {
                 }}
                 className={`p-1.5 sm:p-2 rounded-lg transition-colors border ${
                   selectMode
-                    ? 'bg-gray-700/20 text-gray-400 border-gray-600/30'
-                    : 'bg-cyan-600/20 text-cyan-300 border-cyan-500/30'
+                    ? 'bg-white/5 text-gray-400 border-white/10'
+                    : 'bg-white/5 border-white/10 text-gray-300 hover:border-white/20'
                 }`}
                 title={selectMode ? 'Sair do modo seleção' : 'Modo seleção'}
               >
@@ -428,9 +428,10 @@ export default function PublicFeedPage() {
               </button>
               <button
                 onClick={() => router.push('/dashboard')}
-                className="hidden md:block px-3 py-1.5 bg-purple-600/20 hover:bg-purple-600/40 text-purple-300 border border-purple-500/30 rounded-lg transition-colors text-sm font-medium"
+                className="hidden md:block px-3 py-1.5 rounded-lg transition-colors text-sm font-medium border border-white/10 text-gray-300 hover:border-white/20"
+                style={{ background: 'rgba(102,126,234,0.1)' }}
               >
-                🔒 Minha Biblioteca
+                Minha Biblioteca
               </button>
             </div>
           </div>

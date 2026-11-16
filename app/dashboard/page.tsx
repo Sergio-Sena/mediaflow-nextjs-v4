@@ -179,15 +179,15 @@ function DashboardContent() {
   return (
     <div className="min-h-screen">
       {/* Header */}
-      <header className="bg-dark-900/50 backdrop-blur-md border-b border-neon-cyan/20 sticky top-0 z-50">
+      <header className="sticky top-0 z-50 border-b border-white/5" style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(20px)' }}>
         <div className="mx-auto px-4 sm:px-8 py-3 sm:py-4">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-2 sm:gap-4">
               <h1 
-                className="text-lg sm:text-2xl font-bold cursor-pointer hover:scale-105 transition-transform duration-300"
+                className="text-lg sm:text-xl font-bold cursor-pointer tracking-tight"
                 onClick={() => window.location.reload()}
               >
-                🎬 <span className="neon-text">Mídiaflow</span>
+                <span className="text-white">Mídia</span><span style={{ color: '#667eea' }}>flow</span>
               </h1>
               <div className="hidden md:block text-sm text-gray-400">
                 Dashboard v4.3
@@ -315,7 +315,7 @@ function DashboardContent() {
       </header>
 
       {/* Navigation */}
-      <nav className="hidden md:block bg-dark-800/30 backdrop-blur-sm border-b border-neon-cyan/10 overflow-x-auto sticky top-[64px] z-40">
+      <nav className="hidden md:block border-b border-white/5 overflow-x-auto sticky top-[57px] z-40" style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(10px)' }}>
         <div className="mx-auto px-4 sm:px-8">
           <div className="flex space-x-2 sm:space-x-4 md:space-x-8 min-w-max">
             {[
@@ -336,8 +336,8 @@ function DashboardContent() {
                 }}
                 className={`py-3 sm:py-4 px-3 sm:px-4 border-b-2 font-medium text-sm sm:text-base whitespace-nowrap transition-all duration-300 ${
                   activeTab === tab.id
-                    ? 'border-neon-cyan text-neon-cyan'
-                    : 'border-transparent text-gray-400 hover:text-gray-300 hover:border-neon-cyan/30'
+                    ? 'border-[#667eea] text-white'
+                    : 'border-transparent text-gray-500 hover:text-gray-300 hover:border-white/20'
                 }`}
               >
                 {tab.label}
