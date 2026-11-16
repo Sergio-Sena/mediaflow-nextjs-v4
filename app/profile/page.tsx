@@ -83,15 +83,16 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen">
       {/* Header */}
-      <header className="bg-dark-900/50 backdrop-blur-md border-b border-neon-cyan/20 sticky top-0 z-50">
+      <header className="sticky top-0 z-50 border-b border-white/5" style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(20px)' }}>
         <div className="mx-auto px-3 sm:px-8 py-2.5 sm:py-4">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-2 sm:gap-3">
               <button onClick={() => router.back()} className="p-1.5 text-gray-400 hover:text-white md:hidden">
                 <ArrowLeft className="w-5 h-5" />
               </button>
-              <h1 className="text-base sm:text-2xl font-bold">
-                👤 <span className="text-white">Meu Perfil</span>
+              <h1 className="text-base sm:text-xl font-bold tracking-tight">
+                <span className="text-white">Mídia</span><span style={{ color: '#667eea' }}>flow</span>
+                <span className="text-gray-500 font-normal text-sm ml-2">· Perfil</span>
               </h1>
             </div>
             <button
@@ -164,7 +165,7 @@ export default function ProfilePage() {
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-gray-400">Role</span>
-              <span className="text-neon-cyan">{tokenUser.role}</span>
+              <span style={{ color: '#a5b4fc' }}>{tokenUser.role}</span>
             </div>
           </div>
 
@@ -182,7 +183,8 @@ export default function ProfilePage() {
                 router.back()
               }}
               disabled={saving}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-neon-cyan border border-neon-cyan/50 rounded-lg hover:from-cyan-500/30 hover:to-purple-500/30 transition-all font-medium disabled:opacity-50"
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg transition-all font-medium disabled:opacity-50 text-white"
+              style={{ background: 'linear-gradient(135deg, #667eea, #764ba2)', boxShadow: '0 4px 20px rgba(102,126,234,0.3)' }}
             >
               <Save className="w-4 h-4" />
               {saving ? 'Salvando...' : 'Salvar'}
