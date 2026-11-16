@@ -121,14 +121,13 @@ export default function RegisterPage() {
           <h1 className="text-3xl font-bold mb-2">
             <span className="neon-text-large">Criar Conta</span>
           </h1>
-          <p className="text-gray-400">Junte-se ao Mídiaflow</p>
+          <p className="text-gray-400">Acesso exclusivo · Mídiaflow</p>
         </div>
 
         {qrCodeUri ? (
           <div className="text-center">
             <div className="mb-4 p-4 bg-green-500/20 border border-green-500/50 rounded-lg">
-              <p className="text-green-400 font-semibold">✅ Conta criada! 14 dias grátis ativados</p>
-              <p className="text-xs text-gray-400 mt-1">10 GB storage • 20 GB bandwidth • Upload até 1 GB</p>
+              <p className="text-green-400 font-semibold">✅ Conta criada com sucesso!</p>
             </div>
             <p className="text-white mb-4">Configure o 2FA no Google Authenticator (opcional):</p>
             <img 
@@ -268,7 +267,6 @@ export default function RegisterPage() {
           </div>
           
           <div className="text-xs text-gray-500 space-y-1">
-            <p>🎁 <strong>14 dias grátis</strong> • Sem cartão de crédito</p>
             <p>🔒 <strong>2FA opcional</strong> (recomendado para segurança)</p>
           </div>
           

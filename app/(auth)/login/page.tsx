@@ -3,46 +3,35 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Button, Input, Card } from '@/components/ui'
+import { Button, Input } from '@/components/ui'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
-  const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
     setError('')
-
     try {
       const { mediaflowClient } = await import('@/lib/aws-client')
       const data = await mediaflowClient.login(email, password)
-
       if (data.success) {
-        // Salvar token e dados do usuário
         localStorage.setItem('token', data.token)
         localStorage.setItem('user', JSON.stringify(data.user))
         localStorage.setItem('current_user', JSON.stringify(data.user))
-        console.log('✅ Current user saved:', data.user)
-        
-        // 2FA apenas para admin
-        console.log('✅ Login OK, redirecionando...', data.user)
         if (data.user.role === 'admin' || data.user_id === 'user_admin') {
-          console.log('→ Admin: /2fa')
           setTimeout(() => window.location.href = '/2fa', 100)
         } else {
-          // Usuários comuns vão direto ao dashboard
-          console.log('→ User: /dashboard')
           localStorage.setItem('2fa_session', Date.now().toString())
           setTimeout(() => window.location.href = '/public-feed', 100)
         }
       } else {
-        setError(data.error || 'Erro ao fazer login')
+        setError(data.error || 'Credenciais inválidas')
       }
-    } catch (err) {
+    } catch {
       setError('Erro de conexão')
     } finally {
       setIsLoading(false)
@@ -50,18 +39,50 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <Card variant="glass" padding="lg" className="w-full max-w-md animate-fade-in">
-        <div className="text-center mb-8">
-          <div className="text-5xl mb-4 animate-float">🎬</div>
-          <h1 className="text-3xl font-bold mb-2">
-            <span className="neon-text-large">Mídiaflow</span>
-          </h1>
-          <p className="text-gray-400">Sistema de Streaming Modular</p>
-        </div>
+    <div className="min-h-screen flex" style={{ background: 'linear-gradient(315deg, #000000 0%, #0d0d1a 50%, #0a0a1f 100%)' }}>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="animate-fade-in">
+      {/* Left — Visual */}
+      <div className="hidden lg:flex flex-1 relative items-center justify-center p-16 overflow-hidden">
+        <div className="absolute inset-0 opacity-30" style={{ background: 'radial-gradient(ellipse at 60% 50%, #667eea 0%, transparent 70%)' }}></div>
+        <div className="relative z-10 max-w-md">
+          <div className="text-4xl font-bold mb-6 tracking-tight">
+            <span className="text-white">Mídia</span><span style={{ color: '#667eea' }}>flow</span>
+          </div>
+          <h2 className="text-3xl font-bold text-white mb-4 leading-tight">
+            Sua biblioteca de mídia, sempre disponível.
+          </h2>
+          <p className="text-gray-400 leading-relaxed mb-10">
+            Player premium, CDN global e organização inteligente para toda sua coleção.
+          </p>
+          {/* Mini player mockup */}
+          <div className="rounded-2xl overflow-hidden border border-white/10" style={{ background: 'rgba(255,255,255,0.03)' }}>
+            <div className="aspect-video relative flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #0d0d1a, #1a1a2e)' }}>
+              <div className="absolute inset-0 opacity-20" style={{ background: 'radial-gradient(ellipse at center, #667eea, transparent 70%)' }}></div>
+              <div className="w-12 h-12 rounded-full flex items-center justify-center border border-white/20 relative z-10" style={{ background: 'rgba(102,126,234,0.2)' }}>
+                <svg className="w-5 h-5 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+              </div>
+              <div className="absolute bottom-0 left-0 right-0 p-3">
+                <div className="h-0.5 rounded-full bg-white/10 mb-2">
+                  <div className="h-full w-1/3 rounded-full" style={{ background: 'linear-gradient(90deg, #667eea, #764ba2)' }}></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Right — Form */}
+      <div className="flex-1 lg:max-w-md flex items-center justify-center p-8">
+        <div className="w-full max-w-sm animate-fade-in">
+          {/* Mobile logo */}
+          <div className="lg:hidden text-2xl font-bold mb-10 text-center">
+            <span className="text-white">Mídia</span><span style={{ color: '#667eea' }}>flow</span>
+          </div>
+
+          <h1 className="text-2xl font-bold text-white mb-2">Bem-vindo de volta</h1>
+          <p className="text-gray-500 mb-8 text-sm">Entre com suas credenciais para acessar</p>
+
+          <form onSubmit={handleSubmit} className="space-y-5">
             <Input
               type="email"
               label="Email"
@@ -72,9 +93,6 @@ export default function LoginPage() {
               required
               disabled={isLoading}
             />
-          </div>
-
-          <div className="animate-fade-in">
             <Input
               type="password"
               label="Senha"
@@ -85,47 +103,30 @@ export default function LoginPage() {
               required
               disabled={isLoading}
             />
-          </div>
 
-          {error && (
-            <div className="text-red-400 text-sm text-center bg-red-400/10 border border-red-400/20 rounded-lg p-3 animate-slide-down">
-              {error}
-            </div>
-          )}
+            {error && (
+              <div className="text-red-400 text-sm text-center bg-red-400/10 border border-red-400/20 rounded-lg p-3 animate-slide-down">
+                {error}
+              </div>
+            )}
 
-          <div className="animate-fade-in">
-            <Button
+            <button
               type="submit"
-              variant="primary"
-              size="lg"
-              loading={isLoading}
               disabled={isLoading}
-              className="w-full"
+              className="w-full py-3.5 rounded-xl font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', boxShadow: '0 8px 30px rgba(102,126,234,0.3)' }}
             >
-              🚀 Entrar
-            </Button>
-          </div>
-        </form>
+              {isLoading ? 'Entrando...' : 'Entrar'}
+            </button>
+          </form>
 
-        <div className="mt-6 sm:mt-8 text-center space-y-3 sm:space-y-4">
-          <div className="border-t border-gray-700 pt-4 sm:pt-6">
-            <p className="text-xs sm:text-sm text-gray-400 mb-2 sm:mb-3">Não tem uma conta?</p>
-            <Link href="/register" className="block">
-              <Button variant="secondary" size="md" className="w-full sm:w-auto">
-                <span>👤</span>
-                Criar Conta
-              </Button>
+          <div className="mt-8 pt-6 border-t border-white/5 text-center">
+            <Link href="/" className="text-sm text-gray-600 hover:text-gray-400 transition-colors">
+              ← Voltar ao início
             </Link>
           </div>
-          
-          <Link 
-            href="/" 
-            className="block text-xs sm:text-sm text-gray-400 hover:text-neon-cyan transition-colors py-2"
-          >
-            ← Voltar ao início
-          </Link>
         </div>
-      </Card>
+      </div>
     </div>
   )
 }

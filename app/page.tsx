@@ -1,236 +1,148 @@
-import { Button, Card } from '@/components/ui'
+import { Button } from '@/components/ui'
+import Link from 'next/link'
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-dark-900 via-dark-800 to-dark-900">
+    <div className="min-h-screen" style={{ background: 'linear-gradient(315deg, #000000 0%, #0d0d1a 50%, #0a0a1f 100%)' }}>
+
       {/* Header */}
-      <header className="bg-dark-900/80 backdrop-blur-xl border-b border-neon-cyan/20 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center">
-          <div className="text-xl sm:text-2xl font-bold flex items-center gap-2">
-            <span className="text-2xl sm:text-3xl">🎬</span>
-            <span className="neon-text bg-gradient-to-r from-neon-cyan to-neon-purple bg-clip-text text-transparent">
-              Mídiaflow
-            </span>
+      <header className="sticky top-0 z-50 border-b border-white/5" style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(20px)' }}>
+        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+          <div className="text-xl font-bold tracking-tight">
+            <span className="text-white">Mídia</span><span style={{ color: '#667eea' }}>flow</span>
           </div>
-          <div className="flex gap-2 sm:gap-3">
-            <a href="/pricing">
-              <Button variant="ghost" size="sm">Preços</Button>
-            </a>
-            <a href="/login">
-              <Button variant="primary" size="sm">Entrar</Button>
-            </a>
-          </div>
+          <Link href="/login">
+            <Button variant="primary" size="sm">Entrar</Button>
+          </Link>
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="relative py-12 sm:py-20 px-4 overflow-hidden">
-        {/* Background Effects */}
-        <div className="absolute inset-0">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-neon-cyan/10 rounded-full blur-3xl animate-float"></div>
-          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-neon-purple/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }}></div>
-        </div>
-        
-        <div className="max-w-6xl mx-auto text-center relative z-10">
-          <div className="mb-6">
-            <span className="inline-flex items-center gap-2 px-4 py-2 bg-neon-cyan/10 border border-neon-cyan/20 rounded-full text-neon-cyan text-sm font-medium">
-              <span className="w-2 h-2 bg-neon-cyan rounded-full animate-pulse"></span>
-              Novo: Upload até 10GB por arquivo
-            </span>
+      {/* Hero */}
+      <section className="max-w-7xl mx-auto px-6 pt-24 pb-20 grid lg:grid-cols-2 gap-16 items-center">
+        {/* Left */}
+        <div>
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium mb-8 border" style={{ background: 'rgba(102,126,234,0.1)', borderColor: 'rgba(102,126,234,0.3)', color: '#a5b4fc' }}>
+            <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: '#667eea' }}></span>
+            Plataforma privada · Acesso por convite
           </div>
-          
-          <h1 className="text-3xl sm:text-5xl md:text-7xl font-bold mb-6 sm:mb-8 leading-tight">
-            Hospede e Distribua
+
+          <h1 className="text-5xl lg:text-7xl font-bold leading-none tracking-tight mb-6">
+            <span className="text-white">Sua mídia.</span>
             <br />
-            <span className="bg-gradient-to-r from-neon-cyan via-neon-purple to-neon-pink bg-clip-text text-transparent">
-              Vídeos Profissionais
+            <span style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+              Seu espaço.
             </span>
           </h1>
-          
-          <p className="text-base sm:text-xl text-gray-300 mb-8 sm:mb-10 max-w-3xl mx-auto leading-relaxed">
-            Plataforma completa com upload inteligente, conversão automática 4K e CDN global. 
-            Usado por criadores, empresas e agências do mundo todo.
+
+          <p className="text-lg text-gray-400 mb-10 leading-relaxed max-w-lg">
+            Hospedagem de vídeos com CDN global, player premium e organização inteligente. Acesso exclusivo para membros.
           </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-            <a href="/register">
-              <Button variant="primary" size="lg">
-                🚀 Começar Grátis - 15 dias
-              </Button>
-            </a>
-            <a href="/pricing">
-              <Button variant="secondary" size="lg">
-                Ver Preços
-              </Button>
-            </a>
+
+          <div className="flex flex-col sm:flex-row gap-4">
+            <Link href="/login">
+              <button className="px-8 py-4 rounded-xl font-semibold text-white transition-all duration-300 hover:-translate-y-1" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', boxShadow: '0 8px 30px rgba(102,126,234,0.4)' }}>
+                Acessar Plataforma
+              </button>
+            </Link>
           </div>
-          
-          <div className="flex flex-col sm:flex-row flex-wrap items-center justify-center gap-3 sm:gap-6 text-xs sm:text-sm text-gray-400">
-            <span className="flex items-center gap-2">
-              <span className="w-2 h-2 bg-accent-success rounded-full"></span>
-              Sem cartão de crédito
-            </span>
-            <span className="flex items-center gap-2">
-              <span className="w-2 h-2 bg-accent-success rounded-full"></span>
-              Cancele quando quiser
-            </span>
-            <span className="flex items-center gap-2">
-              <span className="w-2 h-2 bg-accent-success rounded-full"></span>
-              Suporte 24/7
-            </span>
+
+          <div className="flex items-center gap-8 mt-12">
+            <div>
+              <div className="text-2xl font-bold text-white">99.9%</div>
+              <div className="text-xs text-gray-500 mt-0.5">Uptime</div>
+            </div>
+            <div className="w-px h-8 bg-white/10"></div>
+            <div>
+              <div className="text-2xl font-bold text-white">400+</div>
+              <div className="text-xs text-gray-500 mt-0.5">CDN POPs</div>
+            </div>
+            <div className="w-px h-8 bg-white/10"></div>
+            <div>
+              <div className="text-2xl font-bold text-white">&lt;50ms</div>
+              <div className="text-xs text-gray-500 mt-0.5">Latência</div>
+            </div>
           </div>
+        </div>
+
+        {/* Right — Player mockup */}
+        <div className="hidden lg:block relative">
+          <div className="rounded-2xl overflow-hidden border border-white/10" style={{ background: 'rgba(255,255,255,0.03)', boxShadow: '0 40px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.05)' }}>
+            {/* Fake player */}
+            <div className="aspect-video relative flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #0d0d1a 0%, #1a1a2e 100%)' }}>
+              <div className="absolute inset-0 opacity-20" style={{ background: 'radial-gradient(ellipse at center, #667eea 0%, transparent 70%)' }}></div>
+              <div className="w-16 h-16 rounded-full flex items-center justify-center border border-white/20 relative z-10" style={{ background: 'rgba(102,126,234,0.2)', backdropFilter: 'blur(10px)' }}>
+                <svg className="w-6 h-6 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M8 5v14l11-7z"/>
+                </svg>
+              </div>
+              {/* Progress bar */}
+              <div className="absolute bottom-0 left-0 right-0 p-4">
+                <div className="h-1 rounded-full bg-white/10 mb-3">
+                  <div className="h-full w-2/5 rounded-full" style={{ background: 'linear-gradient(90deg, #667eea, #764ba2)' }}></div>
+                </div>
+                <div className="flex justify-between text-xs text-white/40">
+                  <span>12:34</span><span>31:20</span>
+                </div>
+              </div>
+            </div>
+            {/* File list */}
+            <div className="p-4 space-y-2">
+              {['Anime / Stellar Blade', 'Anime / Final Fantasy', 'Anime / 2B Nier'].map((name, i) => (
+                <div key={i} className={`flex items-center gap-3 px-3 py-2 rounded-lg ${i === 0 ? 'border border-white/10' : ''}`} style={{ background: i === 0 ? 'rgba(102,126,234,0.1)' : 'transparent' }}>
+                  <div className="w-8 h-8 rounded flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(102,126,234,0.2)' }}>
+                    <svg className="w-4 h-4" style={{ color: '#667eea' }} fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                  </div>
+                  <span className="text-sm text-white/70 truncate">{name}</span>
+                  {i === 0 && <span className="ml-auto text-xs px-2 py-0.5 rounded-full" style={{ background: 'rgba(102,126,234,0.2)', color: '#a5b4fc' }}>Ativo</span>}
+                </div>
+              ))}
+            </div>
+          </div>
+          {/* Glow */}
+          <div className="absolute -inset-4 rounded-3xl opacity-20 blur-3xl -z-10" style={{ background: 'linear-gradient(135deg, #667eea, #764ba2)' }}></div>
         </div>
       </section>
 
       {/* Features */}
-      <section className="max-w-7xl mx-auto px-4 py-12 sm:py-16">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-8">
-          <Card variant="elevated" padding="md" className="text-center">
-            <div className="text-3xl sm:text-4xl mb-3 sm:mb-4">📤</div>
-            <h3 className="text-lg sm:text-xl font-bold mb-2">Upload Inteligente</h3>
-            <p className="text-sm sm:text-base text-gray-400">Até 5GB por arquivo com drag & drop</p>
-          </Card>
-          <Card variant="elevated" padding="md" className="text-center">
-            <div className="text-3xl sm:text-4xl mb-3 sm:mb-4">🔄</div>
-            <h3 className="text-lg sm:text-xl font-bold mb-2">Conversão 4K</h3>
-            <p className="text-sm sm:text-base text-gray-400">H.264 automático em 1080p e 4K</p>
-          </Card>
-          <Card variant="elevated" padding="md" className="text-center sm:col-span-2 md:col-span-1">
-            <div className="text-3xl sm:text-4xl mb-3 sm:mb-4">🌍</div>
-            <h3 className="text-lg sm:text-xl font-bold mb-2">CDN Global</h3>
-            <p className="text-sm sm:text-base text-gray-400">400+ edge locations, 99.9% uptime</p>
-          </Card>
+      <section className="max-w-7xl mx-auto px-6 pb-24">
+        <div className="grid md:grid-cols-3 gap-4">
+          {[
+            { icon: '▶', title: 'Player Premium', desc: 'Controles avançados, playlist automática e suporte a 4K com baixa latência.' },
+            { icon: '⚡', title: 'CDN Global', desc: '400+ pontos de presença. Streaming fluido em qualquer lugar do mundo.' },
+            { icon: '🗂', title: 'Organização Inteligente', desc: 'Pastas, categorias e busca instantânea para toda sua biblioteca.' },
+          ].map((f, i) => (
+            <div key={i} className="p-6 rounded-2xl border border-white/5 transition-all duration-300 hover:border-white/10" style={{ background: 'rgba(255,255,255,0.02)' }}>
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center text-lg mb-4" style={{ background: 'rgba(102,126,234,0.15)' }}>
+                {f.icon}
+              </div>
+              <h3 className="font-semibold text-white mb-2">{f.title}</h3>
+              <p className="text-sm text-gray-500 leading-relaxed">{f.desc}</p>
+            </div>
+          ))}
         </div>
       </section>
 
-      {/* Social Proof */}
-      <section className="bg-dark-800/30 py-12 sm:py-16">
-        <div className="max-w-7xl mx-auto px-4 text-center">
-          <div className="grid grid-cols-3 gap-4 sm:gap-8">
-            <div>
-              <div className="text-2xl sm:text-3xl font-bold text-neon-cyan mb-1 sm:mb-2">99.9%</div>
-              <div className="text-xs sm:text-base text-gray-400">Uptime garantido</div>
-            </div>
-            <div>
-              <div className="text-2xl sm:text-3xl font-bold text-neon-purple mb-1 sm:mb-2">50%</div>
-              <div className="text-xs sm:text-base text-gray-400">Mais barato</div>
-            </div>
-            <div>
-              <div className="text-2xl sm:text-3xl font-bold text-neon-cyan mb-1 sm:mb-2">15 dias</div>
-              <div className="text-xs sm:text-base text-gray-400">Trial grátis</div>
-            </div>
-          </div>
+      {/* CTA */}
+      <section className="max-w-2xl mx-auto px-6 pb-24 text-center">
+        <div className="p-12 rounded-3xl border border-white/5" style={{ background: 'rgba(102,126,234,0.05)' }}>
+          <h2 className="text-3xl font-bold text-white mb-3">Acesso exclusivo</h2>
+          <p className="text-gray-400 mb-8">Esta plataforma é privada. Entre com suas credenciais ou solicite acesso ao administrador.</p>
+          <Link href="/login">
+            <button className="px-8 py-4 rounded-xl font-semibold text-white transition-all duration-300 hover:-translate-y-1" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', boxShadow: '0 8px 30px rgba(102,126,234,0.3)' }}>
+              Entrar na Plataforma
+            </button>
+          </Link>
         </div>
-      </section>
-
-      {/* Comparison Table */}
-      <section className="max-w-7xl mx-auto px-4 py-12 sm:py-16">
-        <h2 className="text-2xl sm:text-3xl font-bold text-center mb-6 sm:mb-8">
-          Por que <span className="neon-text">Mídiaflow</span>?
-        </h2>
-        
-        <div className="glass-card p-3 sm:p-6 overflow-x-auto mb-6 sm:mb-8">
-          <table className="w-full text-xs sm:text-sm min-w-[500px]">
-            <thead>
-              <tr className="border-b border-gray-700">
-                <th className="text-left py-2 sm:py-3 px-2 sm:px-4">Recurso</th>
-                <th className="text-center py-2 sm:py-3 px-2 sm:px-4">Mídiaflow</th>
-                <th className="text-center py-2 sm:py-3 px-2 sm:px-4">Vimeo</th>
-                <th className="text-center py-2 sm:py-3 px-2 sm:px-4">Wistia</th>
-                <th className="text-center py-2 sm:py-3 px-2 sm:px-4">YouTube</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr className="border-b border-gray-800">
-                <td className="py-2 sm:py-3 px-2 sm:px-4">Preço (50GB)</td>
-                <td className="text-center text-neon-cyan font-bold">R$ 49,90</td>
-                <td className="text-center text-gray-400">R$ 60+</td>
-                <td className="text-center text-gray-400">R$ 95+</td>
-                <td className="text-center text-gray-400">Grátis</td>
-              </tr>
-              <tr className="border-b border-gray-800">
-                <td className="py-2 sm:py-3 px-2 sm:px-4">Conversão 4K</td>
-                <td className="text-center text-green-400">✓</td>
-                <td className="text-center text-red-400">✗</td>
-                <td className="text-center text-red-400">✗</td>
-                <td className="text-center text-green-400">✓</td>
-              </tr>
-              <tr className="border-b border-gray-800">
-                <td className="py-2 sm:py-3 px-2 sm:px-4">Sem anúncios</td>
-                <td className="text-center text-green-400">✓</td>
-                <td className="text-center text-green-400">✓</td>
-                <td className="text-center text-green-400">✓</td>
-                <td className="text-center text-red-400">✗</td>
-              </tr>
-              <tr className="border-b border-gray-800">
-                <td className="py-2 sm:py-3 px-2 sm:px-4">White-label</td>
-                <td className="text-center text-green-400">✓</td>
-                <td className="text-center text-green-400">✓</td>
-                <td className="text-center text-green-400">✓</td>
-                <td className="text-center text-red-400">✗</td>
-              </tr>
-              <tr className="border-b border-gray-800">
-                <td className="py-2 sm:py-3 px-2 sm:px-4">API Completa</td>
-                <td className="text-center text-green-400">✓</td>
-                <td className="text-center text-gray-400">Caros</td>
-                <td className="text-center text-green-400">✓</td>
-                <td className="text-center text-green-400">✓</td>
-              </tr>
-              <tr>
-                <td className="py-2 sm:py-3 px-2 sm:px-4">Storage bônus</td>
-                <td className="text-center text-neon-cyan font-bold">✓</td>
-                <td className="text-center text-red-400">✗</td>
-                <td className="text-center text-red-400">✗</td>
-                <td className="text-center text-red-400">✗</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
-          <div className="glass-card p-5 sm:p-6 text-center">
-            <div className="text-2xl sm:text-3xl mb-2">💰</div>
-            <h3 className="text-base sm:text-lg font-bold mb-2">50% mais barato</h3>
-            <p className="text-xs sm:text-sm text-gray-400">que o concorrente com mesmas features</p>
-          </div>
-          <div className="glass-card p-5 sm:p-6 text-center">
-            <div className="text-2xl sm:text-3xl mb-2">🎁</div>
-            <h3 className="text-base sm:text-lg font-bold mb-2">Storage bônus</h3>
-            <p className="text-xs sm:text-sm text-gray-400">Armazene qualquer arquivo, não só vídeos</p>
-          </div>
-          <div className="glass-card p-5 sm:p-6 text-center sm:col-span-2 md:col-span-1">
-            <div className="text-2xl sm:text-3xl mb-2">🚀</div>
-            <h3 className="text-base sm:text-lg font-bold mb-2">CDN Global</h3>
-            <p className="text-xs sm:text-sm text-gray-400">400+ edge locations, 99.9% uptime</p>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Final */}
-      <section className="max-w-4xl mx-auto px-4 py-12 sm:py-16 text-center">
-        <h2 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4">
-          Pronto para <span className="neon-text">começar</span>?
-        </h2>
-        <p className="text-base sm:text-xl text-gray-400 mb-6 sm:mb-8 px-2">
-          15 dias grátis. Sem cartão de crédito. Cancele quando quiser.
-        </p>
-        <a href="/register">
-          <Button variant="primary" size="lg">
-            🚀 Começar Grátis Agora
-          </Button>
-        </a>
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-gray-800 py-6 sm:py-8">
-        <div className="max-w-7xl mx-auto px-4 text-center text-xs sm:text-sm text-gray-400">
-          <p className="mb-3 sm:mb-4">© 2025 Mídiaflow. Desenvolvido por SSTechnologies - Sergio Sena</p>
-          <div className="flex flex-wrap justify-center gap-3 sm:gap-6">
-            <a href="/pricing" className="hover:text-neon-cyan">Preços</a>
-            <a href="/docs" className="hover:text-neon-cyan">Docs</a>
-            <a href="/termos" className="hover:text-neon-cyan">Termos</a>
-            <a href="/privacidade" className="hover:text-neon-cyan">Privacidade</a>
-            <a href="/sla" className="hover:text-neon-cyan">SLA</a>
+      <footer className="border-t border-white/5 py-8">
+        <div className="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-gray-600">
+          <span><span className="text-white">Mídia</span><span style={{ color: '#667eea' }}>flow</span> · SSTechnologies</span>
+          <div className="flex gap-6">
+            <Link href="/termos" className="hover:text-gray-400 transition-colors">Termos</Link>
+            <Link href="/privacidade" className="hover:text-gray-400 transition-colors">Privacidade</Link>
+            <Link href="/sla" className="hover:text-gray-400 transition-colors">SLA</Link>
           </div>
         </div>
       </footer>
