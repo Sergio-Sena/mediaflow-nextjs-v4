@@ -2,6 +2,7 @@ import json
 import boto3
 import os
 import jwt
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from urllib.parse import unquote
 
 s3 = boto3.client('s3')
@@ -72,37 +73,38 @@ def lambda_handler(event, context):
         print(f"Files handler error: {str(e)}")
         return cors_response(500, {'success': False, 'message': 'Internal server error'})
 
+def get_duration(bucket, key):
+    try:
+        head = s3.head_object(Bucket=bucket, Key=key)
+        return int(head.get('Metadata', {}).get('duration', 0))
+    except:
+        return 0
+
+
 def list_files(user_prefix='', context='dashboard'):
     files = []
-    
+    bucket_for_key = {}
+
     for bucket, bucket_type in [(UPLOADS_BUCKET, 'uploads'), (PROCESSED_BUCKET, 'processed')]:
         try:
-            # Usar paginator para listar TODOS os arquivos
             paginator = s3.get_paginator('list_objects_v2')
-            
-            if user_prefix:
-                page_iterator = paginator.paginate(Bucket=bucket, Prefix=user_prefix)
-            else:
-                page_iterator = paginator.paginate(Bucket=bucket)
-            
-            # Iterar por TODAS as páginas
+            page_iterator = paginator.paginate(Bucket=bucket, Prefix=user_prefix) if user_prefix else paginator.paginate(Bucket=bucket)
+
             for page in page_iterator:
                 for obj in page.get('Contents', []):
                     key = obj['Key']
-                    
-                    # Filtrar pastas especiais no dashboard
+
                     if context == 'dashboard':
                         if key.startswith('avatars/') or key.startswith('qrcodes/'):
                             continue
-                    
-                    # Extract folder and filename
+
                     if '/' in key:
                         folder_path = '/'.join(key.split('/')[:-1])
                         filename = key.split('/')[-1]
                     else:
                         folder_path = 'root'
                         filename = key
-                    
+
                     files.append({
                         'key': key,
                         'name': filename,
@@ -110,11 +112,23 @@ def list_files(user_prefix='', context='dashboard'):
                         'size': obj['Size'],
                         'lastModified': obj['LastModified'].isoformat(),
                         'bucket': bucket_type,
-                        'url': f"https://{bucket}.s3.amazonaws.com/{obj['Key']}"
+                        'duration': 0,
+                        'url': f'https://{bucket}.s3.amazonaws.com/{key}'
                     })
+                    if key.endswith('.mp4'):
+                        bucket_for_key[key] = bucket
         except:
             pass
-    
+
+    # Buscar duration em paralelo apenas para mp4
+    if bucket_for_key:
+        with ThreadPoolExecutor(max_workers=10) as executor:
+            futures = {executor.submit(get_duration, b, k): k for k, b in bucket_for_key.items()}
+            durations = {futures[f]: f.result() for f in as_completed(futures)}
+        for file in files:
+            if file['key'] in durations:
+                file['duration'] = durations[file['key']]
+
     return cors_response(200, {'success': True, 'files': files})
 
 def delete_thumbnail(key):

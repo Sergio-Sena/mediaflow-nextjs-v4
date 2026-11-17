@@ -41,6 +41,7 @@ interface ContentItem {
   type: string
   folder: string
   lastModified?: string
+  duration?: number
 }
 
 interface ContentRowProps {
@@ -96,6 +97,15 @@ function ContentRow({ title, items, onItemClick, onItemDelete, onItemShare, onDe
   }
 
 
+
+  const formatDuration = (secs: number) => {
+    if (!secs) return null
+    const h = Math.floor(secs / 3600)
+    const m = Math.floor((secs % 3600) / 60)
+    const s = secs % 60
+    if (h > 0) return `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`
+    return `${m}:${String(s).padStart(2,'0')}`
+  }
 
   const formatSize = (bytes: number) => {
     if (bytes === 0) return '0 B'
@@ -165,6 +175,11 @@ function ContentRow({ title, items, onItemClick, onItemDelete, onItemShare, onDe
                   <div className="absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded text-[9px] sm:text-[10px] font-bold bg-black/60 text-white/80">
                     {formatSize(item.size)}
                   </div>
+                  {item.duration ? (
+                    <div className="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 rounded text-[9px] sm:text-[10px] font-bold bg-black/70 text-white/90">
+                      {formatDuration(item.duration)}
+                    </div>
+                  ) : null}
                   {/* Action buttons on hover (non-selection mode) */}
                   {!selectionMode && (
                     <div className="absolute top-1.5 left-1.5 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
