@@ -10,7 +10,7 @@ from datetime import datetime, timedelta, timezone
 
 REGION = os.environ.get('AWS_REGION', 'us-east-1')
 EMAIL_TO = os.environ.get('FINOPS_EMAIL', 'senanetworker@gmail.com')
-EMAIL_FROM = EMAIL_TO
+EMAIL_FROM = 'marketing@sstechnologies-cloud.com'
 COMMIT_SHA = os.environ.get('GITHUB_SHA', 'local')[:8]
 PROJECT = 'MidiaFlow'
 
@@ -92,7 +92,7 @@ Responda APENAS com 3 insights curtos e acionáveis. Formato:
 
     try:
         resp = bedrock.invoke_model(
-            modelId='anthropic.claude-3-haiku-20240307-v1:0',
+            modelId='anthropic.claude-haiku-4-5-20251001-v1:0',
             contentType='application/json',
             accept='application/json',
             body=json.dumps({
