@@ -14,6 +14,7 @@ interface S3File {
   url: string
   type: 'video' | 'image' | 'document' | 'other'
   folder: string
+  duration?: number
 }
 
 interface FileListProps {
@@ -112,7 +113,8 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
             url: `https://${file.bucket === 'uploads' ? 'mediaflow-uploads-969430605054' : 'mediaflow-processed-969430605054'}.s3.amazonaws.com/${encodeURIComponent(file.key)}`,
             type: fileType,
             folder: folderName,
-            bucket: file.bucket
+            bucket: file.bucket,
+            duration: file.duration || 0
           }
         })
         

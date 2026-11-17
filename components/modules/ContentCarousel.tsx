@@ -176,7 +176,7 @@ function ContentRow({ title, items, onItemClick, onItemDelete, onItemShare, onDe
                     {formatSize(item.size)}
                   </div>
                   {item.duration ? (
-                    <div className="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 rounded text-[9px] sm:text-[10px] font-bold bg-black/70 text-white/90">
+                    <div className="absolute bottom-1.5 left-1.5 px-1.5 py-0.5 rounded text-[9px] sm:text-[10px] font-bold bg-black/70 text-white/90">
                       {formatDuration(item.duration)}
                     </div>
                   ) : null}

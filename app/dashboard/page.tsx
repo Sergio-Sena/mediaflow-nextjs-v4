@@ -34,6 +34,7 @@ interface FileItem {
   url: string
   type: string
   folder: string
+  duration?: number
 }
 
 function DashboardContent() {
