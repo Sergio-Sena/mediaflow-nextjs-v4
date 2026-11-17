@@ -17,7 +17,17 @@ sys.stdout.reconfigure(encoding='utf-8')
 
 BUCKET    = 'mediaflow-uploads-969430605054'
 BASE_PATH  = r'C:\Users\dell 5557\Videos\IDM'
-LOCAL_PATH = next((sys.argv[i+1] for i, a in enumerate(sys.argv) if a == '--path'), BASE_PATH)
+
+# Suporte a múltiplos --path
+_paths = []
+_i = 1
+while _i < len(sys.argv):
+    if sys.argv[_i] == '--path' and _i + 1 < len(sys.argv):
+        _paths.append(sys.argv[_i + 1])
+        _i += 2
+    else:
+        _i += 1
+LOCAL_PATHS = _paths if _paths else [BASE_PATH]
 FFMPEG    = r'C:\ffmpeg\bin\ffmpeg.exe'
 FFPROBE   = r'C:\ffmpeg\bin\ffprobe.exe'
 CODEC_RANK = {'hevc': 3, 'h265': 3, 'av1': 4, 'vp9': 2, 'h264': 1, 'avc': 1}
@@ -227,7 +237,7 @@ def main():
     force = '--force' in sys.argv
     if force:
         print('MODO FORCE: sobrescrevendo arquivos existentes no S3\n')
-    print(f'Pasta: {LOCAL_PATH}\n')
+    print(f'Pastas: {LOCAL_PATHS}\n')
 
     if not os.path.exists(FFMPEG):
         print(f'ERRO: ffmpeg nao encontrado em {FFMPEG}')
@@ -250,10 +260,11 @@ def main():
     print('Coletando arquivos...\n')
 
     pending = []
-    for root, _, files in os.walk(LOCAL_PATH):
-        for f in files:
-            if f.lower().endswith(VIDEO_EXTS):
-                pending.append(os.path.join(root, f))
+    for local_path in LOCAL_PATHS:
+        for root, _, files in os.walk(local_path):
+            for f in files:
+                if f.lower().endswith(VIDEO_EXTS):
+                    pending.append(os.path.join(root, f))
 
     if not pending:
         print('Nenhum arquivo encontrado!')
