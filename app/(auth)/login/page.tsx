@@ -45,9 +45,9 @@ export default function LoginPage() {
       <div className="hidden lg:flex flex-1 relative items-end justify-start overflow-hidden">
         {/* Anime background image */}
         <div className="absolute inset-0" style={{
-          backgroundImage: 'url(https://images.unsplash.com/photo-1578632767115-351597cf2477?w=1200&q=80)',
+          backgroundImage: 'url(https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=1200&q=80)',
           backgroundSize: 'cover',
-          backgroundPosition: 'center 10%',
+          backgroundPosition: 'center center',
         }}></div>
         {/* Dark overlay gradiente */}
         <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.2) 100%)' }}></div>
