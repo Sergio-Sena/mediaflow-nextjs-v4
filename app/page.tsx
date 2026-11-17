@@ -64,40 +64,57 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Right — Player mockup */}
+        {/* Right — Player mockup + dashboard preview */}
         <div className="hidden lg:block relative">
           <div className="rounded-2xl overflow-hidden border border-white/10" style={{ background: 'rgba(255,255,255,0.03)', boxShadow: '0 40px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.05)' }}>
-            {/* Fake player */}
-            <div className="aspect-video relative flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #0d0d1a 0%, #1a1a2e 100%)' }}>
-              <div className="absolute inset-0 opacity-20" style={{ background: 'radial-gradient(ellipse at center, #667eea 0%, transparent 70%)' }}></div>
-              <div className="w-16 h-16 rounded-full flex items-center justify-center border border-white/20 relative z-10" style={{ background: 'rgba(102,126,234,0.2)', backdropFilter: 'blur(10px)' }}>
-                <svg className="w-6 h-6 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M8 5v14l11-7z"/>
-                </svg>
+
+            {/* Player mockup */}
+            <div className="aspect-video relative flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #0d0d1a 0%, #1a1a2e 50%, #0f0f2e 100%)' }}>
+              {/* Ambient glow layers */}
+              <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at 30% 50%, rgba(102,126,234,0.18) 0%, transparent 60%)' }}></div>
+              <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at 70% 80%, rgba(118,75,162,0.12) 0%, transparent 50%)' }}></div>
+              {/* Fake scan lines */}
+              <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.3) 2px, rgba(255,255,255,0.3) 3px)', backgroundSize: '100% 4px' }}></div>
+              {/* Play button */}
+              <div className="w-16 h-16 rounded-full flex items-center justify-center border border-white/20 relative z-10 transition-transform hover:scale-110" style={{ background: 'rgba(102,126,234,0.25)', backdropFilter: 'blur(10px)', boxShadow: '0 0 40px rgba(102,126,234,0.3)' }}>
+                <svg className="w-6 h-6 text-white ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
               </div>
-              {/* Progress bar */}
-              <div className="absolute bottom-0 left-0 right-0 p-4">
-                <div className="h-1 rounded-full bg-white/10 mb-3">
-                  <div className="h-full w-2/5 rounded-full" style={{ background: 'linear-gradient(90deg, #667eea, #764ba2)' }}></div>
+              {/* Bottom controls */}
+              <div className="absolute bottom-0 left-0 right-0 p-4" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.7), transparent)' }}>
+                <div className="h-1 rounded-full mb-2" style={{ background: 'rgba(255,255,255,0.1)' }}>
+                  <div className="h-full rounded-full animate-pulse" style={{ width: '38%', background: 'linear-gradient(90deg, #667eea, #764ba2)' }}></div>
                 </div>
-                <div className="flex justify-between text-xs text-white/40">
-                  <span>12:34</span><span>31:20</span>
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: '#667eea' }}></div>
+                    <span className="text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>Reproduzindo</span>
+                  </div>
+                  <span className="text-xs" style={{ color: 'rgba(255,255,255,0.3)' }}>HD · CDN</span>
                 </div>
               </div>
             </div>
-            {/* File list */}
-            <div className="p-4 space-y-2">
-              {['Anime / Stellar Blade', 'Anime / Final Fantasy', 'Anime / 2B Nier'].map((name, i) => (
-                <div key={i} className={`flex items-center gap-3 px-3 py-2 rounded-lg ${i === 0 ? 'border border-white/10' : ''}`} style={{ background: i === 0 ? 'rgba(102,126,234,0.1)' : 'transparent' }}>
-                  <div className="w-8 h-8 rounded flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(102,126,234,0.2)' }}>
-                    <svg className="w-4 h-4" style={{ color: '#667eea' }} fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+
+            {/* Dashboard preview — category cards */}
+            <div className="p-4">
+              <p className="text-xs mb-3" style={{ color: 'rgba(255,255,255,0.3)' }}>Sua biblioteca</p>
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { gradient: 'linear-gradient(135deg,#667eea,#764ba2)', label: 'Coleção A', count: '24 itens' },
+                  { gradient: 'linear-gradient(135deg,#f093fb,#f5576c)', label: 'Série 01', count: '12 itens' },
+                  { gradient: 'linear-gradient(135deg,#4facfe,#00f2fe)', label: 'Favoritos', count: '8 itens' },
+                ].map((cat, i) => (
+                  <div key={i} className="rounded-xl overflow-hidden border border-white/5">
+                    <div className="h-14" style={{ background: cat.gradient, opacity: 0.7 }}></div>
+                    <div className="px-2 py-1.5" style={{ background: 'rgba(255,255,255,0.03)' }}>
+                      <p className="text-xs font-medium text-white/80 truncate">{cat.label}</p>
+                      <p className="text-xs" style={{ color: 'rgba(255,255,255,0.3)' }}>{cat.count}</p>
+                    </div>
                   </div>
-                  <span className="text-sm text-white/70 truncate">{name}</span>
-                  {i === 0 && <span className="ml-auto text-xs px-2 py-0.5 rounded-full" style={{ background: 'rgba(102,126,234,0.2)', color: '#a5b4fc' }}>Ativo</span>}
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
+
           {/* Glow */}
           <div className="absolute -inset-4 rounded-3xl opacity-20 blur-3xl -z-10" style={{ background: 'linear-gradient(135deg, #667eea, #764ba2)' }}></div>
         </div>
