@@ -47,7 +47,7 @@ export default function LoginPage() {
         <div className="absolute inset-0" style={{
           backgroundImage: 'url(https://images.unsplash.com/photo-1578632767115-351597cf2477?w=1200&q=80)',
           backgroundSize: 'cover',
-          backgroundPosition: 'center top',
+          backgroundPosition: 'center 20%',
         }}></div>
         {/* Dark overlay gradiente */}
         <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.2) 100%)' }}></div>
