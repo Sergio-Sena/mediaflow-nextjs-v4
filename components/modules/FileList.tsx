@@ -49,22 +49,58 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
   const [sortBy, setSortBy] = useState<'name' | 'size' | 'date'>('name')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
 
+  const fetchDurationsInBackground = async (filesToCheck: S3File[]) => {
+    const { durationCache } = await import('@/lib/duration-cache')
+    const token = localStorage.getItem('token')
+    const missing = filesToCheck.filter(f => f.type === 'video' && !durationCache.get(f.key))
+    if (missing.length === 0) return
+
+    const results: Record<string, number> = {}
+    await Promise.all(missing.map(async (file) => {
+      try {
+        const res = await fetch(
+          `${getApiUrl('FILES')}?key=${encodeURIComponent(file.key)}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        )
+        if (res.ok) {
+          const data = await res.json()
+          if (data.duration !== undefined) results[file.key] = data.duration
+        }
+      } catch {}
+    }))
+
+    if (Object.keys(results).length > 0) {
+      durationCache.setMany(results)
+      setFiles(prev => prev.map(f => results[f.key] !== undefined ? { ...f, duration: results[f.key] } : f))
+    }
+  }
+
+  const applyDurationCache = async (fileList: S3File[]): Promise<S3File[]> => {
+    const { durationCache } = await import('@/lib/duration-cache')
+    const cache = durationCache.getAll()
+    return fileList.map(f => ({
+      ...f,
+      duration: cache[f.key] ?? f.duration ?? 0
+    }))
+  }
+
   const fetchFiles = async () => {
     try {
       setLoading(true)
       setError(null)
-      
+
       // Tentar carregar do cache primeiro
       const { filesCache } = await import('@/lib/files-cache')
       const cached = filesCache.get()
-      
+
       if (cached) {
-        console.log('Carregando arquivos do cache...')
-        setFiles(cached.files)
+        const withDuration = await applyDurationCache(cached.files)
+        setFiles(withDuration)
         setFolders(cached.folders)
         setFolderStructure(cached.folderStructure)
-        onFilesLoaded?.(cached.files)
+        onFilesLoaded?.(withDuration)
         setLoading(false)
+        fetchDurationsInBackground(withDuration)
         return
       }
       
@@ -118,8 +154,10 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
           }
         })
         
-        setFiles(transformedFiles)
-        onFilesLoaded?.(transformedFiles)
+        const withDuration = await applyDurationCache(transformedFiles)
+        setFiles(withDuration)
+        onFilesLoaded?.(withDuration)
+        fetchDurationsInBackground(withDuration)
         
         // Build folder structure for navigation
         const structure: {[key: string]: string[]} = {}
@@ -171,7 +209,7 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
         // Salvar no cache DEPOIS de criar allFolders
         const { filesCache } = await import('@/lib/files-cache')
         filesCache.set({
-          files: transformedFiles,
+          files: withDuration,
           folders: allFolders,
           folderStructure: structure
         })
@@ -731,7 +769,7 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
                 await fetch(getApiUrl('PUBLIC_CONTENT'), {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                  body: JSON.stringify({ file_key: item.key, title: item.name, type: item.type, category })
+                  body: JSON.stringify({ file_key: item.key, title: item.name, type: item.type, category, duration: item.duration || 0 })
                 })
               }
               setSelectedFiles(new Set())
@@ -741,7 +779,7 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
               await fetch(getApiUrl('PUBLIC_CONTENT'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                body: JSON.stringify({ file_key: shareModal.key, title: shareModal.name, type: shareModal.type, category })
+                body: JSON.stringify({ file_key: shareModal.key, title: shareModal.name, type: shareModal.type, category, duration: shareModal.duration || 0 })
               })
             }
             setShareModal(null)

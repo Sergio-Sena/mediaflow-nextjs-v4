@@ -27,6 +27,7 @@ interface PublicItem {
   type: string
   category: string
   shared_at: string
+  duration?: number
   likes: number
   liked_by: string[]
   comments: Comment[]
@@ -39,6 +40,13 @@ interface Comment {
   user_name: string
   text: string
   created_at: string
+}
+
+function formatDuration(seconds: number): string {
+  if (!seconds) return ''
+  const m = Math.floor(seconds / 60)
+  const s = seconds % 60
+  return `${m}:${s.toString().padStart(2, '0')}`
 }
 
 function CategoryRow({ title, items, currentUserId, currentUserRole, onPlay, onLike, onComment, onRemove, selectMode, selectedItems, onToggleSelect }: {
@@ -136,6 +144,11 @@ function CategoryRow({ title, items, currentUserId, currentUserRole, onPlay, onL
                       <Play className="w-5 h-5 text-cyan-300" fill="currentColor" />
                     </div>
                   </div>
+                  {item.type === 'video' && item.duration ? (
+                    <div className="absolute bottom-1.5 left-1.5 px-1.5 py-0.5 rounded text-xs font-mono font-semibold bg-black/70 text-white">
+                      {formatDuration(item.duration)}
+                    </div>
+                  ) : null}
                   {/* Remove button */}
                   {canRemove && (
                     <button

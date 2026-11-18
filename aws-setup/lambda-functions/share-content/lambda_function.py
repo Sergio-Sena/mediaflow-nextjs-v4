@@ -96,6 +96,7 @@ def share_content(body, user):
         'title': title or file_key.split('/')[-1],
         'type': file_type,
         'category': category,
+        'duration': int(body.get('duration', 0)),
         'shared_at': datetime.now(timezone.utc).isoformat(),
         'likes': 0,
         'liked_by': [],
