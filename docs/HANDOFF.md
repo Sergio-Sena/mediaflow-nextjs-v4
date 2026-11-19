@@ -7,6 +7,7 @@
 ## 📍 Estado atual do projeto
 
 - **Versão:** 4.9.1
+- **Último commit:** `62202cb` — fix desktop cards, hamburger, thumbnail lazy loading
 - **Branch principal:** `main` (produção automática via push)
 - **Branch dev:** `dev`
 - **URL produção:** https://midiaflow.sstechnologies-cloud.com
@@ -16,6 +17,47 @@
 
 ## ✅ O que foi feito (sessões anteriores)
 
+### Mobile UX — Portrait, Landscape e Desktop (sessão atual)
+
+#### Dashboard — Portrait mobile
+- **Header**: hambúrguer removido → avatar + nome (clica vai para `/profile`)
+- **Bottom tab bar**: só ícones `text-2xl` + dot ativo (`bg-[#667eea]`), sem labels — mais limpo e espaçoso
+- **Filtros FileList**: busca full-width com ícone Search interno; pasta e ordenação viram botões quadrados `38x38px` que abrem dropdowns customizados (dark, `IntersectionObserver`-style); botões uniformes
+
+#### Dashboard — Landscape mobile
+- **Header**: só logo + ícone ☰ (`landscape:max-lg:flex`) — completamente limpo
+- **Drawer lateral**: desliza da esquerda (`w-56`), overlay com `bg-black/50`, fecha ao clicar fora
+  - Seção "Navegação": Biblioteca, Pastas, Upload, Público, Analytics (item ativo com borda roxa)
+  - Seção "Conta": avatar + nome + email, Perfil, Gerenciamento (admin), Sair
+- **Sem sidebar fixa**: drawer é overlay, não empurra conteúdo
+- **Cards**: `landscape:w-[calc(33vw-20px)]` — 3 por linha em vez de 2
+
+#### Dashboard — Desktop
+- **Nav tabs**: emojis removidos, só texto limpo, `px-5` uniforme
+- **Header**: "Dashboard v4.3" → `v4.9.1` discreto em `font-mono text-gray-600`; nome truncate `max-w-[140px]`
+- **Filtros**: visual integrado ao tema dark (`bg-white/5 border-white/10`), ícone Search no input, botões `34x34px` uniformes, contador "X arquivos" à esquerda
+- **Cards**: tamanho fixo `sm:w-48 md:w-52 lg:w-48` (não vaza mais `calc(50vw)` para desktop)
+- **Hambúrguer**: `landscape:max-lg:flex` — nunca aparece no desktop
+- **Drawer**: `lg:hidden` — nunca aparece no desktop
+
+#### Fix ERR_INSUFFICIENT_RESOURCES (thumbnails)
+- **Problema**: 763 arquivos → centenas de requests de thumbnail simultâneos → browser sem recursos
+- **Solução**: `ThumbnailImage` usa `IntersectionObserver` com `rootMargin: 200px` — só carrega quando card entra na viewport
+- Também adicionado `loading="lazy"` no `<img>`
+
+#### Fix sintaxe dashboard
+- `</div>` faltando no container `flex justify-between` do header — causava `Unexpected token div`
+
+#### Commits desta sessão
+| Commit | Descrição |
+|---|---|
+| `529eb6e` | feat: mobile UX improvements - portrait/landscape responsive nav |
+| `62202cb` | fix: desktop cards size, hamburger visibility, thumbnail lazy loading |
+
+#### Observação sobre deploy
+- `git push` dentro do `executeBash` às vezes retorna sucesso mas não sobe — sempre verificar com segundo push ou `git log origin/main`
+
+---
 ### Duration badge nos cards — refatoração completa (performance)
 - **Problema**: Lambda `files-handler` fazia `head_object` para cada `.mp4` em paralelo — com 500+ arquivos causava timeout de 30s e erro de CORS
 - **Solução**: Duration movida para responsabilidade do frontend
@@ -80,7 +122,7 @@
 
 Nada pendente urgente. Projeto estável em produção.
 
-> Duration badge funcionando no dashboard e public-feed. Cache permanente no localStorage — segunda visita é instantânea.
+> Mobile UX completo: portrait (bottom tab icons-only + filtros com dropdowns), landscape (drawer lateral), desktop (cards fixos, sem hambúrguer). Thumbnails com lazy loading via IntersectionObserver.
 
 ---
 
