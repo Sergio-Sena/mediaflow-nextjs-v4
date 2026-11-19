@@ -19,18 +19,33 @@ function getThumbnailUrl(key: string): string {
 function ThumbnailImage({ itemKey }: { itemKey: string }) {
   const [loaded, setLoaded] = useState(false)
   const [error, setError] = useState(false)
+  const [visible, setVisible] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
   const thumbUrl = getThumbnailUrl(itemKey)
 
-  if (!thumbUrl || error) return null
+  useEffect(() => {
+    if (!ref.current) return
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setVisible(true); observer.disconnect() } },
+      { rootMargin: '200px' }
+    )
+    observer.observe(ref.current)
+    return () => observer.disconnect()
+  }, [])
 
   return (
-    <img
-      src={thumbUrl}
-      alt=""
-      className={`absolute inset-0 w-full h-full object-cover transition-opacity ${loaded ? 'opacity-100' : 'opacity-0'}`}
-      onLoad={() => setLoaded(true)}
-      onError={() => setError(true)}
-    />
+    <div ref={ref} className="absolute inset-0">
+      {visible && thumbUrl && !error && (
+        <img
+          src={thumbUrl}
+          alt=""
+          loading="lazy"
+          className={`absolute inset-0 w-full h-full object-cover transition-opacity ${loaded ? 'opacity-100' : 'opacity-0'}`}
+          onLoad={() => setLoaded(true)}
+          onError={() => setError(true)}
+        />
+      )}
+    </div>
   )
 }
 
@@ -154,7 +169,7 @@ function ContentRow({ title, items, onItemClick, onItemDelete, onItemShare, onDe
             return (
               <div
                 key={item.key}
-                className={`flex-shrink-0 w-[calc(50vw-20px)] landscape:w-[calc(33vw-20px)] sm:w-[200px] md:w-[220px] lg:w-[200px] cursor-pointer group ${isSelected ? 'ring-2 ring-neon-cyan rounded-xl' : ''}`}
+                className={`flex-shrink-0 w-[calc(50vw-20px)] landscape:w-[calc(33vw-20px)] sm:w-48 md:w-52 lg:w-48 cursor-pointer group ${isSelected ? 'ring-2 ring-neon-cyan rounded-xl' : ''}`}
               >
                 <div
                   onClick={() => {

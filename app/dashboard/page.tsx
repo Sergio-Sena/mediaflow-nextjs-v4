@@ -266,9 +266,9 @@ function DashboardContent() {
               </span>
             </div>
 
-            {/* Landscape: só hambúrguer */}
+            {/* Landscape mobile only: hambúrguer */}
             <button
-              className="hidden landscape:flex lg:hidden items-center justify-center w-8 h-8 rounded-lg hover:bg-white/10 transition-colors"
+              className="hidden landscape:max-lg:flex items-center justify-center w-8 h-8 rounded-lg hover:bg-white/10 transition-colors"
               onClick={() => setLandscapeDrawer(true)}
             >
               <svg className="w-5 h-5 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -332,17 +332,17 @@ function DashboardContent() {
         </div>
       </nav>
 
-      {/* Landscape: drawer lateral */}
+      {/* Landscape mobile: drawer lateral */}
       {landscapeDrawer && (
         <>
           {/* Overlay */}
           <div
-            className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm landscape:block hidden"
+            className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm lg:hidden"
             onClick={() => setLandscapeDrawer(false)}
           />
           {/* Drawer */}
           <div
-            className="fixed left-0 top-0 bottom-0 z-50 w-56 flex flex-col landscape:flex hidden"
+            className="fixed left-0 top-0 bottom-0 z-50 w-56 flex flex-col lg:hidden"
             style={{ background: 'rgba(8,8,18,0.98)', backdropFilter: 'blur(24px)', borderRight: '1px solid rgba(255,255,255,0.08)' }}
           >
             {/* Header do drawer */}
