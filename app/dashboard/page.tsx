@@ -60,6 +60,7 @@ function DashboardContent() {
 
   const [currentUser, setCurrentUser] = useState<any>(null)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [landscapeDrawer, setLandscapeDrawer] = useState(false)
 
   useEffect(() => {
     // Verificar autenticação
@@ -181,7 +182,7 @@ function DashboardContent() {
     <div className="min-h-screen">
       {/* Header */}
       <header className="sticky top-0 z-50 border-b border-white/5" style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(20px)' }}>
-        <div className="mx-auto px-4 sm:px-8 py-3 sm:py-4">
+        <div className="mx-auto px-4 sm:px-8 py-1.5 landscape:py-1 sm:py-4">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-2 sm:gap-4">
               <h1 
@@ -190,13 +191,13 @@ function DashboardContent() {
               >
                 <span className="text-white">Mídia</span><span style={{ color: '#667eea' }}>flow</span>
               </h1>
-              <div className="hidden md:block text-sm text-gray-400">
-                Dashboard v4.3
+              <div className="hidden md:block text-xs text-gray-600 font-mono">
+                v4.9.1
               </div>
             </div>
             
             {/* Desktop Menu */}
-            <div className="hidden lg:flex items-center gap-2 md:gap-4">
+            <div className="hidden lg:flex items-center gap-3">
               {currentUser?.plan === 'trial' && (
                 <div className="glass-card px-3 py-1.5 border border-yellow-500/50 bg-yellow-500/10">
                   <div className="text-xs text-yellow-400 font-semibold">
@@ -219,7 +220,7 @@ function DashboardContent() {
                     }}
                   />
                   <div className="text-sm">
-                    <div className="text-neon-cyan font-semibold truncate max-w-[100px]">
+                    <div className="text-neon-cyan font-semibold truncate max-w-[140px]">
                       {currentUser.role === 'admin' ? 'Admin' : currentUser.name}
                     </div>
                   </div>
@@ -249,112 +250,193 @@ function DashboardContent() {
               </Button>
             </div>
 
-            {/* Mobile Hamburger */}
+            {/* Portrait: avatar + nome */}
+            <div className="lg:hidden landscape:hidden flex items-center gap-2 cursor-pointer" onClick={() => router.push('/profile')}>
+              <AvatarUpload
+                currentAvatar={currentUser?.avatar_url}
+                size="sm"
+                className="flex-shrink-0"
+                onAvatarUpdate={(avatarUrl) => {
+                  const updated = { ...currentUser, avatar_url: avatarUrl }
+                  setCurrentUser(updated)
+                }}
+              />
+              <span className="text-sm font-semibold" style={{ color: '#a5b4fc' }}>
+                {currentUser?.role === 'admin' ? 'Admin' : currentUser?.name?.split(' ')[0]}
+              </span>
+            </div>
+
+            {/* Landscape: só hambúrguer */}
             <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden btn-secondary p-3 text-xl min-h-[44px] min-w-[44px]"
+              className="hidden landscape:flex lg:hidden items-center justify-center w-8 h-8 rounded-lg hover:bg-white/10 transition-colors"
+              onClick={() => setLandscapeDrawer(true)}
             >
-              {mobileMenuOpen ? '✕' : '☰'}
+              <svg className="w-5 h-5 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
             </button>
           </div>
-
-          {/* Mobile Menu Dropdown */}
-          {mobileMenuOpen && (
-            <div className="lg:hidden mt-4 space-y-3 pb-4 border-t border-neon-cyan/20 pt-4">
-              {currentUser && (
-                <div className="flex items-center gap-3 glass-card px-4 py-3">
-                  <AvatarUpload
-                    currentAvatar={currentUser.avatar_url}
-                    size="sm"
-                    className="flex-shrink-0"
-                    onAvatarUpdate={(avatarUrl) => {
-                      const updated = { ...currentUser, avatar_url: avatarUrl }
-                      setCurrentUser(updated)
-                    }}
-                  />
-                  <div className="text-sm">
-                    <div className="text-neon-cyan font-semibold">{currentUser.name}</div>
-                  </div>
-                </div>
-              )}
-              {(currentUser?.role === 'admin') && (
-                <Button
-                  onClick={() => {
-                    router.push('/admin')
-                    setMobileMenuOpen(false)
-                  }}
-                  variant="primary"
-                  size="md"
-                  className="w-full"
-                >
-                  {currentUser.avatar_url ? (
-                    <img 
-                      src={currentUser.avatar_url} 
-                      alt="Admin"
-                      className="w-5 h-5 rounded-full object-cover border border-neon-cyan/50"
-                    />
-                  ) : (
-                    <span>👥</span>
-                  )}
-                  Painel Admin
-                </Button>
-              )}
-              <Button
-                onClick={() => {
-                  logout()
-                  setMobileMenuOpen(false)
-                }}
-                variant="secondary"
-                size="md"
-                className="w-full"
-              >
-                🚪 Sair do Sistema
-              </Button>
-            </div>
-          )}
         </div>
       </header>
 
-      {/* Navigation */}
-      <nav className="hidden md:block border-b border-white/5 overflow-x-auto sticky top-[57px] z-40" style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(10px)' }}>
+      {/* Navigation desktop */}
+      <nav className="hidden md:block border-b border-white/5 overflow-x-auto sticky top-[49px] z-40" style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(10px)' }}>
         <div className="mx-auto px-4 sm:px-8">
-          <div className="flex space-x-2 sm:space-x-4 md:space-x-8 min-w-max">
+          <div className="flex space-x-1 min-w-max">
             {[
-              ...(currentUser?.role !== 'admin' ? [{ id: 'files', label: '📁 Biblioteca', count: 0 }] : []),
-              { id: 'folders', label: '🗂️ Pastas', count: 0 },
-              { id: 'upload', label: '📤 Upload', count: 0 },
-              { id: 'public-feed', label: '🌐 Público', count: 0 },
-              { id: 'analytics', label: '📊 Analytics', count: 0 },
+              ...(currentUser?.role !== 'admin' ? [{ id: 'files', label: 'Biblioteca' }] : []),
+              { id: 'folders', label: 'Pastas' },
+              { id: 'upload', label: 'Upload' },
+              { id: 'public-feed', label: 'Público' },
+              { id: 'analytics', label: 'Analytics' },
             ].map((tab) => (
               <button
                 key={tab.id}
-                onClick={() => {
-                  if (tab.id === 'public-feed') {
-                    router.push('/public-feed')
-                  } else {
-                    setActiveTab(tab.id as any)
-                  }
-                }}
-                className={`py-3 sm:py-4 px-3 sm:px-4 border-b-2 font-medium text-sm sm:text-base whitespace-nowrap transition-all duration-300 ${
+                onClick={() => tab.id === 'public-feed' ? router.push('/public-feed') : setActiveTab(tab.id as any)}
+                className={`py-3 px-5 border-b-2 font-medium text-sm whitespace-nowrap transition-all duration-200 ${
                   activeTab === tab.id
                     ? 'border-[#667eea] text-white'
                     : 'border-transparent text-gray-500 hover:text-gray-300 hover:border-white/20'
                 }`}
               >
                 {tab.label}
-                {tab.count > 0 && (
-                  <span className="ml-2 px-2 py-1 bg-neon-cyan/20 text-neon-cyan text-xs rounded-full">
-                    {tab.count}
-                  </span>
-                )}
               </button>
             ))}
           </div>
         </div>
       </nav>
 
+      {/* Portrait: bottom tab bar — só ícones */}
+      <nav className="md:hidden landscape:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-white/10" style={{ background: 'rgba(0,0,0,0.92)', backdropFilter: 'blur(20px)' }}>
+        <div className="flex items-center justify-around px-4 py-2">
+          {[
+            ...(currentUser?.role !== 'admin' ? [{ id: 'files', icon: '📁' }] : []),
+            { id: 'folders', icon: '🗂️' },
+            { id: 'upload', icon: '📤' },
+            { id: 'public-feed', icon: '🌐' },
+            { id: 'analytics', icon: '📊' },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => tab.id === 'public-feed' ? router.push('/public-feed') : setActiveTab(tab.id as any)}
+              className="relative flex flex-col items-center justify-center w-12 h-12 rounded-2xl transition-all"
+            >
+              <span className={`text-2xl leading-none transition-transform ${
+                activeTab === tab.id ? 'scale-110' : 'opacity-50'
+              }`}>{tab.icon}</span>
+              {activeTab === tab.id && (
+                <div className="absolute bottom-1 w-1 h-1 rounded-full bg-[#667eea]" />
+              )}
+            </button>
+          ))}
+        </div>
+      </nav>
+
+      {/* Landscape: drawer lateral */}
+      {landscapeDrawer && (
+        <>
+          {/* Overlay */}
+          <div
+            className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm landscape:block hidden"
+            onClick={() => setLandscapeDrawer(false)}
+          />
+          {/* Drawer */}
+          <div
+            className="fixed left-0 top-0 bottom-0 z-50 w-56 flex flex-col landscape:flex hidden"
+            style={{ background: 'rgba(8,8,18,0.98)', backdropFilter: 'blur(24px)', borderRight: '1px solid rgba(255,255,255,0.08)' }}
+          >
+            {/* Header do drawer */}
+            <div className="flex items-center justify-between px-4 py-3 border-b border-white/8">
+              <span className="font-bold text-base">
+                <span className="text-white">Mídia</span><span style={{ color: '#667eea' }}>flow</span>
+              </span>
+              <button onClick={() => setLandscapeDrawer(false)} className="p-1 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white transition-colors">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Avatar + info */}
+            <div className="flex items-center gap-3 px-4 py-3 border-b border-white/8">
+              <AvatarUpload
+                currentAvatar={currentUser?.avatar_url}
+                size="sm"
+                className="flex-shrink-0"
+                onAvatarUpdate={(avatarUrl) => {
+                  const updated = { ...currentUser, avatar_url: avatarUrl }
+                  setCurrentUser(updated)
+                }}
+              />
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-white truncate">
+                  {currentUser?.role === 'admin' ? 'Admin' : currentUser?.name}
+                </p>
+                <p className="text-xs text-gray-500 truncate">{currentUser?.email}</p>
+              </div>
+            </div>
+
+            {/* Navegação */}
+            <div className="flex-1 py-2">
+              <p className="px-4 py-1.5 text-[10px] font-semibold text-gray-600 uppercase tracking-wider">Navegação</p>
+              {[
+                ...(currentUser?.role !== 'admin' ? [{ id: 'files', icon: '📁', label: 'Biblioteca' }] : []),
+                { id: 'folders', icon: '🗂️', label: 'Pastas' },
+                { id: 'upload', icon: '📤', label: 'Upload' },
+                { id: 'public-feed', icon: '🌐', label: 'Público' },
+                { id: 'analytics', icon: '📊', label: 'Analytics' },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => {
+                    setLandscapeDrawer(false)
+                    tab.id === 'public-feed' ? router.push('/public-feed') : setActiveTab(tab.id as any)
+                  }}
+                  className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${
+                    activeTab === tab.id
+                      ? 'text-white bg-[#667eea]/15 border-r-2 border-[#667eea]'
+                      : 'text-gray-400 hover:text-white hover:bg-white/5'
+                  }`}
+                >
+                  <span className="text-base">{tab.icon}</span>
+                  <span className="font-medium">{tab.label}</span>
+                </button>
+              ))}
+            </div>
+
+            {/* Conta */}
+            <div className="border-t border-white/8 py-2">
+              <p className="px-4 py-1.5 text-[10px] font-semibold text-gray-600 uppercase tracking-wider">Conta</p>
+              <button
+                onClick={() => { setLandscapeDrawer(false); router.push('/profile') }}
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-400 hover:text-white hover:bg-white/5 transition-colors"
+              >
+                <span className="text-base">👤</span>
+                <span className="font-medium">Perfil</span>
+              </button>
+              {currentUser?.role === 'admin' && (
+                <button
+                  onClick={() => { setLandscapeDrawer(false); router.push('/admin') }}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-400 hover:text-white hover:bg-white/5 transition-colors"
+                >
+                  <span className="text-base">👥</span>
+                  <span className="font-medium">Gerenciamento</span>
+                </button>
+              )}
+              <button
+                onClick={() => { setLandscapeDrawer(false); logout() }}
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-400 hover:bg-red-600/10 transition-colors"
+              >
+                <span className="text-base">🚪</span>
+                <span className="font-medium">Sair</span>
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+
       {/* Content */}
-      <main className="mx-auto px-4 sm:px-8 pt-0 pb-8">
+      <main className="mx-auto px-4 sm:px-8 pt-0 pb-24 landscape:pb-4 md:pb-8">
         {/* Trial Progress */}
         {currentUser?.plan === 'trial' && (
           <Card variant="glass" padding="md" className="mb-6 border border-yellow-500/30">

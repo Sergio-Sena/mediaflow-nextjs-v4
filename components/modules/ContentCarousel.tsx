@@ -154,39 +154,51 @@ function ContentRow({ title, items, onItemClick, onItemDelete, onItemShare, onDe
             return (
               <div
                 key={item.key}
-                onClick={() => {
-                  if (selectionMode) {
-                    onToggleSelect?.(item.key)
-                  } else {
-                    onItemClick?.(item)
-                  }
-                }}
-                className={`flex-shrink-0 w-[calc(50vw-24px)] sm:w-[calc(33vw-24px)] lg:w-[calc(25vw-24px)] cursor-pointer group ${isSelected ? 'ring-2 ring-neon-cyan rounded-lg' : ''}`}
+                className={`flex-shrink-0 w-[calc(50vw-20px)] landscape:w-[calc(33vw-20px)] sm:w-[200px] md:w-[220px] lg:w-[200px] cursor-pointer group ${isSelected ? 'ring-2 ring-neon-cyan rounded-xl' : ''}`}
               >
-                <div className={`relative aspect-video rounded-lg overflow-hidden bg-gradient-to-br ${getGradient(item.type)} border border-white/5 transition-all duration-300 group-hover:scale-105 group-hover:border-neon-cyan/50 group-hover:shadow-lg group-hover:shadow-neon-cyan/20`}>
+                <div
+                  onClick={() => {
+                    if (selectionMode) {
+                      onToggleSelect?.(item.key)
+                    } else {
+                      onItemClick?.(item)
+                    }
+                  }}
+                  className={`relative aspect-video rounded-xl overflow-hidden bg-gradient-to-br ${getGradient(item.type)} border border-white/5 transition-all duration-300 md:group-hover:scale-105 md:group-hover:border-neon-cyan/50 md:group-hover:shadow-lg md:group-hover:shadow-neon-cyan/20`}
+                >
                   <ThumbnailImage itemKey={item.key} />
-                  {!selectionMode && (
-                    <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-r from-cyan-500/20 to-purple-500/20 backdrop-blur-sm flex items-center justify-center">
-                        <Play className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-300" fill="currentColor" />
-                      </div>
+                  {/* Play overlay — desktop hover only */}
+                  <div className="absolute inset-0 bg-black/20 opacity-0 md:group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-r from-cyan-500/20 to-purple-500/20 backdrop-blur-sm flex items-center justify-center">
+                      <Play className="w-4 h-4 text-cyan-300" fill="currentColor" />
                     </div>
-                  )}
-                  <div className="absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded text-[9px] sm:text-[10px] font-bold bg-black/60 text-white/80">
+                  </div>
+                  {/* Size badge */}
+                  <div className="absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded text-[9px] font-bold bg-black/60 text-white/80">
                     {formatSize(item.size)}
                   </div>
+                  {/* Duration badge */}
                   {item.duration ? (
-                    <div className="absolute bottom-1.5 left-1.5 px-1.5 py-0.5 rounded text-[9px] sm:text-[10px] font-bold bg-black/70 text-white/90">
+                    <div className="absolute bottom-1.5 left-1.5 px-1.5 py-0.5 rounded text-[9px] font-bold bg-black/70 text-white/90">
                       {formatDuration(item.duration)}
                     </div>
                   ) : null}
-                  {/* Action buttons on hover (non-selection mode) */}
+                  {/* Checkbox selection mode */}
+                  {selectionMode && (
+                    <div className="absolute top-1.5 left-1.5">
+                      {isSelected
+                        ? <CheckSquare className="w-5 h-5 text-neon-cyan drop-shadow" />
+                        : <Square className="w-5 h-5 text-white/60" />
+                      }
+                    </div>
+                  )}
+                  {/* Action buttons — always visible on mobile, hover on desktop */}
                   {!selectionMode && (
-                    <div className="absolute top-1.5 left-1.5 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="absolute top-1.5 left-1.5 flex gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                       {onItemShare && (
                         <button
                           onClick={(e) => { e.stopPropagation(); onItemShare(item) }}
-                          className="p-1.5 rounded bg-cyan-600/80 hover:bg-cyan-600 text-white transition-colors"
+                          className="p-1.5 rounded-lg bg-[#667eea]/80 hover:bg-[#667eea] text-white transition-colors"
                           title="Compartilhar"
                         >
                           <Share2 className="w-3 h-3" />
@@ -195,24 +207,15 @@ function ContentRow({ title, items, onItemClick, onItemDelete, onItemShare, onDe
                       {onItemDelete && (
                         <button
                           onClick={(e) => { e.stopPropagation(); onItemDelete(item) }}
-                          className="p-1.5 rounded bg-red-600/80 hover:bg-red-600 text-white transition-colors"
+                          className="p-1.5 rounded-lg bg-red-600/80 hover:bg-red-600 text-white transition-colors"
                         >
                           <Trash2 className="w-3 h-3" />
                         </button>
                       )}
                     </div>
                   )}
-                  {/* Checkbox in selection mode */}
-                  {selectionMode && (
-                    <div className="absolute top-1.5 left-1.5">
-                      {isSelected
-                        ? <CheckSquare className="w-5 h-5 text-neon-cyan" />
-                        : <Square className="w-5 h-5 text-white/60" />
-                      }
-                    </div>
-                  )}
                 </div>
-                <p className="mt-1.5 text-xs sm:text-sm text-white truncate font-medium group-hover:text-neon-cyan transition-colors" title={item.name}>
+                <p className="mt-1.5 text-xs text-white truncate font-medium" title={item.name}>
                   {item.name}
                 </p>
               </div>

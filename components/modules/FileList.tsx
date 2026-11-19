@@ -48,6 +48,8 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
   const [shareModal, setShareModal] = useState<any>(null)
   const [sortBy, setSortBy] = useState<'name' | 'size' | 'date'>('name')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
+  const [mobileFolderOpen, setMobileFolderOpen] = useState(false)
+  const [mobileSortOpen, setMobileSortOpen] = useState(false)
 
   const fetchDurationsInBackground = async (filesToCheck: S3File[]) => {
     const { durationCache } = await import('@/lib/duration-cache')
@@ -620,25 +622,133 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
 
 
       {/* Header + Filters sticky */}
-      <div className="sticky top-[80px] sm:top-[95px] landscape:top-[85px] z-40 bg-dark-900/95 backdrop-blur-md border-b border-neon-cyan/10 px-3 sm:px-8 py-2 -mx-4 sm:-mx-8">
-        <div className="flex items-center gap-3">
-          {/* Título */}
-          <div className="hidden lg:block flex-shrink-0">
-            <span className="text-base font-bold text-white">🎬 {filteredFiles.length}</span>
-            <span className="text-xs text-gray-500 ml-2 truncate max-w-[120px] inline-block align-middle">{getCurrentFolderPath().split('/').pop() || 'Raiz'}</span>
-          </div>
-
+      <div className="sticky top-[49px] md:top-[95px] z-40 bg-dark-900/95 backdrop-blur-md border-b border-white/5 px-3 sm:px-8 py-2 -mx-4 sm:-mx-8">
+        {/* Mobile portrait: busca full-width + ícones */}
+        <div className="flex md:hidden items-center gap-2">
           {/* Busca */}
-          <div className="relative flex items-center flex-1 min-w-0 max-w-[180px] sm:max-w-xs">
+          <div className="relative flex items-center flex-1">
+            <Search className="absolute left-2.5 w-3.5 h-3.5 text-gray-500 pointer-events-none" />
             <input
               type="text"
               placeholder="Buscar..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full h-[36px] px-3 py-1 pr-8 bg-gray-800 border border-gray-600 rounded-lg text-white text-sm placeholder-gray-400 focus:border-neon-cyan focus:outline-none"
+              className="w-full h-[38px] pl-8 pr-7 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder-gray-500 focus:border-[#667eea]/60 focus:outline-none transition-colors"
             />
             {searchTerm && (
-              <button onClick={() => setSearchTerm('')} className="absolute right-2 p-1 text-gray-400 hover:text-white">
+              <button onClick={() => setSearchTerm('')} className="absolute right-2 p-1 text-gray-500 hover:text-white">
+                <X className="w-3 h-3" />
+              </button>
+            )}
+          </div>
+
+          {/* Pasta dropdown */}
+          <div className="relative flex-shrink-0">
+            <button
+              onClick={() => { setMobileFolderOpen(v => !v); setMobileSortOpen(false) }}
+              className={`h-[38px] w-[38px] flex items-center justify-center rounded-xl border transition-colors ${
+                getCurrentFolderPath() ? 'bg-[#667eea]/20 border-[#667eea]/40 text-[#a5b4fc]' : 'bg-white/5 border-white/10 text-gray-400'
+              }`}
+            >
+              <span className="text-base">📁</span>
+            </button>
+            {mobileFolderOpen && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setMobileFolderOpen(false)} />
+                <div className="absolute right-0 top-full mt-1 w-52 rounded-xl border border-white/10 shadow-xl z-50 overflow-hidden" style={{ background: 'rgba(8,8,18,0.98)', backdropFilter: 'blur(20px)' }}>
+                  <button
+                    onClick={() => { setCurrentPath(['']); setInitialPathSet(false); setMobileFolderOpen(false) }}
+                    className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
+                      !getCurrentFolderPath() ? 'text-white bg-[#667eea]/15' : 'text-gray-400 hover:text-white hover:bg-white/5'
+                    }`}
+                  >Todas as pastas</button>
+                  {folders.map(folder => {
+                    const f = folder.replace('📁 ', '')
+                    const label = f.split('/').pop() || f
+                    return (
+                      <button
+                        key={folder}
+                        onClick={() => { navigateToFolder(f === 'Raiz' ? '' : f); setMobileFolderOpen(false) }}
+                        className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
+                          getCurrentFolderPath() === f ? 'text-white bg-[#667eea]/15' : 'text-gray-400 hover:text-white hover:bg-white/5'
+                        }`}
+                      >📁 {label}</button>
+                    )
+                  })}
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* Ordenação dropdown */}
+          <div className="relative flex-shrink-0">
+            <button
+              onClick={() => { setMobileSortOpen(v => !v); setMobileFolderOpen(false) }}
+              className="h-[38px] w-[38px] flex items-center justify-center rounded-xl border bg-white/5 border-white/10 text-gray-400 transition-colors"
+            >
+              <Filter className="w-3.5 h-3.5" />
+            </button>
+            {mobileSortOpen && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setMobileSortOpen(false)} />
+                <div className="absolute right-0 top-full mt-1 w-44 rounded-xl border border-white/10 shadow-xl z-50 overflow-hidden" style={{ background: 'rgba(8,8,18,0.98)', backdropFilter: 'blur(20px)' }}>
+                  {[
+                    { v: 'name-asc', l: 'Nome A→Z' },
+                    { v: 'name-desc', l: 'Nome Z→A' },
+                    { v: 'size-desc', l: 'Maior primeiro' },
+                    { v: 'date-desc', l: 'Mais recente' },
+                  ].map(opt => (
+                    <button
+                      key={opt.v}
+                      onClick={() => {
+                        const [by, order] = opt.v.split('-') as ['name'|'size'|'date','asc'|'desc']
+                        setSortBy(by); setSortOrder(order); setMobileSortOpen(false)
+                      }}
+                      className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
+                        `${sortBy}-${sortOrder}` === opt.v ? 'text-white bg-[#667eea]/15' : 'text-gray-400 hover:text-white hover:bg-white/5'
+                      }`}
+                    >{opt.l}</button>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* Refresh */}
+          <button
+            onClick={() => { const { filesCache } = require('@/lib/files-cache'); filesCache.clear(); fetchFiles() }}
+            className="h-[38px] w-[38px] flex items-center justify-center rounded-xl border bg-white/5 border-white/10 text-gray-400 flex-shrink-0 transition-colors"
+          >
+            <RefreshCw className="w-3.5 h-3.5" />
+          </button>
+
+          {/* Delete bulk */}
+          {selectedFiles.size > 0 && (
+            <button onClick={handleBulkDelete} className="h-[38px] w-[38px] flex items-center justify-center rounded-xl border bg-red-600/20 border-red-500/30 text-red-400 flex-shrink-0">
+              <Trash2 className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
+
+        {/* Desktop: linha única */}
+        <div className="hidden md:flex items-center gap-2">
+          {/* Contador */}
+          <span className="hidden lg:flex items-center text-xs text-gray-500 flex-shrink-0 min-w-[60px]">
+            <span className="text-white font-semibold mr-1">{filteredFiles.length}</span> arquivos
+          </span>
+
+          {/* Busca */}
+          <div className="relative flex items-center flex-1 min-w-0 max-w-xs">
+            <Search className="absolute left-2.5 w-3.5 h-3.5 text-gray-500 pointer-events-none" />
+            <input
+              type="text"
+              placeholder="Buscar..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full h-[34px] pl-8 pr-7 bg-white/5 border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:border-[#667eea]/60 focus:bg-white/8 focus:outline-none transition-colors"
+            />
+            {searchTerm && (
+              <button onClick={() => setSearchTerm('')} className="absolute right-2 p-0.5 text-gray-500 hover:text-white">
                 <X className="w-3 h-3" />
               </button>
             )}
@@ -649,25 +759,20 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
             value={getCurrentFolderPath() ? `📁 ${getCurrentFolderPath()}` : ''}
             onChange={(e) => {
               const val = e.target.value
-              if (!val) {
-                setCurrentPath([''])
-                setInitialPathSet(false)
-              } else {
-                const folderName = val.replace('📁 ', '')
-                navigateToFolder(folderName === 'Raiz' ? '' : folderName)
-              }
+              if (!val) { setCurrentPath(['']); setInitialPathSet(false) }
+              else { const f = val.replace('📁 ', ''); navigateToFolder(f === 'Raiz' ? '' : f) }
             }}
-            className="folder-select-compact h-[36px] w-[44px] sm:w-auto sm:px-3 px-1 bg-gray-800 border border-gray-600 rounded-lg text-white text-sm focus:border-neon-cyan focus:outline-none flex-shrink-0"
+            className="h-[34px] px-3 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-[#667eea]/60 focus:outline-none flex-shrink-0 max-w-[160px] transition-colors"
           >
-            <option value="">📂 Todas</option>
-            {folders.map(folder => <option key={folder} value={folder}>{folder}</option>)}
+            <option value="">Todas as pastas</option>
+            {folders.map(folder => <option key={folder} value={folder}>{folder.replace('📁 ', '').split('/').pop()}</option>)}
           </select>
 
           {/* Tipo */}
           <select
             value={selectedType}
             onChange={(e) => setSelectedType(e.target.value)}
-            className="hidden md:block h-[36px] px-3 bg-gray-800 border border-gray-600 rounded-lg text-white text-sm focus:border-neon-cyan focus:outline-none flex-shrink-0"
+            className="h-[34px] px-3 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-[#667eea]/60 focus:outline-none flex-shrink-0 transition-colors"
           >
             <option value="all">Todos</option>
             <option value="video">Vídeos</option>
@@ -680,10 +785,9 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
             value={`${sortBy}-${sortOrder}`}
             onChange={(e) => {
               const [by, order] = e.target.value.split('-') as ['name' | 'size' | 'date', 'asc' | 'desc']
-              setSortBy(by)
-              setSortOrder(order)
+              setSortBy(by); setSortOrder(order)
             }}
-            className="h-[36px] px-2 bg-gray-800 border border-gray-600 rounded-lg text-white text-sm focus:border-neon-cyan focus:outline-none flex-shrink-0"
+            className="h-[34px] px-3 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-[#667eea]/60 focus:outline-none flex-shrink-0 transition-colors"
           >
             <option value="name-asc">Nome A→Z</option>
             <option value="name-desc">Nome Z→A</option>
@@ -694,43 +798,41 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
           </select>
 
           {/* Ações */}
-          <div className="flex gap-1.5 flex-shrink-0">
+          <div className="flex gap-1 flex-shrink-0 ml-auto">
             <button
               onClick={() => { const { filesCache } = require('@/lib/files-cache'); filesCache.clear(); fetchFiles() }}
-              className="p-2 bg-cyan-600/20 hover:bg-cyan-600/40 text-cyan-300 rounded-lg border border-cyan-500/30 transition-colors"
+              className="h-[34px] w-[34px] flex items-center justify-center bg-white/5 hover:bg-white/10 text-gray-400 hover:text-cyan-300 rounded-lg border border-white/10 transition-colors"
               title="Atualizar"
             >
-              <RefreshCw className="w-4 h-4" />
+              <RefreshCw className="w-3.5 h-3.5" />
             </button>
             <button
               onClick={() => { if (selectAll) { setSelectedFiles(new Set()); setSelectAll(false) } else { setSelectAll(true) } }}
-              className={`p-2 rounded-lg border transition-colors ${ selectAll ? 'bg-gray-700/20 text-gray-400 border-gray-600/30' : 'bg-cyan-600/20 text-cyan-300 border-cyan-500/30' }`}
+              className={`h-[34px] w-[34px] flex items-center justify-center rounded-lg border transition-colors ${
+                selectAll ? 'bg-[#667eea]/20 text-[#a5b4fc] border-[#667eea]/40' : 'bg-white/5 text-gray-400 border-white/10 hover:bg-white/10'
+              }`}
               title={selectAll ? 'Sair da seleção' : 'Selecionar'}
             >
-              <ListChecks className="w-4 h-4" />
+              <ListChecks className="w-3.5 h-3.5" />
             </button>
             {selectedFiles.size > 0 && (
               <>
                 <button
                   onClick={() => { const selectedItems = filteredFiles.filter(f => selectedFiles.has(f.key)); setShareModal({ key: 'bulk', name: `${selectedItems.length} arquivo(s)`, type: 'video', items: selectedItems }) }}
-                  className="p-2 bg-cyan-600/20 hover:bg-cyan-600/40 text-cyan-300 rounded-lg border border-cyan-500/30"
+                  className="h-[34px] w-[34px] flex items-center justify-center bg-white/5 hover:bg-[#667eea]/20 text-gray-400 hover:text-[#a5b4fc] rounded-lg border border-white/10 transition-colors"
                   title="Compartilhar"
                 >
-                  <Share2 className="w-4 h-4" />
+                  <Share2 className="w-3.5 h-3.5" />
                 </button>
-                <button onClick={handleBulkDelete} className="p-2 bg-red-600/20 hover:bg-red-600/40 text-red-300 rounded-lg border border-red-500/30">
-                  <Trash2 className="w-4 h-4" />
+                <button
+                  onClick={handleBulkDelete}
+                  className="h-[34px] w-[34px] flex items-center justify-center bg-white/5 hover:bg-red-600/20 text-gray-400 hover:text-red-400 rounded-lg border border-white/10 transition-colors"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
                 </button>
-                <span className="flex items-center text-xs text-neon-cyan">{selectedFiles.size}</span>
+                <span className="flex items-center text-xs text-[#a5b4fc] font-semibold px-1">{selectedFiles.size}</span>
               </>
             )}
-            <button
-              onClick={() => { setSearchTerm(''); setSelectedType('all'); setSelectedFiles(new Set()); setSelectAll(false); setCurrentPath(['']); setInitialPathSet(false) }}
-              className="hidden lg:flex p-2 bg-gray-700/20 hover:bg-gray-700/40 text-gray-400 rounded-lg border border-gray-600/30 items-center gap-1 text-xs"
-              title="Limpar filtros"
-            >
-              <Filter className="w-3 h-3" />
-            </button>
           </div>
         </div>
       </div>
