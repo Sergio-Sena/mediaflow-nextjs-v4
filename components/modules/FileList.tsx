@@ -622,7 +622,7 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
 
 
       {/* Header + Filters sticky */}
-      <div className="sticky top-[49px] md:top-[95px] z-40 bg-dark-900/95 backdrop-blur-md border-b border-white/5 px-3 sm:px-8 py-2 -mx-4 sm:-mx-8">
+      <div className="sticky top-[49px] md:top-[95px] z-40 bg-dark-900/95 backdrop-blur-md border-b border-white/5 px-3 sm:px-8 py-2 -mx-4 sm:-mx-8" style={{ top: 'var(--header-h, 49px)' }}>
         {/* Mobile portrait: busca full-width + ícones */}
         <div className="flex md:hidden items-center gap-2">
           {/* Busca */}

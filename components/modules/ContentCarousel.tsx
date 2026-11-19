@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { ChevronLeft, ChevronRight, Play, Trash2, Share2, CheckSquare, Square } from 'lucide-react'
 
-const BUCKET_URL = 'https://mediaflow-uploads-969430605054.s3.amazonaws.com'
+const BUCKET_URL = process.env.NEXT_PUBLIC_S3_BUCKET_URL || 'https://mediaflow-uploads-969430605054.s3.amazonaws.com'
 
 function getThumbnailUrl(key: string): string {
   // key: users/sergio_sena/Star/Kate Kuray/file.mp4
@@ -169,7 +169,7 @@ function ContentRow({ title, items, onItemClick, onItemDelete, onItemShare, onDe
             return (
               <div
                 key={item.key}
-                className={`flex-shrink-0 w-[calc(50vw-20px)] landscape:w-[calc(33vw-20px)] sm:w-48 md:w-52 lg:w-48 cursor-pointer group ${isSelected ? 'ring-2 ring-neon-cyan rounded-xl' : ''}`}
+                className={`flex-shrink-0 w-[calc(50vw-20px)] landscape:w-[calc(40vw-20px)] sm:w-48 md:w-52 lg:w-48 cursor-pointer group ${isSelected ? 'ring-2 ring-neon-cyan rounded-xl' : ''}`}
               >
                 <div
                   onClick={() => {

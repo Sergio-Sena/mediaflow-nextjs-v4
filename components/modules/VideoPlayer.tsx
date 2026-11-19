@@ -21,6 +21,7 @@ interface VideoPlayerProps {
 
 export default function VideoPlayer({ src, title, onClose, currentVideo, playlist, onVideoChange }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
@@ -35,10 +36,50 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
   const [showVolumeSlider, setShowVolumeSlider] = useState(false)
   const [isBuffering, setIsBuffering] = useState(false)
   const [showCenterIcon, setShowCenterIcon] = useState(false)
+  const [seekFeedback, setSeekFeedback] = useState<{ side: 'left' | 'right', secs: number } | null>(null)
+  const [isLandscapeMobile, setIsLandscapeMobile] = useState(false)
   const hideControlsTimeout = useRef<NodeJS.Timeout | null>(null)
   const hideVolumeTimeout = useRef<NodeJS.Timeout | null>(null)
   const hideCenterIconTimeout = useRef<NodeJS.Timeout | null>(null)
+  const seekFeedbackTimeout = useRef<NodeJS.Timeout | null>(null)
+  const lastTapTime = useRef<number>(0)
+  const lastTapSide = useRef<'left' | 'right' | null>(null)
 
+  // Detectar landscape mobile
+  useEffect(() => {
+    const check = () => {
+      const landscape = window.innerWidth > window.innerHeight
+      const mobile = window.innerWidth < 1024
+      setIsLandscapeMobile(landscape && mobile)
+    }
+    check()
+    window.addEventListener('resize', check)
+    window.addEventListener('orientationchange', check)
+    return () => {
+      window.removeEventListener('resize', check)
+      window.removeEventListener('orientationchange', check)
+    }
+  }, [])
+
+  // Auto-fullscreen em landscape mobile ao carregar o vídeo
+  useEffect(() => {
+    if (!videoUrl || !isLandscapeMobile) return
+    const container = containerRef.current
+    if (!container || document.fullscreenElement) return
+    const timer = setTimeout(() => {
+      container.requestFullscreen().catch(() => {})
+    }, 300)
+    return () => clearTimeout(timer)
+  }, [videoUrl, isLandscapeMobile])
+
+  // Cleanup seekFeedback timeout
+  useEffect(() => {
+    return () => {
+      if (seekFeedbackTimeout.current) clearTimeout(seekFeedbackTimeout.current)
+    }
+  }, [])
+
+  // Fetch presigned URL
   useEffect(() => {
     const fetchPresignedUrl = async () => {
       setLoading(true)
@@ -46,7 +87,7 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
       
       try {
         const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
-        console.log('🔑 Token:', token ? token.substring(0, 20) + '...' : 'MISSING')
+        console.log('🔑 Token:', token ? '[present]' : 'MISSING')
         if (!token) {
           setError('🔒 Sessão expirada. Faça login novamente para continuar.')
           setLoading(false)
@@ -153,6 +194,35 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
       video.removeEventListener('volumechange', handleVolumeChange)
     }
   }, [videoUrl])
+
+  // Double-tap seek (YouTube mobile style)
+  const handleVideoTap = (e: React.TouchEvent<HTMLDivElement>) => {
+    const video = videoRef.current
+    if (!video) return
+    const now = Date.now()
+    const rect = e.currentTarget.getBoundingClientRect()
+    const tapX = e.changedTouches[0].clientX - rect.left
+    const side = tapX < rect.width / 2 ? 'left' : 'right'
+    const isDoubleTap = now - lastTapTime.current < 300 && lastTapSide.current === side
+
+    if (isDoubleTap) {
+      const secs = 10
+      if (side === 'left') {
+        video.currentTime = Math.max(0, video.currentTime - secs)
+      } else {
+        video.currentTime = Math.min(duration, video.currentTime + secs)
+      }
+      setSeekFeedback({ side, secs })
+      if (seekFeedbackTimeout.current) clearTimeout(seekFeedbackTimeout.current)
+      seekFeedbackTimeout.current = setTimeout(() => setSeekFeedback(null), 800)
+      lastTapTime.current = 0
+    } else {
+      lastTapTime.current = now
+      lastTapSide.current = side
+      // single tap — toggle controls
+      resetControlsTimer()
+    }
+  }
 
   const togglePlay = () => {
     const video = videoRef.current
@@ -397,29 +467,33 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
   const hasNext = playlist && currentIndex < playlist.length - 1
 
   return (
-    <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
-      <div className="relative w-full max-w-6xl bg-dark-900 rounded-lg overflow-hidden">
-        {/* Header */}
-        <div className={`flex items-center justify-between p-2 sm:p-4 bg-dark-800/50 border-b border-neon-cyan/20 transition-opacity duration-300 ${
-          showControls ? 'opacity-100' : 'opacity-0'
-        }`}>
-          <h3 className="text-sm sm:text-lg font-semibold text-white truncate">{title}</h3>
-          <button
-            onClick={onClose}
-            aria-label="Fechar player"
-            className="flex items-center justify-center w-10 h-10 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-lg bg-gradient-to-r from-cyan-500/20 to-purple-500/20 border border-cyan-400/30 backdrop-blur-sm text-cyan-300 hover:bg-gray-700 hover:from-transparent hover:to-transparent hover:outline hover:outline-[4px] hover:outline-cyan-400 focus:outline focus:outline-[4px] focus:outline-cyan-400 transition-all duration-700 active:scale-95"
-          >
-            <X className="w-5 h-5 sm:w-5 sm:h-5 md:w-6 md:h-6" />
-          </button>
-        </div>
+    <div className="fixed inset-0 bg-black z-50 flex items-center justify-center">
+      <div ref={containerRef} className="relative w-full h-full md:h-auto md:max-w-6xl md:bg-dark-900 md:rounded-lg md:overflow-hidden md:m-4">
+        {/* Header — escondido em landscape mobile (fullscreen) */}
+        {!isLandscapeMobile && (
+          <div className={`flex items-center justify-between px-3 py-2 md:px-4 md:py-3 bg-dark-800/80 border-b border-white/5 transition-opacity duration-300 ${
+            showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'
+          }`}>
+            <h3 className="text-sm font-semibold text-white truncate pr-4">{title}</h3>
+            <button
+              onClick={onClose}
+              aria-label="Fechar player"
+              className="flex-shrink-0 flex items-center justify-center w-9 h-9 rounded-lg bg-white/10 border border-white/10 text-gray-300 hover:bg-white/20 hover:text-white transition-all active:scale-95"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )}
 
         {/* Video Container */}
-        <div 
-          className="relative bg-black fullscreen:h-screen" 
-          style={{ maxHeight: '80vh' }}
+        <div
+          className="relative bg-black"
+          style={{ height: isLandscapeMobile ? '100vh' : 'calc(100vh - 48px)', maxHeight: isLandscapeMobile ? '100vh' : '85vh' }}
           onMouseMove={handleMouseMove}
           onMouseEnter={handleMouseMove}
           onMouseLeave={handleMouseLeave}
+          onTouchStart={handleMouseMove}
+          onTouchEnd={handleVideoTap}
         >
           {loading && (
             <div className="absolute inset-0 flex items-center justify-center">
@@ -451,8 +525,7 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
             <>
               <video
                 ref={videoRef}
-                className="w-full h-full object-contain fullscreen:object-cover"
-                style={{ maxHeight: '80vh' }}
+                className="w-full h-full object-contain"
                 onClick={togglePlay}
                 onDoubleClick={toggleFullscreen}
                 src={videoUrl}
@@ -461,6 +534,38 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
                 crossOrigin="anonymous"
                 autoPlay
               />
+
+              {/* Seek feedback double-tap */}
+              {seekFeedback && (
+                <div className={`absolute top-1/2 -translate-y-1/2 pointer-events-none flex flex-col items-center gap-1 ${
+                  seekFeedback.side === 'left' ? 'left-8' : 'right-8'
+                }`}>
+                  <div className="bg-black/60 rounded-full px-4 py-2 text-white text-sm font-bold">
+                    {seekFeedback.side === 'left' ? `⏪ -${seekFeedback.secs}s` : `+${seekFeedback.secs}s ⏩`}
+                  </div>
+                </div>
+              )}
+
+              {/* Fechar overlay — landscape mobile */}
+              {isLandscapeMobile && (
+                <button
+                  onClick={onClose}
+                  className={`absolute top-3 right-3 z-10 flex items-center justify-center w-8 h-8 rounded-full bg-black/50 text-white/80 hover:text-white transition-all ${
+                    showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'
+                  }`}
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+
+              {/* Título overlay — landscape mobile */}
+              {isLandscapeMobile && (
+                <div className={`absolute top-3 left-3 right-14 pointer-events-none transition-opacity duration-300 ${
+                  showControls ? 'opacity-100' : 'opacity-0'
+                }`}>
+                  <p className="text-white text-xs font-medium truncate drop-shadow">{title}</p>
+                </div>
+              )}
 
               {/* Buffer Indicator */}
               {isBuffering && (
@@ -485,167 +590,114 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
               )}
 
               {/* Controls */}
-              <div className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2 sm:p-3 md:p-4 transition-opacity duration-300 ${
-                showControls ? 'opacity-100' : 'opacity-0'
+              <div className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent px-3 pt-8 pb-3 md:px-4 md:pb-4 transition-opacity duration-300 ${
+                showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'
               }`}>
                 {/* Progress Bar */}
-                <div className="mb-1 sm:mb-2 py-2 -my-2">
+                <div className="mb-2">
                   <input
                     type="range"
                     min="0"
                     max={duration || 0}
                     value={currentTime}
                     onChange={handleSeek}
-                    className="w-full h-2 sm:h-1.5 bg-white/25 rounded-full appearance-none cursor-pointer"
+                    className="w-full h-1.5 bg-white/25 rounded-full appearance-none cursor-pointer"
                     style={{
-                      background: `linear-gradient(to right, #00ffff 0%, #00ffff ${(currentTime / duration) * 100}%, rgba(255,255,255,0.25) ${(currentTime / duration) * 100}%, rgba(255,255,255,0.25) 100%)`
+                      background: `linear-gradient(to right, #667eea 0%, #667eea ${(currentTime / duration) * 100}%, rgba(255,255,255,0.25) ${(currentTime / duration) * 100}%, rgba(255,255,255,0.25) 100%)`
                     }}
                   />
                 </div>
 
-                <div className="flex items-center justify-between gap-2 flex-wrap">
-                  {/* Left Controls - Mobile: Only navigation, Desktop: with Play/Pause */}
-                  <div className="flex items-center gap-1.5 sm:gap-2 md:gap-3">
-                    {/* Play/Pause - Hidden on mobile, visible on desktop */}
-                    {playlist && playlist.length > 1 ? (
+                <div className="flex items-center justify-between gap-2">
+                  {/* Left controls */}
+                  <div className="flex items-center gap-2">
+                    {/* Play/Pause — sempre visível */}
+                    <button
+                      onClick={togglePlay}
+                      aria-label={isPlaying ? 'Pausar' : 'Reproduzir'}
+                      className="flex items-center justify-center w-9 h-9 rounded-full bg-white/15 border border-white/20 text-white hover:bg-white/25 transition-all active:scale-95"
+                    >
+                      {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" style={{ marginLeft: '1px' }} />}
+                    </button>
+
+                    {/* Anterior/Próximo — se playlist */}
+                    {playlist && playlist.length > 1 && (
                       <>
-                        <button 
-                          onClick={togglePlay} 
-                          aria-label={isPlaying ? "Pausar vídeo" : "Reproduzir vídeo"}
-                          className={`hidden sm:flex video-control-button items-center justify-center w-12 h-12 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full bg-gradient-to-r from-cyan-500/20 to-purple-500/20 backdrop-blur-sm text-cyan-300 hover:bg-gray-700 hover:from-transparent hover:to-transparent hover:outline hover:outline-[4px] hover:outline-cyan-400 focus:outline focus:outline-[4px] focus:outline-cyan-400 transition-all duration-700 active:scale-95 ${
-                            !isPlaying ? 'play-button-paused' : ''
-                          }`}
-                        >
-                          {isPlaying ? (
-                            <Pause className="w-5 h-5 sm:w-5 sm:h-5 md:w-6 md:h-6" />
-                          ) : (
-                            <Play className="w-5 h-5 sm:w-5 sm:h-5 md:w-6 md:h-6" style={{ marginLeft: '1px' }} />
-                          )}
+                        <button onClick={handlePrevious} disabled={!hasPrevious} aria-label="Anterior" className="flex items-center justify-center w-8 h-8 rounded-full text-white/70 hover:text-white disabled:opacity-30 transition-all active:scale-95">
+                          <SkipBack className="w-4 h-4" />
                         </button>
-
-                        <div className="flex items-center gap-4 sm:gap-6 md:gap-8 h-10 sm:h-12 md:h-14 px-1 sm:px-2 md:px-3 rounded-full bg-gradient-to-r from-cyan-500/20 to-purple-500/20 border border-cyan-400/30 backdrop-blur-sm transition-all duration-300">
-                          <button 
-                            onClick={handlePrevious} 
-                            disabled={!hasPrevious}
-                            aria-label="Vídeo anterior"
-                            className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-full flex items-center justify-center text-cyan-300 hover:bg-gray-700 hover:outline hover:outline-[4px] hover:outline-cyan-400 focus:outline focus:outline-[4px] focus:outline-cyan-400 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-700 active:scale-95"
-                          >
-                            <SkipBack className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
-                          </button>
-
-                          <button 
-                            onClick={handleNext} 
-                            disabled={!hasNext}
-                            aria-label="Próximo vídeo"
-                            className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-full flex items-center justify-center text-cyan-300 hover:bg-gray-700 hover:outline hover:outline-[4px] hover:outline-cyan-400 focus:outline focus:outline-[4px] focus:outline-cyan-400 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-700 active:scale-95"
-                          >
-                            <SkipForward className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
-                          </button>
-                        </div>
+                        <button onClick={handleNext} disabled={!hasNext} aria-label="Próximo" className="flex items-center justify-center w-8 h-8 rounded-full text-white/70 hover:text-white disabled:opacity-30 transition-all active:scale-95">
+                          <SkipForward className="w-4 h-4" />
+                        </button>
                       </>
-                    ) : (
-                      <button 
-                        onClick={togglePlay} 
-                        aria-label={isPlaying ? "Pausar vídeo" : "Reproduzir vídeo"}
-                        className={`hidden sm:flex video-control-button items-center justify-center w-12 h-12 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full bg-gradient-to-r from-cyan-500/20 to-purple-500/20 backdrop-blur-sm text-cyan-300 hover:bg-gray-700 hover:from-transparent hover:to-transparent hover:outline hover:outline-[4px] hover:outline-cyan-400 focus:outline focus:outline-[4px] focus:outline-cyan-400 transition-all duration-700 active:scale-95 ${
-                          !isPlaying ? 'play-button-paused' : ''
-                        }`}
-                      >
-                        {isPlaying ? (
-                          <Pause className="w-5 h-5 sm:w-5 sm:h-5 md:w-6 md:h-6" />
-                        ) : (
-                          <Play className="w-5 h-5 sm:w-5 sm:h-5 md:w-6 md:h-6" style={{ marginLeft: '1px' }} />
-                        )}
-                      </button>
                     )}
 
-                    {/* Volume Control */}
-                    <div 
-                      className="flex items-center gap-1 sm:gap-1.5 md:gap-2 h-10 sm:h-12 md:h-14 px-2 sm:px-2 md:px-3 rounded-full bg-gradient-to-r from-cyan-500/20 to-purple-500/20 border border-cyan-400/30 backdrop-blur-sm transition-all duration-700 hover:outline hover:outline-[4px] hover:outline-cyan-400 hover:bg-gray-700"
-                      onMouseEnter={() => {
-                        setShowVolumeSlider(true)
-                        if (hideVolumeTimeout.current) {
-                          clearTimeout(hideVolumeTimeout.current)
-                        }
-                      }}
-                      onMouseLeave={() => {
-                        if (hideVolumeTimeout.current) {
-                          clearTimeout(hideVolumeTimeout.current)
-                        }
-                        hideVolumeTimeout.current = setTimeout(() => {
-                          setShowVolumeSlider(false)
-                        }, 300)
-                      }}
-                      onTouchStart={() => {
-                        setShowVolumeSlider(true)
-                        if (hideVolumeTimeout.current) {
-                          clearTimeout(hideVolumeTimeout.current)
-                        }
-                      }}
-                      onTouchEnd={() => {
-                        if (hideVolumeTimeout.current) {
-                          clearTimeout(hideVolumeTimeout.current)
-                        }
-                        hideVolumeTimeout.current = setTimeout(() => {
-                          setShowVolumeSlider(false)
-                        }, 2000)
-                      }}
+                    {/* Volume — só desktop */}
+                    <div
+                      className="hidden md:flex items-center gap-1.5"
+                      onMouseEnter={() => { setShowVolumeSlider(true); if (hideVolumeTimeout.current) clearTimeout(hideVolumeTimeout.current) }}
+                      onMouseLeave={() => { hideVolumeTimeout.current = setTimeout(() => setShowVolumeSlider(false), 300) }}
                     >
-                      <button onClick={toggleMute} aria-label={isMuted ? "Ativar som" : "Silenciar"} className="text-cyan-300 transition-all duration-200 active:scale-95 focus:outline focus:outline-2 focus:outline-cyan-400 rounded p-1">
-                        {isMuted ? <VolumeX className="w-5 h-5 sm:w-5 sm:h-5 md:w-6 md:h-6" /> : <Volume2 className="w-5 h-5 sm:w-5 sm:h-5 md:w-6 md:h-6" />}
+                      <button onClick={toggleMute} aria-label={isMuted ? 'Ativar som' : 'Silenciar'} className="text-white/80 hover:text-white transition-colors">
+                        {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
                       </button>
                       <input
-                        type="range"
-                        min="0"
-                        max="1"
-                        step="0.1"
+                        type="range" min="0" max="1" step="0.1"
                         value={isMuted ? 0 : volume}
                         onChange={handleVolumeChange}
-                        className={`h-1 bg-white/35 rounded-full appearance-none cursor-pointer transition-all duration-300 hidden sm:block ${
-                          showVolumeSlider ? 'w-12 sm:w-16 md:w-20 opacity-100' : 'w-0 opacity-0'
+                        className={`h-1 bg-white/30 rounded-full appearance-none cursor-pointer transition-all duration-200 ${
+                          showVolumeSlider ? 'w-20 opacity-100' : 'w-0 opacity-0'
                         }`}
-                        style={{
-                          background: `linear-gradient(to right, #00ffff 0%, #00ffff ${volume * 100}%, rgba(255,255,255,0.35) ${volume * 100}%, rgba(255,255,255,0.35) 100%)`
-                        }}
+                        style={{ background: `linear-gradient(to right, #667eea 0%, #667eea ${volume * 100}%, rgba(255,255,255,0.3) ${volume * 100}%, rgba(255,255,255,0.3) 100%)` }}
                       />
                     </div>
-                  </div>
 
-                  {/* Right Controls */}
-                  <div className="flex items-center gap-2 sm:gap-2 md:gap-3">
-                    {/* Timer - Hidden on mobile */}
-                    <span className="hidden sm:flex text-cyan-100 text-xs sm:text-sm md:text-base font-medium whitespace-nowrap px-1.5 sm:px-2 md:px-3 py-1 sm:py-1 md:py-1.5 h-10 sm:h-12 md:h-14 items-center rounded-full bg-gradient-to-r from-cyan-500/20 to-purple-500/20 border border-cyan-400/30 backdrop-blur-sm transition-all duration-700 hover:outline hover:outline-[4px] hover:outline-cyan-400 hover:bg-gray-700">
+                    {/* Timer — sempre visível */}
+                    <span className="text-white/70 text-xs font-mono whitespace-nowrap">
                       {formatTime(currentTime)} / {formatTime(duration)}
                     </span>
+                  </div>
 
-                    {/* Playback Rate - Hidden on mobile */}
-                    <button 
+                  {/* Right controls */}
+                  <div className="flex items-center gap-1.5">
+                    {/* Velocidade — desktop */}
+                    <button
                       onClick={changePlaybackRate}
                       aria-label={`Velocidade ${playbackRate}x`}
-                      className="hidden md:flex text-cyan-300 px-2 md:px-2 text-sm md:text-base font-medium transition-all duration-700 active:scale-95 rounded-full hover:outline hover:outline-[4px] hover:outline-cyan-400 hover:bg-gray-700 focus:outline focus:outline-[4px] focus:outline-cyan-400 h-10 md:h-12 items-center"
-                      title="Velocidade de reprodução"
+                      className="hidden md:flex items-center justify-center h-7 px-2 rounded text-white/70 hover:text-white text-xs font-semibold bg-white/10 hover:bg-white/20 transition-all"
                     >
                       {playbackRate}x
                     </button>
 
-                    {/* Playlist Button - Hidden on mobile if exists */}
+                    {/* Playlist */}
                     {playlist && playlist.length > 1 && (
-                      <button 
-                        onClick={() => setShowPlaylist(!showPlaylist)} 
-                        aria-label="Mostrar playlist"
-                        className="hidden sm:flex items-center justify-center text-cyan-300 transition-all duration-700 active:scale-95 w-10 h-10 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full hover:outline hover:outline-[4px] hover:outline-cyan-400 hover:bg-gray-700 focus:outline focus:outline-[4px] focus:outline-cyan-400 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 border border-cyan-400/30 backdrop-blur-sm"
+                      <button
+                        onClick={() => setShowPlaylist(!showPlaylist)}
+                        aria-label="Playlist"
+                        className={`flex items-center justify-center w-8 h-8 rounded-full transition-all active:scale-95 ${
+                          showPlaylist ? 'bg-[#667eea]/40 text-white' : 'text-white/70 hover:text-white bg-white/10 hover:bg-white/20'
+                        }`}
                       >
-                        <List className="w-5 h-5 sm:w-5 sm:h-5 md:w-6 md:h-6" />
+                        <List className="w-4 h-4" />
                       </button>
                     )}
 
-                    {/* Fullscreen */}
-                    <button 
-                      onClick={toggleFullscreen} 
-                      aria-label="Tela cheia"
-                      className="flex items-center justify-center text-cyan-300 transition-all duration-700 active:scale-95 w-10 h-10 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full hover:outline hover:outline-[4px] hover:outline-cyan-400 hover:bg-gray-700 focus:outline focus:outline-[4px] focus:outline-cyan-400 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 border border-cyan-400/30 backdrop-blur-sm"
+                    {/* PiP — desktop */}
+                    <button
+                      onClick={togglePictureInPicture}
+                      aria-label="Picture in Picture"
+                      className="hidden md:flex items-center justify-center w-8 h-8 rounded-full text-white/70 hover:text-white bg-white/10 hover:bg-white/20 transition-all active:scale-95"
                     >
-                      <Maximize className="w-5 h-5 sm:w-5 sm:h-5 md:w-6 md:h-6" />
+                      <PictureInPicture className="w-4 h-4" />
+                    </button>
+
+                    {/* Fullscreen */}
+                    <button
+                      onClick={toggleFullscreen}
+                      aria-label="Tela cheia"
+                      className="flex items-center justify-center w-8 h-8 rounded-full text-white/70 hover:text-white bg-white/10 hover:bg-white/20 transition-all active:scale-95"
+                    >
+                      <Maximize className="w-4 h-4" />
                     </button>
                   </div>
                 </div>

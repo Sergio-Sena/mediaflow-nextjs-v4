@@ -70,7 +70,7 @@ function DashboardContent() {
     
     // Validar token - se tiver caracteres HTML encoded, limpar
     if (token && (token.includes('&#') || token.includes('&amp;') || token.includes('&lt;') || token.includes('&gt;'))) {
-      console.error('❌ Token corrompido detectado! Limpando...')
+          console.error('Token corrompido detectado. Limpando...')
       localStorage.clear()
       router.push('/login')
       return
@@ -342,8 +342,8 @@ function DashboardContent() {
           />
           {/* Drawer */}
           <div
-            className="fixed left-0 top-0 bottom-0 z-50 w-56 flex flex-col lg:hidden"
-            style={{ background: 'rgba(8,8,18,0.98)', backdropFilter: 'blur(24px)', borderRight: '1px solid rgba(255,255,255,0.08)' }}
+            className="fixed left-0 top-0 bottom-0 z-50 w-56 flex flex-col lg:hidden animate-slide-in-left"
+            style={{ background: 'rgba(8,8,18,0.98)', backdropFilter: 'blur(24px)', borderRight: '1px solid rgba(255,255,255,0.08)', transform: 'translateX(0)', transition: 'transform 200ms ease-out' }}
           >
             {/* Header do drawer */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-white/8">
