@@ -119,7 +119,7 @@ function CategoryRow({ title, items, currentUserId, currentUserRole, onPlay, onL
             const canRemove = item.owner_id === currentUserId || currentUserRole === 'admin'
 
             return (
-              <div key={item.content_id} className={`flex-shrink-0 w-full md:w-[200px] sm:w-full md:w-[230px] lg:w-[260px] p-0.5 ${selectMode && selectedItems?.has(item.content_id) ? 'ring-2 ring-neon-cyan rounded-lg' : ''}`}>
+              <div key={item.content_id} className={`flex-shrink-0 w-full md:w-52 lg:w-48 p-0.5 ${selectMode && selectedItems?.has(item.content_id) ? 'ring-2 ring-neon-cyan rounded-lg' : ''}`}>
                 {/* Preview */}
                 <div
                   onClick={() => {

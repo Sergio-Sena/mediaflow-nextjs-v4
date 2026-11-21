@@ -7,6 +7,7 @@ from urllib.parse import unquote, unquote_plus
 s3 = boto3.client('s3')
 dynamodb = boto3.resource('dynamodb')
 users_table = dynamodb.Table('mediaflow-users')
+public_table = dynamodb.Table('mediaflow-public-content')
 
 UPLOADS_BUCKET = os.environ.get('UPLOADS_BUCKET', 'mediaflow-uploads-969430605054')
 PROCESSED_BUCKET = os.environ.get('PROCESSED_BUCKET', 'mediaflow-processed-969430605054')
@@ -54,9 +55,13 @@ def lambda_handler(event, context):
         print(f"Decoded key: {key}")
         
         # Verificar permissões
-        if user_role != 'admin':
-            # Usuários só podem acessar seus próprios arquivos
-            if not key.startswith(f'users/{user_id}/'):
+        if user_role != 'admin' and not key.startswith(f'users/{user_id}/'):
+            # Verificar se é conteúdo público compartilhado
+            resp = public_table.scan(
+                FilterExpression='file_key = :fk AND is_active = :active',
+                ExpressionAttributeValues={':fk': key, ':active': True}
+            )
+            if not resp.get('Items'):
                 return cors_response(403, {'success': False, 'message': 'Acesso negado'})
         
         # Try processed bucket first (optimized videos), then uploads
