@@ -120,9 +120,30 @@
 
 ## 🔜 Próximo passo imediato
 
-Nada pendente urgente. Projeto estável em produção.
+### ⚠️ PENDENTE — Área pública: cards + reprodução (commit `64ba216`)
 
-> Mobile UX completo: portrait (bottom tab icons-only + filtros com dropdowns), landscape (drawer lateral), desktop (cards fixos, sem hambúrguer). Thumbnails com lazy loading via IntersectionObserver.
+O push passou na esteira mas as correções **não foram aplicadas em produção**. Investigar na próxima sessão.
+
+#### O que foi alterado (mas não surtiu efeito)
+
+**1. Reprodução de vídeos na área pública (403 Acesso negado)**
+- **Causa raiz**: `view-handler` bloqueava acesso a `users/outro_user/...` com 403 — qualquer usuário tentando assistir vídeo de outro usuário recebia erro
+- **Fix aplicado** em `aws-setup/lambda-functions/view-handler/lambda_function.py`:
+  - Antes: negava direto se `key` não começasse com `users/{user_id}/`
+  - Depois: consulta `mediaflow-public-content` (scan por `file_key + is_active=True`) antes de negar — se o conteúdo estiver compartilhado, libera o acesso
+- **Suspeita**: Lambda pode não ter sido re-deployada pela esteira, ou o scan do DynamoDB está retornando vazio
+
+**2. Proporção dos cards desktop na área pública**
+- **Fix aplicado** em `app/public-feed/page.tsx`:
+  - Antes: `md:w-[200px] sm:w-full md:w-[230px] lg:w-[260px]` (classes duplicadas, tamanhos maiores)
+  - Depois: `md:w-52 lg:w-48` — idêntico ao `ContentCarousel` do dashboard
+- **Suspeita**: CloudFront cache pode estar servindo versão antiga
+
+#### O que verificar na próxima sessão
+1. Checar logs CloudWatch da Lambda `view-handler` — ver se está recebendo requests e qual erro retorna
+2. Confirmar se a Lambda foi re-deployada: verificar `Last modified` no console AWS
+3. Para o frontend: inspecionar hash do bundle JS no browser para confirmar se CloudFront está servindo versão nova
+4. Alternativa para o 403: o `GET /public` já retorna `owner_id` — passar como parâmetro para o player e usar um endpoint dedicado para conteúdo público que não exija ownership check
 
 ---
 
