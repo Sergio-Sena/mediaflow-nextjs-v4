@@ -7,7 +7,7 @@
 ## 📍 Estado atual do projeto
 
 - **Versão:** 4.9.1
-- **Último commit:** `fbc4b3a` — fix view-handler DynamoDB Attr() + cards dashboard clamp()
+- **Último commit:** `d57b8d4` — duration server-side paralelo + otimizações de performance
 - **Branch principal:** `main` (produção automática via push)
 - **Branch dev:** `dev`
 - **URL produção:** https://midiaflow.sstechnologies-cloud.com
@@ -61,8 +61,20 @@
 ### Área pública — cards desktop
 - Largura corrigida de `md:w-[200px]/[230px]/[260px]` para `md:w-52 lg:w-48`
 
+### Performance — sessão atual
+
+- **`files-handler`**: duration buscado server-side com `ThreadPoolExecutor(20)` — elimina 763 requests do browser
+- **`files-cache`**: TTL aumentado de 5 para 30 minutos
+- **`fetchUserData`**: só busca avatar se não estiver no cache local
+- **`fetchDurationsInBackground`**: desativado — duration já vem da Lambda
+- **`view-handler`**: URL via CloudFront CDN (`/media/*`) em vez de presigned URL S3 direto
+- **`view-handler`**: removidos 2 `head_object` desnecessários (bucket processed)
+- **`generate_thumbnails.py`**: substituiu 763 `head_object` individuais por 1 listagem única + workers 10→20
+- **`VideoPlayer`**: autoplay com `muted=true` inicial, `toggleMute` usa `video.muted` diretamente
+- **Lambda timeout**: `mediaflow-files-handler` aumentado para 30s
+
 ---
-### Duration badge nos cards — refatoração completa (performance)
+
 - **Problema**: Lambda `files-handler` fazia `head_object` para cada `.mp4` em paralelo — com 500+ arquivos causava timeout de 30s e erro de CORS
 - **Solução**: Duration movida para responsabilidade do frontend
 - `files-handler` — removido `ThreadPoolExecutor`, retorna `duration: 0`. Novo endpoint `GET /files?key=...` para buscar duration de arquivo específico

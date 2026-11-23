@@ -6,33 +6,34 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 BUCKET = 'mediaflow-uploads-969430605054'
 VIDEO_PREFIX = 'users/'
 THUMB_PREFIX = 'public/thumbnails/'
-FFMPEG = r'C:\Program Files\FormatFactory5.22.0.0\ffmpeg.exe'
+FFMPEG = r'C:\ffmpeg\bin\ffmpeg.exe'
 TEMP_DIR = os.path.join(os.environ['TEMP'], 'midiaflow_thumbs')
-MAX_WORKERS = 10
+MAX_WORKERS = 20
 
 session = boto3.Session(profile_name='default')
 s3 = session.client('s3', region_name='us-east-1')
 
 def get_thumb_key(video_key):
-    """users/sergio_sena/Anime/file.mp4 -> public/thumbnails/sergio_sena/Anime/file.jpg"""
     parts = video_key.split('/')
     if len(parts) >= 3 and parts[0] == 'users':
         return THUMB_PREFIX + '/'.join(parts[1:]).rsplit('.', 1)[0] + '.jpg'
     return None
 
-def thumb_exists(thumb_key):
-    try:
-        s3.head_object(Bucket=BUCKET, Key=thumb_key)
-        return True
-    except:
-        return False
+def load_existing_thumbs():
+    """Carrega todos os thumbnails existentes de uma vez — evita head_object por video."""
+    existing = set()
+    paginator = s3.get_paginator('list_objects_v2')
+    for page in paginator.paginate(Bucket=BUCKET, Prefix=THUMB_PREFIX):
+        for obj in page.get('Contents', []):
+            existing.add(obj['Key'])
+    return existing
 
-def process_video(video_key):
+def process_video(video_key, existing_thumbs):
     thumb_key = get_thumb_key(video_key)
     if not thumb_key:
         return 'skip'
 
-    if thumb_exists(thumb_key):
+    if thumb_key in existing_thumbs:
         return 'exists'
 
     # Presigned URL para streaming
@@ -71,10 +72,15 @@ def main():
     print(f"Workers: {MAX_WORKERS}")
     print("=" * 60)
 
+    print("Carregando thumbnails existentes...")
+    existing_thumbs = load_existing_thumbs()
+    print(f"Thumbnails existentes: {len(existing_thumbs)}")
+    print("=" * 60)
+
     stats = {'ok': 0, 'exists': 0, 'error': 0, 'skip': 0}
 
     with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
-        futures = {executor.submit(process_video, v): v for v in videos}
+        futures = {executor.submit(process_video, v, existing_thumbs): v for v in videos}
         for i, future in enumerate(as_completed(futures), 1):
             video = futures[future]
             try:
