@@ -84,38 +84,41 @@ def get_duration_endpoint(key):
 def list_files(user_prefix='', context='dashboard'):
     files = []
 
-    for bucket, bucket_type in [(UPLOADS_BUCKET, 'uploads'), (PROCESSED_BUCKET, 'processed')]:
-        try:
-            paginator = s3.get_paginator('list_objects_v2')
-            pages = paginator.paginate(Bucket=bucket, Prefix=user_prefix) if user_prefix else paginator.paginate(Bucket=bucket)
+    try:
+        paginator = s3.get_paginator('list_objects_v2')
+        pages = paginator.paginate(
+            Bucket=UPLOADS_BUCKET,
+            Prefix=user_prefix,
+            PaginationConfig={'MaxItems': 2000}
+        )
 
-            for page in pages:
-                for obj in page.get('Contents', []):
-                    key = obj['Key']
+        for page in pages:
+            for obj in page.get('Contents', []):
+                key = obj['Key']
 
-                    if context == 'dashboard':
-                        if key.startswith('avatars/') or key.startswith('qrcodes/'):
-                            continue
+                if context == 'dashboard':
+                    if key.startswith('avatars/') or key.startswith('qrcodes/') or key.startswith('public/'):
+                        continue
 
-                    if '/' in key:
-                        folder_path = '/'.join(key.split('/')[:-1])
-                        filename = key.split('/')[-1]
-                    else:
-                        folder_path = 'root'
-                        filename = key
+                if '/' in key:
+                    folder_path = '/'.join(key.split('/')[:-1])
+                    filename = key.split('/')[-1]
+                else:
+                    folder_path = 'root'
+                    filename = key
 
-                    files.append({
-                        'key': key,
-                        'name': filename,
-                        'folder': folder_path,
-                        'size': obj['Size'],
-                        'lastModified': obj['LastModified'].isoformat(),
-                        'bucket': bucket_type,
-                        'duration': 0,
-                        'url': f'https://{bucket}.s3.amazonaws.com/{key}'
-                    })
-        except:
-            pass
+                duration = int(obj.get('Metadata', {}).get('duration', 0)) if obj.get('Metadata') else 0
+
+                files.append({
+                    'key': key,
+                    'name': filename,
+                    'folder': folder_path,
+                    'size': obj['Size'],
+                    'lastModified': obj['LastModified'].isoformat(),
+                    'duration': duration
+                })
+    except Exception as e:
+        print(f"list_files error: {str(e)}")
 
     return cors_response(200, {'success': True, 'files': files})
 

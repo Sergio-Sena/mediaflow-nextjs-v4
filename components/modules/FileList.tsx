@@ -58,22 +58,26 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
     if (missing.length === 0) return
 
     const results: Record<string, number> = {}
-    await Promise.all(missing.map(async (file) => {
-      try {
-        const res = await fetch(
-          `${getApiUrl('FILES')}?key=${encodeURIComponent(file.key)}`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        )
-        if (res.ok) {
-          const data = await res.json()
-          if (data.duration !== undefined) results[file.key] = data.duration
-        }
-      } catch {}
-    }))
-
-    if (Object.keys(results).length > 0) {
-      durationCache.setMany(results)
-      setFiles(prev => prev.map(f => results[f.key] !== undefined ? { ...f, duration: results[f.key] } : f))
+    const BATCH = 10
+    for (let i = 0; i < missing.length; i += BATCH) {
+      const batch = missing.slice(i, i + BATCH)
+      await Promise.all(batch.map(async (file) => {
+        try {
+          const res = await fetch(
+            `${getApiUrl('FILES')}?key=${encodeURIComponent(file.key)}`,
+            { headers: { Authorization: `Bearer ${token}` } }
+          )
+          if (res.ok) {
+            const data = await res.json()
+            if (data.duration !== undefined) results[file.key] = data.duration
+          }
+        } catch {}
+      }))
+      // Atualiza UI a cada lote
+      if (Object.keys(results).length > 0) {
+        durationCache.setMany(results)
+        setFiles(prev => prev.map(f => results[f.key] !== undefined ? { ...f, duration: results[f.key] } : f))
+      }
     }
   }
 
