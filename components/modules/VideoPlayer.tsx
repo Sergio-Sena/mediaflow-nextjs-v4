@@ -291,10 +291,11 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
     }
 
     if (isMuted) {
-      video.volume = volume
+      video.muted = false
+      video.volume = volume || 1
       setIsMuted(false)
     } else {
-      video.volume = 0
+      video.muted = true
       setIsMuted(true)
     }
   }
@@ -533,7 +534,7 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
                 playsInline
                 crossOrigin="anonymous"
                 autoPlay
-                muted
+                muted={isMuted}
               />
 
               {/* Seek feedback double-tap */}
