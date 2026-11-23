@@ -57,39 +57,14 @@ def lambda_handler(event, context):
         
         # Verificar permissões
         if user_role != 'admin' and not key.startswith(f'users/{user_id}/'):
-            # Verificar se é conteúdo público compartilhado
             resp = public_table.scan(
                 FilterExpression=Attr('file_key').eq(key) & Attr('is_active').eq(True)
             )
             if not resp.get('Items'):
                 return cors_response(403, {'success': False, 'message': 'Acesso negado'})
-        
-        # Try processed bucket first (optimized videos), then uploads
-        bucket_to_use = UPLOADS_BUCKET
-        
-        # Check if optimized version exists in processed bucket
-        try:
-            # Look for converted version (with _1080p suffix)
-            base_name = key.rsplit('.', 1)[0]
-            converted_key = f"{base_name}_1080p.mp4"
-            s3.head_object(Bucket=PROCESSED_BUCKET, Key=converted_key)
-            bucket_to_use = PROCESSED_BUCKET
-            key = converted_key
-        except:
-            # If no converted version, check original in processed bucket
-            try:
-                s3.head_object(Bucket=PROCESSED_BUCKET, Key=key)
-                bucket_to_use = PROCESSED_BUCKET
-            except:
-                # Fall back to uploads bucket
-                pass
-        
-        # Generate presigned URL
-        view_url = s3.generate_presigned_url(
-            'get_object',
-            Params={'Bucket': bucket_to_use, 'Key': key},
-            ExpiresIn=3600
-        )
+
+        # URL via CloudFront CDN (cache + performance)
+        view_url = f'https://{CDN_DOMAIN}/media/{key}'
         
         return cors_response(200, {
             'success': True,
