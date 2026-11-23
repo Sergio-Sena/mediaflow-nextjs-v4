@@ -3,6 +3,7 @@ import boto3
 import os
 import jwt
 from urllib.parse import unquote, unquote_plus
+from boto3.dynamodb.conditions import Attr
 
 s3 = boto3.client('s3')
 dynamodb = boto3.resource('dynamodb')
@@ -58,8 +59,7 @@ def lambda_handler(event, context):
         if user_role != 'admin' and not key.startswith(f'users/{user_id}/'):
             # Verificar se é conteúdo público compartilhado
             resp = public_table.scan(
-                FilterExpression='file_key = :fk AND is_active = :active',
-                ExpressionAttributeValues={':fk': key, ':active': True}
+                FilterExpression=Attr('file_key').eq(key) & Attr('is_active').eq(True)
             )
             if not resp.get('Items'):
                 return cors_response(403, {'success': False, 'message': 'Acesso negado'})
