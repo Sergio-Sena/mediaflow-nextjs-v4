@@ -54,13 +54,16 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
   const fetchDurationsInBackground = async (filesToCheck: S3File[]) => {
     const { durationCache } = await import('@/lib/duration-cache')
     const token = localStorage.getItem('token')
-    const missing = filesToCheck.filter(f => f.type === 'video' && !durationCache.get(f.key))
+    const missing = filesToCheck.filter(f => f.type === 'video' && durationCache.get(f.key) === null)
     if (missing.length === 0) return
 
+    // Limita a 50 por sessão para não sobrecarregar
+    const toFetch = missing.slice(0, 50)
     const results: Record<string, number> = {}
-    const BATCH = 10
-    for (let i = 0; i < missing.length; i += BATCH) {
-      const batch = missing.slice(i, i + BATCH)
+    const BATCH = 5
+
+    for (let i = 0; i < toFetch.length; i += BATCH) {
+      const batch = toFetch.slice(i, i + BATCH)
       await Promise.all(batch.map(async (file) => {
         try {
           const res = await fetch(
@@ -73,11 +76,8 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
           }
         } catch {}
       }))
-      // Atualiza UI a cada lote
-      if (Object.keys(results).length > 0) {
-        durationCache.setMany(results)
-        setFiles(prev => prev.map(f => results[f.key] !== undefined ? { ...f, duration: results[f.key] } : f))
-      }
+      durationCache.setMany(results)
+      setFiles(prev => prev.map(f => results[f.key] !== undefined ? { ...f, duration: results[f.key] } : f))
     }
   }
 

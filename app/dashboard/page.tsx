@@ -93,7 +93,8 @@ function DashboardContent() {
       if (fullUser.role !== 'admin') {
         setCurrentFolderPath(fullUser.s3_prefix || '')
       }
-      fetchUserData(tokenUser.user_id)
+      // Só busca avatar se não tiver no cache
+      if (!saved.avatar_url) fetchUserData(tokenUser.user_id)
     }
     
     if (!token) {
