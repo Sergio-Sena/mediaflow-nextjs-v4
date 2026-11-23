@@ -106,7 +106,9 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
         setFolderStructure(cached.folderStructure)
         onFilesLoaded?.(withDuration)
         setLoading(false)
-        fetchDurationsInBackground(withDuration)
+        setFiles(withDuration)
+        onFilesLoaded?.(withDuration)
+        // duration já vem da Lambda — sem requests adicionais
         return
       }
       
@@ -163,7 +165,7 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
         const withDuration = await applyDurationCache(transformedFiles)
         setFiles(withDuration)
         onFilesLoaded?.(withDuration)
-        fetchDurationsInBackground(withDuration)
+        // duration já vem da Lambda — sem requests adicionais
         
         // Build folder structure for navigation
         const structure: {[key: string]: string[]} = {}

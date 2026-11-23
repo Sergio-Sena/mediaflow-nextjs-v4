@@ -3,6 +3,7 @@ import boto3
 import os
 import jwt
 from urllib.parse import unquote
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 s3 = boto3.client('s3')
 UPLOADS_BUCKET = os.environ.get('UPLOADS_BUCKET', 'mediaflow-uploads-969430605054')
@@ -81,6 +82,14 @@ def get_duration_endpoint(key):
         return cors_response(200, {'success': True, 'duration': 0})
 
 
+def get_duration(key):
+    try:
+        head = s3.head_object(Bucket=UPLOADS_BUCKET, Key=key)
+        return int(head.get('Metadata', {}).get('duration', 0))
+    except:
+        return 0
+
+
 def list_files(user_prefix='', context='dashboard'):
     files = []
 
@@ -100,14 +109,8 @@ def list_files(user_prefix='', context='dashboard'):
                     if key.startswith('avatars/') or key.startswith('qrcodes/') or key.startswith('public/'):
                         continue
 
-                if '/' in key:
-                    folder_path = '/'.join(key.split('/')[:-1])
-                    filename = key.split('/')[-1]
-                else:
-                    folder_path = 'root'
-                    filename = key
-
-                duration = int(obj.get('Metadata', {}).get('duration', 0)) if obj.get('Metadata') else 0
+                folder_path = '/'.join(key.split('/')[:-1]) if '/' in key else 'root'
+                filename = key.split('/')[-1]
 
                 files.append({
                     'key': key,
@@ -115,10 +118,30 @@ def list_files(user_prefix='', context='dashboard'):
                     'folder': folder_path,
                     'size': obj['Size'],
                     'lastModified': obj['LastModified'].isoformat(),
-                    'duration': duration
+                    'duration': 0
                 })
     except Exception as e:
         print(f"list_files error: {str(e)}")
+        return cors_response(500, {'success': False, 'message': 'Internal server error'})
+
+    # Buscar duration em paralelo apenas para videos
+    video_exts = ('.mp4', '.mkv', '.avi', '.mov', '.webm', '.ts')
+    video_files = [f for f in files if f['name'].lower().endswith(video_exts)]
+
+    if video_files:
+        with ThreadPoolExecutor(max_workers=20) as executor:
+            futures = {executor.submit(get_duration, f['key']): f['key'] for f in video_files}
+            durations = {}
+            for future in as_completed(futures):
+                key = futures[future]
+                try:
+                    durations[key] = future.result()
+                except:
+                    durations[key] = 0
+
+        for f in files:
+            if f['key'] in durations:
+                f['duration'] = durations[f['key']]
 
     return cors_response(200, {'success': True, 'files': files})
 
