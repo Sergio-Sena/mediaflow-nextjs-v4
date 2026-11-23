@@ -169,7 +169,8 @@ function ContentRow({ title, items, onItemClick, onItemDelete, onItemShare, onDe
             return (
               <div
                 key={item.key}
-                className={`flex-shrink-0 w-[calc(50vw-20px)] landscape:w-[calc(40vw-20px)] sm:w-48 md:w-52 lg:w-48 cursor-pointer group ${isSelected ? 'ring-2 ring-neon-cyan rounded-xl' : ''}`}
+                className={`flex-shrink-0 cursor-pointer group ${isSelected ? 'ring-2 ring-neon-cyan rounded-xl' : ''}`}
+                style={{ width: 'clamp(160px, calc(50vw - 20px), 208px)' }}
               >
                 <div
                   onClick={() => {

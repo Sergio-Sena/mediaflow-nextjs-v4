@@ -7,7 +7,7 @@
 ## 📍 Estado atual do projeto
 
 - **Versão:** 4.9.1
-- **Último commit:** `62202cb` — fix desktop cards, hamburger, thumbnail lazy loading
+- **Último commit:** `fbc4b3a` — fix view-handler DynamoDB Attr() + cards dashboard clamp()
 - **Branch principal:** `main` (produção automática via push)
 - **Branch dev:** `dev`
 - **URL produção:** https://midiaflow.sstechnologies-cloud.com
@@ -48,14 +48,18 @@
 #### Fix sintaxe dashboard
 - `</div>` faltando no container `flex justify-between` do header — causava `Unexpected token div`
 
-#### Commits desta sessão
-| Commit | Descrição |
-|---|---|
-| `529eb6e` | feat: mobile UX improvements - portrait/landscape responsive nav |
-| `62202cb` | fix: desktop cards size, hamburger visibility, thumbnail lazy loading |
+### Cards dashboard — tamanho unificado com área pública
+- **Problema**: Tailwind v4 classes arbitrárias (`w-[calc(...)]`) têm precedência sobre utilitárias (`sm:w-52`) — cards ficavam enormes no desktop
+- **Fix**: `style={{ width: 'clamp(160px, calc(50vw - 20px), 208px)' }}` inline no `ContentCarousel` — máximo 208px no desktop, responsivo no mobile
 
-#### Observação sobre deploy
-- `git push` dentro do `executeBash` às vezes retorna sucesso mas não sobe — sempre verificar com segundo push ou `git log origin/main`
+### view-handler — reprodução de conteúdo público
+- **Problema**: 403 ao tentar assistir vídeo de outro usuário na área pública
+- **Fix 1**: adicionado scan em `mediaflow-public-content` antes de negar acesso
+- **Fix 2**: `FilterExpression` corrigido de string raw para `Attr('file_key').eq(key) & Attr('is_active').eq(True)` (boto3 resource exige `Attr()` do `boto3.dynamodb.conditions`)
+- **Fix 3**: adicionado `from boto3.dynamodb.conditions import Attr`
+
+### Área pública — cards desktop
+- Largura corrigida de `md:w-[200px]/[230px]/[260px]` para `md:w-52 lg:w-48`
 
 ---
 ### Duration badge nos cards — refatoração completa (performance)
@@ -120,30 +124,7 @@
 
 ## 🔜 Próximo passo imediato
 
-### ⚠️ PENDENTE — Área pública: cards + reprodução (commit `64ba216`)
-
-O push passou na esteira mas as correções **não foram aplicadas em produção**. Investigar na próxima sessão.
-
-#### O que foi alterado (mas não surtiu efeito)
-
-**1. Reprodução de vídeos na área pública (403 Acesso negado)**
-- **Causa raiz**: `view-handler` bloqueava acesso a `users/outro_user/...` com 403 — qualquer usuário tentando assistir vídeo de outro usuário recebia erro
-- **Fix aplicado** em `aws-setup/lambda-functions/view-handler/lambda_function.py`:
-  - Antes: negava direto se `key` não começasse com `users/{user_id}/`
-  - Depois: consulta `mediaflow-public-content` (scan por `file_key + is_active=True`) antes de negar — se o conteúdo estiver compartilhado, libera o acesso
-- **Suspeita**: Lambda pode não ter sido re-deployada pela esteira, ou o scan do DynamoDB está retornando vazio
-
-**2. Proporção dos cards desktop na área pública**
-- **Fix aplicado** em `app/public-feed/page.tsx`:
-  - Antes: `md:w-[200px] sm:w-full md:w-[230px] lg:w-[260px]` (classes duplicadas, tamanhos maiores)
-  - Depois: `md:w-52 lg:w-48` — idêntico ao `ContentCarousel` do dashboard
-- **Suspeita**: CloudFront cache pode estar servindo versão antiga
-
-#### O que verificar na próxima sessão
-1. Checar logs CloudWatch da Lambda `view-handler` — ver se está recebendo requests e qual erro retorna
-2. Confirmar se a Lambda foi re-deployada: verificar `Last modified` no console AWS
-3. Para o frontend: inspecionar hash do bundle JS no browser para confirmar se CloudFront está servindo versão nova
-4. Alternativa para o 403: o `GET /public` já retorna `owner_id` — passar como parâmetro para o player e usar um endpoint dedicado para conteúdo público que não exija ownership check
+Nada pendente urgente. Projeto estável em produção.
 
 ---
 
