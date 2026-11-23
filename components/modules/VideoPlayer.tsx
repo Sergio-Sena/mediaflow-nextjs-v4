@@ -26,7 +26,7 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
   const [volume, setVolume] = useState(1)
-  const [isMuted, setIsMuted] = useState(false)
+  const [isMuted, setIsMuted] = useState(true)
   const [videoUrl, setVideoUrl] = useState<string>('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string>('')
@@ -533,6 +533,7 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
                 playsInline
                 crossOrigin="anonymous"
                 autoPlay
+                muted
               />
 
               {/* Seek feedback double-tap */}
