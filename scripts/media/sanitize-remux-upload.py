@@ -12,6 +12,7 @@ import re
 import subprocess
 import sys
 import unicodedata
+import boto3
 
 sys.stdout.reconfigure(encoding='utf-8')
 
@@ -33,6 +34,35 @@ FFPROBE   = r'C:\ffmpeg\bin\ffprobe.exe'
 CODEC_RANK = {'hevc': 3, 'h265': 3, 'av1': 4, 'vp9': 2, 'h264': 1, 'avc': 1}
 AWS       = 'aws'
 PROFILE   = 'default'
+THUMB_PREFIX = 'public/thumbnails/'
+FFMPEG_THUMB_TEMP = os.path.join(os.environ['TEMP'], 'midiaflow_thumbs')
+
+_s3_client = None
+def get_s3_client():
+    global _s3_client
+    if not _s3_client:
+        _s3_client = boto3.client('s3', region_name='us-east-1')
+    return _s3_client
+
+
+def generate_thumbnail(s3_key):
+    """Gera thumbnail para o video recém-uploadado. Retorna True se OK."""
+    s3 = get_s3_client()
+    parts = s3_key.split('/')
+    thumb_key = THUMB_PREFIX + '/'.join(parts[1:]).rsplit('.', 1)[0] + '.jpg'
+    os.makedirs(FFMPEG_THUMB_TEMP, exist_ok=True)
+    local_thumb = os.path.join(FFMPEG_THUMB_TEMP, parts[-1].rsplit('.', 1)[0] + '.jpg')
+    url = s3.generate_presigned_url('get_object', Params={'Bucket': BUCKET, 'Key': s3_key}, ExpiresIn=1800)
+    cmd = [FFMPEG, '-ss', '10', '-i', url, '-vframes', '1', '-q:v', '3', '-vf', 'scale=320:-1', '-y', local_thumb]
+    r = subprocess.run(cmd, capture_output=True, timeout=90)
+    if not (os.path.exists(local_thumb) and os.path.getsize(local_thumb) > 0):
+        cmd2 = [FFMPEG, '-i', url, '-vframes', '1', '-q:v', '3', '-vf', 'scale=320:-1', '-y', local_thumb]
+        subprocess.run(cmd2, capture_output=True, timeout=90)
+    if os.path.exists(local_thumb) and os.path.getsize(local_thumb) > 0:
+        s3.upload_file(local_thumb, BUCKET, thumb_key, ExtraArgs={'ContentType': 'image/jpeg'})
+        os.remove(local_thumb)
+        return True
+    return False
 VIDEO_EXTS = ('.mp4', '.ts', '.mkv', '.avi', '.mov', '.webm')
 S3_USER   = 'users/sergio_sena'
 
@@ -331,6 +361,11 @@ def main():
                 if upload_file != filepath: os.remove(filepath)
                 os.remove(upload_file)
                 print(f'  OK - removido local ({s3_size/1024/1024:.1f} MB confirmado no S3)')
+                print(f'  Gerando thumbnail...')
+                if generate_thumbnail(s3_key):
+                    print(f'  Thumbnail OK')
+                else:
+                    print(f'  Thumbnail FALHOU (pode gerar depois com generate_thumbnails.py)')
             else:
                 print(f'  ERRO verificacao: local={local_size} s3={s3_size} - arquivo LOCAL MANTIDO')
                 errors.append((filename, f'size mismatch local={local_size} s3={s3_size}'))

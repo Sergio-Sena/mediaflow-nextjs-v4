@@ -43,6 +43,9 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
   const [folderStructure, setFolderStructure] = useState<{[key: string]: string[]}>({})
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage] = useState(50)
+  const [hasMore, setHasMore] = useState(false)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [totalFiles, setTotalFiles] = useState(0)
   const [deleting, setDeleting] = useState<Set<string>>(new Set())
   const [deleteModal, setDeleteModal] = useState<{type: 'single' | 'bulk' | 'folder', file?: any, items?: any[]} | null>(null)
   const [shareModal, setShareModal] = useState<any>(null)
@@ -90,30 +93,31 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
     }))
   }
 
-  const fetchFiles = async () => {
+  const fetchFiles = async (page = 1, append = false) => {
     try {
-      setLoading(true)
+      if (!append) setLoading(true)
+      else setLoadingMore(true)
       setError(null)
 
-      // Tentar carregar do cache primeiro
-      const { filesCache } = await import('@/lib/files-cache')
-      const cached = filesCache.get()
-
-      if (cached) {
-        const withDuration = await applyDurationCache(cached.files)
-        setFiles(withDuration)
-        setFolders(cached.folders)
-        setFolderStructure(cached.folderStructure)
-        onFilesLoaded?.(withDuration)
-        setLoading(false)
-        setFiles(withDuration)
-        onFilesLoaded?.(withDuration)
-        // duration já vem da Lambda — sem requests adicionais
-        return
+      // Cache apenas para página 1
+      if (page === 1) {
+        const { filesCache } = await import('@/lib/files-cache')
+        const cached = filesCache.get()
+        if (cached) {
+          const withDuration = await applyDurationCache(cached.files)
+          setFiles(withDuration)
+          setFolders(cached.folders)
+          setFolderStructure(cached.folderStructure)
+          setTotalFiles(cached.total || withDuration.length)
+          setHasMore(cached.hasMore || false)
+          onFilesLoaded?.(withDuration)
+          setLoading(false)
+          return
+        }
       }
       
       const { mediaflowClient } = await import('@/lib/aws-client')
-      const data = await mediaflowClient.getFiles()
+      const data = await mediaflowClient.getFiles(page)
       
       // Obter informações do usuário do JWT
       const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
@@ -163,9 +167,20 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
         })
         
         const withDuration = await applyDurationCache(transformedFiles)
-        setFiles(withDuration)
-        onFilesLoaded?.(withDuration)
-        // duration já vem da Lambda — sem requests adicionais
+
+        if (append) {
+          setFiles(prev => {
+            const merged = [...prev, ...withDuration]
+            onFilesLoaded?.(merged)
+            return merged
+          })
+        } else {
+          setFiles(withDuration)
+          onFilesLoaded?.(withDuration)
+        }
+
+        setTotalFiles(data.total || transformedFiles.length)
+        setHasMore(data.hasMore || false)
         
         // Build folder structure for navigation
         const structure: {[key: string]: string[]} = {}
@@ -214,13 +229,17 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
         
         setFolders(allFolders)
         
-        // Salvar no cache DEPOIS de criar allFolders
-        const { filesCache } = await import('@/lib/files-cache')
-        filesCache.set({
-          files: withDuration,
-          folders: allFolders,
-          folderStructure: structure
-        })
+        // Salvar no cache apenas página 1
+        if (page === 1) {
+          const { filesCache } = await import('@/lib/files-cache')
+          filesCache.set({
+            files: withDuration,
+            folders: allFolders,
+            folderStructure: structure,
+            total: data.total,
+            hasMore: data.hasMore
+          })
+        }
       } else {
         throw new Error(data.message || 'Erro ao carregar arquivos')
       }
@@ -228,6 +247,7 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
       setError(err instanceof Error ? err.message : 'Erro desconhecido')
     } finally {
       setLoading(false)
+      setLoadingMore(false)
     }
   }
   
@@ -247,8 +267,20 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
   }
 
   useEffect(() => {
-    fetchFiles()
+    setCurrentPage(1)
+    fetchFiles(1, false)
   }, [refreshTrigger])
+
+  // Carrega próximas páginas em background
+  useEffect(() => {
+    if (!hasMore || loadingMore) return
+    const timer = setTimeout(() => {
+      const next = currentPage + 1
+      setCurrentPage(next)
+      fetchFiles(next, true)
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [hasMore, currentPage])
 
   // Set initial path based on user role
   useEffect(() => {
@@ -615,7 +647,7 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
     return (
       <div className="glass-card p-8 text-center">
         <p className="text-red-400 mb-4">{error}</p>
-        <button onClick={fetchFiles} className="btn-neon">
+        <button onClick={() => fetchFiles(1, false)} className="btn-neon">
           Tentar Novamente
         </button>
       </div>

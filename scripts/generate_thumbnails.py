@@ -55,7 +55,7 @@ def process_video(video_key, existing_thumbs):
         os.remove(local_thumb)
         return 'ok'
 
-    return 'error'
+    return f'error: ffmpeg falhou para {video_key.split("/")[-1][:50]}'
 
 def main():
     os.makedirs(TEMP_DIR, exist_ok=True)
@@ -85,14 +85,19 @@ def main():
             video = futures[future]
             try:
                 result = future.result()
-                stats[result] += 1
                 if result == 'ok':
-                    print(f"[{i}/{len(videos)}] [OK] {video.split('/')[-1][:50]}")
-                elif result == 'error':
-                    print(f"[{i}/{len(videos)}] [ERR] {video.split('/')[-1][:50]}")
+                    stats['ok'] += 1
+                    print(f"[{i}/{len(videos)}] [OK] {video.split('/')[-1][:50]}", flush=True)
+                elif result == 'skip':
+                    stats['skip'] += 1
+                elif result == 'exists':
+                    stats['exists'] += 1
+                else:
+                    stats['error'] += 1
+                    print(f"[{i}/{len(videos)}] [ERR] {result}", flush=True)
             except Exception as e:
                 stats['error'] += 1
-                print(f"[{i}/{len(videos)}] [EXCEPTION] {video.split('/')[-1][:30]} - {str(e)[:50]}")
+                print(f"[{i}/{len(videos)}] [EXCEPTION] {video.split('/')[-1][:30]} - {str(e)[:80]}", flush=True)
 
     print("\n" + "=" * 60)
     print(f"RESULTADO FINAL")

@@ -9,10 +9,11 @@ s3 = boto3.client('s3')
 UPLOADS_BUCKET = os.environ.get('UPLOADS_BUCKET', 'mediaflow-uploads-969430605054')
 PROCESSED_BUCKET = os.environ.get('PROCESSED_BUCKET', 'mediaflow-processed-969430605054')
 SECRET_KEY = os.environ['JWT_SECRET']
-_request_origin = None
+DEFAULT_ORIGIN = 'https://midiaflow.sstechnologies-cloud.com'
+_request_origin = DEFAULT_ORIGIN
 
 def get_allowed_origin(event):
-    allowed = os.environ.get('ALLOWED_ORIGINS', 'https://midiaflow.sstechnologies-cloud.com').split(',')
+    allowed = os.environ.get('ALLOWED_ORIGINS', DEFAULT_ORIGIN).split(',')
     headers = event.get('headers') or {}
     origin = headers.get('origin') or headers.get('Origin') or ''
     return origin if origin in allowed else allowed[0]
@@ -55,7 +56,9 @@ def lambda_handler(event, context):
             elif user_role == 'viewer':
                 user_prefix = 'users/user_admin/'
 
-            return list_files(user_prefix, view_context)
+            page = int(query_params.get('page', 1))
+            limit = min(int(query_params.get('limit', 50)), 200)
+            return list_files(user_prefix, view_context, page, limit)
         elif method == 'DELETE' and 'bulk-delete' not in path:
             if event.get('pathParameters') and event['pathParameters'].get('key'):
                 key = unquote(event['pathParameters']['key'])
@@ -90,7 +93,7 @@ def get_duration(key):
         return 0
 
 
-def list_files(user_prefix='', context='dashboard'):
+def list_files(user_prefix='', context='dashboard', page=1, limit=50):
     files = []
 
     try:
@@ -124,12 +127,16 @@ def list_files(user_prefix='', context='dashboard'):
         print(f"list_files error: {str(e)}")
         return cors_response(500, {'success': False, 'message': 'Internal server error'})
 
-    # Buscar duration em paralelo apenas para videos
+    total = len(files)
+    start = (page - 1) * limit
+    page_files = files[start:start + limit]
+
+    # Buscar duration em paralelo apenas para vídeos da página atual
     video_exts = ('.mp4', '.mkv', '.avi', '.mov', '.webm', '.ts')
-    video_files = [f for f in files if f['name'].lower().endswith(video_exts)]
+    video_files = [f for f in page_files if f['name'].lower().endswith(video_exts)]
 
     if video_files:
-        with ThreadPoolExecutor(max_workers=20) as executor:
+        with ThreadPoolExecutor(max_workers=10) as executor:
             futures = {executor.submit(get_duration, f['key']): f['key'] for f in video_files}
             durations = {}
             for future in as_completed(futures):
@@ -139,11 +146,18 @@ def list_files(user_prefix='', context='dashboard'):
                 except:
                     durations[key] = 0
 
-        for f in files:
+        for f in page_files:
             if f['key'] in durations:
                 f['duration'] = durations[f['key']]
 
-    return cors_response(200, {'success': True, 'files': files})
+    return cors_response(200, {
+        'success': True,
+        'files': page_files,
+        'total': total,
+        'page': page,
+        'limit': limit,
+        'hasMore': (start + limit) < total
+    })
 
 
 def delete_thumbnail(key):

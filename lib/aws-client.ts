@@ -16,21 +16,14 @@ export class MediaflowClient {
     return response.json()
   }
   
-  async getFiles(context: 'dashboard' | 'admin' = 'dashboard') {
+  async getFiles(page: number = 1, context: 'dashboard' | 'admin' = 'dashboard') {
     const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-    }
-    
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`
-    }
-    
-    const response = await fetch(`${getApiUrl('FILES')}?context=${context}`, {
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+    if (token) headers['Authorization'] = `Bearer ${token}`
+    const response = await fetch(`${getApiUrl('FILES')}?context=${context}&page=${page}&limit=50`, {
       method: 'GET',
       headers
     })
-    
     return response.json()
   }
   
