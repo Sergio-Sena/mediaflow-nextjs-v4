@@ -354,8 +354,8 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
     }
     
     if (isPlaying) {
-      // 2s para mobile, 3s para desktop
-      const hideDelay = window.innerWidth < 768 ? 2000 : 3000
+      // 4s para mobile, 6s para desktop
+      const hideDelay = window.innerWidth < 768 ? 4000 : 6000
       hideControlsTimeout.current = setTimeout(() => {
         setShowControls(false)
       }, hideDelay)
@@ -470,26 +470,28 @@ export default function VideoPlayer({ src, title, onClose, currentVideo, playlis
   return (
     <div className="fixed inset-0 bg-black z-50 flex items-center justify-center">
       <div ref={containerRef} className="relative w-full h-full md:h-auto md:max-w-6xl md:bg-dark-900 md:rounded-lg md:overflow-hidden md:m-4">
-        {/* Header — escondido em landscape mobile (fullscreen) */}
+        {/* Botão fechar — sempre visível, fora do fade dos controles */}
         {!isLandscapeMobile && (
-          <div className={`flex items-center justify-between px-3 py-2 md:px-4 md:py-3 bg-dark-800/80 border-b border-white/5 transition-opacity duration-300 ${
-            showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'
-          }`}>
-            <h3 className="text-sm font-semibold text-white truncate pr-4">{title}</h3>
-            <button
-              onClick={onClose}
-              aria-label="Fechar player"
-              className="flex-shrink-0 flex items-center justify-center w-9 h-9 rounded-lg bg-white/10 border border-white/10 text-gray-300 hover:bg-white/20 hover:text-white transition-all active:scale-95"
-            >
-              <X className="w-4 h-4" />
-            </button>
+          <button
+            onClick={onClose}
+            aria-label="Fechar player"
+            className="absolute top-3 right-3 z-20 flex items-center justify-center w-9 h-9 rounded-lg bg-black/60 border border-white/10 text-gray-300 hover:bg-black/80 hover:text-white transition-all active:scale-95"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        )}
+
+        {/* Título overlay — desktop */}
+        {!isLandscapeMobile && (
+          <div className="absolute top-0 left-0 right-14 px-3 py-3 pointer-events-none">
+            <p className="text-sm font-semibold text-white truncate drop-shadow">{title}</p>
           </div>
         )}
 
         {/* Video Container */}
         <div
           className="relative bg-black"
-          style={{ height: isLandscapeMobile ? '100vh' : 'calc(100vh - 48px)', maxHeight: isLandscapeMobile ? '100vh' : '85vh' }}
+          style={{ height: isLandscapeMobile ? '100vh' : '100%', maxHeight: isLandscapeMobile ? '100vh' : '90vh' }}
           onMouseMove={handleMouseMove}
           onMouseEnter={handleMouseMove}
           onMouseLeave={handleMouseLeave}

@@ -10,10 +10,11 @@ UPLOADS_BUCKET = os.environ.get('UPLOADS_BUCKET', 'mediaflow-uploads-96943060505
 PROCESSED_BUCKET = os.environ.get('PROCESSED_BUCKET', 'mediaflow-processed-969430605054')
 SECRET_KEY = os.environ['JWT_SECRET']
 DEFAULT_ORIGIN = 'https://midiaflow.sstechnologies-cloud.com'
+DEV_ORIGINS = ['http://localhost:3000', 'http://localhost:3001']
 _request_origin = DEFAULT_ORIGIN
 
 def get_allowed_origin(event):
-    allowed = os.environ.get('ALLOWED_ORIGINS', DEFAULT_ORIGIN).split(',')
+    allowed = os.environ.get('ALLOWED_ORIGINS', DEFAULT_ORIGIN).split(',') + DEV_ORIGINS
     headers = event.get('headers') or {}
     origin = headers.get('origin') or headers.get('Origin') or ''
     return origin if origin in allowed else allowed[0]
@@ -56,8 +57,8 @@ def lambda_handler(event, context):
             elif user_role == 'viewer':
                 user_prefix = 'users/user_admin/'
 
-            page = int(query_params.get('page', 1))
-            limit = min(int(query_params.get('limit', 50)), 200)
+            page = int(query_params.get('page') or 1)
+            limit = min(int(query_params.get('limit') or 50), 200)
             return list_files(user_prefix, view_context, page, limit)
         elif method == 'DELETE' and 'bulk-delete' not in path:
             if event.get('pathParameters') and event['pathParameters'].get('key'):
@@ -72,7 +73,9 @@ def lambda_handler(event, context):
             return bulk_delete(keys)
 
     except Exception as e:
+        import traceback
         print(f"Files handler error: {str(e)}")
+        print(traceback.format_exc())
         return cors_response(500, {'success': False, 'message': 'Internal server error'})
 
 
@@ -93,19 +96,19 @@ def get_duration(key):
         return 0
 
 
-def list_files(user_prefix='', context='dashboard', page=1, limit=50):
+def list_files(user_prefix='', context='dashboard', page_num=1, limit=50):
     files = []
 
     try:
         paginator = s3.get_paginator('list_objects_v2')
-        pages = paginator.paginate(
+        s3_pages = paginator.paginate(
             Bucket=UPLOADS_BUCKET,
             Prefix=user_prefix,
             PaginationConfig={'MaxItems': 2000}
         )
 
-        for page in pages:
-            for obj in page.get('Contents', []):
+        for s3_page in s3_pages:
+            for obj in s3_page.get('Contents', []):
                 key = obj['Key']
 
                 if context == 'dashboard':
@@ -128,7 +131,7 @@ def list_files(user_prefix='', context='dashboard', page=1, limit=50):
         return cors_response(500, {'success': False, 'message': 'Internal server error'})
 
     total = len(files)
-    start = (page - 1) * limit
+    start = (page_num - 1) * limit
     page_files = files[start:start + limit]
 
     # Buscar duration em paralelo apenas para vídeos da página atual
@@ -154,7 +157,7 @@ def list_files(user_prefix='', context='dashboard', page=1, limit=50):
         'success': True,
         'files': page_files,
         'total': total,
-        'page': page,
+        'page': page_num,
         'limit': limit,
         'hasMore': (start + limit) < total
     })

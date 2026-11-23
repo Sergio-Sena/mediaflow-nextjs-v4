@@ -53,6 +53,7 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
   const [mobileFolderOpen, setMobileFolderOpen] = useState(false)
   const [mobileSortOpen, setMobileSortOpen] = useState(false)
+  const [filtersOpen, setFiltersOpen] = useState(false)
 
   const fetchDurationsInBackground = async (filesToCheck: S3File[]) => {
     const { durationCache } = await import('@/lib/duration-cache')
@@ -280,7 +281,7 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
       fetchFiles(next, true)
     }, 500)
     return () => clearTimeout(timer)
-  }, [hasMore, currentPage])
+  }, [hasMore, currentPage, loadingMore])
 
   // Set initial path based on user role
   useEffect(() => {
@@ -660,7 +661,7 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
 
 
       {/* Header + Filters sticky */}
-      <div className="sticky top-[49px] md:top-[95px] z-40 bg-dark-900/95 backdrop-blur-md border-b border-white/5 px-3 sm:px-8 py-2 -mx-4 sm:-mx-8" style={{ top: 'var(--header-h, 49px)' }}>
+      <div className="sticky top-[52px] z-40 bg-dark-900/95 backdrop-blur-md border-b border-white/5 px-3 sm:px-8 py-2 -mx-4 sm:-mx-8">
         {/* Mobile portrait: busca full-width + ícones */}
         <div className="flex md:hidden items-center gap-2">
           {/* Busca */}
@@ -792,48 +793,69 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
             )}
           </div>
 
-          {/* Pasta */}
-          <select
-            value={getCurrentFolderPath() ? `📁 ${getCurrentFolderPath()}` : ''}
-            onChange={(e) => {
-              const val = e.target.value
-              if (!val) { setCurrentPath(['']); setInitialPathSet(false) }
-              else { const f = val.replace('📁 ', ''); navigateToFolder(f === 'Raiz' ? '' : f) }
-            }}
-            className="h-[34px] px-3 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-[#667eea]/60 focus:outline-none flex-shrink-0 max-w-[160px] transition-colors"
+          {/* Toggle filtros */}
+          <button
+            onClick={() => setFiltersOpen(v => !v)}
+            className={`h-[34px] px-3 flex items-center gap-1.5 rounded-lg border text-sm transition-colors flex-shrink-0 ${
+              filtersOpen
+                ? 'bg-[#667eea]/20 border-[#667eea]/40 text-[#a5b4fc]'
+                : 'bg-white/5 border-white/10 text-gray-400 hover:text-white'
+            }`}
           >
-            <option value="">Todas as pastas</option>
-            {folders.map(folder => <option key={folder} value={folder}>{folder.replace('📁 ', '').split('/').pop()}</option>)}
-          </select>
+            <Filter className="w-3.5 h-3.5" />
+            <span>Filtros</span>
+            {(!!getCurrentFolderPath() || selectedType !== 'all') && (
+              <span className="w-1.5 h-1.5 rounded-full bg-[#667eea]" />
+            )}
+          </button>
 
-          {/* Tipo */}
-          <select
-            value={selectedType}
-            onChange={(e) => setSelectedType(e.target.value)}
-            className="h-[34px] px-3 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-[#667eea]/60 focus:outline-none flex-shrink-0 transition-colors"
-          >
-            <option value="all">Todos</option>
-            <option value="video">Vídeos</option>
-            <option value="image">Imagens</option>
-            <option value="document">Docs</option>
-          </select>
+          {/* Filtros colapsáveis */}
+          {filtersOpen && (
+            <>
+              {/* Pasta */}
+              <select
+                value={getCurrentFolderPath() ? `📁 ${getCurrentFolderPath()}` : ''}
+                onChange={(e) => {
+                  const val = e.target.value
+                  if (!val) { setCurrentPath(['']); setInitialPathSet(false) }
+                  else { const f = val.replace('📁 ', ''); navigateToFolder(f === 'Raiz' ? '' : f) }
+                }}
+                className="h-[34px] px-3 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-[#667eea]/60 focus:outline-none flex-shrink-0 max-w-[160px] transition-colors"
+              >
+                <option value="">Todas as pastas</option>
+                {folders.map(folder => <option key={folder} value={folder}>{folder.replace('📁 ', '').split('/').pop()}</option>)}
+              </select>
 
-          {/* Ordenação */}
-          <select
-            value={`${sortBy}-${sortOrder}`}
-            onChange={(e) => {
-              const [by, order] = e.target.value.split('-') as ['name' | 'size' | 'date', 'asc' | 'desc']
-              setSortBy(by); setSortOrder(order)
-            }}
-            className="h-[34px] px-3 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-[#667eea]/60 focus:outline-none flex-shrink-0 transition-colors"
-          >
-            <option value="name-asc">Nome A→Z</option>
-            <option value="name-desc">Nome Z→A</option>
-            <option value="size-asc">Menor</option>
-            <option value="size-desc">Maior</option>
-            <option value="date-desc">Recente</option>
-            <option value="date-asc">Antigo</option>
-          </select>
+              {/* Tipo */}
+              <select
+                value={selectedType}
+                onChange={(e) => setSelectedType(e.target.value)}
+                className="h-[34px] px-3 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-[#667eea]/60 focus:outline-none flex-shrink-0 transition-colors"
+              >
+                <option value="all">Todos</option>
+                <option value="video">Vídeos</option>
+                <option value="image">Imagens</option>
+                <option value="document">Docs</option>
+              </select>
+
+              {/* Ordenação */}
+              <select
+                value={`${sortBy}-${sortOrder}`}
+                onChange={(e) => {
+                  const [by, order] = e.target.value.split('-') as ['name' | 'size' | 'date', 'asc' | 'desc']
+                  setSortBy(by); setSortOrder(order)
+                }}
+                className="h-[34px] px-3 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-[#667eea]/60 focus:outline-none flex-shrink-0 transition-colors"
+              >
+                <option value="name-asc">Nome A→Z</option>
+                <option value="name-desc">Nome Z→A</option>
+                <option value="size-asc">Menor</option>
+                <option value="size-desc">Maior</option>
+                <option value="date-desc">Recente</option>
+                <option value="date-asc">Antigo</option>
+              </select>
+            </>
+          )}
 
           {/* Ações */}
           <div className="flex gap-1 flex-shrink-0 ml-auto">

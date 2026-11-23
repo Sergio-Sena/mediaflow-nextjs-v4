@@ -8,7 +8,7 @@ Leia este arquivo antes de implementar qualquer mudança neste projeto.
 
 - **Produto:** Plataforma serverless de hospedagem de vídeos com CDN global, CI/CD automatizado e FinOps com AI insights
 - **URL produção:** https://midiaflow.sstechnologies-cloud.com
-- **Versão atual:** 4.9.1
+- **Versão atual:** 4.9.2
 - **Autor:** Sergio Sena — SS Technologies (senanetworker@gmail.com)
 
 ---
@@ -136,6 +136,35 @@ Referência: https://github.com/kylezantos/design-principles
 - [ ] Tag `Project=MidiaFlow` nos recursos AWS novos
 - [ ] Interface revisada (skeleton, feedback, animações)
 - [ ] Este arquivo atualizado se algo estrutural mudou
+
+---
+
+## Histórico de Mudanças Recentes
+
+### v4.9.2 — UI/UX Dashboard (sessão atual)
+
+**Header unificado:**
+- Header + nav fundidos em uma única linha de 52px (logo | tabs | avatar)
+- Versão `v4.9.1` removida do header
+- Avatar com dropdown (Perfil / Gerenciamento / Sair) — botão Sair solto removido
+- Mobile portrait: logo + avatar; landscape: logo + hambúrguer (drawer lateral)
+
+**Nav desktop:**
+- Ícones SVG inline em todas as tabs (Biblioteca, Pastas, Upload, Público, Analytics)
+- Badge de contagem na tab Biblioteca (total de arquivos carregados)
+- Filtros colapsáveis — botão "Filtros" com ponto indicador quando filtro ativo
+- Botão Filtros: highlight só quando aberto, ponto só quando filtro realmente aplicado
+
+**Paginação (bug fix):**
+- `loadingMore` adicionado nas deps do useEffect de background load
+- Evita carregar páginas duplicadas ou parar no meio (ex: parava no Final Fantasy)
+
+**VideoPlayer:**
+- Controles somem após 4s mobile / 6s desktop (era 2s/3s)
+- Botão X sempre visível independente do fade dos controles
+
+**Barra de filtros (FileList):**
+- `top` ajustado para `52px` (altura do novo header unificado)
 
 ---
 
