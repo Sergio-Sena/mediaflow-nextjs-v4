@@ -54,6 +54,9 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
   const [mobileFolderOpen, setMobileFolderOpen] = useState(false)
   const [mobileSortOpen, setMobileSortOpen] = useState(false)
   const [filtersOpen, setFiltersOpen] = useState(false)
+  const [folderDropOpen, setFolderDropOpen] = useState(false)
+  const [typeDropOpen, setTypeDropOpen] = useState(false)
+  const [sortDropOpen, setSortDropOpen] = useState(false)
 
   const fetchDurationsInBackground = async (filesToCheck: S3File[]) => {
     const { durationCache } = await import('@/lib/duration-cache')
@@ -813,47 +816,119 @@ export default function FileList({ onPlayVideo, onViewImage, onViewPDF, refreshT
           {filtersOpen && (
             <>
               {/* Pasta */}
-              <select
-                value={getCurrentFolderPath() ? `📁 ${getCurrentFolderPath()}` : ''}
-                onChange={(e) => {
-                  const val = e.target.value
-                  if (!val) { setCurrentPath(['']); setInitialPathSet(false) }
-                  else { const f = val.replace('📁 ', ''); navigateToFolder(f === 'Raiz' ? '' : f) }
-                }}
-                className="h-[34px] px-3 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-[#667eea]/60 focus:outline-none flex-shrink-0 max-w-[160px] transition-colors"
-              >
-                <option value="">Todas as pastas</option>
-                {folders.map(folder => <option key={folder} value={folder}>{folder.replace('📁 ', '').split('/').pop()}</option>)}
-              </select>
+              <div className="relative flex-shrink-0">
+                <button
+                  onClick={() => { setFolderDropOpen(v => !v); setTypeDropOpen(false); setSortDropOpen(false) }}
+                  className={`h-[34px] px-3 flex items-center gap-1.5 bg-white/5 border rounded-lg text-sm transition-colors ${
+                    getCurrentFolderPath() ? 'text-white border-[#667eea]/40' : 'text-gray-400 border-white/10 hover:text-white'
+                  }`}
+                >
+                  <span className="max-w-[120px] truncate">
+                    {getCurrentFolderPath() ? getCurrentFolderPath().split('/').pop() : 'Pasta'}
+                  </span>
+                  <svg className={`w-3 h-3 transition-transform ${folderDropOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                {folderDropOpen && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setFolderDropOpen(false)} />
+                    <div className="absolute left-0 top-full mt-1 w-52 rounded-xl border border-white/10 shadow-xl z-50 overflow-hidden" style={{ background: 'rgba(8,8,18,0.98)', backdropFilter: 'blur(20px)' }}>
+                      <button
+                        onClick={() => { setCurrentPath(['']); setInitialPathSet(false); setFolderDropOpen(false) }}
+                        className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${!getCurrentFolderPath() ? 'text-white bg-[#667eea]/15' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+                      >
+                        Todas as pastas
+                      </button>
+                      {folders.map(folder => {
+                        const f = folder.replace('📁 ', '')
+                        const label = f.split('/').pop() || f
+                        return (
+                          <button
+                            key={folder}
+                            onClick={() => { navigateToFolder(f === 'Raiz' ? '' : f); setFolderDropOpen(false) }}
+                            className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${getCurrentFolderPath() === f ? 'text-white bg-[#667eea]/15' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+                          >
+                            📁 {label}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </>
+                )}
+              </div>
 
               {/* Tipo */}
-              <select
-                value={selectedType}
-                onChange={(e) => setSelectedType(e.target.value)}
-                className="h-[34px] px-3 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-[#667eea]/60 focus:outline-none flex-shrink-0 transition-colors"
-              >
-                <option value="all">Todos</option>
-                <option value="video">Vídeos</option>
-                <option value="image">Imagens</option>
-                <option value="document">Docs</option>
-              </select>
+              <div className="relative flex-shrink-0">
+                <button
+                  onClick={() => { setTypeDropOpen(v => !v); setFolderDropOpen(false); setSortDropOpen(false) }}
+                  className={`h-[34px] px-3 flex items-center gap-1.5 bg-white/5 border rounded-lg text-sm transition-colors ${
+                    selectedType !== 'all' ? 'text-white border-[#667eea]/40' : 'text-gray-400 border-white/10 hover:text-white'
+                  }`}
+                >
+                  <span>
+                    {selectedType === 'all' ? 'Tipo' : selectedType === 'video' ? 'Vídeos' : selectedType === 'image' ? 'Imagens' : 'Docs'}
+                  </span>
+                  <svg className={`w-3 h-3 transition-transform ${typeDropOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                {typeDropOpen && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setTypeDropOpen(false)} />
+                    <div className="absolute left-0 top-full mt-1 w-36 rounded-xl border border-white/10 shadow-xl z-50 overflow-hidden" style={{ background: 'rgba(8,8,18,0.98)', backdropFilter: 'blur(20px)' }}>
+                      {[{ v: 'all', l: 'Todos' }, { v: 'video', l: 'Vídeos' }, { v: 'image', l: 'Imagens' }, { v: 'document', l: 'Docs' }].map(opt => (
+                        <button
+                          key={opt.v}
+                          onClick={() => { setSelectedType(opt.v); setTypeDropOpen(false) }}
+                          className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${selectedType === opt.v ? 'text-white bg-[#667eea]/15' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+                        >
+                          {opt.l}
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
 
               {/* Ordenação */}
-              <select
-                value={`${sortBy}-${sortOrder}`}
-                onChange={(e) => {
-                  const [by, order] = e.target.value.split('-') as ['name' | 'size' | 'date', 'asc' | 'desc']
-                  setSortBy(by); setSortOrder(order)
-                }}
-                className="h-[34px] px-3 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-[#667eea]/60 focus:outline-none flex-shrink-0 transition-colors"
-              >
-                <option value="name-asc">Nome A→Z</option>
-                <option value="name-desc">Nome Z→A</option>
-                <option value="size-asc">Menor</option>
-                <option value="size-desc">Maior</option>
-                <option value="date-desc">Recente</option>
-                <option value="date-asc">Antigo</option>
-              </select>
+              <div className="relative flex-shrink-0">
+                <button
+                  onClick={() => { setSortDropOpen(v => !v); setFolderDropOpen(false); setTypeDropOpen(false) }}
+                  className="h-[34px] px-3 flex items-center gap-1.5 bg-white/5 border border-white/10 rounded-lg text-sm text-gray-400 hover:text-white transition-colors"
+                >
+                  <span>
+                    {sortBy === 'name' && sortOrder === 'asc' ? 'Nome A→Z' :
+                     sortBy === 'name' && sortOrder === 'desc' ? 'Nome Z→A' :
+                     sortBy === 'size' && sortOrder === 'asc' ? 'Menor' :
+                     sortBy === 'size' && sortOrder === 'desc' ? 'Maior' :
+                     sortBy === 'date' && sortOrder === 'desc' ? 'Recente' : 'Antigo'}
+                  </span>
+                  <svg className={`w-3 h-3 transition-transform ${sortDropOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                {sortDropOpen && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setSortDropOpen(false)} />
+                    <div className="absolute left-0 top-full mt-1 w-40 rounded-xl border border-white/10 shadow-xl z-50 overflow-hidden" style={{ background: 'rgba(8,8,18,0.98)', backdropFilter: 'blur(20px)' }}>
+                      {[
+                        { v: 'name-asc', l: 'Nome A→Z' }, { v: 'name-desc', l: 'Nome Z→A' },
+                        { v: 'size-asc', l: 'Menor' }, { v: 'size-desc', l: 'Maior' },
+                        { v: 'date-desc', l: 'Recente' }, { v: 'date-asc', l: 'Antigo' },
+                      ].map(opt => (
+                        <button
+                          key={opt.v}
+                          onClick={() => { const [by, order] = opt.v.split('-') as ['name'|'size'|'date','asc'|'desc']; setSortBy(by); setSortOrder(order); setSortDropOpen(false) }}
+                          className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${`${sortBy}-${sortOrder}` === opt.v ? 'text-white bg-[#667eea]/15' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+                        >
+                          {opt.l}
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
             </>
           )}
 
